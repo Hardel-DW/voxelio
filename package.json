@@ -1,0 +1,20 @@
+{
+    "license": "MIT",
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "build": "npm run build --workspaces",
+        "build:watch": "npm run build:watch --workspaces",
+        "biome:format": "biome format --write ./packages",
+        "biome:check": "biome check ./packages",
+        "biome:unsafefix": "biome check --write --unsafe  ./packages",
+        "test": "vitest run",
+        "check": "tsc --noEmit"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^2.0.6",
+        "tsdown": "^0.12.9",
+        "vitest": "^3.2.4"
+    }
+}

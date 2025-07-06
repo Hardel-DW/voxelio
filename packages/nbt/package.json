@@ -1,0 +1,10 @@
+{
+    "name": "@voxelio/nbt",
+    "scripts": {
+        "build": "tsdown",
+        "build:watch": "tsdown --watch"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}
