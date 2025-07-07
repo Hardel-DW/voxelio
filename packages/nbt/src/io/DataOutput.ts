@@ -1,5 +1,3 @@
-import { encodeUTF8 } from "@/Util";
-
 export interface DataOutput {
 	writeByte(value: number): void;
 	writeShort(value: number): void;
@@ -40,7 +38,7 @@ export class RawDataOutput implements DataOutput {
 
 		let newLength = this.buffer.byteLength;
 		while (newLength < requiredLength) {
-			newLength *= 2;
+			newLength = Math.max(Math.ceil(newLength * 1.5), requiredLength);
 		}
 
 		const newBuffer = new ArrayBuffer(newLength);
@@ -62,11 +60,25 @@ export class RawDataOutput implements DataOutput {
 		this.offset += size;
 	}
 
-	public writeByte = this.writeNumber.bind(this, "setInt8", 1);
-	public writeShort = this.writeNumber.bind(this, "setInt16", 2);
-	public writeInt = this.writeNumber.bind(this, "setInt32", 4);
-	public writeFloat = this.writeNumber.bind(this, "setFloat32", 4);
-	public writeDouble = this.writeNumber.bind(this, "setFloat64", 8);
+	public writeByte(value: number): void {
+		this.writeNumber("setInt8", 1, value);
+	}
+
+	public writeShort(value: number): void {
+		this.writeNumber("setInt16", 2, value);
+	}
+
+	public writeInt(value: number): void {
+		this.writeNumber("setInt32", 4, value);
+	}
+
+	public writeFloat(value: number): void {
+		this.writeNumber("setFloat32", 4, value);
+	}
+
+	public writeDouble(value: number): void {
+		this.writeNumber("setFloat64", 8, value);
+	}
 
 	public writeBytes(bytes: ArrayLike<number>) {
 		this.accommodate(bytes.length);
@@ -75,7 +87,7 @@ export class RawDataOutput implements DataOutput {
 	}
 
 	public writeString(value: string) {
-		const bytes = encodeUTF8(value);
+		const bytes = Array.from(new TextEncoder().encode(value));
 		this.writeShort(bytes.length);
 		this.writeBytes(bytes);
 	}

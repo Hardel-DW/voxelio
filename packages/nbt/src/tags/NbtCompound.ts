@@ -31,14 +31,12 @@ export class NbtCompound extends NbtTag {
 	}
 
 	public override equals(other: NbtTag): boolean {
-		return (
-			other.isCompound() &&
-			this.size === other.size &&
-			[...this.properties.entries()].every(([key, value]) => {
-				const otherValue = other.properties.get(key);
-				return otherValue !== undefined && value.equals(otherValue);
-			})
-		);
+		if (!other.isCompound()) return false;
+		if (this.size !== other.size) return false;
+		return [...this.properties.entries()].every(([key, value]) => {
+			const otherValue = other.properties.get(key);
+			return otherValue !== undefined && value.equals(otherValue);
+		});
 	}
 
 	public has(key: string) {

@@ -1,5 +1,3 @@
-import { decodeUTF8 } from "@/Util";
-
 export interface DataInput {
 	readByte(): number;
 	readInt(): number;
@@ -34,11 +32,25 @@ export class RawDataInput implements DataInput {
 		return value;
 	}
 
-	public readByte = this.readNumber.bind(this, "getInt8", 1);
-	public readShort = this.readNumber.bind(this, "getInt16", 2);
-	public readInt = this.readNumber.bind(this, "getInt32", 4);
-	public readFloat = this.readNumber.bind(this, "getFloat32", 4);
-	public readDouble = this.readNumber.bind(this, "getFloat64", 8);
+	public readByte(): number {
+		return this.readNumber("getInt8", 1);
+	}
+
+	public readShort(): number {
+		return this.readNumber("getInt16", 2);
+	}
+
+	public readInt(): number {
+		return this.readNumber("getInt32", 4);
+	}
+
+	public readFloat(): number {
+		return this.readNumber("getFloat32", 4);
+	}
+
+	public readDouble(): number {
+		return this.readNumber("getFloat64", 8);
+	}
 
 	public readBytes(length: number): ArrayLike<number> {
 		const bytes = this.array.slice(this.offset, this.offset + length);
@@ -49,6 +61,7 @@ export class RawDataInput implements DataInput {
 	public readString(): string {
 		const length = this.readShort();
 		const bytes = this.readBytes(length);
-		return decodeUTF8(bytes);
+		const uint8Array = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+		return new TextDecoder().decode(uint8Array);
 	}
 }

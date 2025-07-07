@@ -69,9 +69,15 @@ export class StringReader {
 			if (Number.isNaN(value) || !Number.isInteger(value)) {
 				throw new Error();
 			}
+			if (value > 2147483647 || value < -2147483648) {
+				throw this.createError(`Integer overflow: ${value}`);
+			}
 			return value;
-		} catch (_e) {
+		} catch (error) {
 			this.cursor = start;
+			if (error instanceof Error && error.message.includes("overflow")) {
+				throw error;
+			}
 			throw this.createError(`Invalid integer '${number}'`);
 		}
 	}

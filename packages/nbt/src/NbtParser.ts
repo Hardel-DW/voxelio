@@ -94,7 +94,10 @@ export namespace NbtParser {
 					} else if (value.toLowerCase() === "false") {
 						return NbtByte.ZERO;
 					}
-				} catch (_e) { }
+				} catch (error) {
+					// Log parsing errors for debugging but continue with fallback
+					console.warn(`Failed to parse numeric value "${value}":`, error);
+				}
 				return value.length === 0 ? NbtString.EMPTY : new NbtString(value);
 			}
 		}

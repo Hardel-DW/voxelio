@@ -4,10 +4,15 @@ import type { JsonValue } from "@/util/Json";
 import { Json } from "@/util/Json";
 
 abstract class NbtAbstractRegion<T extends { x: number; z: number }> {
+	protected static readonly REGION_SIZE = 32;
+	protected static readonly CHUNK_COUNT = NbtAbstractRegion.REGION_SIZE * NbtAbstractRegion.REGION_SIZE;
+	protected static readonly SECTOR_SIZE = 4096;
+	protected static readonly HEADER_SIZE = 8192;
+
 	protected readonly chunks: (T | undefined)[];
 
 	constructor(chunks: T[]) {
-		this.chunks = Array(32 * 32).fill(undefined);
+		this.chunks = Array(NbtAbstractRegion.CHUNK_COUNT).fill(undefined);
 		for (const chunk of chunks) {
 			const index = NbtRegion.getIndex(chunk.x, chunk.z);
 			this.chunks[index] = chunk;
@@ -19,7 +24,7 @@ abstract class NbtAbstractRegion<T extends { x: number; z: number }> {
 	}
 
 	public getChunk(index: number) {
-		if (index < 0 || index >= 32 * 32) {
+		if (index < 0 || index >= NbtAbstractRegion.CHUNK_COUNT) {
 			return undefined;
 		}
 		return this.chunks[index];
@@ -49,10 +54,10 @@ export class NbtRegion extends NbtAbstractRegion<NbtChunk> {
 		for (const chunk of this.chunks) {
 			if (chunk === undefined) continue;
 			const chunkData = await chunk.getRaw();
-			totalSectors += Math.ceil(chunkData.length / 4096);
+			totalSectors += Math.ceil(chunkData.length / NbtAbstractRegion.SECTOR_SIZE);
 		}
 
-		const array = new Uint8Array(8192 + totalSectors * 4096);
+		const array = new Uint8Array(NbtAbstractRegion.HEADER_SIZE + totalSectors * NbtAbstractRegion.SECTOR_SIZE);
 		const dataView = new DataView(array.buffer);
 
 		let offset = 2;
@@ -60,13 +65,13 @@ export class NbtRegion extends NbtAbstractRegion<NbtChunk> {
 			if (chunk === undefined) continue;
 			const chunkData = await chunk.getRaw();
 			const i = 4 * ((chunk.x & 31) + (chunk.z & 31) * 32);
-			const sectors = Math.ceil(chunkData.length / 4096);
+			const sectors = Math.ceil(chunkData.length / NbtAbstractRegion.SECTOR_SIZE);
 			dataView.setInt8(i, offset >> 16);
 			dataView.setInt16(i + 1, offset & 0xffff);
 			dataView.setInt8(i + 3, sectors);
-			dataView.setInt32(i + 4096, chunk.timestamp);
+			dataView.setInt32(i + NbtAbstractRegion.SECTOR_SIZE, chunk.timestamp);
 
-			const j = offset * 4096;
+			const j = offset * NbtAbstractRegion.SECTOR_SIZE;
 			dataView.setInt32(j, chunkData.length + 1);
 			dataView.setInt8(j + 4, chunk.compression);
 			array.set(chunkData, j + 5);
@@ -78,16 +83,16 @@ export class NbtRegion extends NbtAbstractRegion<NbtChunk> {
 
 	public static read(array: Uint8Array) {
 		const chunks: NbtChunk[] = [];
-		for (let x = 0; x < 32; x += 1) {
-			for (let z = 0; z < 32; z += 1) {
+		for (let x = 0; x < NbtAbstractRegion.REGION_SIZE; x += 1) {
+			for (let z = 0; z < NbtAbstractRegion.REGION_SIZE; z += 1) {
 				const i = 4 * ((x & 31) + (z & 31) * 32);
 				const sectors = array[i + 3];
 				if (sectors === 0) continue;
 
 				const offset = (array[i] << 16) + (array[i + 1] << 8) + array[i + 2];
-				const timestamp = (array[i + 4096] << 24) + (array[i + 4097] << 16) + (array[i + 4098] << 8) + array[i + 4099];
+				const timestamp = (array[i + NbtAbstractRegion.SECTOR_SIZE] << 24) + (array[i + NbtAbstractRegion.SECTOR_SIZE + 1] << 16) + (array[i + NbtAbstractRegion.SECTOR_SIZE + 2] << 8) + array[i + NbtAbstractRegion.SECTOR_SIZE + 3];
 
-				const j = offset * 4096;
+				const j = offset * NbtAbstractRegion.SECTOR_SIZE;
 				const length = (array[j] << 24) + (array[j + 1] << 16) + (array[j + 2] << 8) + array[j + 3];
 				const compression = array[j + 4];
 				const data = array.slice(j + 5, j + 4 + length);
