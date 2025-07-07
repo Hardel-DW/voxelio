@@ -91,7 +91,7 @@ class RemoveExclusionZoneHandler implements ActionHandler<StructureSetAction> {
 		element: Record<string, unknown>
 	): Record<string, unknown> {
 		const structureSet = structuredClone(element) as StructureSetProps;
-		const { exclusionZone, ...rest } = structureSet;
+		const { ...rest } = structureSet;
 		return { ...rest };
 	}
 }

@@ -6,16 +6,16 @@ import { contentLength, type ForAwaitable, loadFiles } from "@/zip";
 
 /** The file name, modification date and size will be read from the input;
  * extra arguments can be given to override the input's metadata. */
-type InputWithMeta =
+export type InputWithMeta =
 	| File
 	| Response
 	| {
-			input: File | Response;
-			name?: unknown;
-			lastModified?: unknown;
-			size?: number | bigint;
-			mode?: number;
-	  };
+		input: File | Response;
+		name?: unknown;
+		lastModified?: unknown;
+		size?: number | bigint;
+		mode?: number;
+	};
 
 /** Intrinsic size, but the file name must be provided and modification date can't be guessed. */
 type InputWithSizeMeta = {
@@ -72,9 +72,9 @@ function normalizeArgs(file: InputWithMeta | InputWithSizeMeta | InputWithoutMet
 	return file instanceof File || file instanceof Response
 		? ([[file], [file]] as const)
 		: ([
-				[file.input, file.name, file.size],
-				[file.input, file.lastModified, file.mode]
-			] as const);
+			[file.input, file.name, file.size],
+			[file.input, file.lastModified, file.mode]
+		] as const);
 }
 
 function* mapMeta(files: Iterable<InputWithMeta | InputWithSizeMeta | JustMeta | InputFolder>) {

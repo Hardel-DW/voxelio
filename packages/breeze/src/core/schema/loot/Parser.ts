@@ -76,7 +76,7 @@ export const LootDataDrivenToVoxelFormat: Parser<LootTableProps, MinecraftLootTa
 
 		const itemId = `item_${itemCounter++}`;
 		let name = "";
-		let value;
+		let value: string | undefined;
 
 		if (entry.type === "minecraft:loot_table") {
 			const tableName = entry.value ?? entry.name;
