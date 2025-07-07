@@ -1,32 +1,36 @@
 {
-    "name": "@voxelio/breeze",
-    "version": "1.3.3",
-    "type": "module",
-    "exports": {
-        ".": {
-            "import": "./dist/index.js",
-            "types": "./dist/index.d.ts"
-        }
-    },
-    "files": [
-        "dist/**/*"
-    ],
-    "description": "Handles transformation of Data Driven elements into proprietary formats for Voxel's internal projects. Contains generic utilities for datapack management and processing.",
-    "author": {
-        "name": "Hardel",
-        "email": "teams.voxel@gmail.com",
-        "url": "https://voxel.hardel.io"
-    },
-    "scripts": {
-        "build": "tsdown",
-        "build:watch": "tsdown --watch",
-        "test": "vitest",
-        "check": "tsc --noEmit",
-        "biome:format": "biome format --write ./src",
-        "biome:check": "biome check ./src",
-        "biome:unsafefix": "biome check --write --unsafe  ./src"
-    },
-    "publishConfig": {
-        "access": "public"
-    }
+	"name": "@voxelio/breeze",
+	"version": "1.3.3",
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"files": [
+		"dist/**/*.js",
+		"dist/**/*.d.ts"
+	],
+	"description": "Handles transformation of Data Driven elements into proprietary formats for Voxel's internal projects. Contains generic utilities for datapack management and processing.",
+	"author": {
+		"name": "Hardel",
+		"email": "teams.voxel@gmail.com",
+		"url": "https://voxel.hardel.io"
+	},
+	"scripts": {
+		"build": "tsdown",
+		"build:watch": "tsdown --watch",
+		"test": "vitest",
+		"check": "tsc --noEmit",
+		"biome:format": "biome format --write ./src",
+		"biome:check": "biome check ./src",
+		"biome:unsafefix": "biome check --write --unsafe  ./src"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {
+		"@voxelio/zip": "workspace:*"
+	}
 }

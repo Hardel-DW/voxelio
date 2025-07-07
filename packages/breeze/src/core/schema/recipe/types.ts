@@ -1,158 +1,158 @@
 import type { DataDrivenElement, VoxelElement } from "@/core/Element";
 import { normalizeResourceLocation } from "@/core/Element";
 export interface RecipeProps extends VoxelElement {
-    type: RecipeType;
-    group?: string;
-    category?: string;
-    showNotification?: boolean;
-    slots: Record<string, string[] | string>; // string[] -> ["minecraft:diamond"], string -> "#minecraft:logs"
-    gridSize?: { width: number; height: number }; // For shaped crafting only
-    disabled?: boolean;
-    result: RecipeResult;
-    typeSpecific?: RecipeTypeSpecific;
-    unknownFields?: Record<string, any>;
+	type: RecipeType;
+	group?: string;
+	category?: string;
+	showNotification?: boolean;
+	slots: Record<string, string[] | string>; // string[] -> ["minecraft:diamond"], string -> "#minecraft:logs"
+	gridSize?: { width: number; height: number }; // For shaped crafting only
+	disabled?: boolean;
+	result: RecipeResult;
+	typeSpecific?: RecipeTypeSpecific;
+	unknownFields?: Record<string, any>;
 }
 
 export interface RecipeResult {
-    item: string;
-    count?: number;
-    components?: any;
-    unknownFields?: Record<string, any>;
+	item: string;
+	count?: number;
+	components?: any;
+	unknownFields?: Record<string, any>;
 }
 
 export type RecipeTypeSpecific = SmeltingData | SmithingTransformData | SmithingTrimData | CraftingTransmuteData;
 
 export interface SmeltingData {
-    experience?: number;
-    cookingTime?: number;
+	experience?: number;
+	cookingTime?: number;
 }
 
 export interface SmithingTransformData {
-    templateSlot: string;
-    baseSlot: string;
-    additionSlot: string;
+	templateSlot: string;
+	baseSlot: string;
+	additionSlot: string;
 }
 
 export interface SmithingTrimData {
-    templateSlot: string;
-    baseSlot: string;
-    additionSlot: string;
-    pattern?: string;
+	templateSlot: string;
+	baseSlot: string;
+	additionSlot: string;
+	pattern?: string;
 }
 
 export interface CraftingTransmuteData {
-    inputSlot: string;
-    materialSlot: string;
+	inputSlot: string;
+	materialSlot: string;
 }
 
 export type RecipeType =
-    | "minecraft:crafting_shaped"
-    | "minecraft:crafting_shapeless"
-    | "minecraft:crafting_transmute"
-    | "minecraft:smelting"
-    | "minecraft:blasting"
-    | "minecraft:smoking"
-    | "minecraft:campfire_cooking"
-    | "minecraft:stonecutting"
-    | "minecraft:smithing_transform"
-    | "minecraft:smithing_trim"
-    | (string & {}); // Allow custom mod recipe types
+	| "minecraft:crafting_shaped"
+	| "minecraft:crafting_shapeless"
+	| "minecraft:crafting_transmute"
+	| "minecraft:smelting"
+	| "minecraft:blasting"
+	| "minecraft:smoking"
+	| "minecraft:campfire_cooking"
+	| "minecraft:stonecutting"
+	| "minecraft:smithing_transform"
+	| "minecraft:smithing_trim"
+	| (string & {}); // Allow custom mod recipe types
 
 export type CraftingBookCategory = "building" | "redstone" | "equipment" | "misc";
 export type CookingBookCategory = "food" | "blocks" | "misc";
 
 export interface MinecraftRecipe extends DataDrivenElement {
-    type: string;
-    group?: string;
-    category?: string;
-    show_notification?: boolean;
+	type: string;
+	group?: string;
+	category?: string;
+	show_notification?: boolean;
 
-    // Shaped crafting
-    pattern?: string | string[];
-    key?: Record<string, any>;
+	// Shaped crafting
+	pattern?: string | string[];
+	key?: Record<string, any>;
 
-    // Shapeless crafting
-    ingredients?: any[];
+	// Shapeless crafting
+	ingredients?: any[];
 
-    // Transmute crafting
-    input?: any;
-    material?: any;
+	// Transmute crafting
+	input?: any;
+	material?: any;
 
-    // Smelting
-    ingredient?: any;
-    experience?: number;
-    cookingtime?: number;
+	// Smelting
+	ingredient?: any;
+	experience?: number;
+	cookingtime?: number;
 
-    // Smithing
-    base?: any;
-    addition?: any;
-    template?: any;
-    pattern_trim?: string;
+	// Smithing
+	base?: any;
+	addition?: any;
+	template?: any;
+	pattern_trim?: string;
 
-    // Result
-    result?: any;
-    count?: number; // Legacy stonecutting
+	// Result
+	result?: any;
+	count?: number; // Legacy stonecutting
 
-    [key: string]: any;
+	[key: string]: any;
 }
 
 export const KNOWN_RECIPE_FIELDS = new Set([
-    "type",
-    "group",
-    "category",
-    "show_notification",
-    "pattern",
-    "key",
-    "ingredients",
-    "input",
-    "material",
-    "ingredient",
-    "experience",
-    "cookingtime",
-    "base",
-    "addition",
-    "template",
-    "pattern_trim",
-    "result",
-    "count"
+	"type",
+	"group",
+	"category",
+	"show_notification",
+	"pattern",
+	"key",
+	"ingredients",
+	"input",
+	"material",
+	"ingredient",
+	"experience",
+	"cookingtime",
+	"base",
+	"addition",
+	"template",
+	"pattern_trim",
+	"result",
+	"count"
 ]);
 
 export function normalizeIngredient(ingredient: any): string[] | string {
-    if (!ingredient) return [];
-    if (ingredient.tag) return normalizeResourceLocation(ingredient.tag);
+	if (!ingredient) return [];
+	if (ingredient.tag) return normalizeResourceLocation(ingredient.tag);
 
-    if (typeof ingredient === "string" && ingredient.startsWith("#")) {
-        return normalizeResourceLocation(ingredient);
-    }
+	if (typeof ingredient === "string" && ingredient.startsWith("#")) {
+		return normalizeResourceLocation(ingredient);
+	}
 
-    if (Array.isArray(ingredient) && ingredient.length === 1 && ingredient[0].startsWith?.("#")) {
-        return normalizeResourceLocation(ingredient[0]);
-    }
+	if (Array.isArray(ingredient) && ingredient.length === 1 && ingredient[0].startsWith?.("#")) {
+		return normalizeResourceLocation(ingredient[0]);
+	}
 
-    const items = Array.isArray(ingredient) ? ingredient : [ingredient];
-    return items.map((item) => normalizeResourceLocation(typeof item === "string" ? item : item.item));
+	const items = Array.isArray(ingredient) ? ingredient : [ingredient];
+	return items.map((item) => normalizeResourceLocation(typeof item === "string" ? item : item.item));
 }
 
 export function denormalizeIngredient(items: string[] | string, preserveTagFormat = false): any {
-    if (!items) return undefined;
+	if (!items) return undefined;
 
-    if (typeof items === "string") {
-        return preserveTagFormat ? items : { tag: items.slice(1) };
-    }
+	if (typeof items === "string") {
+		return preserveTagFormat ? items : { tag: items.slice(1) };
+	}
 
-    if (items.length === 1) {
-        const item = items[0];
-        if (item.startsWith("#")) {
-            return preserveTagFormat ? item : { tag: item.slice(1) };
-        }
-        return item;
-    }
+	if (items.length === 1) {
+		const item = items[0];
+		if (item.startsWith("#")) {
+			return preserveTagFormat ? item : { tag: item.slice(1) };
+		}
+		return item;
+	}
 
-    if (preserveTagFormat) {
-        return items;
-    }
+	if (preserveTagFormat) {
+		return items;
+	}
 
-    return items.map((item) => ({ item }));
+	return items.map((item) => ({ item }));
 }
 
 /**
@@ -163,7 +163,7 @@ export function denormalizeIngredient(items: string[] | string, preserveTagForma
  * @returns Slot index as string
  */
 export function positionToSlot(row: number, col: number, width: number): string {
-    return (row * width + col).toString();
+	return (row * width + col).toString();
 }
 
 /**
@@ -173,18 +173,18 @@ export function positionToSlot(row: number, col: number, width: number): string 
  * @returns Grid position
  */
 export function slotToPosition(slot: string, width: number): { row: number; col: number } {
-    const index = Number.parseInt(slot, 10);
-    return {
-        row: Math.floor(index / width),
-        col: index % width
-    };
+	const index = Number.parseInt(slot, 10);
+	return {
+		row: Math.floor(index / width),
+		col: index % width
+	};
 }
 
 /**
  * Check if a slot has content
  */
 export function hasSlotContent(items: string[] | string): boolean {
-    return typeof items === "string" ? items.length > 0 : items.length > 0;
+	return typeof items === "string" ? items.length > 0 : items.length > 0;
 }
 
 /**
@@ -193,9 +193,9 @@ export function hasSlotContent(items: string[] | string): boolean {
  * @returns Array of slot indices
  */
 export function getOccupiedSlots(slots: Record<string, string[] | string>): string[] {
-    return Object.entries(slots)
-        .filter(([, items]) => hasSlotContent(items))
-        .map(([slot]) => slot);
+	return Object.entries(slots)
+		.filter(([, items]) => hasSlotContent(items))
+		.map(([slot]) => slot);
 }
 
 /**
@@ -205,19 +205,19 @@ export function getOccupiedSlots(slots: Record<string, string[] | string>): stri
  * @returns Optimized grid size
  */
 export function optimizeGridSize(slots: Record<string, string[] | string>, defaultWidth = 3): { width: number; height: number } {
-    const occupiedSlots = getOccupiedSlots(slots);
-    if (occupiedSlots.length === 0) {
-        return { width: 1, height: 1 };
-    }
+	const occupiedSlots = getOccupiedSlots(slots);
+	if (occupiedSlots.length === 0) {
+		return { width: 1, height: 1 };
+	}
 
-    const positions = occupiedSlots.map((slot) => slotToPosition(slot, defaultWidth));
-    const maxRow = Math.max(...positions.map((p) => p.row));
-    const maxCol = Math.max(...positions.map((p) => p.col));
+	const positions = occupiedSlots.map((slot) => slotToPosition(slot, defaultWidth));
+	const maxRow = Math.max(...positions.map((p) => p.row));
+	const maxCol = Math.max(...positions.map((p) => p.col));
 
-    return {
-        width: maxCol + 1,
-        height: maxRow + 1
-    };
+	return {
+		width: maxCol + 1,
+		height: maxRow + 1
+	};
 }
 
 /**
@@ -227,30 +227,30 @@ export function optimizeGridSize(slots: Record<string, string[] | string>, defau
  * @returns true if ingredients are equivalent
  */
 export function compareIngredients(a: any, b: any): boolean {
-    if (a === b) return true;
-    if (!a || !b) return false;
+	if (a === b) return true;
+	if (!a || !b) return false;
 
-    const normalizeForComparison = (ingredient: any): any => {
-        if (typeof ingredient === "string") {
-            if (ingredient.startsWith("#")) {
-                return { tag: normalizeResourceLocation(ingredient.slice(1)) };
-            }
-            return normalizeResourceLocation(ingredient);
-        }
+	const normalizeForComparison = (ingredient: any): any => {
+		if (typeof ingredient === "string") {
+			if (ingredient.startsWith("#")) {
+				return { tag: normalizeResourceLocation(ingredient.slice(1)) };
+			}
+			return normalizeResourceLocation(ingredient);
+		}
 
-        if (ingredient.tag) {
-            return { tag: normalizeResourceLocation(ingredient.tag) };
-        }
+		if (ingredient.tag) {
+			return { tag: normalizeResourceLocation(ingredient.tag) };
+		}
 
-        if (ingredient.item) {
-            return normalizeResourceLocation(ingredient.item);
-        }
+		if (ingredient.item) {
+			return normalizeResourceLocation(ingredient.item);
+		}
 
-        return ingredient;
-    };
+		return ingredient;
+	};
 
-    const normalizedA = normalizeForComparison(a);
-    const normalizedB = normalizeForComparison(b);
+	const normalizedA = normalizeForComparison(a);
+	const normalizedB = normalizeForComparison(b);
 
-    return JSON.stringify(normalizedA) === JSON.stringify(normalizedB);
+	return JSON.stringify(normalizedA) === JSON.stringify(normalizedB);
 }

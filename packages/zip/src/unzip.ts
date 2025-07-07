@@ -163,7 +163,7 @@ async function inflateData(compressedData: Uint8Array): Promise<Uint8Array> {
 		writer.write(compressedData);
 		writer.close();
 
-		const output = [];
+		const output: Uint8Array[] = [];
 		const reader = ds.readable.getReader();
 		let totalSize = 0;
 

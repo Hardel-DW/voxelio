@@ -78,25 +78,68 @@ export class NbtCompound extends NbtTag {
 		return this.getNumber(key) !== 0;
 	}
 
-	public getList(key: string): NbtList;
-	public getList(key: string, type: 1): NbtList<NbtByte>;
-	public getList(key: string, type: 2): NbtList<NbtShort>;
-	public getList(key: string, type: 3): NbtList<NbtInt>;
-	public getList(key: string, type: 4): NbtList<NbtLong>;
-	public getList(key: string, type: 5): NbtList<NbtFloat>;
-	public getList(key: string, type: 6): NbtList<NbtDouble>;
-	public getList(key: string, type: 7): NbtList<NbtByteArray>;
-	public getList(key: string, type: 8): NbtList<NbtString>;
-	public getList(key: string, type: 9): NbtList<NbtList>;
-	public getList(key: string, type: 10): NbtList<NbtCompound>;
-	public getList(key: string, type: 11): NbtList<NbtIntArray>;
-	public getList(key: string, type: 12): NbtList<NbtLongArray>;
-	public getList(key: string, type?: number) {
+	public getList(key: string) {
 		const tag = this.get(key);
-		if (tag?.isList() && (type === undefined || tag.getType() === type)) {
+		if (tag?.isList()) {
 			return tag;
 		}
 		return NbtList.create();
+	}
+
+	private getTypedList<T extends NbtTag>(key: string, type: number): NbtList<T> {
+		const tag = this.get(key);
+		if (tag?.isList() && tag.getType() === type) {
+			return tag as NbtList<T>;
+		}
+		return NbtList.create() as NbtList<T>;
+	}
+
+	public getByteList(key: string): NbtList<NbtByte> {
+		return this.getTypedList<NbtByte>(key, 1);
+	}
+
+	public getShortList(key: string): NbtList<NbtShort> {
+		return this.getTypedList<NbtShort>(key, 2);
+	}
+
+	public getIntList(key: string): NbtList<NbtInt> {
+		return this.getTypedList<NbtInt>(key, 3);
+	}
+
+	public getLongList(key: string): NbtList<NbtLong> {
+		return this.getTypedList<NbtLong>(key, 4);
+	}
+
+	public getFloatList(key: string): NbtList<NbtFloat> {
+		return this.getTypedList<NbtFloat>(key, 5);
+	}
+
+	public getDoubleList(key: string): NbtList<NbtDouble> {
+		return this.getTypedList<NbtDouble>(key, 6);
+	}
+
+	public getByteArrayList(key: string): NbtList<NbtByteArray> {
+		return this.getTypedList<NbtByteArray>(key, 7);
+	}
+
+	public getStringList(key: string): NbtList<NbtString> {
+		return this.getTypedList<NbtString>(key, 8);
+	}
+
+	public getListList(key: string): NbtList<NbtList> {
+		return this.getTypedList<NbtList>(key, 9);
+	}
+
+	public getCompoundList(key: string): NbtList<NbtCompound> {
+		return this.getTypedList<NbtCompound>(key, 10);
+	}
+
+	public getIntArrayList(key: string): NbtList<NbtIntArray> {
+		return this.getTypedList<NbtIntArray>(key, 11);
+	}
+
+	public getLongArrayList(key: string): NbtList<NbtLongArray> {
+		return this.getTypedList<NbtLongArray>(key, 12);
 	}
 
 	public getCompound(key: string) {

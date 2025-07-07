@@ -1,37 +1,38 @@
 {
-    "name": "@voxelio/zip",
-    "version": "3.0.4",
-    "description": "A tiny and fast client-side streaming ZIP generator",
-    "type": "module",
-    "exports": {
-        ".": {
-            "import": "./dist/index.js",
-            "types": "./dist/index.d.ts"
-        }
-    },
-    "files": [
-        "dist/**/*"
-    ],
-    "scripts": {
-        "build": "tsdown",
-        "build:watch": "tsdown --watch",
-        "test": "vitest",
-        "check": "tsc --noEmit",
-        "biome:format": "biome format --write ./src",
-        "biome:check": "biome check ./src",
-        "biome:unsafefix": "biome check --write --unsafe  ./src"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "keywords": [
-        "zip",
-        "stream",
-        "browser",
-        "zip64"
-    ],
-    "author": "David Junger <tffy@free.fr>",
-    "maintainers": [
-        "Hardel-DW"
-    ]
+	"name": "@voxelio/zip",
+	"version": "3.0.4",
+	"description": "A tiny and fast client-side streaming ZIP generator",
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"files": [
+		"dist/**/*.js",
+		"dist/**/*.d.ts"
+	],
+	"scripts": {
+		"build": "tsdown",
+		"build:watch": "tsdown --watch",
+		"test": "vitest",
+		"check": "tsc --noEmit",
+		"biome:format": "biome format --write ./src",
+		"biome:check": "biome check ./src",
+		"biome:unsafefix": "biome check --write --unsafe  ./src"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"keywords": [
+		"zip",
+		"stream",
+		"browser",
+		"zip64"
+	],
+	"author": "David Junger <tffy@free.fr>",
+	"maintainers": [
+		"Hardel-DW"
+	]
 }

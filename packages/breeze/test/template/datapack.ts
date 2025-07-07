@@ -8,36 +8,36 @@ import { structureDataDriven } from "./concept/structure/DataDriven";
 import { structureSetDataDriven } from "./concept/structure_set/DataDriven";
 
 export const lootTableFile = {
-    "data/test/loot_table/test.json": completeLootTable,
-    "data/test/loot_table/advanced.json": advancedLootTable,
-    "data/test/loot_table/ultimate.json": ultimateTestLootTable,
-    "data/test/loot_table/final_boss.json": finalBossOfLootTable
+	"data/test/loot_table/test.json": completeLootTable,
+	"data/test/loot_table/advanced.json": advancedLootTable,
+	"data/test/loot_table/ultimate.json": ultimateTestLootTable,
+	"data/test/loot_table/final_boss.json": finalBossOfLootTable
 };
 
 export const enchantmentFile = {
-    "data/enchantplus/enchantment/sword/attack_speed.json": simpleEnchantment,
-    "data/enchantplus/tags/enchantment/exclusive_set/sword_attribute.json": swordAttributeTag,
-    "data/minecraft/tags/enchantment/non_treasure.json": fireAspectTag,
-    "data/yggdrasil/tags/enchantment/equipment/item/sword.json": fireAspectTag
+	"data/enchantplus/enchantment/sword/attack_speed.json": simpleEnchantment,
+	"data/enchantplus/tags/enchantment/exclusive_set/sword_attribute.json": swordAttributeTag,
+	"data/minecraft/tags/enchantment/non_treasure.json": fireAspectTag,
+	"data/yggdrasil/tags/enchantment/equipment/item/sword.json": fireAspectTag
 };
 
 export const registryFile = {
-    "data/enchantplus/enchantment/armor/fury.json": { foo: "bar" },
-    "data/minecraft/enchantment/attack_speed.json": { foo: "bar" },
-    "data/minecraft/enchantment_provider/villager.json": { foo: "bar" },
-    "data/enchantplus/tags/enchantment/armor.json": { values: ["enchantplus:fury"] },
-    "data/minecraft/tags/enchantment/weapon.json": { values: ["minecraft:attack_speed"] }
+	"data/enchantplus/enchantment/armor/fury.json": { foo: "bar" },
+	"data/minecraft/enchantment/attack_speed.json": { foo: "bar" },
+	"data/minecraft/enchantment_provider/villager.json": { foo: "bar" },
+	"data/enchantplus/tags/enchantment/armor.json": { values: ["enchantplus:fury"] },
+	"data/minecraft/tags/enchantment/weapon.json": { values: ["minecraft:attack_speed"] }
 };
 
 export const testMcMetaNotExists = {
-    "data/enchantplus/enchantment/test.json": new TextEncoder().encode(JSON.stringify({}, null, 2))
+	"data/enchantplus/enchantment/test.json": new TextEncoder().encode(JSON.stringify({}, null, 2))
 };
 
 export const enchantmentWithTagFiles = createFilesFromElements([
-    ...DATA_DRIVEN_TEMPLATE_ENCHANTMENT,
-    ...voxelDatapacks,
-    ...enchantplusTags,
-    ...vanillaTags
+	...DATA_DRIVEN_TEMPLATE_ENCHANTMENT,
+	...voxelDatapacks,
+	...enchantplusTags,
+	...vanillaTags
 ]);
 
 export const recipeFile = createFilesFromElements(recipeDataDriven);

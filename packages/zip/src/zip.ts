@@ -1,9 +1,9 @@
-import { crc32 } from "./crc32.ts";
-import { formatDOSDateTime } from "./datetime.ts";
-import type { Options } from "./index.ts";
-import type { ZipEntryDescription, ZipFileDescription } from "./input.ts";
-import type { Metadata } from "./metadata.ts";
-import { clampInt16, clampInt32, makeBuffer, makeUint8Array } from "./utils.ts";
+import { crc32 } from "@/crc32";
+import { formatDOSDateTime } from "@/datetime";
+import type { Options } from "@/index";
+import type { ZipEntryDescription, ZipFileDescription } from "@/input";
+import type { Metadata } from "@/metadata";
+import { clampInt16, clampInt32, makeBuffer, makeUint8Array } from "@/utils";
 
 const fileHeaderSignature = 0x504b_0304;
 const fileHeaderLength = 30;

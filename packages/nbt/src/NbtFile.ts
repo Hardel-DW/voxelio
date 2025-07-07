@@ -54,7 +54,7 @@ export class NbtFile {
 		public compression: NbtCompressionMode,
 		public readonly littleEndian: boolean,
 		public readonly bedrockHeader: number | undefined
-	) { }
+	) {}
 
 	private writeNamedTag(output: DataOutput) {
 		output.writeByte(NbtType.Compound);
@@ -112,9 +112,8 @@ export class NbtFile {
 		const isZlibCompressed =
 			options.compression === "zlib" || (!bedrockHeader && options.compression === undefined && hasZlibHeader(array));
 
-		const uncompressedData = isZlibCompressed || isGzipCompressed
-			? await decompressData(array, isGzipCompressed ? "gzip" : "deflate")
-			: array;
+		const uncompressedData =
+			isZlibCompressed || isGzipCompressed ? await decompressData(array, isGzipCompressed ? "gzip" : "deflate") : array;
 		const littleEndian = options.littleEndian || bedrockHeader !== undefined;
 		const compression = isGzipCompressed ? "gzip" : isZlibCompressed ? "zlib" : "none";
 

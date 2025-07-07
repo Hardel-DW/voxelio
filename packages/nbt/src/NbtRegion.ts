@@ -90,7 +90,11 @@ export class NbtRegion extends NbtAbstractRegion<NbtChunk> {
 				if (sectors === 0) continue;
 
 				const offset = (array[i] << 16) + (array[i + 1] << 8) + array[i + 2];
-				const timestamp = (array[i + NbtAbstractRegion.SECTOR_SIZE] << 24) + (array[i + NbtAbstractRegion.SECTOR_SIZE + 1] << 16) + (array[i + NbtAbstractRegion.SECTOR_SIZE + 2] << 8) + array[i + NbtAbstractRegion.SECTOR_SIZE + 3];
+				const timestamp =
+					(array[i + NbtAbstractRegion.SECTOR_SIZE] << 24) +
+					(array[i + NbtAbstractRegion.SECTOR_SIZE + 1] << 16) +
+					(array[i + NbtAbstractRegion.SECTOR_SIZE + 2] << 8) +
+					array[i + NbtAbstractRegion.SECTOR_SIZE + 3];
 
 				const j = offset * NbtAbstractRegion.SECTOR_SIZE;
 				const length = (array[j] << 24) + (array[j + 1] << 16) + (array[j + 2] << 8) + array[j + 3];
@@ -122,5 +126,5 @@ export class NbtRegion extends NbtAbstractRegion<NbtChunk> {
 }
 
 export namespace NbtRegion {
-	export class Ref extends NbtAbstractRegion<NbtChunk.Ref> { }
+	export class Ref extends NbtAbstractRegion<NbtChunk.Ref> {}
 }

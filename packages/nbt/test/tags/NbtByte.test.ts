@@ -1,35 +1,35 @@
-import { describe, expect, it } from 'vitest'
-import { NbtByte } from '@/tags/NbtByte'
-import { RawDataInput } from '@/io/DataInput'
-import { RawDataOutput } from '@/io/DataOutput'
+import { describe, expect, it } from "vitest";
+import { NbtByte } from "@/tags/NbtByte";
+import { RawDataInput } from "@/io/DataInput";
+import { RawDataOutput } from "@/io/DataOutput";
 
-describe('NbtByte', () => {
-	it('toString', () => {
-		const str = new NbtByte(12).toString()
-		expect(str).toEqual('12b')
-	})
+describe("NbtByte", () => {
+	it("toString", () => {
+		const str = new NbtByte(12).toString();
+		expect(str).toEqual("12b");
+	});
 
-	it('toJson', () => {
-		const byte = new NbtByte(4)
-		const json = byte.toJson()
-		expect(json).toEqual(4)
-	})
+	it("toJson", () => {
+		const byte = new NbtByte(4);
+		const json = byte.toJson();
+		expect(json).toEqual(4);
+	});
 
-	it('fromJson', () => {
-		const json = 4
-		const byte = NbtByte.fromJson(json)
-		expect(byte).toEqual(new NbtByte(4))
-	})
+	it("fromJson", () => {
+		const json = 4;
+		const byte = NbtByte.fromJson(json);
+		expect(byte).toEqual(new NbtByte(4));
+	});
 
-	it('toBytes', () => {
-		const output = new RawDataOutput()
-		new NbtByte(12).toBytes(output)
-		expect(output.getData()).toEqual(new Uint8Array([12]))
-	})
+	it("toBytes", () => {
+		const output = new RawDataOutput();
+		new NbtByte(12).toBytes(output);
+		expect(output.getData()).toEqual(new Uint8Array([12]));
+	});
 
-	it('fromBytes', () => {
-		const input = new RawDataInput([12])
-		const byte = NbtByte.fromBytes(input)
-		expect(byte).toEqual(new NbtByte(12))
-	})
-})
+	it("fromBytes", () => {
+		const input = new RawDataInput([12]);
+		const byte = NbtByte.fromBytes(input);
+		expect(byte).toEqual(new NbtByte(12));
+	});
+});

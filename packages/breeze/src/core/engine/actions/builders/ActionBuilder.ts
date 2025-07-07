@@ -5,26 +5,26 @@ import type { Action } from "../types";
  * Provides common functionality and ensures type safety
  */
 export abstract class ActionBuilder<T extends Action = Action> {
-    protected action: Partial<T> = {};
+	protected action: Partial<T> = {};
 
-    /**
-     * Build the final action object
-     */
-    abstract build(): T;
+	/**
+	 * Build the final action object
+	 */
+	abstract build(): T;
 
-    /**
-     * Get the JSON representation of the action
-     */
-    toJSON(): T {
-        return this.build();
-    }
+	/**
+	 * Get the JSON representation of the action
+	 */
+	toJSON(): T {
+		return this.build();
+	}
 
-    /**
-     * Create action from existing JSON
-     */
-    static fromJSON<T extends Action>(json: T): T {
-        return json;
-    }
+	/**
+	 * Create action from existing JSON
+	 */
+	static fromJSON<T extends Action>(json: T): T {
+		return json;
+	}
 }
 
 /**

@@ -33,7 +33,7 @@ export class NbtEnd extends NbtTag {
 		return null;
 	}
 
-	public override toBytes() { }
+	public override toBytes() {}
 
 	public static create() {
 		return NbtEnd.INSTANCE;

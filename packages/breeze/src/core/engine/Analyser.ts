@@ -22,84 +22,84 @@ export type GetAnalyserMinecraft<T extends keyof Analysers> = Analysers[T]["mine
 export type VoxelTypes = Analysers[keyof Analysers]["voxel"];
 
 export type Analysers = {
-    enchantment: {
-        voxel: EnchantmentProps;
-        minecraft: Enchantment;
-    };
-    loot_table: {
-        voxel: LootTableProps;
-        minecraft: MinecraftLootTable;
-    };
-    recipe: {
-        voxel: RecipeProps;
-        minecraft: MinecraftRecipe;
-    };
-    "worldgen/structure": {
-        voxel: StructureProps;
-        minecraft: MinecraftStructure;
-    };
-    "worldgen/structure_set": {
-        voxel: StructureSetProps;
-        minecraft: MinecraftStructureSet;
-    };
+	enchantment: {
+		voxel: EnchantmentProps;
+		minecraft: Enchantment;
+	};
+	loot_table: {
+		voxel: LootTableProps;
+		minecraft: MinecraftLootTable;
+	};
+	recipe: {
+		voxel: RecipeProps;
+		minecraft: MinecraftRecipe;
+	};
+	"worldgen/structure": {
+		voxel: StructureProps;
+		minecraft: MinecraftStructure;
+	};
+	"worldgen/structure_set": {
+		voxel: StructureSetProps;
+		minecraft: MinecraftStructureSet;
+	};
 };
 
 export interface Analyser<T extends keyof Analysers> {
-    compiler: Compiler<Analysers[T]["voxel"], Analysers[T]["minecraft"]>;
-    parser: Parser<Analysers[T]["voxel"], Analysers[T]["minecraft"]>;
-    hasTag: boolean;
+	compiler: Compiler<Analysers[T]["voxel"], Analysers[T]["minecraft"]>;
+	parser: Parser<Analysers[T]["voxel"], Analysers[T]["minecraft"]>;
+	hasTag: boolean;
 }
 
 export type VersionedAnalysers = {
-    [Q in keyof Analysers]: Analyser<Q>;
+	[Q in keyof Analysers]: Analyser<Q>;
 };
 
 export const analyserCollection: VersionedAnalysers = {
-    enchantment: {
-        compiler: VoxelToEnchantmentDataDriven,
-        parser: EnchantmentDataDrivenToVoxelFormat,
-        hasTag: true
-    },
-    loot_table: {
-        compiler: VoxelToLootDataDriven,
-        parser: LootDataDrivenToVoxelFormat,
-        hasTag: false
-    },
-    recipe: {
-        compiler: VoxelToRecipeDataDriven,
-        parser: RecipeDataDrivenToVoxelFormat,
-        hasTag: false
-    },
-    "worldgen/structure": {
-        compiler: VoxelToStructureDataDriven,
-        parser: StructureDataDrivenToVoxelFormat,
-        hasTag: false
-    },
-    "worldgen/structure_set": {
-        compiler: VoxelToStructureSetDataDriven,
-        parser: StructureSetDataDrivenToVoxelFormat,
-        hasTag: true
-    }
+	enchantment: {
+		compiler: VoxelToEnchantmentDataDriven,
+		parser: EnchantmentDataDrivenToVoxelFormat,
+		hasTag: true
+	},
+	loot_table: {
+		compiler: VoxelToLootDataDriven,
+		parser: LootDataDrivenToVoxelFormat,
+		hasTag: false
+	},
+	recipe: {
+		compiler: VoxelToRecipeDataDriven,
+		parser: RecipeDataDrivenToVoxelFormat,
+		hasTag: false
+	},
+	"worldgen/structure": {
+		compiler: VoxelToStructureDataDriven,
+		parser: StructureDataDrivenToVoxelFormat,
+		hasTag: false
+	},
+	"worldgen/structure_set": {
+		compiler: VoxelToStructureSetDataDriven,
+		parser: StructureSetDataDrivenToVoxelFormat,
+		hasTag: true
+	}
 };
 
 export const conceptWithTag = new Map<keyof Analysers, boolean>(
-    Object.entries(analyserCollection).map(([key, analyser]) => [key as keyof Analysers, analyser.hasTag])
+	Object.entries(analyserCollection).map(([key, analyser]) => [key as keyof Analysers, analyser.hasTag])
 );
 
 /**
  * Get all concepts as a Map for iteration
  */
 export function getAllConcepts(): Map<keyof Analysers, Analyser<keyof Analysers>> {
-    return new Map(Object.entries(analyserCollection) as Array<[keyof Analysers, Analyser<keyof Analysers>]>);
+	return new Map(Object.entries(analyserCollection) as Array<[keyof Analysers, Analyser<keyof Analysers>]>);
 }
 
 export function isVoxel<T extends keyof Analysers>(
-    element: Analysers[keyof Analysers]["voxel"],
-    registry: T
+	element: Analysers[keyof Analysers]["voxel"],
+	registry: T
 ): element is Analysers[T]["voxel"] {
-    if (element.identifier.registry === registry) {
-        return true;
-    }
+	if (element.identifier.registry === registry) {
+		return true;
+	}
 
-    return false;
+	return false;
 }

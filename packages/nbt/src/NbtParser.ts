@@ -162,7 +162,7 @@ export namespace NbtParser {
 		return new NbtList(items, type);
 	}
 
-	function readArray<D>(reader: StringReader, factory: { new(data: D[]): NbtTag }, arrayId: NbtType, childId: NbtType) {
+	function readArray<D>(reader: StringReader, factory: { new (data: D[]): NbtTag }, arrayId: NbtType, childId: NbtType) {
 		const values: D[] = [];
 		while (reader.peek() !== "]") {
 			const entry = readTag(reader);

@@ -1,8 +1,8 @@
-import "./polyfills.ts";
-import { type BufferLike, normalizeInput, ReadableFromIterator, type StreamLike } from "./input.ts";
-import { normalizeMetadata } from "./metadata.ts";
-import { extractZip } from "./unzip.ts";
-import { contentLength, type ForAwaitable, loadFiles } from "./zip.ts";
+import "@/polyfills";
+import { type BufferLike, normalizeInput, ReadableFromIterator, type StreamLike } from "@/input";
+import { normalizeMetadata } from "@/metadata";
+import { extractZip } from "@/unzip";
+import { contentLength, type ForAwaitable, loadFiles } from "@/zip";
 
 /** The file name, modification date and size will be read from the input;
  * extra arguments can be given to override the input's metadata. */
@@ -27,7 +27,7 @@ type InputWithSizeMeta = {
 };
 
 /** The file name must be provided ; modification date and content length can't be guessed. */
-type InputWithoutMeta = {
+export type InputWithoutMeta = {
 	input: StreamLike;
 	name: unknown;
 	lastModified?: unknown;

@@ -131,7 +131,7 @@ export namespace NbtChunk {
 			public readonly timestamp: number,
 			public readonly size: number,
 			public readonly resolver: NbtChunkResolver
-		) { }
+		) {}
 
 		public getFile() {
 			if (this.file instanceof NbtFile) {

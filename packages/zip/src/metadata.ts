@@ -1,5 +1,5 @@
-import type { BufferLike, StreamLike } from "./input.ts";
-import { encodeString, makeUint8Array } from "./utils.ts";
+import type { BufferLike, StreamLike } from "@/input";
+import { encodeString, makeUint8Array } from "@/utils";
 
 export type Metadata = {
 	encodedName: Uint8Array;
@@ -25,7 +25,7 @@ export function normalizeMetadata(input?: File | Response | BufferLike | StreamL
 	if (input instanceof Response) {
 		const contentDisposition = input.headers.get("content-disposition");
 		const filename = contentDisposition?.match(/;\s*filename\*?\s*=\s*(?:UTF-\d+''|)["']?([^;"'\r\n]*)["']?(?:;|$)/i);
-		const urlName = filename?.[1] || (input.url && new URL(input.url).pathname.split("/").findLast(Boolean));
+		const urlName = filename?.[1] || (input.url && new URL(input.url).pathname.split("/").reverse().find(Boolean));
 		const decoded = urlName && decodeURIComponent(urlName);
 		// @ts-ignore allow coercion from null to zero
 		const length = size || +input.headers.get("content-length");

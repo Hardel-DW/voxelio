@@ -2,12 +2,12 @@
     "license": "MIT",
     "type": "module",
     "scripts": {
-        "build": "pnpm run build --recursive",
-        "build:watch": "pnpm run build:watch --recursive",
+        "build": "pnpm -r run build",
+        "build:watch": "pnpm -r run build:watch",
         "biome:format": "biome format --write ./packages",
         "biome:check": "biome check ./packages",
         "biome:unsafefix": "biome check --write --unsafe  ./packages",
-        "test": "vitest run",
+        "test": "vitest",
         "check": "tsc --noEmit"
     },
     "devDependencies": {
