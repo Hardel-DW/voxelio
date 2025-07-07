@@ -18,13 +18,5 @@
 	"include": [
 		"src/**/*",
 		"test/**/*"
-	],
-	"references": [
-		{
-			"path": "../zip"
-		},
-		{
-			"path": "../nbt"
-		}
 	]
 }

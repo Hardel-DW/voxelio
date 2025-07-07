@@ -98,6 +98,16 @@ package with `pnpm run check` in the package directory.
 pnpm run check
 ```
 
+## How to start development
+
+Some packages are using references to other packages, so you need to build the
+project to see the changes in the other packages. Dont forget to `pnpm install`
+in the root directory, else typescript will not find the packages since they are
+a dist folder.
+
+1. Install dependencies: `pnpm install`
+2. Build the project: `pnpm run build:watch`
+
 ## Deployment
 
 This monorepo uses Changesets for version management and publishing. To release

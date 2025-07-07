@@ -1,0 +1,17 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "noEmit": true
+    },
+    "references": [
+        {
+            "path": "./packages/breeze"
+        },
+        {
+            "path": "./packages/nbt"
+        },
+        {
+            "path": "./packages/zip"
+        }
+    ]
+}
