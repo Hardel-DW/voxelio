@@ -1,61 +1,62 @@
-import type { JsonValue } from '../../util/index.js'
-import { Json } from '../../util/index.js'
-import type { DataInput, DataOutput } from '../io/index.js'
-import { NbtTag } from './NbtTag.js'
-import { NbtType } from './NbtType.js'
+import type { DataInput } from "@/io/DataInput";
+import type { DataOutput } from "@/io/DataOutput";
+import type { JsonValue } from "@/util/Json";
+import { Json } from "@/util/Json";
+import { NbtTag } from "@/tags/NbtTag";
+import { NbtType } from "@/tags/NbtType";
 
 export class NbtFloat extends NbtTag {
-	private readonly value: number
+	private readonly value: number;
 
 	constructor(value: number) {
-		super()
-		this.value = value
+		super();
+		this.value = value;
 	}
 
 	public override getId() {
-		return NbtType.Float
+		return NbtType.Float;
 	}
 
 	public override equals(other: NbtTag): boolean {
-		return other.isFloat() && this.value === other.value
+		return other.isFloat() && this.value === other.value;
 	}
 
 	public override getAsNumber() {
-		return this.value
+		return this.value;
 	}
 
 	public override toString() {
-		return this.value.toString() + 'f'
+		return `${this.value.toString()}f`;
 	}
 
 	public override toPrettyString() {
-		return this.toString()
+		return this.toString();
 	}
 
 	public override toSimplifiedJson() {
-		return this.value
+		return this.value;
 	}
 
 	public override toJson() {
-		return this.value
+		return this.value;
 	}
 
 	public override toBytes(output: DataOutput) {
-		output.writeFloat(this.value)
+		output.writeFloat(this.value);
 	}
 
 	public static create() {
-		return new NbtFloat(0)
+		return new NbtFloat(0);
 	}
 
 	public static fromJson(value: JsonValue) {
-		return new NbtFloat(Json.readNumber(value) ?? 0)
+		return new NbtFloat(Json.readNumber(value) ?? 0);
 	}
 
 	public static fromBytes(input: DataInput) {
-		const value = input.readFloat()
-		return new NbtFloat(value)
+		const value = input.readFloat();
+		return new NbtFloat(value);
 	}
 }
 
-NbtTag.register(NbtType.Float, NbtFloat)
+NbtTag.register(NbtType.Float, NbtFloat);

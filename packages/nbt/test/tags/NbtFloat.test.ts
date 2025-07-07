@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { NbtFloat } from '../../../src/nbt/index.js'
+import { NbtFloat } from '@/tags/NbtFloat'
 
 describe('NbtFloat', () => {
 	it('toString', () => {

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { NbtByte, RawDataInput, RawDataOutput } from '../../../src/nbt/index.js'
+import { NbtByte } from '@/tags/NbtByte'
+import { RawDataInput } from '@/io/DataInput'
+import { RawDataOutput } from '@/io/DataOutput'
 
 describe('NbtByte', () => {
 	it('toString', () => {

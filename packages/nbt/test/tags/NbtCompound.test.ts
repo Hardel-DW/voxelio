@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { NbtByte, NbtCompound, NbtString, NbtTag, RawDataInput, RawDataOutput } from '../../../src/nbt/index.js'
+import { NbtByte } from '@/tags/NbtByte'
+import { NbtCompound } from '@/tags/NbtCompound'
+import { NbtString } from '@/tags/NbtString'
+import { RawDataInput } from '@/io/DataInput'
+import { RawDataOutput } from '@/io/DataOutput'
+import { NbtTag } from '@/tags/NbtTag'
 
 describe('NbtCompound', () => {
 	it('toJson', () => {

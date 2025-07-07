@@ -1,8 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import type { NbtTag } from '../../src/nbt'
-import { NbtByte, NbtByteArray, NbtCompound, NbtDouble, NbtFloat, NbtInt, NbtIntArray, NbtList, NbtLong, NbtLongArray, NbtString } from '../../src/nbt'
-import { NbtParser } from '../../src/nbt/NbtParser'
-import { StringReader } from '../../src/util'
+import { NbtByte } from '@/tags/NbtByte'
+import { NbtByteArray } from '@/tags/NbtByteArray'
+import { NbtCompound } from '@/tags/NbtCompound'
+import { NbtDouble } from '@/tags/NbtDouble'
+import { NbtFloat } from '@/tags/NbtFloat'
+import { NbtInt } from '@/tags/NbtInt'
+import { NbtIntArray } from '@/tags/NbtIntArray'
+import { NbtList } from '@/tags/NbtList'
+import { NbtLong } from '@/tags/NbtLong'
+import { NbtLongArray } from '@/tags/NbtLongArray'
+import { NbtString } from '@/tags/NbtString'
+import type { NbtTag } from '@/tags/NbtTag'
+import { StringReader } from '@/util/StringReader'
+import { NbtParser } from '@/NbtParser'
 
 describe('NbtParser', () => {
 	const suites: [string, NbtTag][] = [

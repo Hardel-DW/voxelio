@@ -11,5 +11,5 @@ export enum NbtType {
 	List = 9,
 	Compound = 10,
 	IntArray = 11,
-	LongArray = 12,
+	LongArray = 12
 }

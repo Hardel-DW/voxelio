@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { NbtByte, NbtCompound, NbtInt, NbtIntArray, NbtList, NbtLong, NbtShort, NbtString, NbtTag, RawDataInput, RawDataOutput } from '../../src/nbt'
+import { NbtByte } from '@/tags/NbtByte'
+import { NbtCompound } from '@/tags/NbtCompound'
+import { NbtInt } from '@/tags/NbtInt'
+import { NbtIntArray } from '@/tags/NbtIntArray'
+import { NbtList } from '@/tags/NbtList'
+import { NbtLong } from '@/tags/NbtLong'
+import { NbtShort } from '@/tags/NbtShort'
+import { NbtString } from '@/tags/NbtString'
+import { NbtTag } from '@/tags/NbtTag'
+import { RawDataInput } from '@/io/DataInput'
+import { RawDataOutput } from '@/io/DataOutput'
 
 describe('Roundtrip', () => {
 	const TAGS: NbtTag[] = [

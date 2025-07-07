@@ -1,11 +1,9 @@
 {
     "license": "MIT",
-    "workspaces": [
-        "packages/*"
-    ],
+    "type": "module",
     "scripts": {
-        "build": "npm run build --workspaces",
-        "build:watch": "npm run build:watch --workspaces",
+        "build": "pnpm run build --recursive",
+        "build:watch": "pnpm run build:watch --recursive",
         "biome:format": "biome format --write ./packages",
         "biome:check": "biome check ./packages",
         "biome:unsafefix": "biome check --write --unsafe  ./packages",
@@ -16,5 +14,8 @@
         "@biomejs/biome": "^2.0.6",
         "tsdown": "^0.12.9",
         "vitest": "^3.2.4"
+    },
+    "dependencies": {
+        "typescript": "^5.8.3"
     }
 }

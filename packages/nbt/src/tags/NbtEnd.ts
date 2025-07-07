@@ -1,52 +1,51 @@
-import type { JsonValue } from '../../util/Json.js'
-import { NbtTag } from './NbtTag.js'
-import { NbtType } from './NbtType.js'
+import type { JsonValue } from "@/util/Json";
+import { NbtTag } from "@/tags/NbtTag";
+import { NbtType } from "@/tags/NbtType";
 
 export class NbtEnd extends NbtTag {
-	public static readonly INSTANCE = new NbtEnd()
+	public static readonly INSTANCE = new NbtEnd();
 
 	private constructor() {
-		super()
+		super();
 	}
 
 	public override getId() {
-		return NbtType.End
+		return NbtType.End;
 	}
 
 	public override equals(other: NbtTag): boolean {
-		return other.isEnd()
+		return other.isEnd();
 	}
 
 	public override toString() {
-		return 'END'
+		return "END";
 	}
 
 	public override toPrettyString() {
-		return this.toString()
+		return this.toString();
 	}
 
 	public override toSimplifiedJson() {
-		return null
+		return null;
 	}
 
 	public override toJson(): JsonValue {
-		return null
+		return null;
 	}
 
-	public override toBytes() {
-	}
+	public override toBytes() { }
 
 	public static create() {
-		return NbtEnd.INSTANCE
+		return NbtEnd.INSTANCE;
 	}
 
 	public static fromJson() {
-		return NbtEnd.INSTANCE
+		return NbtEnd.INSTANCE;
 	}
 
 	public static fromBytes() {
-		return NbtEnd.INSTANCE
+		return NbtEnd.INSTANCE;
 	}
 }
 
-NbtTag.register(NbtType.End, NbtEnd)
+NbtTag.register(NbtType.End, NbtEnd);

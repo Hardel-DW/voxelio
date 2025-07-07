@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { NbtByte, NbtList, RawDataInput, RawDataOutput } from '../../../src/nbt/index.js'
+import { NbtByte } from '@/tags/NbtByte'
+import { NbtList } from '@/tags/NbtList'
+import { RawDataInput } from '@/io/DataInput'
+import { RawDataOutput } from '@/io/DataOutput'
 
 describe('NbtTags', () => {
 	it('toString', () => {
@@ -10,11 +13,11 @@ describe('NbtTags', () => {
 	it('toBytes', () => {
 		const output = new RawDataOutput()
 		new NbtList([new NbtByte(12), new NbtByte(3)]).toBytes(output)
-		expect(output.getData()).toEqual(new Uint8Array([1,0,0,0,2,12,3]))
+		expect(output.getData()).toEqual(new Uint8Array([1, 0, 0, 0, 2, 12, 3]))
 	})
 
 	it('fromBytes', () => {
-		const input = new RawDataInput([1,0,0,0,2,12,3])
+		const input = new RawDataInput([1, 0, 0, 0, 2, 12, 3])
 		const list = NbtList.fromBytes(input)
 		expect(list.getType()).toEqual(1)
 		expect(list.length).toEqual(2)
@@ -23,7 +26,7 @@ describe('NbtTags', () => {
 	})
 
 	it('fromBytes (zeroes)', () => {
-		const input = new RawDataInput([1,0,0,0,3,0,0,1])
+		const input = new RawDataInput([1, 0, 0, 0, 3, 0, 0, 1])
 		const list = NbtList.fromBytes(input)
 		expect(list.getType()).toEqual(1)
 		expect(list.length).toEqual(3)
