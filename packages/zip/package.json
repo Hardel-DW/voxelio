@@ -1,6 +1,6 @@
 {
 	"name": "@voxelio/zip",
-	"version": "3.1.0",
+	"version": "3.2.0",
 	"description": "A tiny and fast client-side streaming ZIP generator",
 	"type": "module",
 	"exports": {
