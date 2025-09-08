@@ -24,27 +24,32 @@ export function isArraySlotRegistryType(value: string[]): value is SlotRegistryT
 	return value.every(isSlotRegistryType);
 }
 
-export function addSlot(existingSlots: SlotRegistryType[], newSlot: SlotRegistryType): SlotRegistryType[] {
-	if (newSlot === "any") return ["any"];
-	let updatedSlots = [...new Set([...existingSlots, newSlot])];
+export function normalizeSlots(slots: SlotRegistryType[]): SlotRegistryType[] {
+	if (slots.includes("any")) return ["any"];
+	let normalizedSlots = [...new Set(slots)];
 
 	const armorSlots = SLOT_MAPPINGS.armor as SlotRegistryType[];
-	if (armorSlots.every((slot) => updatedSlots.includes(slot))) {
-		updatedSlots = updatedSlots.filter((slot) => !armorSlots.includes(slot));
-		updatedSlots.push("armor");
+	if (armorSlots.every((slot) => normalizedSlots.includes(slot))) {
+		normalizedSlots = normalizedSlots.filter((slot) => !armorSlots.includes(slot));
+		normalizedSlots.push("armor");
 	}
 
 	const handSlots = SLOT_MAPPINGS.hand as SlotRegistryType[];
-	if (handSlots.every((slot) => updatedSlots.includes(slot))) {
-		updatedSlots = updatedSlots.filter((slot) => !handSlots.includes(slot));
-		updatedSlots.push("hand");
+	if (handSlots.every((slot) => normalizedSlots.includes(slot))) {
+		normalizedSlots = normalizedSlots.filter((slot) => !handSlots.includes(slot));
+		normalizedSlots.push("hand");
 	}
 
 	const everySlot = ["hand", "armor"] as SlotRegistryType[];
-	if (everySlot.every((slot) => updatedSlots.includes(slot))) return ["any"];
-	if (updatedSlots.includes("any")) return ["any"];
+	if (everySlot.every((slot) => normalizedSlots.includes(slot))) return ["any"];
 
-	return updatedSlots;
+	return normalizedSlots;
+}
+
+export function addSlot(existingSlots: SlotRegistryType[], newSlot: SlotRegistryType): SlotRegistryType[] {
+	if (newSlot === "any") return ["any"];
+	const updatedSlots = [...existingSlots, newSlot];
+	return normalizeSlots(updatedSlots);
 }
 
 export function removeSlot(existingSlots: SlotRegistryType[], slotToRemove: SlotRegistryType): SlotRegistryType[] {

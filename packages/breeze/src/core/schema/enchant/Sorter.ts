@@ -1,4 +1,5 @@
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
+import { normalizeSlots } from "../../engine/managers/SlotManager";
 import { getAllItems } from "../../ItemList";
 
 /**
@@ -80,8 +81,9 @@ export class EnchantmentSorter {
 			// List or String
 			case "supportedItems":
 				return getAllItems(enchantment.supportedItems).sort().join(",");
-			case "slots":
-				return enchantment.slots.join(",");
+			case "slots": {
+				return normalizeSlots(enchantment.slots).sort().join(",");
+			}
 		}
 	}
 }
