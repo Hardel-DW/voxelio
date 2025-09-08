@@ -3,7 +3,7 @@
 Voxelio is a monorepo that contains all packages from the Voxel organization,
 focused on Minecraft development tools and related utilities. These packages
 provide comprehensive solutions for working with Minecraft datapacks, resource
-packs, mods, and various Minecraft-specific file formats.
+packs, mods, and various Minecraft-specific file formats. 
 
 ## Packages
 
