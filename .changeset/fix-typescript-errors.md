@@ -10,6 +10,7 @@ Major refactoring and improvements
 - Add changesets configuration for better release management
 - Update root configuration files (README.md, biome.json, package.json, tsconfig.json)
 - Fix TypeScript compilation setup across packages
+- Fix CI/CD: Remove pnpm-lock.yaml from .gitignore and commit it for reproducible builds
 
 **@voxelio/zip:**
 - Remove unused `@ts-expect-error` directives that are no longer needed
