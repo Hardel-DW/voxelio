@@ -11,12 +11,20 @@ describe("downloadZip", () => {
 	test("downloadZip propagates pulling and cancellation", async () => {
 		const thrown: unknown[] = [];
 		let pulled = 0;
-		const input: IterableIterator<{ input: Uint8Array; name: Uint8Array; lastModified: Date }> = {
+		const input: {
+			next(): IteratorResult<{ input: Uint8Array; name: Uint8Array; lastModified: Date }>;
+			throw(err: unknown): IteratorResult<any>;
+			[Symbol.iterator](): any;
+		} = {
 			next() {
 				if (pulled++) return { done: true, value: undefined };
 				return {
 					done: false,
-					value: { input: zipSpec, name: specName, lastModified: specDate }
+					value: {
+						input: new Uint8Array(zipSpec),
+						name: new Uint8Array(specName),
+						lastModified: specDate
+					}
 				};
 			},
 			throw(err: unknown) {

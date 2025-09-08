@@ -16,8 +16,14 @@ export const PACK_VERSION = {
 	"57": { start: "1.21.2", end: "1.21.3" },
 	"61": "1.21.4",
 	"71": "1.21.5",
-	"80": "1.21.6"
+	"80": "1.21.6",
+	"81": { start: "1.21.7", end: "1.21.8" },
+	"86": "1.21.9"
 };
+
+export const SIMPLE_PACK_VERSION = Object.fromEntries(
+	Object.entries(PACK_VERSION).map(([key, value]) => [key, typeof value === "string" ? value : `${value.start} - ${value.end}`])
+);
 
 /**
  * The version of the engine

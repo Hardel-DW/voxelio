@@ -8,10 +8,8 @@
             "path": "./packages/breeze"
         },
         {
-            "path": "./packages/nbt"
-        },
-        {
             "path": "./packages/zip"
         }
-    ]
+    ],
+    "exclude": ["**/dist/**", "**/node_modules/**"]
 }

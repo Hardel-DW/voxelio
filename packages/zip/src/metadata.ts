@@ -27,8 +27,7 @@ export function normalizeMetadata(input?: File | Response | BufferLike | StreamL
 		const filename = contentDisposition?.match(/;\s*filename\*?\s*=\s*(?:UTF-\d+''|)["']?([^;"'\r\n]*)["']?(?:;|$)/i);
 		const urlName = filename?.[1] || (input.url && new URL(input.url).pathname.split("/").reverse().find(Boolean));
 		const decoded = urlName && decodeURIComponent(urlName);
-		// @ts-ignore allow coercion from null to zero
-		const length = size || +input.headers.get("content-length");
+		const length = size || Number(input.headers.get("content-length"));
 		return { encodedName: fixFilename(encodedName || encodeString(decoded)), uncompressedSize: BigInt(length), nameIsBuffer };
 	}
 	encodedName = fixFilename(encodedName, input !== undefined || size !== undefined);
@@ -36,8 +35,7 @@ export function normalizeMetadata(input?: File | Response | BufferLike | StreamL
 	if (input instanceof Blob) return { encodedName, uncompressedSize: BigInt(input.size), nameIsBuffer };
 	if (input instanceof ArrayBuffer || ArrayBuffer.isView(input))
 		return { encodedName, uncompressedSize: BigInt(input.byteLength), nameIsBuffer };
-	// @ts-ignore: This is a valid use of BigInt
-	return { encodedName, uncompressedSize: getUncompressedSize(input, size), nameIsBuffer };
+	return { encodedName, uncompressedSize: getUncompressedSize(input, Number(size)), nameIsBuffer };
 }
 
 function getUncompressedSize(input: unknown, size: number | bigint) {

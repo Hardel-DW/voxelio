@@ -19,14 +19,9 @@ A lightweight ZIP library fork designed for creating and reading ZIP files. Not
 specifically optimized for Minecraft, you can use it for any other purposes. It
 is used for reading Minecraft mod `.jar` files and `.zip` archives.
 
-### [@voxelio/converter](./packages/converter)
+### [@voxelio/nbt](./packages/nbt)
 
-Converts Minecraft datapacks into mods, bridging the gap between different
-Minecraft content formats. The datapacks and resource packs are just bundled in
-.jar, with fabric/forge/quilt file loader, so zero java code is generated.
-
-### [@voxelio/nbt](./packages/nbt) (WIP)
-
+(In Another Repository. In Rust)
 Reads and modifies Minecraft `.nbt` (Named Binary Tag) files, providing
 comprehensive NBT data manipulation capabilities.
 

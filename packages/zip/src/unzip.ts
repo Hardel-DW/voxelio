@@ -160,7 +160,7 @@ async function inflateData(compressedData: Uint8Array): Promise<Uint8Array> {
 	if (typeof DecompressionStream !== "undefined") {
 		const ds = new DecompressionStream("deflate-raw");
 		const writer = ds.writable.getWriter();
-		writer.write(compressedData);
+		writer.write(new Uint8Array(compressedData));
 		writer.close();
 
 		const output: Uint8Array[] = [];

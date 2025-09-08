@@ -43,7 +43,7 @@ class ModifyStructureHandler implements ActionHandler<StructureSetAction> {
 		element: Record<string, unknown>
 	): Record<string, unknown> {
 		const structureSet = structuredClone(element) as StructureSetProps;
-		const structureIndex = Number.parseInt(action.structureId.replace("structure_", ""));
+		const structureIndex = Number.parseInt(action.structureId.replace("structure_", ""), 10);
 
 		if (structureIndex < 0 || structureIndex >= structureSet.structures.length) {
 			return structureSet;
@@ -125,7 +125,7 @@ class ReorderStructuresHandler implements ActionHandler<StructureSetAction> {
 
 		const reorderedStructures = action.structureIds
 			.map((id) => {
-				const index = Number.parseInt(id.replace("structure_", ""));
+				const index = Number.parseInt(id.replace("structure_", ""), 10);
 				return structureSet.structures[index];
 			})
 			.filter(Boolean);

@@ -276,22 +276,22 @@ describe("E2E Logs Replay System", () => {
 		expect(modifiedLootTable).toBeDefined();
 		expect(modifiedEnchantment).toBeDefined();
 
-		// @ts-ignore - for test access
+		// @ts-expect-error - for test access
 		expect(modifiedLootTable.pools[0].rolls).toBe(8);
-		// @ts-ignore - for test access
+		// @ts-expect-error - for test access
 		expect(modifiedLootTable.type).toBe("minecraft:chest");
-		// @ts-ignore - for test access
+		// @ts-expect-error - for test access
 		expect(modifiedEnchantment.max_level).toBe(15);
-		// @ts-ignore - for test access
+		// @ts-expect-error - for test access
 		expect(modifiedEnchantment.min_cost.base).toBe(25);
 
 		// Verify original target elements unchanged
 		const originalLootTable = target.elements.get(lootTableKey);
 		const originalEnchantment = target.elements.get(enchantmentKey);
 
-		// @ts-ignore - for test access
+		// @ts-expect-error - for test access
 		expect(originalLootTable.pools[0].rolls).not.toBe(8); // Should be original value
-		// @ts-ignore - for test access
+		// @ts-expect-error - for test access
 		expect(originalEnchantment.max_level).not.toBe(15); // Should be original value
 
 		// Verify logger properties

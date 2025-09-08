@@ -17,7 +17,7 @@ export interface ProbabilityOptions {
 
 type PoolEntry = { item?: LootItem; group?: LootGroup; itemIndex?: number };
 
-export class LootTableProbabilityCalculator {
+export class LootTableAppearanceProbability {
 	private itemMap: Map<string, LootItem & { index: number }>;
 	private groupMap: Map<string, LootGroup>;
 	private itemsInGroups: Set<string>;

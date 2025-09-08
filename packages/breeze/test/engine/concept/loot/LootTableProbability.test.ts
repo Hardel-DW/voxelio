@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { LootTableProbabilityCalculator } from "@/core/calculation/LootTableProbability";
+import { LootTableAppearanceProbability } from "@/core/calculation/LootTableAppearanceProbability";
 import { simpleSimulationLootTable, extremeLootTable } from "@test/template/concept/loot/Simulation";
 
 describe("LootTableProbabilityCalculator - Basic Weight Tests", () => {
-	const calculator = new LootTableProbabilityCalculator(simpleSimulationLootTable);
+	const calculator = new LootTableAppearanceProbability(simpleSimulationLootTable);
 
 	it("should calculate correct probabilities for basic weights", () => {
 		const results = calculator.calculateProbabilities();
@@ -56,7 +56,7 @@ describe("LootTableProbabilityCalculator - Basic Weight Tests", () => {
 			items: simpleSimulationLootTable.items.map((item, index) => (index === 0 ? { ...item, quality: 2 } : item))
 		};
 
-		const modifiedCalculator = new LootTableProbabilityCalculator(modifiedTable);
+		const modifiedCalculator = new LootTableAppearanceProbability(modifiedTable);
 
 		// Without luck
 		const resultsNoLuck = modifiedCalculator.calculateProbabilities({ luck: 0 });
@@ -107,7 +107,7 @@ describe("LootTableProbabilityCalculator - Basic Weight Tests", () => {
 			items: [simpleSimulationLootTable.items[0]]
 		};
 
-		const singleCalculator = new LootTableProbabilityCalculator(singleItemTable);
+		const singleCalculator = new LootTableAppearanceProbability(singleItemTable);
 		const results = singleCalculator.calculateProbabilities();
 
 		expect(results).toHaveLength(1);
@@ -117,7 +117,7 @@ describe("LootTableProbabilityCalculator - Basic Weight Tests", () => {
 });
 
 describe("LootTableProbabilityCalculator - Complex Table Tests", () => {
-	const complexCalculator = new LootTableProbabilityCalculator(extremeLootTable);
+	const complexCalculator = new LootTableAppearanceProbability(extremeLootTable);
 
 	it("should handle complex loot table structure", () => {
 		const results = complexCalculator.calculateProbabilities();

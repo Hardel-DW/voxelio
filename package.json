@@ -8,13 +8,13 @@
         "biome:check": "biome check ./packages",
         "biome:unsafefix": "biome check --write --unsafe  ./packages",
         "test": "vitest",
-        "check": "tsc --noEmit"
+        "check": "pnpm -r exec tsc --noEmit"
     },
     "devDependencies": {
-        "@biomejs/biome": "^2.0.6",
-        "tsdown": "^0.12.9",
-        "vitest": "^3.2.4",
-        "typescript": "^5.8.3"
-    },
-    "dependencies": {}
+        "@biomejs/biome": "^2.2.3",
+        "@changesets/cli": "^2.29.6",
+        "tsdown": "^0.14.2",
+        "typescript": "^5.9.2",
+        "vitest": "^3.2.4"
+    }
 }

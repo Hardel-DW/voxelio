@@ -35,9 +35,7 @@ export function contentLength(files: Iterable<Omit<Metadata, "nameIsBuffer">>) {
 		}
 		const bigFile = file.uncompressedSize >= 0xffffffffn;
 		const bigOffset = offset >= 0xffffffffn;
-		// @ts-ignore: This is a valid use of BigInt
 		offset += BigInt(fileHeaderLength + descriptorLength + file.encodedName.length + (bigFile ? 8 : 0)) + file.uncompressedSize;
-		// @ts-ignore: This is a valid use of BigInt
 		centralLength += BigInt(file.encodedName.length + centralHeaderLength + ((bigOffset ? 12 : 0) | (bigFile ? 28 : 0)));
 		archiveNeedsZip64 ||= bigFile;
 	}
@@ -48,7 +46,7 @@ export function contentLength(files: Iterable<Omit<Metadata, "nameIsBuffer">>) {
 }
 
 export function flagNameUTF8({ encodedName, nameIsBuffer }: Metadata, buffersAreUTF8?: boolean) {
-	// @ts-ignore: This is a valid use of BigInt
+	// @ts-expect-error: This is a valid use of BigInt
 	return (!nameIsBuffer || (buffersAreUTF8 ?? tryUTF8(encodedName))) * 0b1000;
 }
 const UTF8Decoder = new TextDecoder("utf8", { fatal: true });
@@ -82,7 +80,6 @@ export async function* loadFiles(files: ForAwaitable<ZipEntryDescription & Metad
 
 		const bigFile = file.uncompressedSize >= 0xffffffffn;
 		const bigOffset = offset >= 0xffffffffn;
-		// @ts-ignore: This is a valid use of BigInt
 		const zip64HeaderLength = ((Number(bigOffset) * 12) | (Number(bigFile) * 28)) as Zip64FieldLength;
 		yield dataDescriptor(file, bigFile);
 

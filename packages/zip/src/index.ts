@@ -10,12 +10,12 @@ export type InputWithMeta =
 	| File
 	| Response
 	| {
-		input: File | Response;
-		name?: unknown;
-		lastModified?: unknown;
-		size?: number | bigint;
-		mode?: number;
-	};
+			input: File | Response;
+			name?: unknown;
+			lastModified?: unknown;
+			size?: number | bigint;
+			mode?: number;
+	  };
 
 /** Intrinsic size, but the file name must be provided and modification date can't be guessed. */
 type InputWithSizeMeta = {
@@ -72,21 +72,20 @@ function normalizeArgs(file: InputWithMeta | InputWithSizeMeta | InputWithoutMet
 	return file instanceof File || file instanceof Response
 		? ([[file], [file]] as const)
 		: ([
-			[file.input, file.name, file.size],
-			[file.input, file.lastModified, file.mode]
-		] as const);
+				[file.input, file.name, file.size],
+				[file.input, file.lastModified, file.mode]
+			] as const);
 }
 
 function* mapMeta(files: Iterable<InputWithMeta | InputWithSizeMeta | JustMeta | InputFolder>) {
 	for (const file of files) {
-		// @ts-ignore type inference isn't good enough for this… yet…
+		// @ts-expect-error type inference isn't good enough for this… yet…
 		// but rewriting the code to be more explicit would make it longer
 		yield normalizeMetadata(...normalizeArgs(file)[0]);
 	}
 }
 
 function mapFiles(files: ForAwaitable<InputWithMeta | InputWithSizeMeta | InputWithoutMeta | InputFolder>) {
-	// @ts-ignore TypeScript really needs to catch up
 	const iterator = files[Symbol.iterator in files ? Symbol.iterator : Symbol.asyncIterator]();
 	return {
 		async next() {

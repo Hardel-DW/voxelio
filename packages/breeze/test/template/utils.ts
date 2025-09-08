@@ -7,7 +7,10 @@ import type { DataDrivenRegistryElement, DataDrivenElement } from "@/core/Elemen
  * @returns A zip file
  */
 export async function createZipFile(filesRecord: Record<string, Uint8Array>): Promise<File> {
-	const files: InputWithMeta[] = Object.entries(filesRecord).map(([path, content]) => ({ name: path, input: new File([content], path) }));
+	const files: InputWithMeta[] = Object.entries(filesRecord).map(([path, content]) => ({
+		name: path,
+		input: new File([new Uint8Array(content)], path)
+	}));
 	const zipContent = downloadZip(files);
 	return new File([await zipContent.arrayBuffer()], "datapack.zip");
 }
