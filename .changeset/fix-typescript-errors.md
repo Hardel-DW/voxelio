@@ -3,7 +3,7 @@
 "@voxelio/breeze": minor
 ---
 
-Major refactoring and improvements
+Minor refactoring and improvements
 
 **Project Structure:**
 - Remove entire `@voxelio/nbt` package (55+ deleted files)
