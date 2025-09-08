@@ -1,6 +1,6 @@
 {
 	"name": "@voxelio/breeze",
-	"version": "1.5.0",
+	"version": "1.6.0",
 	"type": "module",
 	"description": "Handles transformation of Data Driven elements into proprietary formats for Voxel's internal projects. Contains generic utilities for datapack management and processing.",
 	"scripts": {
