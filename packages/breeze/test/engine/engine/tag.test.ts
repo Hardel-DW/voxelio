@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { Tags, tagsToIdentifiers, isTag, mergeTags, createTagFromElement, isRegistryTag } from "@/core/Tag";
+import { TagCompiler } from "@/core/TagCompiler";
 import type { DataDrivenRegistryElement } from "@/core/Element";
 import type { Compiler } from "@/core/engine/Compiler";
 import type { TagType } from "@/schema/TagType";
+import { vanillaDatapackTags, customDatapackTags, replacingDatapackTags, advancedDatapackTags } from "@test/template/concept/tags/CompilerMocks";
 
 describe("Tag Functions", () => {
 	describe("isPresentInTag", () => {
@@ -151,6 +153,93 @@ describe("Tag Functions", () => {
 		it("should handle empty elements array", () => {
 			const result = createTagFromElement([]);
 			expect(result).toHaveLength(0);
+		});
+	});
+});
+
+describe("TagCompiler", () => {
+	describe("compile with flattening enabled", () => {
+		it("should merge tags from multiple datapacks and flatten references", () => {
+			const compiler = new TagCompiler(true);
+			const result = compiler.compile([
+				{ id: "minecraft", tags: vanillaDatapackTags },
+				{ id: "enchantplus", tags: customDatapackTags }
+			]);
+
+			expect(result).toHaveLength(4);
+
+			const inEnchantingTable = result.find(tag => tag.identifier.resource === "in_enchanting_table");
+			expect(inEnchantingTable?.data.values).toContain("minecraft:sharpness");
+			expect(inEnchantingTable?.data.values).toContain("enchantplus:bow/eternal_frost");
+		});
+
+		it("should handle replace property correctly", () => {
+			const compiler = new TagCompiler(false);
+			const result = compiler.compile([
+				{ id: "minecraft", tags: vanillaDatapackTags },
+				{ id: "replacing", tags: replacingDatapackTags }
+			]);
+
+			expect(result).toHaveLength(3);
+			const nonTreasure = result.find(tag => tag.identifier.resource === "non_treasure");
+			expect(nonTreasure?.data.values).toEqual(["enchantplus:custom_only"]);
+		});
+	});
+
+	describe("compile without flattening", () => {
+		it("should merge tags but keep references intact", () => {
+			const compiler = new TagCompiler(false);
+			const result = compiler.compile([
+				{ id: "minecraft", tags: vanillaDatapackTags },
+				{ id: "enchantplus", tags: customDatapackTags }
+			]);
+
+			const inEnchantingTable = result.find(tag => tag.identifier.resource === "in_enchanting_table");
+			expect(inEnchantingTable?.data.values).toContain("#minecraft:non_treasure");
+			expect(inEnchantingTable?.data.values).toContain("enchantplus:bow/eternal_frost");
+		});
+	});
+
+	describe("datapack loading order", () => {
+		it("should respect datapack order - later datapacks have higher priority", () => {
+			const compiler = new TagCompiler(false);
+
+			const firstOrder = compiler.compile([
+				{ id: "vanilla", tags: vanillaDatapackTags },
+				{ id: "custom", tags: customDatapackTags }
+			]);
+
+			const secondOrder = compiler.compile([
+				{ id: "custom", tags: customDatapackTags },
+				{ id: "vanilla", tags: vanillaDatapackTags }
+			]);
+
+			expect(firstOrder).not.toEqual(secondOrder);
+		});
+	});
+
+	describe("complex tag flattening", () => {
+		it("should flatten nested tag references correctly", () => {
+			const compiler = new TagCompiler(true);
+			const result = compiler.compile([
+				{ id: "vanilla", tags: vanillaDatapackTags },
+				{ id: "advanced", tags: advancedDatapackTags }
+			]);
+
+			const inEnchantingTable = result.find(tag => tag.identifier.resource === "in_enchanting_table");
+
+			const expectedValues = [
+				"minecraft:sharpness",
+				"minecraft:unbreaking",
+				"minecraft:efficiency",
+				"enchantplus:bow/eternal_frost",
+				"enchantplus:sword/lightning",
+				"enchantplus:yay",
+				"enchantplus:bow/flame_burst"
+			];
+
+			expect(inEnchantingTable?.data.values).toEqual(expect.arrayContaining(expectedValues));
+			expect(inEnchantingTable?.data.values).toHaveLength(expectedValues.length);
 		});
 	});
 });
