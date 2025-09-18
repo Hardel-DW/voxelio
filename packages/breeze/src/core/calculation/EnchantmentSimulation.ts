@@ -37,6 +37,12 @@ export interface EnchantmentStats {
 	maxLevel: number;
 }
 
+export interface SlotLevelRange {
+	slot: number;
+	minLevel: number;
+	maxLevel: number;
+}
+
 /**
  * Accurate Minecraft enchantment system simulation
  * Based on official documentation formulas
@@ -102,13 +108,15 @@ export class EnchantmentSimulator {
 	 * @param enchantability Item enchantability
 	 * @param itemTags Item tags
 	 * @param iterations Number of iterations for statistical calculation
+	 * @param slotIndex Specific slot index (0=top, 1=middle, 2=bottom). If undefined, all slots are considered
 	 * @returns Statistics for each enchantment
 	 */
 	public calculateEnchantmentProbabilities(
 		bookshelves: number,
 		enchantability: number,
 		itemTags: string[] = [],
-		iterations = 10000
+		iterations = 10000,
+		slotIndex?: number
 	): EnchantmentStats[] {
 		const results = new Map<string, { occurrences: number; levels: number[] }>();
 
@@ -116,10 +124,15 @@ export class EnchantmentSimulator {
 			results.set(id, { occurrences: 0, levels: [] });
 		}
 
+		if (slotIndex !== undefined && (slotIndex < 0 || slotIndex > 2)) {
+			throw new Error(`Invalid slotIndex: ${slotIndex}. Must be 0, 1, or 2.`);
+		}
+
 		for (let i = 0; i < iterations; i++) {
 			const options = this.simulateEnchantmentTable(bookshelves, enchantability, itemTags);
+			const targetOptions = slotIndex !== undefined ? [options[slotIndex]] : options;
 
-			for (const option of options) {
+			for (const option of targetOptions) {
 				for (const ench of option.enchantments) {
 					const result = results.get(ench.enchantment);
 					if (result) {
@@ -130,16 +143,47 @@ export class EnchantmentSimulator {
 			}
 		}
 
+		const totalOptions = slotIndex !== undefined ? iterations : iterations * 3;
+
 		return Array.from(results.entries())
 			.map(([id, data]) => ({
 				enchantmentId: id,
-				probability: (data.occurrences / (iterations * 3)) * 100,
+				probability: (data.occurrences / totalOptions) * 100,
 				averageLevel: data.levels.length > 0 ? data.levels.reduce((a, b) => a + b, 0) / data.levels.length : 0,
 				minLevel: data.levels.length > 0 ? Math.min(...data.levels) : 0,
 				maxLevel: data.levels.length > 0 ? Math.max(...data.levels) : 0
 			}))
 			.filter((stat) => stat.probability > 0)
 			.sort((a, b) => b.probability - a.probability);
+	}
+
+	/**
+	 * Calculates the level ranges for each enchantment table slot
+	 * @param bookshelves Number of bookshelves (0-15)
+	 * @returns Array of slot ranges [top, middle, bottom]
+	 */
+	public getSlotLevelRanges(bookshelves: number): SlotLevelRange[] {
+		const clampedBookshelves = Math.min(15, Math.max(0, bookshelves));
+
+		// Calculate base range: randomInt(1,8) + floor(bookshelves/2) + randomInt(0,bookshelves)
+		const minBase = 1 + Math.floor(clampedBookshelves / 2) + 0;
+		const maxBase = 8 + Math.floor(clampedBookshelves / 2) + clampedBookshelves;
+
+		// Calculate slot ranges
+		const topMin = Math.floor(Math.max(minBase / 3, 1));
+		const topMax = Math.floor(Math.max(maxBase / 3, 1));
+
+		const middleMin = Math.floor((minBase * 2) / 3 + 1);
+		const middleMax = Math.floor((maxBase * 2) / 3 + 1);
+
+		const bottomMin = Math.floor(Math.max(minBase, clampedBookshelves * 2));
+		const bottomMax = Math.floor(Math.max(maxBase, clampedBookshelves * 2));
+
+		return [
+			{ slot: 0, minLevel: topMin, maxLevel: topMax },
+			{ slot: 1, minLevel: middleMin, maxLevel: middleMax },
+			{ slot: 2, minLevel: bottomMin, maxLevel: bottomMax }
+		];
 	}
 
 	private generateEnchantmentOption(baseLevel: number, enchantability: number, itemTags: string[]): EnchantmentOption {

@@ -119,4 +119,15 @@ export class TagsComparator {
 	private findTagByPath(path: string): DataDrivenRegistryElement<TagType> | undefined {
 		return this.tagMap.get(path);
 	}
+
+	/**
+	 * Finds all tags that contain a specific item recursively
+	 * @param itemId The item ID to search for (e.g., "minecraft:diamond_sword")
+	 * @returns Array of tag resource names that contain the item
+	 */
+	public findItemTags(itemId: string): Identifier[] {
+		return this.tags
+			.filter((tag) => this.getRecursiveValues(tag.identifier).includes(itemId))
+			.map((tag) => new Identifier(tag.identifier));
+	}
 }
