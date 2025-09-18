@@ -16,7 +16,7 @@ interface EnchantmentEntry {
 	power: number;
 }
 
-interface EnchantmentPossible {
+export interface EnchantmentPossible {
 	id: string;
 	enchantment: Enchantment;
 	weight: number;
@@ -66,13 +66,15 @@ export class EnchantmentSimulator {
 	private buildItemTagToEnchantmentsMap(): void {
 		for (const [id, enchantment] of this.enchantments.entries()) {
 			const items = enchantment.primary_items || enchantment.supported_items;
-			const supportedItems = Array.isArray(items) ? items : [items];
+			const itemsArray = Array.isArray(items) ? items : [items];
 
-			for (const supportedItem of supportedItems) {
-				if (!this.itemTagToEnchantmentsMap.has(supportedItem)) {
-					this.itemTagToEnchantmentsMap.set(supportedItem, []);
+			for (const item of itemsArray) {
+				const enchantments = this.itemTagToEnchantmentsMap.get(item);
+				if (enchantments) {
+					enchantments.push(id);
+				} else {
+					this.itemTagToEnchantmentsMap.set(item, [id]);
 				}
-				this.itemTagToEnchantmentsMap.get(supportedItem)?.push(id);
 			}
 		}
 	}
@@ -212,40 +214,26 @@ export class EnchantmentSimulator {
 	}
 
 	private findPossibleEnchantments(level: number, itemTagSet: Set<string>): Array<EnchantmentPossible> {
-		const candidateEnchantmentIds = new Set<string>();
+		const candidateIds = new Set<string>();
+
 		for (const tag of itemTagSet) {
-			const enchantments = this.itemTagToEnchantmentsMap.get(tag) ?? [];
-			for (const enchId of enchantments) {
-				candidateEnchantmentIds.add(enchId);
+			for (const enchId of this.itemTagToEnchantmentsMap.get(tag) ?? []) {
+				candidateIds.add(enchId);
 			}
-			const hashTag = `#${tag}`;
-			const enchantmentsForHash = this.itemTagToEnchantmentsMap.get(hashTag) ?? [];
-			for (const enchId of enchantmentsForHash) {
-				candidateEnchantmentIds.add(enchId);
+
+			for (const enchId of this.itemTagToEnchantmentsMap.get(`#${tag}`) ?? []) {
+				candidateIds.add(enchId);
 			}
 		}
 
-		const possible: Array<EnchantmentPossible> = [];
-		for (const id of candidateEnchantmentIds) {
-			const enchantment = this.enchantments.get(id);
-			if (!enchantment) continue;
-
-			if (!this.isEnchantmentInEnchantingTable(id)) {
-				continue;
-			}
-
-			const enchLevel = this.calculateApplicableLevel(enchantment, level);
-			if (enchLevel > 0) {
-				possible.push({
-					id,
-					enchantment,
-					weight: enchantment.weight,
-					applicableLevel: enchLevel
-				});
-			}
-		}
-
-		return possible;
+		return Array.from(candidateIds)
+			.map((id) => {
+				const enchantment = this.enchantments.get(id);
+				if (!enchantment || !this.isEnchantmentInEnchantingTable(id)) return null;
+				const enchLevel = this.calculateApplicableLevel(enchantment, level);
+				return enchLevel > 0 ? { id, enchantment, weight: enchantment.weight, applicableLevel: enchLevel } : null;
+			})
+			.filter(Boolean) as Array<EnchantmentPossible>;
 	}
 
 	private selectEnchantments(possibleEnchantments: Array<EnchantmentPossible>, level: number): Array<EnchantmentEntry> {
@@ -294,32 +282,39 @@ export class EnchantmentSimulator {
 
 	private areEnchantmentsCompatible(newEnchantmentId: string, existingEnchantmentIds: string[]): boolean {
 		const newEnchant = this.enchantments.get(newEnchantmentId);
-		if (!newEnchant || !newEnchant.exclusive_set) {
-			return true;
-		}
+		if (!newEnchant?.exclusive_set) return true;
 
-		const newSets = Array.isArray(newEnchant.exclusive_set) ? newEnchant.exclusive_set : [newEnchant.exclusive_set];
+		const resolvedNewSets = this.resolveExclusiveSet(newEnchant.exclusive_set);
 
 		for (const existingId of existingEnchantmentIds) {
 			const existingEnchant = this.enchantments.get(existingId);
-			if (!existingEnchant || !existingEnchant.exclusive_set) {
-				continue;
-			}
+			if (!existingEnchant?.exclusive_set) continue;
 
-			const existingSets = Array.isArray(existingEnchant.exclusive_set)
-				? existingEnchant.exclusive_set
-				: [existingEnchant.exclusive_set];
-
-			for (const newSet of newSets) {
-				for (const existingSet of existingSets) {
-					if (newSet === existingSet) {
-						return false;
-					}
-				}
+			const resolvedExistingSets = this.resolveExclusiveSet(existingEnchant.exclusive_set);
+			for (const newSet of resolvedNewSets) {
+				if (resolvedExistingSets.has(newSet)) return false;
 			}
 		}
 
 		return true;
+	}
+
+	private resolveExclusiveSet(exclusiveSet: string | string[]): Set<string> {
+		const sets = Array.isArray(exclusiveSet) ? exclusiveSet : [exclusiveSet];
+		const resolved = new Set<string>();
+
+		for (const set of sets) {
+			if (set.startsWith("#") && this.tagsComparator) {
+				const tagId = Identifier.of(set, "tags/enchantment");
+				for (const value of this.tagsComparator.getRecursiveValues(tagId.get())) {
+					resolved.add(value);
+				}
+				continue;
+			}
+			resolved.add(set);
+		}
+
+		return resolved;
 	}
 
 	private calculateEnchantmentCost(cost: { base: number; per_level_above_first: number }, level: number): number {
