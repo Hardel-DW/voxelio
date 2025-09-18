@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.8.0
+
+### Minor Changes
+
+- 686617f: Add TagCompiler class for processing datapack tags with merge and flatten functionality
+
 ## 1.7.0
 
 ### Minor Changes
