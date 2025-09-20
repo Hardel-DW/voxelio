@@ -361,6 +361,40 @@ export class EnchantmentSimulator {
 		return this.inEnchantingTableValues.has(normalizedId);
 	}
 
+	/**
+	 * Extracts all primary items from all enchantments
+	 * Returns a flattened array of all unique item identifiers
+	 * from primary_items field (falls back to supported_items if primary_items is not defined)
+	 * @param itemTags Array of item tags for resolving tag references
+	 * @returns Array of item identifiers that can be enchanted
+	 */
+	public getFlattenedPrimaryItems(itemTags: DataDrivenRegistryElement<TagType>[]): string[] {
+		const items = new Set<string>();
+
+		for (const [enchantmentId, enchantment] of this.enchantments) {
+			const itemsField = enchantment.primary_items ?? enchantment.supported_items;
+			if (!itemsField) {
+				throw new Error(`Enchantment ${enchantmentId} has neither primary_items nor supported_items defined`);
+			}
+
+			const itemsArray = Array.isArray(itemsField) ? itemsField : [itemsField];
+
+			for (const item of itemsArray) {
+				if (!item.startsWith("#")) {
+					items.add(item);
+					continue;
+				}
+
+				const resolvedItems = new TagsComparator(itemTags).getRecursiveValues(Identifier.of(item, "tags/item").get());
+				for (const resolvedItem of resolvedItems) {
+					items.add(resolvedItem);
+				}
+			}
+		}
+
+		return Array.from(items).sort();
+	}
+
 	private calculateApplicableLevel(enchantment: Enchantment, powerLevel: number): number {
 		for (let level = enchantment.max_level; level >= 1; level--) {
 			const minCost = this.calculateEnchantmentCost(enchantment.min_cost, level);
