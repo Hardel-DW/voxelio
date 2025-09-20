@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.8.2
+
+### Patch Changes
+
+- aa4c165: Add getFlattenedPrimaryItems method to EnchantmentSimulator
+
 ## 1.8.1
 
 ### Patch Changes
