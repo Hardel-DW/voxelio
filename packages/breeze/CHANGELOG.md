@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.8.4
+
+### Patch Changes
+
+- ea0957e: Expose LootTableFlattener via core exports so Studio can consume it.
+
 ## 1.8.3
 
 ### Patch Changes
