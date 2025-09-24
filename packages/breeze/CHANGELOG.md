@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.8.3
+
+### Patch Changes
+
+- 00ba6de: Add loot table flattening utility with unit and datapack integration tests to support Studio UI.
+
 ## 1.8.2
 
 ### Patch Changes
