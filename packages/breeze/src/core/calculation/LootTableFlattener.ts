@@ -15,6 +15,8 @@ export interface FlattenedLootItem {
 	resolvedFromTag?: boolean;
 	unresolved?: boolean;
 	cycle?: boolean;
+	id?: string;
+	functions?: any[];
 }
 
 export interface FlattenOptions {
@@ -190,7 +192,9 @@ export class LootTableFlattener {
 			path: ctx.path,
 			sourcePool: poolIndex,
 			sourceEntry: item.entryIndex,
-			resolvedFromTag: fromTag
+			resolvedFromTag: fromTag,
+			id: item.id,
+			functions: item.functions
 		};
 	}
 
