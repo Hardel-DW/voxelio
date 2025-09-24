@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.8.5
+
+### Patch Changes
+
+- 15353b2: Integrate LootTableFlattener into Studio UI, flattening datapack + vanilla loot tables and displaying accurate probabilities.
+
 ## 1.8.4
 
 ### Patch Changes
