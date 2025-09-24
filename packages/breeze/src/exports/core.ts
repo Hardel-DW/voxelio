@@ -24,6 +24,7 @@ export * from "@/core/calculation/NumberProvider";
 export * from "@/core/calculation/EnchantmentSimulation";
 export * from "@/core/calculation/LootTableAppearanceProbability";
 export * from "@/core/calculation/LootCountProbability";
+export * from "@/core/calculation/LootTableFlattener";
 
 export * from "@/core/engine/migrations/types";
 export * from "@/core/engine/migrations/logger";
