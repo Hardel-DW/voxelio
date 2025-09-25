@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.8.7
+
+### Patch Changes
+
+- 5c21f30: - Added exports for flattenSlots and SlotRegistryType
+
 ## 1.8.6
 
 ### Patch Changes
