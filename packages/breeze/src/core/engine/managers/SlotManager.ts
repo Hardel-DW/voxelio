@@ -3,7 +3,7 @@ export type SlotRegistryType = (typeof SlotManager)[number];
 const SlotManager = ["any", "mainhand", "offhand", "hand", "head", "chest", "legs", "feet", "armor", "body", "saddle"] as const;
 
 export const SLOT_MAPPINGS = {
-	any: ["mainhand", "offhand", "head", "chest", "legs", "feet"],
+	any: ["mainhand", "offhand", "head", "chest", "legs", "feet", "body", "saddle"],
 	armor: ["head", "chest", "legs", "feet"],
 	hand: ["mainhand", "offhand"],
 	mainhand: ["mainhand"],
@@ -40,8 +40,11 @@ export function normalizeSlots(slots: SlotRegistryType[]): SlotRegistryType[] {
 		normalizedSlots.push("hand");
 	}
 
-	const everySlot = ["hand", "armor"] as SlotRegistryType[];
-	if (everySlot.every((slot) => normalizedSlots.includes(slot))) return ["any"];
+	const allIndividualSlots = ["mainhand", "offhand", "head", "chest", "legs", "feet", "body", "saddle"] as SlotRegistryType[];
+	if (allIndividualSlots.every((slot) => normalizedSlots.includes(slot))) return ["any"];
+
+	const everyGroupSlot = ["hand", "armor", "body", "saddle"] as SlotRegistryType[];
+	if (everyGroupSlot.every((slot) => normalizedSlots.includes(slot))) return ["any"];
 
 	return normalizedSlots;
 }
@@ -99,3 +102,6 @@ export function toggleSlot(existingSlots: SlotRegistryType[], slotToToggle: Slot
 		? removeSlot(existingSlots, slotToToggle)
 		: addSlot(existingSlots, slotToToggle);
 }
+
+export const flattenSlots = (slots: SlotRegistryType[]): SlotRegistryType[] =>
+	Array.from(new Set(slots.flatMap((slot) => SLOT_MAPPINGS[slot] as SlotRegistryType[])));

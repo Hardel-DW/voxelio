@@ -32,16 +32,16 @@ describe("Toggle Slot with key", () => {
 		expect(result.length).toBe(1);
 	});
 
-	test("Should add the key, and group if all keys are present", () => {
+	test("Should add the key, and group but NOT 'any' when missing body and saddle", () => {
 		const result = toggleSlot(["hand", "head", "chest", "legs"], "feet");
-		expect(result).toContain("any");
-		expect(result.length).toBeGreaterThanOrEqual(1);
+		expect(result).toEqual(expect.arrayContaining(["hand", "armor"]));
+		expect(result.length).toBe(2);
 	});
 
-	test("Should add the key, and group if all keys are present", () => {
+	test("Should add the key, and group but NOT 'any' when missing body and saddle", () => {
 		const result = toggleSlot(["offhand", "head", "chest", "legs", "feet"], "mainhand");
-		expect(result).toContain("any");
-		expect(result.length).toBeGreaterThanOrEqual(1);
+		expect(result).toEqual(expect.arrayContaining(["hand", "armor"]));
+		expect(result.length).toBe(2);
 	});
 
 	test("Should remove the key, if it is found in group and consequently destructuring the group", () => {
@@ -60,5 +60,17 @@ describe("Toggle Slot with key", () => {
 		const result = toggleSlot(["mainhand", "feet", "head"], "feet");
 		expect(result).toEqual(expect.arrayContaining(["mainhand", "head"]));
 		expect(result.length).toBe(2);
+	});
+
+	test("Should return 'any' when toggling to complete all 8 individual slots", () => {
+		const result = toggleSlot(["mainhand", "offhand", "head", "chest", "legs", "feet", "body"], "saddle");
+		expect(result).toContain("any");
+		expect(result.length).toBe(1);
+	});
+
+	test("Should return 'any' when toggling to complete all group slots", () => {
+		const result = toggleSlot(["hand", "armor", "body"], "saddle");
+		expect(result).toContain("any");
+		expect(result.length).toBe(1);
 	});
 });
