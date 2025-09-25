@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.8.6
+
+### Patch Changes
+
+- e5b70b7: Fix 'any' slot logic to require all 8 slots and add flattenSlots function
+
 ## 1.8.5
 
 ### Patch Changes
