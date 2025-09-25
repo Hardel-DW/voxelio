@@ -31,3 +31,6 @@ export * from "@/core/engine/migrations/logger";
 
 export * from "@/core/schema/enchant/Sorter";
 export * from "@/Roman";
+
+export { flattenSlots } from "@/core/engine/managers/SlotManager";
+export type { SlotRegistryType } from "@/core/engine/managers/SlotManager";
