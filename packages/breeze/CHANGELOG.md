@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.8.11
+
+### Patch Changes
+
+- 94ac4c9: Fixes some bugs with exclusive set
+
 ## 1.8.10
 
 ### Patch Changes
