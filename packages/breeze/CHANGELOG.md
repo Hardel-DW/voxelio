@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.8.10
+
+### Patch Changes
+
+- 139e0b2: Indexion bugs with voxelio breeze
+
 ## 1.8.9
 
 ### Patch Changes
