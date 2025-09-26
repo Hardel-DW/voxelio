@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.8.9
+
+### Patch Changes
+
+- 8a68445: Export missing function
+
 ## 1.8.8
 
 ### Patch Changes
