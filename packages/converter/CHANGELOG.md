@@ -1,5 +1,11 @@
 # @voxelio/converter
 
+## 1.0.2
+
+### Patch Changes
+
+- 9882959: Added Types to the exports
+
 ## 1.0.1
 
 ### Patch Changes
