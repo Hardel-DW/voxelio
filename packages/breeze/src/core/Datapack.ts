@@ -284,8 +284,7 @@ export class Datapack {
 			if (element.type === "deleted") {
 				const filePath = new Identifier(element.identifier).toFilePath();
 				delete this.files[filePath];
-			}
-			else if (element.type === "new" || element.type === "updated") {
+			} else if (element.type === "new" || element.type === "updated") {
 				const filePath = new Identifier(element.element.identifier).toFilePath();
 				const content = JSON.stringify(element.element.data);
 				this.files[filePath] = new TextEncoder().encode(content);

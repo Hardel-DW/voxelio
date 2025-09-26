@@ -1,5 +1,7 @@
 import { updateData } from "@/core/engine/actions";
-import { Actions, LootTableActionBuilder, RecipeActionBuilder } from "@/core/engine/actions/builders";
+import { Actions } from "@/core/engine/actions/builders/CoreActionBuilder";
+import { LootTableActionBuilder } from "@/core/engine/actions/builders/LootTableActionBuilder";
+import { RecipeActionBuilder } from "@/core/engine/actions/builders/RecipeActionBuilder";
 import type { CoreAction } from "@/core/engine/actions/domains/core/types";
 import { describe, it, expect } from "vitest";
 

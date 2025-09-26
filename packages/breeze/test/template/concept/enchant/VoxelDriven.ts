@@ -1,5 +1,5 @@
+import type { VoxelRegistryElement } from "@/core/Element";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
-import type { VoxelRegistryElement } from "@/index";
 
 const prefiledProperties = {
 	maxLevel: 1,

@@ -1,5 +1,7 @@
-import type { Condition } from "@/core/engine/Condition";
-import { type AllExpectedHandlerKeys, type ValidateHandlerRegistry, createHandlers } from "../../types";
+import { type AllExpectedHandlerKeys, type ValidateHandlerRegistry, createHandlers } from "@/core/engine/actions/types";
+import type { VoxelElement } from "@/core/Element";
+
+export type Condition = (el: VoxelElement) => boolean;
 
 export interface CoreActions {
 	set_value: {

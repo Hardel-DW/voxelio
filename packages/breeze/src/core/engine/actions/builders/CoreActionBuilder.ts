@@ -1,6 +1,5 @@
-import type { Condition } from "@/core/engine/Condition";
-import type { CoreAction } from "../domains/core/types";
-import { ActionBuilder } from "./ActionBuilder";
+import { ActionBuilder } from "@/core/engine/actions/builders/ActionBuilder";
+import type { CoreAction, Condition } from "@/core/engine/actions/domains/core/types";
 
 /**
  * Builder for core actions with fluent API

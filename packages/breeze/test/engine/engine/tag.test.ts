@@ -4,7 +4,12 @@ import { TagCompiler } from "@/core/TagCompiler";
 import type { DataDrivenRegistryElement } from "@/core/Element";
 import type { Compiler } from "@/core/engine/Compiler";
 import type { TagType } from "@/schema/TagType";
-import { vanillaDatapackTags, customDatapackTags, replacingDatapackTags, advancedDatapackTags } from "@test/template/concept/tags/CompilerMocks";
+import {
+	vanillaDatapackTags,
+	customDatapackTags,
+	replacingDatapackTags,
+	advancedDatapackTags
+} from "@test/template/concept/tags/CompilerMocks";
 
 describe("Tag Functions", () => {
 	describe("isPresentInTag", () => {
@@ -168,7 +173,7 @@ describe("TagCompiler", () => {
 
 			expect(result).toHaveLength(4);
 
-			const inEnchantingTable = result.find(tag => tag.identifier.resource === "in_enchanting_table");
+			const inEnchantingTable = result.find((tag) => tag.identifier.resource === "in_enchanting_table");
 			expect(inEnchantingTable?.data.values).toContain("minecraft:sharpness");
 			expect(inEnchantingTable?.data.values).toContain("enchantplus:bow/eternal_frost");
 		});
@@ -181,7 +186,7 @@ describe("TagCompiler", () => {
 			]);
 
 			expect(result).toHaveLength(3);
-			const nonTreasure = result.find(tag => tag.identifier.resource === "non_treasure");
+			const nonTreasure = result.find((tag) => tag.identifier.resource === "non_treasure");
 			expect(nonTreasure?.data.values).toEqual(["enchantplus:custom_only"]);
 		});
 	});
@@ -194,7 +199,7 @@ describe("TagCompiler", () => {
 				{ id: "enchantplus", tags: customDatapackTags }
 			]);
 
-			const inEnchantingTable = result.find(tag => tag.identifier.resource === "in_enchanting_table");
+			const inEnchantingTable = result.find((tag) => tag.identifier.resource === "in_enchanting_table");
 			expect(inEnchantingTable?.data.values).toContain("#minecraft:non_treasure");
 			expect(inEnchantingTable?.data.values).toContain("enchantplus:bow/eternal_frost");
 		});
@@ -226,7 +231,7 @@ describe("TagCompiler", () => {
 				{ id: "advanced", tags: advancedDatapackTags }
 			]);
 
-			const inEnchantingTable = result.find(tag => tag.identifier.resource === "in_enchanting_table");
+			const inEnchantingTable = result.find((tag) => tag.identifier.resource === "in_enchanting_table");
 
 			const expectedValues = [
 				"minecraft:sharpness",

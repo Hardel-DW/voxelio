@@ -1,7 +1,7 @@
-import { updateData } from "../actions";
-import { Actions } from "../actions/builders";
-import { deepDiff, normalizeValue } from "./differ";
-import type { ChangeSet, DatapackInfo, LogsStructure } from "./types";
+import { updateData } from "@/core/engine/actions";
+import { Actions } from "@/core/engine/actions/builders/CoreActionBuilder";
+import { deepDiff, normalizeValue } from "@/core/engine/migrations/differ";
+import type { ChangeSet, DatapackInfo, LogsStructure } from "@/core/engine/migrations/types";
 
 export class Logger {
 	private changes: ChangeSet[] = [];
