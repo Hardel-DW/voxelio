@@ -160,7 +160,7 @@ export class Datapack {
 		if (!this.indexCache.has(registry)) {
 			const map = new Map<string, DataDrivenRegistryElement<any>>();
 			for (const el of [...this.getRegistry(registry), ...this.getRegistry(`tags/${registry}`)]) {
-				map.set(new Identifier(el.identifier).toString(), el);
+				map.set(new Identifier(el.identifier).toUniqueKey(), el);
 			}
 			this.indexCache.set(registry, map);
 		}
