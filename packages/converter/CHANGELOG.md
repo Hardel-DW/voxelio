@@ -1,5 +1,11 @@
 # @voxelio/converter
 
+## 1.0.4
+
+### Patch Changes
+
+- e43e221: Exported DEFAULT_MOD_METADATA
+
 ## 1.0.3
 
 ### Patch Changes
