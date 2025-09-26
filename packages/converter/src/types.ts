@@ -1,12 +1,14 @@
 /**
  * Supported Minecraft mod platforms for conversion
  */
-export enum ModPlatforms {
-	FORGE = "forge",
-	NEOFORGE = "neoforge",
-	FABRIC = "fabric",
-	QUILT = "quilt"
-}
+export const ModPlatforms = {
+	FORGE: "forge",
+	NEOFORGE: "neoforge",
+	FABRIC: "fabric",
+	QUILT: "quilt"
+} as const;
+
+export type ModPlatformType = (typeof ModPlatforms)[keyof typeof ModPlatforms];
 
 /**
  * Common metadata structure for mod generation

@@ -1,7 +1,7 @@
 import { generateFabricMod } from "@/fabric";
 import { generateForgeMods } from "@/forge-neoforge";
 import { generateQuiltMod } from "@/quilt";
-import { DEFAULT_MOD_METADATA, type ModMetadata, ModPlatforms } from "@/types";
+import { DEFAULT_MOD_METADATA, type ModMetadata, type ModPlatformType, ModPlatforms } from "@/types";
 import { extractZip } from "@voxelio/zip";
 import { Datapack } from "@voxelio/breeze";
 
@@ -12,7 +12,7 @@ import { Datapack } from "@voxelio/breeze";
  * @param metadata - Optional metadata for the mod
  * @returns Promise resolving with resulting ZIP as Uint8Array
  */
-export async function convertDatapack(datapackZip: File, platforms: ModPlatforms[], metadata?: ModMetadata): Promise<Response> {
+export async function convertDatapack(datapackZip: File, platforms: ModPlatformType[], metadata?: ModMetadata): Promise<Response> {
 	const files = await extractZip(new Uint8Array(await datapackZip.arrayBuffer()));
 	const finalMetadata = metadata || (await extractMetadata(datapackZip, datapackZip.name.replace(/\.zip$/i, "")));
 	const modFiles = generateModFiles(finalMetadata, platforms);
@@ -55,7 +55,7 @@ export async function extractMetadata(files: File, modName: string): Promise<Mod
 	};
 }
 
-function generateModFiles(metadata: ModMetadata, platforms: ModPlatforms[]) {
+function generateModFiles(metadata: ModMetadata, platforms: ModPlatformType[]) {
 	const files: Record<string, string> = {};
 	const modId = metadata.id.toLowerCase().replace(/\s+/g, "_");
 	const commonData = { ...metadata, id: modId };

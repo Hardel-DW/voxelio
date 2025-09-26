@@ -1,2 +1,3 @@
 export { convertDatapack, extractMetadata } from "@/core";
-export type { ModPlatforms, ModMetadata } from "@/types";
+export { ModPlatforms } from "@/types";
+export type { ModMetadata, ModPlatformType } from "@/types";

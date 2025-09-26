@@ -1,4 +1,4 @@
-import type { ModMetadata } from "@/types";
+import type { ModMetadata, ModPlatformType } from "@/types";
 import { DEFAULT_MOD_METADATA, ModPlatforms } from "@/types";
 
 /**
@@ -7,7 +7,7 @@ import { DEFAULT_MOD_METADATA, ModPlatforms } from "@/types";
  * @param platforms - Target platforms (affects loader generation)
  * @returns Formatted TOML content for mods.toml
  */
-export function generateForgeMods(commonData: ModMetadata, platforms: ModPlatforms[]) {
+export function generateForgeMods(commonData: ModMetadata, platforms: ModPlatformType[]) {
 	const modLoader = platforms.includes(ModPlatforms.FORGE) ? "lowcodefml" : "javafml";
 	const loaderVersion = platforms.includes(ModPlatforms.FORGE) ? "40,)" : "1,)";
 
