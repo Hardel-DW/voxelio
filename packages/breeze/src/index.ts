@@ -23,7 +23,7 @@ export { ActionBuilder } from "@/core/engine/actions/builders/ActionBuilder";
 export { PACK_VERSION, getMinecraftVersion } from "@/core/Version";
 export { analyserCollection, isVoxel } from "@/core/engine/Analyser";
 export { getLabeledIdentifier, isVoxelElement } from "@/core/Element";
-export { getItemFromMultipleOrOne, getAllItems } from "@/core/ItemList";
+export { getItemFromMultipleOrOne, getAllItems, separateItemsAndTags } from "@/core/ItemList";
 export { updateData } from "@/core/engine/actions/index";
 export { calculateItemCountRange } from "@/core/calculation/LootCountProbability";
 export { toRoman } from "@/Roman";
