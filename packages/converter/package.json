@@ -1,6 +1,6 @@
 {
 	"name": "@voxelio/converter",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"type": "module",
 	"description": "Handles transformation of datapacks into mod files for various platforms.",
 	"scripts": {

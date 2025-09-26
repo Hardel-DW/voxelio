@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.8.8
+
+### Patch Changes
+
+- e14682d: Clean Up exports and moved converter in own package
+
 ## 1.8.7
 
 ### Patch Changes
