@@ -1,5 +1,11 @@
 # @voxelio/converter
 
+## 1.0.3
+
+### Patch Changes
+
+- 038fae7: Change Enum by const. Enum is an antipattern
+
 ## 1.0.2
 
 ### Patch Changes
