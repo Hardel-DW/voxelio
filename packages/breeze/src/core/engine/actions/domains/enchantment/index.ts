@@ -22,7 +22,8 @@ class ToggleEnchantmentToExclusiveSetHandler implements ActionHandler<Enchantmen
 		const props = structuredClone(element) as EnchantmentProps;
 		if (typeof props.exclusiveSet === "string") {
 			if (props.exclusiveSet.startsWith("#")) {
-				props.tags = props.tags.filter((tag) => tag !== props.exclusiveSet);
+				const cleanedTag = props.exclusiveSet.slice(1);
+				props.tags = props.tags.filter((tag) => tag !== cleanedTag);
 				props.exclusiveSet = [action.enchantment];
 			} else {
 				if (props.exclusiveSet === action.enchantment) {
@@ -45,12 +46,22 @@ class ToggleEnchantmentToExclusiveSetHandler implements ActionHandler<Enchantmen
 class SetExclusiveSetWithTagsHandler implements ActionHandler<EnchantmentAction> {
 	execute(action: Extract<EnchantmentAction, { type: "enchantment.set_exclusive_set_with_tags" }>, element: Record<string, unknown>) {
 		const props = structuredClone(element) as EnchantmentProps;
-		if (!action.value.startsWith("#")) {
+		const isTagValue = action.value.startsWith("#");
+		const normalizeTag = (value: string) => (value.startsWith("#") ? value.slice(1) : value);
+		const cleanedValue = normalizeTag(action.value);
+
+		if (typeof props.exclusiveSet === "string") {
+			const cleanedCurrent = normalizeTag(props.exclusiveSet);
+			props.tags = props.tags.filter((tag) => tag !== cleanedCurrent);
+		}
+
+		if (props.exclusiveSet === action.value) {
+			props.exclusiveSet = undefined;
 			return props;
 		}
 
-		if (typeof props.exclusiveSet === "string" && props.exclusiveSet.startsWith("#") && props.exclusiveSet !== action.value) {
-			props.tags = props.tags.filter((tag) => tag !== props.exclusiveSet);
+		if (isTagValue && !props.tags.includes(cleanedValue)) {
+			props.tags = [...props.tags, cleanedValue];
 		}
 
 		props.exclusiveSet = action.value;

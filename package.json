@@ -8,7 +8,8 @@
         "biome:check": "biome check ./packages",
         "biome:unsafefix": "biome check --write --unsafe  ./packages",
         "test": "vitest",
-        "check": "pnpm -r exec tsc --noEmit"
+        "check": "pnpm -r exec tsc --noEmit",
+        "changeset": "changeset"
     },
     "devDependencies": {
         "@biomejs/biome": "^2.2.3",
