@@ -93,13 +93,6 @@ export function getAllConcepts(): Map<keyof Analysers, Analyser<keyof Analysers>
 	return new Map(Object.entries(analyserCollection) as Array<[keyof Analysers, Analyser<keyof Analysers>]>);
 }
 
-export function isVoxel<T extends keyof Analysers>(
-	element: Analysers[keyof Analysers]["voxel"],
-	registry: T
-): element is Analysers[T]["voxel"] {
-	if (element.identifier.registry === registry) {
-		return true;
-	}
-
-	return false;
+export function isVoxel<T extends keyof Analysers>(element: Analysers[keyof Analysers]["voxel"], registry: T): element is Analysers[T]["voxel"] {
+	return element.identifier.registry === registry;
 }

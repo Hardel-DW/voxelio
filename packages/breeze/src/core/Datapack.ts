@@ -279,6 +279,32 @@ export class Datapack {
 		return JSON.parse(new TextDecoder().decode(this.files[file]));
 	}
 
+	with(elements: LabeledElement[]): this {
+		for (const element of elements) {
+			if (element.type === "deleted") {
+				const filePath = new Identifier(element.identifier).toFilePath();
+				delete this.files[filePath];
+			}
+			else if (element.type === "new" || element.type === "updated") {
+				const filePath = new Identifier(element.element.identifier).toFilePath();
+				const content = JSON.stringify(element.element.data);
+				this.files[filePath] = new TextEncoder().encode(content);
+			}
+		}
+
+		this.registryCache.clear();
+		this.indexCache.clear();
+
+		return this;
+	}
+
+	/**
+	 * Label the elements.
+	 * @param registry - The registry of the elements.
+	 * @param elements - The elements to label.
+	 * @param logger - The logger.
+	 * @returns The labeled elements.
+	 */
 	labelElements<K extends keyof Analysers>(
 		registry: K,
 		elements: DataDrivenRegistryElement<DataDrivenElement>[],

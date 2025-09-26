@@ -1,4 +1,4 @@
-import { voxelDatapacks } from "@/index";
+import { VOXEL_TAGS } from "@/index";
 import { simpleEnchantment, DATA_DRIVEN_TEMPLATE_ENCHANTMENT } from "./concept/enchant/DataDriven";
 import { enchantplusTags, fireAspectTag, swordAttributeTag, vanillaTags } from "./concept/enchant/DataDrivenTags";
 import { completeLootTable, advancedLootTable, ultimateTestLootTable, finalBossOfLootTable } from "./concept/loot/DataDriven";
@@ -35,7 +35,7 @@ export const testMcMetaNotExists = {
 
 export const enchantmentWithTagFiles = createFilesFromElements([
 	...DATA_DRIVEN_TEMPLATE_ENCHANTMENT,
-	...voxelDatapacks,
+	...VOXEL_TAGS,
 	...enchantplusTags,
 	...vanillaTags
 ]);

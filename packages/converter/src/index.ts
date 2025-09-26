@@ -1,9 +1,9 @@
-import { generateFabricMod } from "@/converter/fabric";
-import { generateForgeMods } from "@/converter/forge-neoforge";
-import { generateQuiltMod } from "@/converter/quilt";
-import { DEFAULT_MOD_METADATA, type ModMetadata, ModPlatforms } from "@/converter/types";
-import { Datapack } from "@/core/Datapack";
+import { generateFabricMod } from "@/fabric";
+import { generateForgeMods } from "@/forge-neoforge";
+import { generateQuiltMod } from "@/quilt";
+import { DEFAULT_MOD_METADATA, type ModMetadata, ModPlatforms } from "@/types";
 import { extractZip } from "@voxelio/zip";
+import { Datapack } from "@voxelio/breeze";
 
 /**
  * Converts a datapack ZIP file to mod(s) for specified platforms
@@ -23,33 +23,6 @@ export async function convertDatapack(datapackZip: File, platforms: ModPlatforms
 	};
 
 	return new Datapack(allFiles).generate([], { isMinified: true });
-}
-
-function generateModFiles(metadata: ModMetadata, platforms: ModPlatforms[]) {
-	const files: Record<string, string> = {};
-	const modId = metadata.id.toLowerCase().replace(/\s+/g, "_");
-	const commonData = { ...metadata, id: modId };
-
-	if (platforms.includes(ModPlatforms.FABRIC)) {
-		files["fabric.mod.json"] = generateFabricMod(commonData);
-	}
-
-	if (platforms.includes(ModPlatforms.QUILT)) {
-		files["quilt.mod.json"] = generateQuiltMod(commonData);
-	}
-
-	if (platforms.includes(ModPlatforms.FORGE)) {
-		files["META-INF/mods.toml"] = generateForgeMods(commonData, [ModPlatforms.FORGE]);
-	}
-
-	if (platforms.includes(ModPlatforms.NEOFORGE)) {
-		files["META-INF/neoforge.mods.toml"] = generateForgeMods(commonData, [ModPlatforms.NEOFORGE]).replace(
-			/updateJSONURL = '(.*?)'/,
-			"updateJSONURL = '$1?neoforge=only'"
-		);
-	}
-
-	return files;
 }
 
 /**
@@ -80,4 +53,31 @@ export async function extractMetadata(files: File, modName: string): Promise<Mod
 		authors: metadata.authors || DEFAULT_MOD_METADATA.authors,
 		icon: iconEntry?.split("/").pop()
 	};
+}
+
+function generateModFiles(metadata: ModMetadata, platforms: ModPlatforms[]) {
+	const files: Record<string, string> = {};
+	const modId = metadata.id.toLowerCase().replace(/\s+/g, "_");
+	const commonData = { ...metadata, id: modId };
+
+	if (platforms.includes(ModPlatforms.FABRIC)) {
+		files["fabric.mod.json"] = generateFabricMod(commonData);
+	}
+
+	if (platforms.includes(ModPlatforms.QUILT)) {
+		files["quilt.mod.json"] = generateQuiltMod(commonData);
+	}
+
+	if (platforms.includes(ModPlatforms.FORGE)) {
+		files["META-INF/mods.toml"] = generateForgeMods(commonData, [ModPlatforms.FORGE]);
+	}
+
+	if (platforms.includes(ModPlatforms.NEOFORGE)) {
+		files["META-INF/neoforge.mods.toml"] = generateForgeMods(commonData, [ModPlatforms.NEOFORGE]).replace(
+			/updateJSONURL = '(.*?)'/,
+			"updateJSONURL = '$1?neoforge=only'"
+		);
+	}
+
+	return files;
 }

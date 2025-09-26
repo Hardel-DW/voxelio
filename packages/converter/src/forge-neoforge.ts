@@ -1,5 +1,5 @@
-import type { ModMetadata } from "@/converter/types";
-import { DEFAULT_MOD_METADATA, ModPlatforms } from "@/converter/types";
+import type { ModMetadata } from "@/types";
+import { DEFAULT_MOD_METADATA, ModPlatforms } from "@/types";
 
 /**
  * Generates TOML content for Forge/NeoForge mods
