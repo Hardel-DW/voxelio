@@ -8,7 +8,7 @@ export default function register(): Map<string, ActionHandler<EnchantmentAction>
 	const handlerDefinitions = createEnchantmentHandlers({
 		"enchantment.set_computed_slot": new SetComputedSlotHandler(),
 		"enchantment.toggle_enchantment_to_exclusive_set": new ToggleEnchantmentToExclusiveSetHandler(),
-		"enchantment.set_exclusive_set_with_tags": new SetExclusiveSetWithTagsHandler()
+		"enchantment.set_exclusive_set_with_tags": new SetExclusiveSetWithTagsHandler(),
 	});
 
 	return new Map(Object.entries(handlerDefinitions));

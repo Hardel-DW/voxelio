@@ -34,6 +34,12 @@ export interface CoreActions {
 		ifTrue: any;
 		ifFalse?: any;
 	};
+	add_tags: {
+		tags: string[];
+	};
+	remove_tags: {
+		tags: string[];
+	};
 }
 
 export type CoreAction = {

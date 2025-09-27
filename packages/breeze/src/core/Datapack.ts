@@ -7,7 +7,7 @@ import type { Analysers } from "@/core/engine/Analyser";
 import type { Compiler } from "@/core/engine/Compiler";
 import type { Logger } from "@/core/engine/migrations/logger";
 import type { ChangeSet } from "@/core/engine/migrations/types";
-import type { TagType } from "@/schema/TagType";
+import type { TagType } from "@/core/Tag";
 import { downloadZip, extractZip } from "@voxelio/zip";
 import type { InputWithoutMeta } from "@voxelio/zip";
 

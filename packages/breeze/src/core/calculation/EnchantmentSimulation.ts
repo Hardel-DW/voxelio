@@ -1,8 +1,8 @@
 import type { DataDrivenRegistryElement } from "@/core/Element";
 import { Identifier } from "@/core/Identifier";
 import { TagsComparator } from "@/core/TagComparator";
-import type { Enchantment } from "@/schema/Enchantment";
-import type { TagType } from "@/schema/TagType";
+import type { Enchantment } from "@/core/schema/enchant/types";
+import type { TagType } from "@/core/Tag";
 
 export interface ItemData {
 	id: string;

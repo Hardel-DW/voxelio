@@ -3,7 +3,7 @@ import { Identifier, type IdentifierObject } from "@/core/Identifier";
 import type { Analysers } from "@/core/engine/Analyser";
 import type { Compiler } from "@/core/engine/Compiler";
 import { processElementTags } from "@/core/schema/utils";
-import type { Enchantment } from "@/schema/Enchantment";
+import type { Enchantment } from "@/core/schema/enchant/types";
 import { type EnchantmentProps, FUNCTIONALITY_TAGS_CACHE } from "./types";
 
 /**
@@ -53,11 +53,6 @@ export const VoxelToEnchantmentDataDriven: Compiler<EnchantmentProps, Enchantmen
 
 	if (element.exclusiveSet) {
 		enchantment.exclusive_set = element.exclusiveSet;
-
-		if (typeof element.exclusiveSet === "string") {
-			const tagRegistry = `tags/${config}`;
-			tags.push(Identifier.of(element.exclusiveSet, tagRegistry));
-		}
 	}
 
 	if (Array.isArray(enchantment.exclusive_set) && enchantment.exclusive_set.length === 0) {

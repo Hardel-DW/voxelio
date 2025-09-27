@@ -1,8 +1,7 @@
-import type { DataDrivenRegistryElement } from "@/core/Element";
+import type { DataDrivenElement, DataDrivenRegistryElement } from "@/core/Element";
 import { Identifier } from "@/core/Identifier";
 import type { IdentifierObject } from "@/core/Identifier";
 import type { Compiler } from "@/core/engine/Compiler";
-import type { TagType } from "@/schema/TagType";
 
 /**
  * Represents a Minecraft tag system that can contain multiple values.
@@ -72,6 +71,18 @@ export class Tags {
 		return this.tags.values.some((tagValue) => (typeof tagValue === "string" ? tagValue === value : tagValue.id === value));
 	}
 }
+
+export type TagRegistry = Record<string, TagType>;
+
+export interface TagType extends DataDrivenElement {
+	replace?: boolean;
+	values: (string | OptionalTag)[];
+}
+
+export type OptionalTag = {
+	required: boolean;
+	id: string;
+};
 
 export function isTag(tag: any): tag is TagType {
 	return tag && typeof tag === "object" && "values" in tag;

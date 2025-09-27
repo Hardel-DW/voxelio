@@ -1,7 +1,7 @@
 import type { DataDrivenRegistryElement } from "@/core/Element";
 import { Identifier } from "@/core/Identifier";
 import { TagsComparator } from "@/core/TagComparator";
-import type { TagType } from "@/schema/TagType";
+import type { TagType } from "@/core/Tag";
 
 export class TagCompiler {
 	constructor(private readonly enableFlattening = true) {}

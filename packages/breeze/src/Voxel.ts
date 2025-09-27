@@ -1,5 +1,5 @@
 import type { DataDrivenRegistryElement } from "@/core/Element";
-import type { TagType } from "@/schema/TagType";
+import type { TagType } from "@/core/Tag";
 
 export const VOXEL_TAGS: DataDrivenRegistryElement<TagType>[] = [
 	{

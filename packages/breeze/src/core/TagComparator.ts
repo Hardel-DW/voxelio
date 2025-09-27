@@ -1,6 +1,6 @@
 import type { DataDrivenRegistryElement } from "@/core/Element";
 import { Identifier, type IdentifierObject } from "@/core/Identifier";
-import type { OptionalTag, TagType } from "@/schema/TagType";
+import type { OptionalTag, TagType } from "@/core/Tag";
 
 /**
  * A utility class for comparing and processing Minecraft tags.

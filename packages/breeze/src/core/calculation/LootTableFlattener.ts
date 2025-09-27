@@ -2,7 +2,7 @@ import type { DataDrivenRegistryElement } from "@/core/Element";
 import { Identifier, type IdentifierObject } from "@/core/Identifier";
 import { TagsComparator } from "@/core/TagComparator";
 import type { LootGroup, LootItem, LootTableProps } from "@/core/schema/loot/types";
-import type { TagType } from "@/schema/TagType";
+import type { TagType } from "@/core/Tag";
 
 export interface FlattenedLootItem {
 	name: string;

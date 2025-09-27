@@ -1,8 +1,8 @@
-import type { VoxelElement } from "@/core/Element";
+import type { DataDrivenElement, VoxelElement } from "@/core/Element";
 import { Identifier } from "@/core/Identifier";
 import type { SlotRegistryType } from "@/core/engine/managers/SlotManager";
 import type { SingleOrMultiple } from "@/index";
-import type { TextComponentType } from "@/schema/TextComponentType";
+import type { TextComponentType } from "@/core/schema/TextComponentType";
 
 const tags_related_to_functionality = [
 	{ namespace: "minecraft", registry: "tags/enchantment", resource: "curse" },
@@ -34,6 +34,25 @@ export interface EnchantmentProps extends VoxelElement {
 	mode: "normal" | "soft_delete" | "only_creative";
 	disabledEffects: string[];
 	unknownFields?: Record<string, any>;
+}
+
+export interface Enchantment extends DataDrivenElement {
+	description: TextComponentType;
+	exclusive_set?: SingleOrMultiple<string>;
+	supported_items: SingleOrMultiple<string>;
+	primary_items?: SingleOrMultiple<string>;
+	weight: number;
+	max_level: number;
+	min_cost: EnchantmentCost;
+	max_cost: EnchantmentCost;
+	anvil_cost: number;
+	slots: SlotRegistryType[];
+	effects?: Record<string, any>;
+}
+
+export interface EnchantmentCost {
+	base: number;
+	per_level_above_first: number;
 }
 
 /**

@@ -6,7 +6,7 @@ import type { EnchantmentProps } from "@/core/schema/enchant/types";
 import { VoxelToRecipeDataDriven } from "@/core/schema/recipe/Compiler";
 import { RecipeDataDrivenToVoxelFormat } from "@/core/schema/recipe/Parser";
 import type { MinecraftRecipe, RecipeProps } from "@/core/schema/recipe/types";
-import type { Enchantment } from "@/schema/Enchantment";
+import type { Enchantment } from "@/core/schema/enchant/types";
 import { VoxelToLootDataDriven } from "../schema/loot/Compiler";
 import { LootDataDrivenToVoxelFormat } from "../schema/loot/Parser";
 import type { LootTableProps, MinecraftLootTable } from "../schema/loot/types";

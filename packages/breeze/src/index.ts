@@ -41,11 +41,11 @@ export type { DataDrivenElement, DataDrivenRegistryElement, LabeledElement, Voxe
 export type { Analysers, Analyser, GetAnalyserVoxel } from "@/core/engine/Analyser";
 export type { Action, ActionValue } from "@/core/engine/actions/types";
 export type { SlotRegistryType } from "@/core/engine/managers/SlotManager";
-export type { TextComponentType } from "@/schema/TextComponentType";
-export type { TagType, OptionalTag, TagRegistry } from "@/schema/TagType";
+export type { TextComponentType } from "@/core/schema/TextComponentType";
+export type { TagType, OptionalTag, TagRegistry } from "@/core/Tag";
 export type { StructureProps } from "@/core/schema/structure/types";
 export type { StructureSetProps } from "@/core/schema/structure_set/types";
 export type { RecipeProps } from "@/core/schema/recipe/types";
 export type { EnchantmentProps } from "@/core/schema/enchant/types";
-export type { Enchantment } from "@/schema/Enchantment";
+export type { Enchantment } from "@/core/schema/enchant/types";
 export type { LootItem, LootGroup, MinecraftLootEntry, LootTableProps, MinecraftLootTable } from "@/core/schema/loot/types";
