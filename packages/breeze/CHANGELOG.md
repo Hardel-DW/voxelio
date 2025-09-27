@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.8.12
+
+### Patch Changes
+
+- 9fe2c19: Fixes some actions
+
 ## 1.8.11
 
 ### Patch Changes
