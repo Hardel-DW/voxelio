@@ -22,23 +22,17 @@ class ToggleEnchantmentToExclusiveSetHandler implements ActionHandler<Enchantmen
 		const props = structuredClone(element) as EnchantmentProps;
 		if (typeof props.exclusiveSet === "string") {
 			if (props.exclusiveSet.startsWith("#")) {
-				const cleanedTag = props.exclusiveSet.slice(1);
-				props.tags = props.tags.filter((tag) => tag !== cleanedTag);
 				props.exclusiveSet = [action.enchantment];
+			} else if (props.exclusiveSet === action.enchantment) {
+				props.exclusiveSet = undefined;
 			} else {
-				if (props.exclusiveSet === action.enchantment) {
-					props.exclusiveSet = undefined;
-				} else {
-					props.exclusiveSet = [props.exclusiveSet, action.enchantment];
-				}
+				props.exclusiveSet = [props.exclusiveSet, action.enchantment];
 			}
 		}
 
 		const currentSet = Array.isArray(props.exclusiveSet) ? props.exclusiveSet : [];
 		const exists = currentSet.includes(action.enchantment);
-
 		props.exclusiveSet = exists ? currentSet.filter((e) => e !== action.enchantment) : [...currentSet, action.enchantment];
-
 		return props;
 	}
 }
@@ -46,22 +40,9 @@ class ToggleEnchantmentToExclusiveSetHandler implements ActionHandler<Enchantmen
 class SetExclusiveSetWithTagsHandler implements ActionHandler<EnchantmentAction> {
 	execute(action: Extract<EnchantmentAction, { type: "enchantment.set_exclusive_set_with_tags" }>, element: Record<string, unknown>) {
 		const props = structuredClone(element) as EnchantmentProps;
-		const isTagValue = action.value.startsWith("#");
-		const normalizeTag = (value: string) => (value.startsWith("#") ? value.slice(1) : value);
-		const cleanedValue = normalizeTag(action.value);
-
-		if (typeof props.exclusiveSet === "string") {
-			const cleanedCurrent = normalizeTag(props.exclusiveSet);
-			props.tags = props.tags.filter((tag) => tag !== cleanedCurrent);
-		}
-
 		if (props.exclusiveSet === action.value) {
 			props.exclusiveSet = undefined;
 			return props;
-		}
-
-		if (isTagValue && !props.tags.includes(cleanedValue)) {
-			props.tags = [...props.tags, cleanedValue];
 		}
 
 		props.exclusiveSet = action.value;
