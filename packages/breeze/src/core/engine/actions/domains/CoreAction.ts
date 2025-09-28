@@ -1,13 +1,7 @@
 import type { VoxelElement } from "@/core/Element";
-import type { Action } from "@/core/engine/actions/types";
+import type { ActionJsonFromClasses, ActionsFromClasses } from "@/core/engine/actions/domain";
 import { deleteValueAtPath, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
-import {
-	EngineAction,
-	extractPayload,
-	type ActionExecutionContext,
-	type ActionLike,
-	isEngineAction
-} from "@/core/engine/actions/EngineAction";
+import { EngineAction, type ActionExecutionContext, type ActionLike } from "@/core/engine/actions/EngineAction";
 
 export type Condition = (element: VoxelElement) => boolean;
 
@@ -40,13 +34,6 @@ export class SetValueAction extends CoreEngineAction<SetValuePayload> {
 		return new SetValueAction({ path, value });
 	}
 
-	static fromJSON(action: Action): SetValueAction {
-		if (action.type !== SetValueAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for SetValueAction`);
-		}
-		return new SetValueAction(extractPayload(action) as SetValuePayload);
-	}
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		return setValueAtPath(element, this.payload.path, this.payload.value);
 	}
@@ -67,13 +54,6 @@ export class ToggleValueAction extends CoreEngineAction<ToggleValuePayload> {
 
 	static create(path: string, value: unknown): ToggleValueAction {
 		return new ToggleValueAction({ path, value });
-	}
-
-	static fromJSON(action: Action): ToggleValueAction {
-		if (action.type !== ToggleValueAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ToggleValueAction`);
-		}
-		return new ToggleValueAction(extractPayload(action) as ToggleValuePayload);
 	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
@@ -98,13 +78,6 @@ export class ToggleValueInListAction extends CoreEngineAction<ToggleValueInListP
 
 	static create(path: string, value: unknown): ToggleValueInListAction {
 		return new ToggleValueInListAction({ path, value });
-	}
-
-	static fromJSON(action: Action): ToggleValueInListAction {
-		if (action.type !== ToggleValueInListAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ToggleValueInListAction`);
-		}
-		return new ToggleValueInListAction(extractPayload(action) as ToggleValueInListPayload);
 	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
@@ -134,13 +107,6 @@ export class ToggleAllValuesInListAction extends CoreEngineAction<ToggleAllValue
 
 	static create(path: string, values: unknown[]): ToggleAllValuesInListAction {
 		return new ToggleAllValuesInListAction({ path, values });
-	}
-
-	static fromJSON(action: Action): ToggleAllValuesInListAction {
-		if (action.type !== ToggleAllValuesInListAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ToggleAllValuesInListAction`);
-		}
-		return new ToggleAllValuesInListAction(extractPayload(action) as ToggleAllValuesPayload);
 	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
@@ -179,13 +145,6 @@ export class SetUndefinedAction extends CoreEngineAction<SetUndefinedPayload> {
 		return new SetUndefinedAction({ path });
 	}
 
-	static fromJSON(action: Action): SetUndefinedAction {
-		if (action.type !== SetUndefinedAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for SetUndefinedAction`);
-		}
-		return new SetUndefinedAction(extractPayload(action) as SetUndefinedPayload);
-	}
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		return deleteValueAtPath(element, this.payload.path);
 	}
@@ -206,13 +165,6 @@ export class InvertBooleanAction extends CoreEngineAction<InvertBooleanPayload> 
 
 	static create(path: string): InvertBooleanAction {
 		return new InvertBooleanAction({ path });
-	}
-
-	static fromJSON(action: Action): InvertBooleanAction {
-		if (action.type !== InvertBooleanAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for InvertBooleanAction`);
-		}
-		return new InvertBooleanAction(extractPayload(action) as InvertBooleanPayload);
 	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
@@ -241,14 +193,6 @@ export class SequentialAction extends CoreEngineAction<SequentialPayload> {
 		return new SequentialAction({ actions });
 	}
 
-	static fromJSON(action: Action): SequentialAction {
-		if (action.type !== SequentialAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for SequentialAction`);
-		}
-		const payload = extractPayload(action) as { actions: Action[] };
-		return new SequentialAction({ actions: payload.actions });
-	}
-
 	protected async apply(element: Record<string, unknown>, context: ActionExecutionContext): Promise<Record<string, unknown>> {
 		let currentElement = this.cloneElement(element);
 
@@ -271,13 +215,6 @@ export class AlternativeAction extends CoreEngineAction<AlternativePayload> {
 
 	static create(condition: boolean | Condition, ifTrue: ActionLike, ifFalse?: ActionLike): AlternativeAction {
 		return new AlternativeAction({ condition, ifTrue, ifFalse });
-	}
-
-	static fromJSON(action: Action): AlternativeAction {
-		if (action.type !== AlternativeAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for AlternativeAction`);
-		}
-		return new AlternativeAction(extractPayload(action) as AlternativePayload);
 	}
 
 	protected async apply(element: Record<string, unknown>, context: ActionExecutionContext): Promise<Record<string, unknown> | undefined> {
@@ -314,13 +251,6 @@ export class AddTagsAction extends CoreEngineAction<TagsPayload> {
 		return new AddTagsAction({ tags });
 	}
 
-	static fromJSON(action: Action): AddTagsAction {
-		if (action.type !== AddTagsAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for AddTagsAction`);
-		}
-		return new AddTagsAction(extractPayload(action) as TagsPayload);
-	}
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const cloned = this.cloneElement(element);
 		if (Array.isArray(cloned.tags)) {
@@ -342,13 +272,6 @@ export class RemoveTagsAction extends CoreEngineAction<TagsPayload> {
 		return new RemoveTagsAction({ tags });
 	}
 
-	static fromJSON(action: Action): RemoveTagsAction {
-		if (action.type !== RemoveTagsAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for RemoveTagsAction`);
-		}
-		return new RemoveTagsAction(extractPayload(action) as TagsPayload);
-	}
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const cloned = this.cloneElement(element);
 		if (Array.isArray(cloned.tags)) {
@@ -358,7 +281,6 @@ export class RemoveTagsAction extends CoreEngineAction<TagsPayload> {
 	}
 }
 
-export type CoreActionInstance = InstanceType<(typeof CORE_ACTION_CLASSES)[number]>;
 export const CORE_ACTION_CLASSES = [
 	SetValueAction,
 	ToggleValueAction,
@@ -371,6 +293,9 @@ export const CORE_ACTION_CLASSES = [
 	AddTagsAction,
 	RemoveTagsAction
 ] as const;
+
+export type CoreActionInstance = ActionsFromClasses<typeof CORE_ACTION_CLASSES>;
+export type CoreAction = ActionJsonFromClasses<typeof CORE_ACTION_CLASSES>;
 
 export const CoreActions = {
 	setValue: (path: string, value: unknown) => SetValueAction.create(path, value),
@@ -385,7 +310,3 @@ export const CoreActions = {
 	addTags: (...tags: string[]) => AddTagsAction.create(tags),
 	removeTags: (...tags: string[]) => RemoveTagsAction.create(tags)
 };
-
-export function isCoreActionInstance(action: ActionLike): action is CoreActionInstance {
-	return isEngineAction(action) && CORE_ACTION_CLASSES.some((ctor) => action instanceof ctor);
-}

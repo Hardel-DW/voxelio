@@ -1,5 +1,5 @@
 import { updateData } from "@/core/engine/actions";
-import type { RecipeAction } from "@/core/engine/actions/domains/recipe/types";
+import type { RecipeAction } from "@/core/engine/actions/domains/RecipeAction";
 import type { RecipeProps } from "@/core/schema/recipe/types";
 import { parseDatapack } from "@/core/engine/Parser";
 import { recipeFile } from "@test/mock/datapack";

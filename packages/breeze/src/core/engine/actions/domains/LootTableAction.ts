@@ -1,12 +1,6 @@
 import type { LootGroup, LootItem, LootTableProps } from "@/core/schema/loot/types";
-import type { Action } from "@/core/engine/actions/types";
-import {
-	EngineAction,
-	extractPayload,
-	type ActionExecutionContext,
-	type ActionLike,
-	isEngineAction
-} from "@/core/engine/actions/EngineAction";
+import type { ActionJsonFromClasses, ActionsFromClasses } from "@/core/engine/actions/domain";
+import { EngineAction, type ActionExecutionContext, type ActionLike } from "@/core/engine/actions/EngineAction";
 
 abstract class LootTableEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
 	protected clone(element: Record<string, unknown>): LootTableProps {
@@ -36,12 +30,6 @@ export class AddLootItemAction extends LootTableEngineAction<AddLootItemPayload>
 		return new AddLootItemAction(payload);
 	}
 
-	static fromJSON(action: Action): AddLootItemAction {
-		if (action.type !== AddLootItemAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for AddLootItemAction`);
-		}
-		return new AddLootItemAction(extractPayload(action) as AddLootItemPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -72,12 +60,6 @@ export class RemoveLootItemAction extends LootTableEngineAction<RemoveLootItemPa
 		return new RemoveLootItemAction({ itemId });
 	}
 
-	static fromJSON(action: Action): RemoveLootItemAction {
-		if (action.type !== RemoveLootItemAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for RemoveLootItemAction`);
-		}
-		return new RemoveLootItemAction(extractPayload(action) as RemoveLootItemPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -100,12 +82,6 @@ export class ModifyLootItemAction extends LootTableEngineAction<ModifyLootItemPa
 		return new ModifyLootItemAction(payload);
 	}
 
-	static fromJSON(action: Action): ModifyLootItemAction {
-		if (action.type !== ModifyLootItemAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ModifyLootItemAction`);
-		}
-		return new ModifyLootItemAction(extractPayload(action) as ModifyLootItemPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -137,12 +113,6 @@ export class DuplicateLootItemAction extends LootTableEngineAction<DuplicateLoot
 		return new DuplicateLootItemAction({ itemId, targetPoolIndex });
 	}
 
-	static fromJSON(action: Action): DuplicateLootItemAction {
-		if (action.type !== DuplicateLootItemAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for DuplicateLootItemAction`);
-		}
-		return new DuplicateLootItemAction(extractPayload(action) as DuplicateLootItemPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -174,12 +144,6 @@ export class BulkModifyItemsAction extends LootTableEngineAction<BulkModifyItems
 		return new BulkModifyItemsAction(payload);
 	}
 
-	static fromJSON(action: Action): BulkModifyItemsAction {
-		if (action.type !== BulkModifyItemsAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for BulkModifyItemsAction`);
-		}
-		return new BulkModifyItemsAction(extractPayload(action) as BulkModifyItemsPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -222,12 +186,6 @@ export class CreateLootGroupAction extends LootTableEngineAction<CreateLootGroup
 		return new CreateLootGroupAction(payload);
 	}
 
-	static fromJSON(action: Action): CreateLootGroupAction {
-		if (action.type !== CreateLootGroupAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for CreateLootGroupAction`);
-		}
-		return new CreateLootGroupAction(extractPayload(action) as CreateLootGroupPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -257,12 +215,6 @@ export class ModifyLootGroupAction extends LootTableEngineAction<ModifyLootGroup
 		return new ModifyLootGroupAction(payload);
 	}
 
-	static fromJSON(action: Action): ModifyLootGroupAction {
-		if (action.type !== ModifyLootGroupAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ModifyLootGroupAction`);
-		}
-		return new ModifyLootGroupAction(extractPayload(action) as ModifyLootGroupPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -298,12 +250,6 @@ export class DissolveLootGroupAction extends LootTableEngineAction<DissolveLootG
 		return new DissolveLootGroupAction({ groupId });
 	}
 
-	static fromJSON(action: Action): DissolveLootGroupAction {
-		if (action.type !== DissolveLootGroupAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for DissolveLootGroupAction`);
-		}
-		return new DissolveLootGroupAction(extractPayload(action) as DissolveLootGroupPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -329,12 +275,6 @@ export class ConvertItemToGroupAction extends LootTableEngineAction<ConvertItemT
 		return new ConvertItemToGroupAction(payload);
 	}
 
-	static fromJSON(action: Action): ConvertItemToGroupAction {
-		if (action.type !== ConvertItemToGroupAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ConvertItemToGroupAction`);
-		}
-		return new ConvertItemToGroupAction(extractPayload(action) as ConvertItemToGroupPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -363,12 +303,6 @@ export class ConvertGroupToItemAction extends LootTableEngineAction<ConvertGroup
 		return new ConvertGroupToItemAction({ groupId, keepFirstItem });
 	}
 
-	static fromJSON(action: Action): ConvertGroupToItemAction {
-		if (action.type !== ConvertGroupToItemAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ConvertGroupToItemAction`);
-		}
-		return new ConvertGroupToItemAction(extractPayload(action) as ConvertGroupToItemPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -400,12 +334,6 @@ export class NestGroupInGroupAction extends LootTableEngineAction<NestGroupInGro
 		return new NestGroupInGroupAction(payload);
 	}
 
-	static fromJSON(action: Action): NestGroupInGroupAction {
-		if (action.type !== NestGroupInGroupAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for NestGroupInGroupAction`);
-		}
-		return new NestGroupInGroupAction(extractPayload(action) as NestGroupInGroupPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -428,12 +356,6 @@ export class UnnestGroupAction extends LootTableEngineAction<UnnestGroupPayload>
 		return new UnnestGroupAction({ groupId });
 	}
 
-	static fromJSON(action: Action): UnnestGroupAction {
-		if (action.type !== UnnestGroupAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for UnnestGroupAction`);
-		}
-		return new UnnestGroupAction(extractPayload(action) as UnnestGroupPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -454,12 +376,6 @@ export class MoveItemBetweenPoolsAction extends LootTableEngineAction<MoveItemBe
 		return new MoveItemBetweenPoolsAction({ itemId, targetPoolIndex });
 	}
 
-	static fromJSON(action: Action): MoveItemBetweenPoolsAction {
-		if (action.type !== MoveItemBetweenPoolsAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for MoveItemBetweenPoolsAction`);
-		}
-		return new MoveItemBetweenPoolsAction(extractPayload(action) as MoveItemBetweenPoolsPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -481,12 +397,6 @@ export class MoveGroupBetweenPoolsAction extends LootTableEngineAction<MoveGroup
 		return new MoveGroupBetweenPoolsAction({ groupId, targetPoolIndex });
 	}
 
-	static fromJSON(action: Action): MoveGroupBetweenPoolsAction {
-		if (action.type !== MoveGroupBetweenPoolsAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for MoveGroupBetweenPoolsAction`);
-		}
-		return new MoveGroupBetweenPoolsAction(extractPayload(action) as MoveGroupBetweenPoolsPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -508,12 +418,6 @@ export class BalanceWeightsAction extends LootTableEngineAction<BalanceWeightsPa
 		return new BalanceWeightsAction({ poolIndex, targetTotal });
 	}
 
-	static fromJSON(action: Action): BalanceWeightsAction {
-		if (action.type !== BalanceWeightsAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for BalanceWeightsAction`);
-		}
-		return new BalanceWeightsAction(extractPayload(action) as BalanceWeightsPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -549,12 +453,6 @@ export class ConditionalLootAction extends LootTableEngineAction<ConditionalLoot
 		return new ConditionalLootAction(payload);
 	}
 
-	static fromJSON(action: Action): ConditionalLootAction {
-		if (action.type !== ConditionalLootAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ConditionalLootAction`);
-		}
-		return new ConditionalLootAction(extractPayload(action) as ConditionalLootPayload);
-	}
 
 	protected async apply(element: Record<string, unknown>, context: ActionExecutionContext): Promise<Record<string, unknown>> {
 		const lootTable = this.clone(element);
@@ -605,7 +503,8 @@ export const LOOT_TABLE_ACTION_CLASSES = [
 	ConditionalLootAction
 ] as const;
 
-export type LootTableActionInstance = InstanceType<(typeof LOOT_TABLE_ACTION_CLASSES)[number]>;
+export type LootTableActionInstance = ActionsFromClasses<typeof LOOT_TABLE_ACTION_CLASSES>;
+export type LootTableAction = ActionJsonFromClasses<typeof LOOT_TABLE_ACTION_CLASSES>;
 
 export const LootTableActions = {
 	addLootItem: (payload: AddLootItemPayload) => AddLootItemAction.create(payload),
@@ -625,7 +524,3 @@ export const LootTableActions = {
 	balanceWeights: (poolIndex: number, targetTotal?: number) => BalanceWeightsAction.create(poolIndex, targetTotal),
 	conditionalLoot: (payload: ConditionalLootPayload) => ConditionalLootAction.create(payload)
 };
-
-export function isLootTableActionInstance(action: ActionLike): action is LootTableActionInstance {
-	return isEngineAction(action) && LOOT_TABLE_ACTION_CLASSES.some((ctor) => action instanceof ctor);
-}

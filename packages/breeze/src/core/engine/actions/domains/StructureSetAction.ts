@@ -5,8 +5,8 @@ import type {
 	StructureSetProps,
 	StructureSetStructure
 } from "@/core/schema/structure_set/types";
-import type { Action } from "@/core/engine/actions/types";
-import { EngineAction, extractPayload, type ActionLike, isEngineAction } from "@/core/engine/actions/EngineAction";
+import type { ActionJsonFromClasses, ActionsFromClasses } from "@/core/engine/actions/domain";
+import { EngineAction } from "@/core/engine/actions/EngineAction";
 
 abstract class StructureSetEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
 	protected clone(element: Record<string, unknown>): StructureSetProps {
@@ -24,12 +24,6 @@ export class AddStructureAction extends StructureSetEngineAction<AddStructurePay
 		return new AddStructureAction({ structure, weight, position });
 	}
 
-	static fromJSON(action: Action): AddStructureAction {
-		if (action.type !== AddStructureAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for AddStructureAction`);
-		}
-		return new AddStructureAction(extractPayload(action) as AddStructurePayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
@@ -61,12 +55,6 @@ export class RemoveStructureAction extends StructureSetEngineAction<RemoveStruct
 		return new RemoveStructureAction({ structureId });
 	}
 
-	static fromJSON(action: Action): RemoveStructureAction {
-		if (action.type !== RemoveStructureAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for RemoveStructureAction`);
-		}
-		return new RemoveStructureAction(extractPayload(action) as RemoveStructurePayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
@@ -89,12 +77,6 @@ export class ModifyStructureAction extends StructureSetEngineAction<ModifyStruct
 		return new ModifyStructureAction(payload);
 	}
 
-	static fromJSON(action: Action): ModifyStructureAction {
-		if (action.type !== ModifyStructureAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ModifyStructureAction`);
-		}
-		return new ModifyStructureAction(extractPayload(action) as ModifyStructurePayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
@@ -124,12 +106,6 @@ export class SetPlacementTypeAction extends StructureSetEngineAction<SetPlacemen
 		return new SetPlacementTypeAction({ placementType });
 	}
 
-	static fromJSON(action: Action): SetPlacementTypeAction {
-		if (action.type !== SetPlacementTypeAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for SetPlacementTypeAction`);
-		}
-		return new SetPlacementTypeAction(extractPayload(action) as SetPlacementTypePayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
@@ -153,12 +129,6 @@ export class ConfigurePlacementAction extends StructureSetEngineAction<Configure
 		return new ConfigurePlacementAction(payload);
 	}
 
-	static fromJSON(action: Action): ConfigurePlacementAction {
-		if (action.type !== ConfigurePlacementAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ConfigurePlacementAction`);
-		}
-		return new ConfigurePlacementAction(extractPayload(action) as ConfigurePlacementPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
@@ -182,12 +152,6 @@ export class SetExclusionZoneAction extends StructureSetEngineAction<SetExclusio
 		return new SetExclusionZoneAction({ otherSet, chunkCount });
 	}
 
-	static fromJSON(action: Action): SetExclusionZoneAction {
-		if (action.type !== SetExclusionZoneAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for SetExclusionZoneAction`);
-		}
-		return new SetExclusionZoneAction(extractPayload(action) as SetExclusionZonePayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
@@ -211,12 +175,6 @@ export class RemoveExclusionZoneAction extends StructureSetEngineAction<Record<s
 		return new RemoveExclusionZoneAction();
 	}
 
-	static fromJSON(action: Action): RemoveExclusionZoneAction {
-		if (action.type !== RemoveExclusionZoneAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for RemoveExclusionZoneAction`);
-		}
-		return new RemoveExclusionZoneAction();
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
@@ -240,12 +198,6 @@ export class ConfigureConcentricRingsAction extends StructureSetEngineAction<Con
 		return new ConfigureConcentricRingsAction(payload);
 	}
 
-	static fromJSON(action: Action): ConfigureConcentricRingsAction {
-		if (action.type !== ConfigureConcentricRingsAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ConfigureConcentricRingsAction`);
-		}
-		return new ConfigureConcentricRingsAction(extractPayload(action) as ConfigureConcentricRingsPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
@@ -271,12 +223,6 @@ export class ConfigureRandomSpreadAction extends StructureSetEngineAction<Config
 		return new ConfigureRandomSpreadAction(payload);
 	}
 
-	static fromJSON(action: Action): ConfigureRandomSpreadAction {
-		if (action.type !== ConfigureRandomSpreadAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ConfigureRandomSpreadAction`);
-		}
-		return new ConfigureRandomSpreadAction(extractPayload(action) as ConfigureRandomSpreadPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
@@ -297,12 +243,6 @@ export class ReorderStructuresAction extends StructureSetEngineAction<ReorderStr
 		return new ReorderStructuresAction({ structureIds });
 	}
 
-	static fromJSON(action: Action): ReorderStructuresAction {
-		if (action.type !== ReorderStructuresAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ReorderStructuresAction`);
-		}
-		return new ReorderStructuresAction(extractPayload(action) as ReorderStructuresPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
@@ -331,7 +271,8 @@ export const STRUCTURE_SET_ACTION_CLASSES = [
 	ReorderStructuresAction
 ] as const;
 
-export type StructureSetActionInstance = InstanceType<(typeof STRUCTURE_SET_ACTION_CLASSES)[number]>;
+export type StructureSetActionInstance = ActionsFromClasses<typeof STRUCTURE_SET_ACTION_CLASSES>;
+export type StructureSetAction = ActionJsonFromClasses<typeof STRUCTURE_SET_ACTION_CLASSES>;
 
 export const StructureSetActions = {
 	addStructure: (structure: string, weight: number, position?: number) => AddStructureAction.create(structure, weight, position),
@@ -345,7 +286,3 @@ export const StructureSetActions = {
 	configureRandomSpread: (payload: ConfigureRandomSpreadPayload) => ConfigureRandomSpreadAction.create(payload),
 	reorderStructures: (structureIds: string[]) => ReorderStructuresAction.create(structureIds)
 };
-
-export function isStructureSetActionInstance(action: ActionLike): action is StructureSetActionInstance {
-	return isEngineAction(action) && STRUCTURE_SET_ACTION_CLASSES.some((ctor) => action instanceof ctor);
-}

@@ -1,7 +1,7 @@
 import { updateData } from "@/core/engine/actions";
-import { CoreActions } from "@/core/engine/actions/domains/core/actions";
-import { RecipeActions } from "@/core/engine/actions/domains/recipe/actions";
-import { LootTableActions } from "@/core/engine/actions/domains/loot_table/actions";
+import { CoreActions } from "@/core/engine/actions/domains/CoreAction";
+import { RecipeActions } from "@/core/engine/actions/domains/RecipeAction";
+import { LootTableActions } from "@/core/engine/actions/domains/LootTableAction";
 import type { LootTableProps } from "@/core/schema/loot/types";
 import type { RecipeProps } from "@/core/schema/recipe/types";
 import { describe, it, expect } from "vitest";

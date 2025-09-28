@@ -1,6 +1,6 @@
 import type { StructureProps, SpawnOverride, DecorationStep } from "@/core/schema/structure/types";
-import type { Action } from "@/core/engine/actions/types";
-import { EngineAction, extractPayload, type ActionLike, isEngineAction } from "@/core/engine/actions/EngineAction";
+import type { ActionJsonFromClasses, ActionsFromClasses } from "@/core/engine/actions/domain";
+import { EngineAction } from "@/core/engine/actions/EngineAction";
 
 abstract class StructureEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
 	protected clone(element: Record<string, unknown>): StructureProps {
@@ -18,12 +18,6 @@ export class SetBiomesAction extends StructureEngineAction<SetBiomesPayload> {
 		return new SetBiomesAction({ biomes, replace });
 	}
 
-	static fromJSON(action: Action): SetBiomesAction {
-		if (action.type !== SetBiomesAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for SetBiomesAction`);
-		}
-		return new SetBiomesAction(extractPayload(action) as SetBiomesPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
@@ -52,12 +46,6 @@ export class AddSpawnOverrideAction extends StructureEngineAction<AddSpawnOverri
 		return new AddSpawnOverrideAction(payload);
 	}
 
-	static fromJSON(action: Action): AddSpawnOverrideAction {
-		if (action.type !== AddSpawnOverrideAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for AddSpawnOverrideAction`);
-		}
-		return new AddSpawnOverrideAction(extractPayload(action) as AddSpawnOverridePayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
@@ -84,12 +72,6 @@ export class RemoveSpawnOverrideAction extends StructureEngineAction<RemoveSpawn
 		return new RemoveSpawnOverrideAction({ mobCategory });
 	}
 
-	static fromJSON(action: Action): RemoveSpawnOverrideAction {
-		if (action.type !== RemoveSpawnOverrideAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for RemoveSpawnOverrideAction`);
-		}
-		return new RemoveSpawnOverrideAction(extractPayload(action) as RemoveSpawnOverridePayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
@@ -116,12 +98,6 @@ export class SetJigsawConfigAction extends StructureEngineAction<SetJigsawConfig
 		return new SetJigsawConfigAction(payload);
 	}
 
-	static fromJSON(action: Action): SetJigsawConfigAction {
-		if (action.type !== SetJigsawConfigAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for SetJigsawConfigAction`);
-		}
-		return new SetJigsawConfigAction(extractPayload(action) as SetJigsawConfigPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
@@ -153,12 +129,6 @@ export class AddPoolAliasAction extends StructureEngineAction<AddPoolAliasPayloa
 		return new AddPoolAliasAction(payload);
 	}
 
-	static fromJSON(action: Action): AddPoolAliasAction {
-		if (action.type !== AddPoolAliasAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for AddPoolAliasAction`);
-		}
-		return new AddPoolAliasAction(extractPayload(action) as AddPoolAliasPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
@@ -184,12 +154,6 @@ export class RemovePoolAliasAction extends StructureEngineAction<RemovePoolAlias
 		return new RemovePoolAliasAction({ alias });
 	}
 
-	static fromJSON(action: Action): RemovePoolAliasAction {
-		if (action.type !== RemovePoolAliasAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for RemovePoolAliasAction`);
-		}
-		return new RemovePoolAliasAction(extractPayload(action) as RemovePoolAliasPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
@@ -209,12 +173,6 @@ export class SetTerrainAdaptationAction extends StructureEngineAction<SetTerrain
 		return new SetTerrainAdaptationAction({ adaptation });
 	}
 
-	static fromJSON(action: Action): SetTerrainAdaptationAction {
-		if (action.type !== SetTerrainAdaptationAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for SetTerrainAdaptationAction`);
-		}
-		return new SetTerrainAdaptationAction(extractPayload(action) as SetTerrainAdaptationPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
@@ -233,12 +191,6 @@ export class SetDecorationStepAction extends StructureEngineAction<SetDecoration
 		return new SetDecorationStepAction({ step });
 	}
 
-	static fromJSON(action: Action): SetDecorationStepAction {
-		if (action.type !== SetDecorationStepAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for SetDecorationStepAction`);
-		}
-		return new SetDecorationStepAction(extractPayload(action) as SetDecorationStepPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
@@ -258,7 +210,8 @@ export const STRUCTURE_ACTION_CLASSES = [
 	SetDecorationStepAction
 ] as const;
 
-export type StructureActionInstance = InstanceType<(typeof STRUCTURE_ACTION_CLASSES)[number]>;
+export type StructureActionInstance = ActionsFromClasses<typeof STRUCTURE_ACTION_CLASSES>;
+export type StructureAction = ActionJsonFromClasses<typeof STRUCTURE_ACTION_CLASSES>;
 
 export const StructureActions = {
 	setBiomes: (biomes: string[], replace = false) => SetBiomesAction.create(biomes, replace),
@@ -270,7 +223,3 @@ export const StructureActions = {
 	setTerrainAdaptation: (adaptation: SetTerrainAdaptationPayload["adaptation"]) => SetTerrainAdaptationAction.create(adaptation),
 	setDecorationStep: (step: string) => SetDecorationStepAction.create(step)
 };
-
-export function isStructureActionInstance(action: ActionLike): action is StructureActionInstance {
-	return isEngineAction(action) && STRUCTURE_ACTION_CLASSES.some((ctor) => action instanceof ctor);
-}

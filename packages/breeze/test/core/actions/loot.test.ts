@@ -1,5 +1,5 @@
 import { updateData } from "@/core/engine/actions";
-import type { LootTableAction } from "@/core/engine/actions/domains/loot_table/types";
+import type { LootTableAction } from "@/core/engine/actions/domains/LootTableAction";
 import type { LootTableProps } from "@/core/schema/loot/types";
 import { describe, it, expect, beforeEach } from "vitest";
 

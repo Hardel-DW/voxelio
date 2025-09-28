@@ -1,15 +1,9 @@
 import { getManager } from "@/core/engine/Manager";
 import { isArraySlotRegistryType, isSlotRegistryType, type SlotRegistryType } from "@/core/engine/managers/SlotManager";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
-import type { Action } from "@/core/engine/actions/types";
+import type { ActionJsonFromClasses, ActionsFromClasses } from "@/core/engine/actions/domain";
 import { getFieldValue, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
-import {
-	EngineAction,
-	extractPayload,
-	type ActionExecutionContext,
-	type ActionLike,
-	isEngineAction
-} from "@/core/engine/actions/EngineAction";
+import { EngineAction, type ActionExecutionContext } from "@/core/engine/actions/EngineAction";
 
 abstract class EnchantmentEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
 	protected clone(element: Record<string, unknown>): EnchantmentProps {
@@ -25,13 +19,6 @@ export class SetComputedSlotAction extends EnchantmentEngineAction<SetComputedSl
 
 	static create(path: string, slot: SlotRegistryType | unknown): SetComputedSlotAction {
 		return new SetComputedSlotAction({ path, slot });
-	}
-
-	static fromJSON(action: Action): SetComputedSlotAction {
-		if (action.type !== SetComputedSlotAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for SetComputedSlotAction`);
-		}
-		return new SetComputedSlotAction(extractPayload(action) as SetComputedSlotPayload);
 	}
 
 	protected apply(element: Record<string, unknown>, context: ActionExecutionContext): Record<string, unknown> {
@@ -74,13 +61,6 @@ export class ToggleEnchantmentToExclusiveSetAction extends EnchantmentEngineActi
 		return new ToggleEnchantmentToExclusiveSetAction({ enchantment });
 	}
 
-	static fromJSON(action: Action): ToggleEnchantmentToExclusiveSetAction {
-		if (action.type !== ToggleEnchantmentToExclusiveSetAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ToggleEnchantmentToExclusiveSetAction`);
-		}
-		return new ToggleEnchantmentToExclusiveSetAction(extractPayload(action) as ToggleExclusivePayload);
-	}
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const props = this.clone(element);
 		const enchantment = this.payload.enchantment;
@@ -112,13 +92,6 @@ export class SetExclusiveSetWithTagsAction extends EnchantmentEngineAction<SetEx
 		return new SetExclusiveSetWithTagsAction({ value });
 	}
 
-	static fromJSON(action: Action): SetExclusiveSetWithTagsAction {
-		if (action.type !== SetExclusiveSetWithTagsAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for SetExclusiveSetWithTagsAction`);
-		}
-		return new SetExclusiveSetWithTagsAction(extractPayload(action) as SetExclusivePayload);
-	}
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const props = this.clone(element);
 		if (props.exclusiveSet === this.payload.value) {
@@ -136,15 +109,11 @@ export const ENCHANTMENT_ACTION_CLASSES = [
 	ToggleEnchantmentToExclusiveSetAction,
 	SetExclusiveSetWithTagsAction
 ] as const;
-
-export type EnchantmentActionInstance = InstanceType<(typeof ENCHANTMENT_ACTION_CLASSES)[number]>;
+export type EnchantmentActionInstance = ActionsFromClasses<typeof ENCHANTMENT_ACTION_CLASSES>;
+export type EnchantmentAction = ActionJsonFromClasses<typeof ENCHANTMENT_ACTION_CLASSES>;
 
 export const EnchantmentActions = {
 	setComputedSlot: (path: string, slot: SlotRegistryType | unknown) => SetComputedSlotAction.create(path, slot),
 	toggleEnchantmentToExclusiveSet: (enchantment: string) => ToggleEnchantmentToExclusiveSetAction.create(enchantment),
 	setExclusiveSetWithTags: (value: string) => SetExclusiveSetWithTagsAction.create(value)
 };
-
-export function isEnchantmentActionInstance(action: ActionLike): action is EnchantmentActionInstance {
-	return isEngineAction(action) && ENCHANTMENT_ACTION_CLASSES.some((ctor) => action instanceof ctor);
-}

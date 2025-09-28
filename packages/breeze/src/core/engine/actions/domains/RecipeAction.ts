@@ -1,6 +1,6 @@
 import type { RecipeProps, RecipeType } from "@/core/schema/recipe/types";
-import type { Action } from "@/core/engine/actions/types";
-import { EngineAction, extractPayload, type ActionLike, isEngineAction } from "@/core/engine/actions/EngineAction";
+import type { ActionJsonFromClasses, ActionsFromClasses } from "@/core/engine/actions/domain";
+import { EngineAction } from "@/core/engine/actions/EngineAction";
 
 abstract class RecipeEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
 	protected clone(element: Record<string, unknown>): RecipeProps {
@@ -18,12 +18,6 @@ export class AddIngredientAction extends RecipeEngineAction<AddIngredientPayload
 		return new AddIngredientAction({ slot, items, replace });
 	}
 
-	static fromJSON(action: Action): AddIngredientAction {
-		if (action.type !== AddIngredientAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for AddIngredientAction`);
-		}
-		return new AddIngredientAction(extractPayload(action) as AddIngredientPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);
@@ -52,12 +46,6 @@ export class AddShapelessIngredientAction extends RecipeEngineAction<AddShapeles
 		return new AddShapelessIngredientAction({ items });
 	}
 
-	static fromJSON(action: Action): AddShapelessIngredientAction {
-		if (action.type !== AddShapelessIngredientAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for AddShapelessIngredientAction`);
-		}
-		return new AddShapelessIngredientAction(extractPayload(action) as AddShapelessIngredientPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);
@@ -79,12 +67,6 @@ export class RemoveIngredientAction extends RecipeEngineAction<RemoveIngredientP
 		return new RemoveIngredientAction({ slot, items });
 	}
 
-	static fromJSON(action: Action): RemoveIngredientAction {
-		if (action.type !== RemoveIngredientAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for RemoveIngredientAction`);
-		}
-		return new RemoveIngredientAction(extractPayload(action) as RemoveIngredientPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);
@@ -115,12 +97,6 @@ export class RemoveItemEverywhereAction extends RecipeEngineAction<RemoveItemEve
 		return new RemoveItemEverywhereAction({ items });
 	}
 
-	static fromJSON(action: Action): RemoveItemEverywhereAction {
-		if (action.type !== RemoveItemEverywhereAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for RemoveItemEverywhereAction`);
-		}
-		return new RemoveItemEverywhereAction(extractPayload(action) as RemoveItemEverywherePayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);
@@ -150,12 +126,6 @@ export class ReplaceItemEverywhereAction extends RecipeEngineAction<ReplaceItemE
 		return new ReplaceItemEverywhereAction({ from, to });
 	}
 
-	static fromJSON(action: Action): ReplaceItemEverywhereAction {
-		if (action.type !== ReplaceItemEverywhereAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ReplaceItemEverywhereAction`);
-		}
-		return new ReplaceItemEverywhereAction(extractPayload(action) as ReplaceItemEverywherePayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);
@@ -188,12 +158,6 @@ export class ClearSlotAction extends RecipeEngineAction<ClearSlotPayload> {
 		return new ClearSlotAction({ slot });
 	}
 
-	static fromJSON(action: Action): ClearSlotAction {
-		if (action.type !== ClearSlotAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ClearSlotAction`);
-		}
-		return new ClearSlotAction(extractPayload(action) as ClearSlotPayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);
@@ -212,12 +176,6 @@ export class ConvertRecipeTypeAction extends RecipeEngineAction<ConvertRecipeTyp
 		return new ConvertRecipeTypeAction({ newType, preserveIngredients });
 	}
 
-	static fromJSON(action: Action): ConvertRecipeTypeAction {
-		if (action.type !== ConvertRecipeTypeAction.type) {
-			throw new Error(`Invalid action type '${action.type}' for ConvertRecipeTypeAction`);
-		}
-		return new ConvertRecipeTypeAction(extractPayload(action) as ConvertRecipeTypePayload);
-	}
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);
@@ -264,7 +222,8 @@ export const RECIPE_ACTION_CLASSES = [
 	ClearSlotAction
 ] as const;
 
-export type RecipeActionInstance = InstanceType<(typeof RECIPE_ACTION_CLASSES)[number]>;
+export type RecipeActionInstance = ActionsFromClasses<typeof RECIPE_ACTION_CLASSES>;
+export type RecipeAction = ActionJsonFromClasses<typeof RECIPE_ACTION_CLASSES>;
 
 export const RecipeActions = {
 	addIngredient: (slot: string, items: string[], replace = false) => AddIngredientAction.create(slot, items, replace),
@@ -275,7 +234,3 @@ export const RecipeActions = {
 	clearSlot: (slot: string) => ClearSlotAction.create(slot),
 	convertType: (newType: string, preserveIngredients = true) => ConvertRecipeTypeAction.create(newType, preserveIngredients)
 };
-
-export function isRecipeActionInstance(action: ActionLike): action is RecipeActionInstance {
-	return isEngineAction(action) && RECIPE_ACTION_CLASSES.some((ctor) => action instanceof ctor);
-}

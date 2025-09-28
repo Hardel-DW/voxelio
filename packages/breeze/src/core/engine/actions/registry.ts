@@ -1,23 +1,21 @@
-import registerCore from "@/core/engine/actions/domains/core";
-import registerEnchantment from "@/core/engine/actions/domains/enchantment";
-import registerLootTable from "@/core/engine/actions/domains/loot_table";
-import registerRecipe from "@/core/engine/actions/domains/recipe";
-import registerStructure from "@/core/engine/actions/domains/structure";
-import registerStructureSet from "@/core/engine/actions/domains/structure_set";
+import { CORE_ACTION_CLASSES } from "@/core/engine/actions/domains/CoreAction";
+import { ENCHANTMENT_ACTION_CLASSES } from "@/core/engine/actions/domains/EnchantmentAction";
+import { LOOT_TABLE_ACTION_CLASSES } from "@/core/engine/actions/domains/LootTableAction";
+import { RECIPE_ACTION_CLASSES } from "@/core/engine/actions/domains/RecipeAction";
+import { STRUCTURE_ACTION_CLASSES } from "@/core/engine/actions/domains/StructureAction";
+import { STRUCTURE_SET_ACTION_CLASSES } from "@/core/engine/actions/domains/StructureSetAction";
 import type { ActionHandler } from "@/core/engine/actions/types";
 import { ActionCodecRegistry, type ActionClass } from "@/core/engine/actions/ActionCodecRegistry";
 import { type ActionLike, isEngineAction, type ActionExecutionContext } from "@/core/engine/actions/EngineAction";
 
-type DomainRegistrar = (registry: ActionRegistry) => Map<string, ActionHandler>;
-
-const DOMAIN_REGISTRARS: Record<string, DomainRegistrar> = {
-	core: registerCore,
-	enchantment: registerEnchantment,
-	loot_table: registerLootTable,
-	recipe: registerRecipe,
-	structure: registerStructure,
-	structure_set: registerStructureSet
-};
+const DOMAIN_ACTION_GROUPS: readonly (readonly ActionClass[])[] = [
+	CORE_ACTION_CLASSES,
+	ENCHANTMENT_ACTION_CLASSES,
+	LOOT_TABLE_ACTION_CLASSES,
+	RECIPE_ACTION_CLASSES,
+	STRUCTURE_ACTION_CLASSES,
+	STRUCTURE_SET_ACTION_CLASSES
+];
 
 class ClassBasedActionHandler implements ActionHandler<ActionLike> {
 	constructor(
@@ -41,10 +39,10 @@ export class ActionRegistry {
 	private readonly codec = new ActionCodecRegistry();
 
 	constructor() {
-		for (const registrar of Object.values(DOMAIN_REGISTRARS)) {
-			const domainHandlers = registrar(this);
-			for (const [type, handler] of domainHandlers) {
-				this.handlers.set(type, handler);
+		for (const actionClasses of DOMAIN_ACTION_GROUPS) {
+			for (const actionClass of actionClasses) {
+				const handler = this.registerClass(actionClass);
+				this.handlers.set(actionClass.type, handler);
 			}
 		}
 	}

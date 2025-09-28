@@ -1,5 +1,5 @@
 import { updateData } from "@/core/engine/actions";
-import { CoreActions } from "@/core/engine/actions/domains/core/actions";
+import { CoreActions } from "@/core/engine/actions/domains/CoreAction";
 import { deepDiff, normalizeValue } from "@/core/engine/migrations/differ";
 import type { ChangeSet, DatapackInfo, LogsStructure } from "@/core/engine/migrations/types";
 

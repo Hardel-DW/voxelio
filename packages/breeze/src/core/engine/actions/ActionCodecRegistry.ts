@@ -1,25 +1,26 @@
 import type { Action } from "@/core/engine/actions/types";
-import { type EngineAction, type ActionLike, isEngineAction } from "@/core/engine/actions/EngineAction";
+import { extractPayload, type EngineAction, type ActionLike, isEngineAction } from "@/core/engine/actions/EngineAction";
 
-export interface ActionClass<TAction extends EngineAction = EngineAction> {
+export type ActionClass<TAction extends EngineAction = EngineAction> = {
 	readonly type: string;
-	new (...args: any[]): TAction;
-	fromJSON(json: Action): TAction;
-}
+	readonly prototype: TAction;
+};
 
 export class ActionCodecRegistry {
-	private readonly decoders = new Map<string, (json: Action) => EngineAction>();
+	private readonly classes = new Map<string, ActionClass>();
 
 	register<TAction extends EngineAction>(actionClass: ActionClass<TAction>): void {
-		this.decoders.set(actionClass.type, (json: Action) => actionClass.fromJSON(json));
+		this.classes.set(actionClass.type, actionClass);
 	}
 
 	decode(json: Action): EngineAction {
-		const decoder = this.decoders.get(json.type);
-		if (!decoder) {
+		const actionClass = this.classes.get(json.type);
+		if (!actionClass) {
 			throw new Error(`No decoder registered for action type '${json.type}'`);
 		}
-		return decoder(json);
+		const payload = extractPayload(json);
+		const ctor = actionClass as unknown as new (payload: any) => EngineAction;
+		return new ctor(payload);
 	}
 
 	encode(action: ActionLike): Action {
@@ -27,6 +28,6 @@ export class ActionCodecRegistry {
 	}
 
 	has(type: string): boolean {
-		return this.decoders.has(type);
+		return this.classes.has(type);
 	}
 }

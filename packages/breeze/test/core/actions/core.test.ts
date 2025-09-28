@@ -1,5 +1,5 @@
 import { updateData } from "@/core/engine/actions";
-import type { CoreAction } from "@/core/engine/actions/domains/core/types";
+import type { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 import { describe, expect, it, beforeEach } from "vitest";
 import { createComplexMockElement, createMockEnchantmentElement } from "@test/mock/enchant/VoxelDriven";
 
