@@ -1,5 +1,5 @@
 import type { RecipeProps, RecipeType } from "@/core/schema/recipe/types";
-import { defineActionDomain, type ActionJsonFromClasses } from "@/core/engine/actions/domain";
+import { createActions } from "@/core/engine/actions/domain";
 import { EngineAction } from "@/core/engine/actions/EngineAction";
 
 abstract class RecipeEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
@@ -184,47 +184,43 @@ export class ConvertRecipeTypeAction extends RecipeEngineAction<ConvertRecipeTyp
 	}
 }
 
-const RECIPE_ACTION_DOMAIN = defineActionDomain("recipe", [
-	[
-		"addIngredient",
-		"add_ingredient",
-		AddIngredientAction,
-		(slot: string, items: string[], replace = false) => AddIngredientAction.create(slot, items, replace)
-	],
-	[
-		"addShapelessIngredient",
-		"add_shapeless_ingredient",
-		AddShapelessIngredientAction,
-		(items: string | string[]) => AddShapelessIngredientAction.create(items)
-	],
-	[
-		"removeIngredient",
-		"remove_ingredient",
-		RemoveIngredientAction,
-		(slot: string, items?: string[]) => RemoveIngredientAction.create(slot, items)
-	],
-	[
-		"removeItemEverywhere",
-		"remove_item_everywhere",
-		RemoveItemEverywhereAction,
-		(items: string[]) => RemoveItemEverywhereAction.create(items)
-	],
-	[
-		"replaceItemEverywhere",
-		"replace_item_everywhere",
-		ReplaceItemEverywhereAction,
-		(from: string, to: string) => ReplaceItemEverywhereAction.create(from, to)
-	],
-	[
-		"convertType",
-		"convert_recipe_type",
-		ConvertRecipeTypeAction,
-		(newType: string, preserveIngredients = true) => ConvertRecipeTypeAction.create(newType, preserveIngredients)
-	],
-	["clearSlot", "clear_slot", ClearSlotAction, (slot: string) => ClearSlotAction.create(slot)]
-] as const);
+const RECIPE_DOMAIN = createActions({
+	addIngredient: {
+		type: "recipe.add_ingredient",
+		class: AddIngredientAction,
+		create: (slot: string, items: string[], replace = false) => AddIngredientAction.create(slot, items, replace)
+	},
+	addShapelessIngredient: {
+		type: "recipe.add_shapeless_ingredient",
+		class: AddShapelessIngredientAction,
+		create: (items: string | string[]) => AddShapelessIngredientAction.create(items)
+	},
+	removeIngredient: {
+		type: "recipe.remove_ingredient",
+		class: RemoveIngredientAction,
+		create: (slot: string, items?: string[]) => RemoveIngredientAction.create(slot, items)
+	},
+	removeItemEverywhere: {
+		type: "recipe.remove_item_everywhere",
+		class: RemoveItemEverywhereAction,
+		create: (items: string[]) => RemoveItemEverywhereAction.create(items)
+	},
+	replaceItemEverywhere: {
+		type: "recipe.replace_item_everywhere",
+		class: ReplaceItemEverywhereAction,
+		create: (from: string, to: string) => ReplaceItemEverywhereAction.create(from, to)
+	},
+	convertType: {
+		type: "recipe.convert_recipe_type",
+		class: ConvertRecipeTypeAction,
+		create: (newType: string, preserveIngredients = true) => ConvertRecipeTypeAction.create(newType, preserveIngredients)
+	},
+	clearSlot: {
+		type: "recipe.clear_slot",
+		class: ClearSlotAction,
+		create: (slot: string) => ClearSlotAction.create(slot)
+	}
+});
 
-export const RECIPE_ACTION_CLASSES = RECIPE_ACTION_DOMAIN.classes;
-export const RecipeActions = RECIPE_ACTION_DOMAIN.builders;
-
-export type RecipeAction = ActionJsonFromClasses<typeof RECIPE_ACTION_CLASSES>;
+export const RECIPE_ACTION_CLASSES = RECIPE_DOMAIN.classes;
+export const RecipeActions = RECIPE_DOMAIN.builders;

@@ -1,9 +1,9 @@
 import { getManager } from "@/core/engine/Manager";
 import { isArraySlotRegistryType, isSlotRegistryType, type SlotRegistryType } from "@/core/engine/managers/SlotManager";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
-import { defineActionDomain, type ActionJsonFromClasses } from "@/core/engine/actions/domain";
+import { createActions } from "@/core/engine/actions/domain";
 import { getFieldValue, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
-import { EngineAction, type ActionExecutionContext } from "@/core/engine/actions/EngineAction";
+import { EngineAction } from "@/core/engine/actions/EngineAction";
 
 abstract class EnchantmentEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
 	protected clone(element: Record<string, unknown>): EnchantmentProps {
@@ -18,8 +18,7 @@ export class SetComputedSlotAction extends EnchantmentEngineAction<SetComputedSl
 		return new SetComputedSlotAction({ path, slot });
 	}
 
-	protected apply(element: Record<string, unknown>, context: ActionExecutionContext): Record<string, unknown> {
-		const version = context.version;
+	protected apply(element: Record<string, unknown>, version?: number): Record<string, unknown> {
 		if (!version) {
 			throw new Error("Version is required for computed slot actions");
 		}
@@ -95,28 +94,23 @@ export class SetExclusiveSetWithTagsAction extends EnchantmentEngineAction<SetEx
 	}
 }
 
-const ENCHANTMENT_ACTION_DOMAIN = defineActionDomain("enchantment", [
-	[
-		"setComputedSlot",
-		"set_computed_slot",
-		SetComputedSlotAction,
-		(path: string, slot: SlotRegistryType | unknown) => SetComputedSlotAction.create(path, slot)
-	],
-	[
-		"toggleEnchantmentToExclusiveSet",
-		"toggle_enchantment_to_exclusive_set",
-		ToggleEnchantmentToExclusiveSetAction,
-		(enchantment: string) => ToggleEnchantmentToExclusiveSetAction.create(enchantment)
-	],
-	[
-		"setExclusiveSetWithTags",
-		"set_exclusive_set_with_tags",
-		SetExclusiveSetWithTagsAction,
-		(value: string) => SetExclusiveSetWithTagsAction.create(value)
-	]
-] as const);
+const ENCHANTMENT_DOMAIN = createActions({
+	setComputedSlot: {
+		type: "enchantment.set_computed_slot",
+		class: SetComputedSlotAction,
+		create: (path: string, slot: SlotRegistryType | unknown) => SetComputedSlotAction.create(path, slot)
+	},
+	toggleEnchantmentToExclusiveSet: {
+		type: "enchantment.toggle_enchantment_to_exclusive_set",
+		class: ToggleEnchantmentToExclusiveSetAction,
+		create: (enchantment: string) => ToggleEnchantmentToExclusiveSetAction.create(enchantment)
+	},
+	setExclusiveSetWithTags: {
+		type: "enchantment.set_exclusive_set_with_tags",
+		class: SetExclusiveSetWithTagsAction,
+		create: (value: string) => SetExclusiveSetWithTagsAction.create(value)
+	}
+});
 
-export const ENCHANTMENT_ACTION_CLASSES = ENCHANTMENT_ACTION_DOMAIN.classes;
-export const EnchantmentActions = ENCHANTMENT_ACTION_DOMAIN.builders;
-
-export type EnchantmentAction = ActionJsonFromClasses<typeof ENCHANTMENT_ACTION_CLASSES>;
+export const ENCHANTMENT_ACTION_CLASSES = ENCHANTMENT_DOMAIN.classes;
+export const EnchantmentActions = ENCHANTMENT_DOMAIN.builders;

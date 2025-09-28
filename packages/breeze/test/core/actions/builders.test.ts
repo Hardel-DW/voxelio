@@ -15,16 +15,6 @@ describe("Core Actions", () => {
         const result = await updateData(action, element, 48);
         expect(result?.foo).toBe(42);
     });
-
-    it("supports sequential execution with instances", async () => {
-        const element = { a: 0, b: 0 };
-        const sequence = CoreActions.sequential(
-            CoreActions.setValue("a", 1),
-            CoreActions.setValue("b", 2)
-        );
-        const result = await updateData(sequence, element, 48);
-        expect(result).toEqual({ a: 1, b: 2 });
-    });
 });
 
 describe("Structure Actions", () => {

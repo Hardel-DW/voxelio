@@ -1,5 +1,5 @@
-import type { Action } from "@/core/engine/actions/types";
-import { extractPayload, type EngineAction, type ActionLike, isEngineAction } from "@/core/engine/actions/EngineAction";
+import type { Action, ActionLike } from "@/core/engine/actions/index";
+import { extractPayload, isEngineAction, type EngineAction } from "@/core/engine/actions/EngineAction";
 
 export type ActionClass<TAction extends EngineAction = EngineAction> = {
 	readonly type: string;

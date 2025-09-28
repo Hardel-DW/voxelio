@@ -1,6 +1,6 @@
 import type { LootGroup, LootItem, LootTableProps } from "@/core/schema/loot/types";
-import { defineActionDomain, type ActionJsonFromClasses } from "@/core/engine/actions/domain";
-import { EngineAction, type ActionExecutionContext, type ActionLike } from "@/core/engine/actions/EngineAction";
+import { createActions } from "@/core/engine/actions/domain";
+import { EngineAction } from "@/core/engine/actions/EngineAction";
 
 abstract class LootTableEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
 	protected clone(element: Record<string, unknown>): LootTableProps {
@@ -373,128 +373,84 @@ export class BalanceWeightsAction extends LootTableEngineAction<BalanceWeightsPa
 	}
 }
 
-type ConditionalLootPayload = {
-	condition: {
-		type: "pool_empty" | "item_count" | "group_exists";
-		poolIndex?: number;
-		itemId?: string;
-		groupId?: string;
-		count?: number;
-	};
-	thenAction: ActionLike | undefined;
-	elseAction?: ActionLike;
-};
 
-export class ConditionalLootAction extends LootTableEngineAction<ConditionalLootPayload> {
-	static create(payload: ConditionalLootPayload): ConditionalLootAction {
-		return new ConditionalLootAction(payload);
+const LOOT_TABLE_DOMAIN = createActions({
+	addLootItem: {
+		type: "loot_table.add_loot_item",
+		class: AddLootItemAction,
+		create: (payload: AddLootItemPayload) => AddLootItemAction.create(payload)
+	},
+	removeLootItem: {
+		type: "loot_table.remove_loot_item",
+		class: RemoveLootItemAction,
+		create: (itemId: string) => RemoveLootItemAction.create(itemId)
+	},
+	modifyLootItem: {
+		type: "loot_table.modify_loot_item",
+		class: ModifyLootItemAction,
+		create: (payload: ModifyLootItemPayload) => ModifyLootItemAction.create(payload)
+	},
+	duplicateLootItem: {
+		type: "loot_table.duplicate_loot_item",
+		class: DuplicateLootItemAction,
+		create: (itemId: string, targetPoolIndex?: number) => DuplicateLootItemAction.create(itemId, targetPoolIndex)
+	},
+	bulkModifyItems: {
+		type: "loot_table.bulk_modify_items",
+		class: BulkModifyItemsAction,
+		create: (payload: BulkModifyItemsPayload) => BulkModifyItemsAction.create(payload)
+	},
+	createLootGroup: {
+		type: "loot_table.create_loot_group",
+		class: CreateLootGroupAction,
+		create: (payload: CreateLootGroupPayload) => CreateLootGroupAction.create(payload)
+	},
+	modifyLootGroup: {
+		type: "loot_table.modify_loot_group",
+		class: ModifyLootGroupAction,
+		create: (payload: ModifyLootGroupPayload) => ModifyLootGroupAction.create(payload)
+	},
+	dissolveLootGroup: {
+		type: "loot_table.dissolve_loot_group",
+		class: DissolveLootGroupAction,
+		create: (groupId: string) => DissolveLootGroupAction.create(groupId)
+	},
+	convertItemToGroup: {
+		type: "loot_table.convert_item_to_group",
+		class: ConvertItemToGroupAction,
+		create: (payload: ConvertItemToGroupPayload) => ConvertItemToGroupAction.create(payload)
+	},
+	convertGroupToItem: {
+		type: "loot_table.convert_group_to_item",
+		class: ConvertGroupToItemAction,
+		create: (groupId: string, keepFirstItem?: boolean) => ConvertGroupToItemAction.create(groupId, keepFirstItem)
+	},
+	nestGroupInGroup: {
+		type: "loot_table.nest_group_in_group",
+		class: NestGroupInGroupAction,
+		create: (payload: NestGroupInGroupPayload) => NestGroupInGroupAction.create(payload)
+	},
+	unnestGroup: {
+		type: "loot_table.unnest_group",
+		class: UnnestGroupAction,
+		create: (groupId: string) => UnnestGroupAction.create(groupId)
+	},
+	moveItemBetweenPools: {
+		type: "loot_table.move_item_between_pools",
+		class: MoveItemBetweenPoolsAction,
+		create: (itemId: string, targetPoolIndex: number) => MoveItemBetweenPoolsAction.create(itemId, targetPoolIndex)
+	},
+	moveGroupBetweenPools: {
+		type: "loot_table.move_group_between_pools",
+		class: MoveGroupBetweenPoolsAction,
+		create: (groupId: string, targetPoolIndex: number) => MoveGroupBetweenPoolsAction.create(groupId, targetPoolIndex)
+	},
+	balanceWeights: {
+		type: "loot_table.balance_weights",
+		class: BalanceWeightsAction,
+		create: (poolIndex: number, targetTotal?: number) => BalanceWeightsAction.create(poolIndex, targetTotal)
 	}
+});
 
-	protected async apply(element: Record<string, unknown>, context: ActionExecutionContext): Promise<Record<string, unknown>> {
-		const lootTable = this.clone(element);
-		let conditionMet = false;
-		const { condition } = this.payload;
-
-		switch (condition.type) {
-			case "pool_empty":
-				if (condition.poolIndex !== undefined) {
-					const poolItems = lootTable.items.filter((item) => item.poolIndex === condition.poolIndex);
-					conditionMet = poolItems.length === 0;
-				}
-				break;
-			case "item_count":
-				conditionMet = lootTable.items.length >= (condition.count ?? 0);
-				break;
-			case "group_exists":
-				conditionMet = lootTable.groups.some((group) => group.id === condition.groupId);
-				break;
-		}
-
-		const nextAction = conditionMet ? this.payload.thenAction : this.payload.elseAction;
-		if (nextAction) {
-			const result = await context.invoke(nextAction, lootTable);
-			if (result) return result as LootTableProps;
-		}
-
-		return lootTable;
-	}
-}
-
-const LOOT_TABLE_ACTION_DOMAIN = defineActionDomain("loot_table", [
-	["addLootItem", "add_loot_item", AddLootItemAction, (payload: AddLootItemPayload) => AddLootItemAction.create(payload)],
-	["removeLootItem", "remove_loot_item", RemoveLootItemAction, (itemId: string) => RemoveLootItemAction.create(itemId)],
-	["modifyLootItem", "modify_loot_item", ModifyLootItemAction, (payload: ModifyLootItemPayload) => ModifyLootItemAction.create(payload)],
-	[
-		"duplicateLootItem",
-		"duplicate_loot_item",
-		DuplicateLootItemAction,
-		(itemId: string, targetPoolIndex?: number) => DuplicateLootItemAction.create(itemId, targetPoolIndex)
-	],
-	[
-		"bulkModifyItems",
-		"bulk_modify_items",
-		BulkModifyItemsAction,
-		(payload: BulkModifyItemsPayload) => BulkModifyItemsAction.create(payload)
-	],
-	[
-		"createLootGroup",
-		"create_loot_group",
-		CreateLootGroupAction,
-		(payload: CreateLootGroupPayload) => CreateLootGroupAction.create(payload)
-	],
-	[
-		"modifyLootGroup",
-		"modify_loot_group",
-		ModifyLootGroupAction,
-		(payload: ModifyLootGroupPayload) => ModifyLootGroupAction.create(payload)
-	],
-	["dissolveLootGroup", "dissolve_loot_group", DissolveLootGroupAction, (groupId: string) => DissolveLootGroupAction.create(groupId)],
-	[
-		"convertItemToGroup",
-		"convert_item_to_group",
-		ConvertItemToGroupAction,
-		(payload: ConvertItemToGroupPayload) => ConvertItemToGroupAction.create(payload)
-	],
-	[
-		"convertGroupToItem",
-		"convert_group_to_item",
-		ConvertGroupToItemAction,
-		(groupId: string, keepFirstItem?: boolean) => ConvertGroupToItemAction.create(groupId, keepFirstItem)
-	],
-	[
-		"nestGroupInGroup",
-		"nest_group_in_group",
-		NestGroupInGroupAction,
-		(payload: NestGroupInGroupPayload) => NestGroupInGroupAction.create(payload)
-	],
-	["unnestGroup", "unnest_group", UnnestGroupAction, (groupId: string) => UnnestGroupAction.create(groupId)],
-	[
-		"moveItemBetweenPools",
-		"move_item_between_pools",
-		MoveItemBetweenPoolsAction,
-		(itemId: string, targetPoolIndex: number) => MoveItemBetweenPoolsAction.create(itemId, targetPoolIndex)
-	],
-	[
-		"moveGroupBetweenPools",
-		"move_group_between_pools",
-		MoveGroupBetweenPoolsAction,
-		(groupId: string, targetPoolIndex: number) => MoveGroupBetweenPoolsAction.create(groupId, targetPoolIndex)
-	],
-	[
-		"balanceWeights",
-		"balance_weights",
-		BalanceWeightsAction,
-		(poolIndex: number, targetTotal?: number) => BalanceWeightsAction.create(poolIndex, targetTotal)
-	],
-	[
-		"conditionalLoot",
-		"conditional_loot",
-		ConditionalLootAction,
-		(payload: ConditionalLootPayload) => ConditionalLootAction.create(payload)
-	]
-] as const);
-
-export const LOOT_TABLE_ACTION_CLASSES = LOOT_TABLE_ACTION_DOMAIN.classes;
-export const LootTableActions = LOOT_TABLE_ACTION_DOMAIN.builders;
-
-export type LootTableAction = ActionJsonFromClasses<typeof LOOT_TABLE_ACTION_CLASSES>;
+export const LOOT_TABLE_ACTION_CLASSES = LOOT_TABLE_DOMAIN.classes;
+export const LootTableActions = LOOT_TABLE_DOMAIN.builders;

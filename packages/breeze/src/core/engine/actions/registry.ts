@@ -4,9 +4,11 @@ import { LOOT_TABLE_ACTION_CLASSES } from "@/core/engine/actions/domains/LootTab
 import { RECIPE_ACTION_CLASSES } from "@/core/engine/actions/domains/RecipeAction";
 import { STRUCTURE_ACTION_CLASSES } from "@/core/engine/actions/domains/StructureAction";
 import { STRUCTURE_SET_ACTION_CLASSES } from "@/core/engine/actions/domains/StructureSetAction";
-import type { ActionHandler } from "@/core/engine/actions/types";
 import { ActionCodecRegistry, type ActionClass } from "@/core/engine/actions/ActionCodecRegistry";
-import { type ActionLike, isEngineAction, type ActionExecutionContext } from "@/core/engine/actions/EngineAction";
+import type { ActionHandler } from "@/core/engine/actions/domain";
+import type { ActionLike } from "@/core/engine/actions/index";
+import { isEngineAction } from "@/core/engine/actions/EngineAction";
+
 
 const DOMAIN_ACTION_GROUPS: readonly (readonly ActionClass[])[] = [
 	CORE_ACTION_CLASSES,
@@ -21,16 +23,11 @@ class ClassBasedActionHandler implements ActionHandler<ActionLike> {
 	constructor(
 		private readonly registry: ActionRegistry,
 		private readonly codec: ActionCodecRegistry
-	) {}
+	) { }
 
-	async execute(action: ActionLike, element: Record<string, unknown>, version?: number): Promise<Record<string, unknown> | undefined> {
+	execute(action: ActionLike, element: Record<string, unknown>, version?: number): Record<string, unknown> | undefined {
 		const instance = isEngineAction(action) ? action : this.codec.decode(action);
-		const context: ActionExecutionContext = {
-			version,
-			invoke: (nextAction, nextElement) => this.registry.execute(nextAction, nextElement, version)
-		};
-
-		return instance.execute(element, context);
+		return instance.execute(element, version);
 	}
 }
 
@@ -52,7 +49,7 @@ export class ActionRegistry {
 		return new ClassBasedActionHandler(this, this.codec);
 	}
 
-	async execute<T extends Record<string, unknown>>(action: ActionLike, element: T, version?: number): Promise<Partial<T> | undefined> {
+	execute<T extends Record<string, unknown>>(action: ActionLike, element: T, version?: number): Partial<T> | undefined {
 		const actionType = isEngineAction(action) ? action.type : action.type;
 		const handler = this.handlers.get(actionType);
 

@@ -38,7 +38,7 @@ export type { Compiler } from "@/core/engine/Compiler";
 export type { Parser, ParseDatapackResult } from "@/core/engine/Parser";
 export type { DataDrivenElement, DataDrivenRegistryElement, LabeledElement, VoxelElement } from "@/core/Element";
 export type { Analysers, Analyser, GetAnalyserVoxel } from "@/core/engine/Analyser";
-export type { Action, ActionValue, ActionLike } from "@/core/engine/actions/types";
+export type { Action, ActionValue, ActionLike } from "@/core/engine/actions/index";
 export type { SlotRegistryType } from "@/core/engine/managers/SlotManager";
 export type { TextComponentType } from "@/core/schema/TextComponentType";
 export type { TagType, OptionalTag, TagRegistry } from "@/core/Tag";

@@ -476,42 +476,6 @@ describe("Loot Table Actions", () => {
 	});
 
 	describe("Complex Loot Operations", () => {
-		it("should handle sequential loot modifications", async () => {
-			const sequentialAction = {
-				type: "core.sequential",
-				actions: [
-					{
-						type: "loot_table.add_loot_item",
-						poolIndex: 0,
-						item: { name: "minecraft:diamond", weight: 1 }
-					},
-					{
-						type: "loot_table.create_loot_group",
-						groupType: "alternatives",
-						itemIds: ["item_0"], // L'ID sera résolu dynamiquement
-						poolIndex: 0
-					},
-					{
-						type: "loot_table.modify_loot_item",
-						itemId: "item_0",
-						property: "weight",
-						value: 100
-					}
-				]
-			};
-
-			const result = await updateLootTable(sequentialAction, mockLootTable);
-			expect(result.items).toHaveLength(2); // Original + nouveau
-			expect(result.groups).toHaveLength(1); // Nouveau groupe
-			expect(result.items[0].weight).toBe(100); // Modifié
-
-			// Vérifie que l'objet original n'a pas changé
-			expect(mockLootTable.items).toHaveLength(1);
-			expect(mockLootTable.groups).toHaveLength(0);
-			expect(mockLootTable.items[0].weight).toBe(1);
-			expect(result).not.toBe(mockLootTable);
-		});
-
 		it("should preserve identifier through loot actions", async () => {
 			const action: LootTableAction = {
 				type: "loot_table.add_loot_item",
@@ -522,46 +486,6 @@ describe("Loot Table Actions", () => {
 			const result = await updateLootTable(action, mockLootTable);
 			expect(result.identifier).toBeDefined();
 			expect(mockLootTable.identifier).toEqual(result.identifier);
-		});
-
-		it("should handle complex group operations", async () => {
-			// Créer plusieurs groupes imbriqués
-			const complexGroupAction = {
-				type: "core.sequential",
-				actions: [
-					// Ajouter plus d'items
-					{
-						type: "loot_table.add_loot_item",
-						poolIndex: 0,
-						item: { name: "minecraft:iron_ingot", weight: 15 }
-					},
-					{
-						type: "loot_table.add_loot_item",
-						poolIndex: 0,
-						item: { name: "minecraft:copper_ingot", weight: 20 }
-					},
-					// Créer un groupe alternatives avec les nouveaux items
-					{
-						type: "loot_table.create_loot_group",
-						groupType: "alternatives",
-						itemIds: [], // Sera rempli par le handler
-						poolIndex: 0
-					},
-					// Dupliquer un item
-					{
-						type: "loot_table.duplicate_loot_item",
-						itemId: "item_0",
-						targetPoolIndex: 1
-					}
-				]
-			};
-
-			const result = await updateLootTable(complexGroupAction, mockLootTable);
-			expect(result.items.length).toBeGreaterThan(mockLootTable.items.length);
-
-			// Vérifie que l'item dupliqué est dans le pool 1
-			const duplicatedItem = result.items.find((item) => item.poolIndex === 1 && item.name === "minecraft:experience_bottle");
-			expect(duplicatedItem).toBeDefined();
 		});
 	});
 

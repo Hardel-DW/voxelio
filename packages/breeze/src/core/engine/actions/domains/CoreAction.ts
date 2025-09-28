@@ -1,9 +1,6 @@
-import type { VoxelElement } from "@/core/Element";
-import { defineActionDomain, type ActionJsonFromClasses } from "@/core/engine/actions/domain";
+import { createActions } from "@/core/engine/actions/domain";
 import { deleteValueAtPath, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
-import { EngineAction, type ActionExecutionContext, type ActionLike } from "@/core/engine/actions/EngineAction";
-
-export type Condition = (element: VoxelElement) => boolean;
+import { EngineAction } from "@/core/engine/actions/EngineAction";
 type BasePayload = Record<string, unknown>;
 
 function ensureArray<T>(value: unknown): T[] {
@@ -157,60 +154,6 @@ export class InvertBooleanAction extends CoreEngineAction<InvertBooleanPayload> 
 	}
 }
 
-type SequentialPayload = { actions: ActionLike[] };
-
-export class SequentialAction extends CoreEngineAction<SequentialPayload> {
-	constructor(payload: SequentialPayload) {
-		if (!Array.isArray(payload.actions)) {
-			throw new Error("SequentialAction requires an array of actions");
-		}
-		super({ actions: [...payload.actions] });
-	}
-
-	static create(...actions: ActionLike[]): SequentialAction {
-		return new SequentialAction({ actions });
-	}
-
-	protected async apply(element: Record<string, unknown>, context: ActionExecutionContext): Promise<Record<string, unknown>> {
-		let currentElement = this.cloneElement(element);
-
-		for (const action of this.payload.actions) {
-			const result = await context.invoke(action, currentElement);
-			if (result !== undefined) {
-				currentElement = result;
-			}
-		}
-
-		return currentElement;
-	}
-}
-
-type AlternativePayload = { condition: boolean | Condition; ifTrue?: ActionLike; ifFalse?: ActionLike };
-
-export class AlternativeAction extends CoreEngineAction<AlternativePayload> {
-	static create(condition: boolean | Condition, ifTrue: ActionLike, ifFalse?: ActionLike): AlternativeAction {
-		return new AlternativeAction({ condition, ifTrue, ifFalse });
-	}
-
-	protected async apply(element: Record<string, unknown>, context: ActionExecutionContext): Promise<Record<string, unknown> | undefined> {
-		const cloned = this.cloneElement(element) as VoxelElement;
-		const condition = this.payload.condition;
-		const isTrue = typeof condition === "function" ? condition(cloned) : Boolean(condition);
-
-		if (isTrue) {
-			if (!this.payload.ifTrue) {
-				throw new Error("AlternativeAction requires an 'ifTrue' action when condition is true");
-			}
-			return context.invoke(this.payload.ifTrue, cloned);
-		}
-
-		if (this.payload.ifFalse) {
-			return context.invoke(this.payload.ifFalse, cloned);
-		}
-
-		return cloned;
-	}
-}
 
 type TagsPayload = { tags: string[] };
 
@@ -250,34 +193,48 @@ export class RemoveTagsAction extends CoreEngineAction<TagsPayload> {
 	}
 }
 
-const CORE_ACTION_DOMAIN = defineActionDomain("core", [
-	["setValue", "set_value", SetValueAction, (path: string, value: unknown) => SetValueAction.create(path, value)],
-	["toggleValue", "toggle_value", ToggleValueAction, (path: string, value: unknown) => ToggleValueAction.create(path, value)],
-	[
-		"toggleValueInList",
-		"toggle_value_in_list",
-		ToggleValueInListAction,
-		(path: string, value: unknown) => ToggleValueInListAction.create(path, value)
-	],
-	[
-		"toggleAllValuesInList",
-		"toggle_all_values_in_list",
-		ToggleAllValuesInListAction,
-		(path: string, values: unknown[]) => ToggleAllValuesInListAction.create(path, values)
-	],
-	["setUndefined", "set_undefined", SetUndefinedAction, (path: string) => SetUndefinedAction.create(path)],
-	["invertBoolean", "invert_boolean", InvertBooleanAction, (path: string) => InvertBooleanAction.create(path)],
-	["sequential", "sequential", SequentialAction, (...actions: ActionLike[]) => SequentialAction.create(...actions)],
-	[
-		"alternative",
-		"alternative",
-		AlternativeAction,
-		(condition: boolean | Condition, ifTrue: ActionLike, ifFalse?: ActionLike) => AlternativeAction.create(condition, ifTrue, ifFalse)
-	],
-	["addTags", "add_tags", AddTagsAction, (...tags: string[]) => AddTagsAction.create(tags)],
-	["removeTags", "remove_tags", RemoveTagsAction, (...tags: string[]) => RemoveTagsAction.create(tags)]
-] as const);
+const CORE_DOMAIN = createActions({
+	setValue: {
+		type: "core.set_value",
+		class: SetValueAction,
+		create: (path: string, value: unknown) => SetValueAction.create(path, value)
+	},
+	toggleValue: {
+		type: "core.toggle_value",
+		class: ToggleValueAction,
+		create: (path: string, value: unknown) => ToggleValueAction.create(path, value)
+	},
+	toggleValueInList: {
+		type: "core.toggle_value_in_list",
+		class: ToggleValueInListAction,
+		create: (path: string, value: unknown) => ToggleValueInListAction.create(path, value)
+	},
+	toggleAllValuesInList: {
+		type: "core.toggle_all_values_in_list",
+		class: ToggleAllValuesInListAction,
+		create: (path: string, values: unknown[]) => ToggleAllValuesInListAction.create(path, values)
+	},
+	setUndefined: {
+		type: "core.set_undefined",
+		class: SetUndefinedAction,
+		create: (path: string) => SetUndefinedAction.create(path)
+	},
+	invertBoolean: {
+		type: "core.invert_boolean",
+		class: InvertBooleanAction,
+		create: (path: string) => InvertBooleanAction.create(path)
+	},
+	addTags: {
+		type: "core.add_tags",
+		class: AddTagsAction,
+		create: (...tags: string[]) => AddTagsAction.create(tags)
+	},
+	removeTags: {
+		type: "core.remove_tags",
+		class: RemoveTagsAction,
+		create: (...tags: string[]) => RemoveTagsAction.create(tags)
+	}
+});
 
-export const CORE_ACTION_CLASSES = CORE_ACTION_DOMAIN.classes;
-export const CoreActions = CORE_ACTION_DOMAIN.builders;
-export type CoreAction = ActionJsonFromClasses<typeof CORE_ACTION_CLASSES>;
+export const CORE_ACTION_CLASSES = CORE_DOMAIN.classes;
+export const CoreActions = CORE_DOMAIN.builders;

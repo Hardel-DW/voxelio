@@ -1,5 +1,5 @@
 import type { StructureProps, SpawnOverride, DecorationStep } from "@/core/schema/structure/types";
-import { defineActionDomain, type ActionJsonFromClasses } from "@/core/engine/actions/domain";
+import { createActions } from "@/core/engine/actions/domain";
 import { EngineAction } from "@/core/engine/actions/EngineAction";
 
 abstract class StructureEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
@@ -164,38 +164,48 @@ export class SetDecorationStepAction extends StructureEngineAction<SetDecoration
 	}
 }
 
-const STRUCTURE_ACTION_DOMAIN = defineActionDomain("structure", [
-	["setBiomes", "set_biomes", SetBiomesAction, (biomes: string[], replace = false) => SetBiomesAction.create(biomes, replace)],
-	[
-		"addSpawnOverride",
-		"add_spawn_override",
-		AddSpawnOverrideAction,
-		(payload: AddSpawnOverridePayload) => AddSpawnOverrideAction.create(payload)
-	],
-	[
-		"removeSpawnOverride",
-		"remove_spawn_override",
-		RemoveSpawnOverrideAction,
-		(mobCategory: string) => RemoveSpawnOverrideAction.create(mobCategory)
-	],
-	[
-		"setJigsawConfig",
-		"set_jigsaw_config",
-		SetJigsawConfigAction,
-		(payload: SetJigsawConfigPayload) => SetJigsawConfigAction.create(payload)
-	],
-	["addPoolAlias", "add_pool_alias", AddPoolAliasAction, (payload: AddPoolAliasPayload) => AddPoolAliasAction.create(payload)],
-	["removePoolAlias", "remove_pool_alias", RemovePoolAliasAction, (alias: string) => RemovePoolAliasAction.create(alias)],
-	[
-		"setTerrainAdaptation",
-		"set_terrain_adaptation",
-		SetTerrainAdaptationAction,
-		(adaptation: SetTerrainAdaptationPayload["adaptation"]) => SetTerrainAdaptationAction.create(adaptation)
-	],
-	["setDecorationStep", "set_decoration_step", SetDecorationStepAction, (step: string) => SetDecorationStepAction.create(step)]
-] as const);
+const STRUCTURE_DOMAIN = createActions({
+	setBiomes: {
+		type: "structure.set_biomes",
+		class: SetBiomesAction,
+		create: (biomes: string[], replace = false) => SetBiomesAction.create(biomes, replace)
+	},
+	addSpawnOverride: {
+		type: "structure.add_spawn_override",
+		class: AddSpawnOverrideAction,
+		create: (payload: AddSpawnOverridePayload) => AddSpawnOverrideAction.create(payload)
+	},
+	removeSpawnOverride: {
+		type: "structure.remove_spawn_override",
+		class: RemoveSpawnOverrideAction,
+		create: (mobCategory: string) => RemoveSpawnOverrideAction.create(mobCategory)
+	},
+	setJigsawConfig: {
+		type: "structure.set_jigsaw_config",
+		class: SetJigsawConfigAction,
+		create: (payload: SetJigsawConfigPayload) => SetJigsawConfigAction.create(payload)
+	},
+	addPoolAlias: {
+		type: "structure.add_pool_alias",
+		class: AddPoolAliasAction,
+		create: (payload: AddPoolAliasPayload) => AddPoolAliasAction.create(payload)
+	},
+	removePoolAlias: {
+		type: "structure.remove_pool_alias",
+		class: RemovePoolAliasAction,
+		create: (alias: string) => RemovePoolAliasAction.create(alias)
+	},
+	setTerrainAdaptation: {
+		type: "structure.set_terrain_adaptation",
+		class: SetTerrainAdaptationAction,
+		create: (adaptation: SetTerrainAdaptationPayload["adaptation"]) => SetTerrainAdaptationAction.create(adaptation)
+	},
+	setDecorationStep: {
+		type: "structure.set_decoration_step",
+		class: SetDecorationStepAction,
+		create: (step: string) => SetDecorationStepAction.create(step)
+	}
+});
 
-export const STRUCTURE_ACTION_CLASSES = STRUCTURE_ACTION_DOMAIN.classes;
-export const StructureActions = STRUCTURE_ACTION_DOMAIN.builders;
-
-export type StructureAction = ActionJsonFromClasses<typeof STRUCTURE_ACTION_CLASSES>;
+export const STRUCTURE_ACTION_CLASSES = STRUCTURE_DOMAIN.classes;
+export const StructureActions = STRUCTURE_DOMAIN.builders;

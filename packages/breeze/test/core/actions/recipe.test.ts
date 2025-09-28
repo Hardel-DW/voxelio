@@ -519,32 +519,6 @@ describe("Recipe Actions", () => {
 	});
 
 	describe("Complex Recipe Operations", () => {
-		it("should handle sequential recipe modifications", async () => {
-			const sequentialAction = {
-				type: "core.sequential",
-				actions: [
-					{
-						type: "recipe.add_ingredient",
-						slot: "3",
-						items: ["minecraft:emerald"]
-					},
-					{
-						type: "recipe.remove_ingredient",
-						slot: "1"
-					}
-				]
-			};
-
-			const result = await updateRecipe(sequentialAction, shapedRecipe);
-			expect(result.slots["3"]).toEqual(["minecraft:emerald"]);
-			expect(result.slots["1"]).toBeUndefined();
-
-			expect(shapedRecipe.slots["0"]).toEqual(["minecraft:acacia_planks"]);
-			expect(shapedRecipe.slots["1"]).toEqual(["minecraft:acacia_planks"]);
-			expect(shapedRecipe.slots["2"]).toEqual(["minecraft:acacia_planks"]);
-			expect(result).not.toBe(shapedRecipe);
-		});
-
 		it("should preserve identifier through recipe actions", async () => {
 			const action: RecipeAction = {
 				type: "recipe.add_ingredient",
