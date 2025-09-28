@@ -30,7 +30,6 @@ export class AddLootItemAction extends LootTableEngineAction<AddLootItemPayload>
 		return new AddLootItemAction(payload);
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
 		const item: LootItem = {
@@ -60,7 +59,6 @@ export class RemoveLootItemAction extends LootTableEngineAction<RemoveLootItemPa
 		return new RemoveLootItemAction({ itemId });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
 		lootTable.items = lootTable.items.filter((item) => item.id !== this.payload.itemId);
@@ -81,7 +79,6 @@ export class ModifyLootItemAction extends LootTableEngineAction<ModifyLootItemPa
 	static create(payload: ModifyLootItemPayload): ModifyLootItemAction {
 		return new ModifyLootItemAction(payload);
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -113,7 +110,6 @@ export class DuplicateLootItemAction extends LootTableEngineAction<DuplicateLoot
 		return new DuplicateLootItemAction({ itemId, targetPoolIndex });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
 		const source = lootTable.items.find((candidate) => candidate.id === this.payload.itemId);
@@ -143,7 +139,6 @@ export class BulkModifyItemsAction extends LootTableEngineAction<BulkModifyItems
 	static create(payload: BulkModifyItemsPayload): BulkModifyItemsAction {
 		return new BulkModifyItemsAction(payload);
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -186,7 +181,6 @@ export class CreateLootGroupAction extends LootTableEngineAction<CreateLootGroup
 		return new CreateLootGroupAction(payload);
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
 		const group: LootGroup = {
@@ -214,7 +208,6 @@ export class ModifyLootGroupAction extends LootTableEngineAction<ModifyLootGroup
 	static create(payload: ModifyLootGroupPayload): ModifyLootGroupAction {
 		return new ModifyLootGroupAction(payload);
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -250,7 +243,6 @@ export class DissolveLootGroupAction extends LootTableEngineAction<DissolveLootG
 		return new DissolveLootGroupAction({ groupId });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
 		lootTable.groups = lootTable.groups.filter((group) => group.id !== this.payload.groupId);
@@ -274,7 +266,6 @@ export class ConvertItemToGroupAction extends LootTableEngineAction<ConvertItemT
 	static create(payload: ConvertItemToGroupPayload): ConvertItemToGroupAction {
 		return new ConvertItemToGroupAction(payload);
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -302,7 +293,6 @@ export class ConvertGroupToItemAction extends LootTableEngineAction<ConvertGroup
 	static create(groupId: string, keepFirstItem?: boolean): ConvertGroupToItemAction {
 		return new ConvertGroupToItemAction({ groupId, keepFirstItem });
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -334,7 +324,6 @@ export class NestGroupInGroupAction extends LootTableEngineAction<NestGroupInGro
 		return new NestGroupInGroupAction(payload);
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
 		const parent = lootTable.groups.find((candidate) => candidate.id === this.payload.parentGroupId);
@@ -356,7 +345,6 @@ export class UnnestGroupAction extends LootTableEngineAction<UnnestGroupPayload>
 		return new UnnestGroupAction({ groupId });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
 		for (const group of lootTable.groups) {
@@ -375,7 +363,6 @@ export class MoveItemBetweenPoolsAction extends LootTableEngineAction<MoveItemBe
 	static create(itemId: string, targetPoolIndex: number): MoveItemBetweenPoolsAction {
 		return new MoveItemBetweenPoolsAction({ itemId, targetPoolIndex });
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -397,7 +384,6 @@ export class MoveGroupBetweenPoolsAction extends LootTableEngineAction<MoveGroup
 		return new MoveGroupBetweenPoolsAction({ groupId, targetPoolIndex });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
 		const group = lootTable.groups.find((candidate) => candidate.id === this.payload.groupId);
@@ -417,7 +403,6 @@ export class BalanceWeightsAction extends LootTableEngineAction<BalanceWeightsPa
 	static create(poolIndex: number, targetTotal?: number): BalanceWeightsAction {
 		return new BalanceWeightsAction({ poolIndex, targetTotal });
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const lootTable = this.clone(element);
@@ -452,7 +437,6 @@ export class ConditionalLootAction extends LootTableEngineAction<ConditionalLoot
 	static create(payload: ConditionalLootPayload): ConditionalLootAction {
 		return new ConditionalLootAction(payload);
 	}
-
 
 	protected async apply(element: Record<string, unknown>, context: ActionExecutionContext): Promise<Record<string, unknown>> {
 		const lootTable = this.clone(element);

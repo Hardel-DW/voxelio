@@ -18,7 +18,6 @@ export class AddIngredientAction extends RecipeEngineAction<AddIngredientPayload
 		return new AddIngredientAction({ slot, items, replace });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);
 		if (recipe.type === "minecraft:crafting_shapeless") return recipe;
@@ -46,7 +45,6 @@ export class AddShapelessIngredientAction extends RecipeEngineAction<AddShapeles
 		return new AddShapelessIngredientAction({ items });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);
 		if (recipe.type !== "minecraft:crafting_shapeless") return recipe;
@@ -66,7 +64,6 @@ export class RemoveIngredientAction extends RecipeEngineAction<RemoveIngredientP
 	static create(slot: string, items?: string[]): RemoveIngredientAction {
 		return new RemoveIngredientAction({ slot, items });
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);
@@ -97,7 +94,6 @@ export class RemoveItemEverywhereAction extends RecipeEngineAction<RemoveItemEve
 		return new RemoveItemEverywhereAction({ items });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);
 		const toRemove = new Set(this.payload.items);
@@ -125,7 +121,6 @@ export class ReplaceItemEverywhereAction extends RecipeEngineAction<ReplaceItemE
 	static create(from: string, to: string): ReplaceItemEverywhereAction {
 		return new ReplaceItemEverywhereAction({ from, to });
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);
@@ -158,7 +153,6 @@ export class ClearSlotAction extends RecipeEngineAction<ClearSlotPayload> {
 		return new ClearSlotAction({ slot });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);
 		delete recipe.slots[this.payload.slot];
@@ -175,7 +169,6 @@ export class ConvertRecipeTypeAction extends RecipeEngineAction<ConvertRecipeTyp
 	static create(newType: string, preserveIngredients = true): ConvertRecipeTypeAction {
 		return new ConvertRecipeTypeAction({ newType, preserveIngredients });
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const recipe = this.clone(element);

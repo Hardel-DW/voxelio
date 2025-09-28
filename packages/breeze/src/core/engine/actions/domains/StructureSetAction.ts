@@ -24,7 +24,6 @@ export class AddStructureAction extends StructureSetEngineAction<AddStructurePay
 		return new AddStructureAction({ structure, weight, position });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
 		const newStructure: StructureSetStructure = {
@@ -55,7 +54,6 @@ export class RemoveStructureAction extends StructureSetEngineAction<RemoveStruct
 		return new RemoveStructureAction({ structureId });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
 		structureSet.structures = structureSet.structures.filter((_, index) => `structure_${index}` !== this.payload.structureId);
@@ -76,7 +74,6 @@ export class ModifyStructureAction extends StructureSetEngineAction<ModifyStruct
 	static create(payload: ModifyStructurePayload): ModifyStructureAction {
 		return new ModifyStructureAction(payload);
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
@@ -106,7 +103,6 @@ export class SetPlacementTypeAction extends StructureSetEngineAction<SetPlacemen
 		return new SetPlacementTypeAction({ placementType });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
 		structureSet.placementType = this.payload.placementType;
@@ -128,7 +124,6 @@ export class ConfigurePlacementAction extends StructureSetEngineAction<Configure
 	static create(payload: ConfigurePlacementPayload): ConfigurePlacementAction {
 		return new ConfigurePlacementAction(payload);
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
@@ -152,7 +147,6 @@ export class SetExclusionZoneAction extends StructureSetEngineAction<SetExclusio
 		return new SetExclusionZoneAction({ otherSet, chunkCount });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
 		structureSet.exclusionZone = {
@@ -175,7 +169,6 @@ export class RemoveExclusionZoneAction extends StructureSetEngineAction<Record<s
 		return new RemoveExclusionZoneAction();
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
 		structureSet.exclusionZone = undefined;
@@ -197,7 +190,6 @@ export class ConfigureConcentricRingsAction extends StructureSetEngineAction<Con
 	static create(payload: ConfigureConcentricRingsPayload): ConfigureConcentricRingsAction {
 		return new ConfigureConcentricRingsAction(payload);
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
@@ -223,7 +215,6 @@ export class ConfigureRandomSpreadAction extends StructureSetEngineAction<Config
 		return new ConfigureRandomSpreadAction(payload);
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);
 		if (this.payload.spacing !== undefined) structureSet.spacing = this.payload.spacing;
@@ -242,7 +233,6 @@ export class ReorderStructuresAction extends StructureSetEngineAction<ReorderStr
 	static create(structureIds: string[]): ReorderStructuresAction {
 		return new ReorderStructuresAction({ structureIds });
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structureSet = this.clone(element);

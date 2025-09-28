@@ -18,7 +18,6 @@ export class SetBiomesAction extends StructureEngineAction<SetBiomesPayload> {
 		return new SetBiomesAction({ biomes, replace });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
 		if (this.payload.replace) {
@@ -46,7 +45,6 @@ export class AddSpawnOverrideAction extends StructureEngineAction<AddSpawnOverri
 		return new AddSpawnOverrideAction(payload);
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
 		const override: SpawnOverride = {
@@ -72,7 +70,6 @@ export class RemoveSpawnOverrideAction extends StructureEngineAction<RemoveSpawn
 		return new RemoveSpawnOverrideAction({ mobCategory });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
 		const currentOverrides = Array.isArray(structure.spawnOverrides) ? structure.spawnOverrides : [];
@@ -97,7 +94,6 @@ export class SetJigsawConfigAction extends StructureEngineAction<SetJigsawConfig
 	static create(payload: SetJigsawConfigPayload): SetJigsawConfigAction {
 		return new SetJigsawConfigAction(payload);
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
@@ -129,7 +125,6 @@ export class AddPoolAliasAction extends StructureEngineAction<AddPoolAliasPayloa
 		return new AddPoolAliasAction(payload);
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
 		const alias: Record<string, unknown> = { type: this.payload.aliasType };
@@ -154,7 +149,6 @@ export class RemovePoolAliasAction extends StructureEngineAction<RemovePoolAlias
 		return new RemovePoolAliasAction({ alias });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
 		const poolAliases = Array.isArray(structure.poolAliases) ? structure.poolAliases : [];
@@ -173,7 +167,6 @@ export class SetTerrainAdaptationAction extends StructureEngineAction<SetTerrain
 		return new SetTerrainAdaptationAction({ adaptation });
 	}
 
-
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
 		structure.terrainAdaptation = this.payload.adaptation;
@@ -190,7 +183,6 @@ export class SetDecorationStepAction extends StructureEngineAction<SetDecoration
 	static create(step: string): SetDecorationStepAction {
 		return new SetDecorationStepAction({ step });
 	}
-
 
 	protected apply(element: Record<string, unknown>): Record<string, unknown> {
 		const structure = this.clone(element);
