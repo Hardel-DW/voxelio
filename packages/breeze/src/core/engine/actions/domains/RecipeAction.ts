@@ -1,5 +1,5 @@
 import type { RecipeProps, RecipeType } from "@/core/schema/recipe/types";
-import type { ActionJsonFromClasses, ActionsFromClasses } from "@/core/engine/actions/domain";
+import type { ActionJsonFromClasses } from "@/core/engine/actions/domain";
 import { EngineAction } from "@/core/engine/actions/EngineAction";
 
 abstract class RecipeEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
@@ -215,7 +215,6 @@ export const RECIPE_ACTION_CLASSES = [
 	ClearSlotAction
 ] as const;
 
-export type RecipeActionInstance = ActionsFromClasses<typeof RECIPE_ACTION_CLASSES>;
 export type RecipeAction = ActionJsonFromClasses<typeof RECIPE_ACTION_CLASSES>;
 
 export const RecipeActions = {

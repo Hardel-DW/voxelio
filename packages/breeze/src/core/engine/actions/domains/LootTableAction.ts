@@ -1,5 +1,5 @@
 import type { LootGroup, LootItem, LootTableProps } from "@/core/schema/loot/types";
-import type { ActionJsonFromClasses, ActionsFromClasses } from "@/core/engine/actions/domain";
+import type { ActionJsonFromClasses } from "@/core/engine/actions/domain";
 import { EngineAction, type ActionExecutionContext, type ActionLike } from "@/core/engine/actions/EngineAction";
 
 abstract class LootTableEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
@@ -487,7 +487,6 @@ export const LOOT_TABLE_ACTION_CLASSES = [
 	ConditionalLootAction
 ] as const;
 
-export type LootTableActionInstance = ActionsFromClasses<typeof LOOT_TABLE_ACTION_CLASSES>;
 export type LootTableAction = ActionJsonFromClasses<typeof LOOT_TABLE_ACTION_CLASSES>;
 
 export const LootTableActions = {

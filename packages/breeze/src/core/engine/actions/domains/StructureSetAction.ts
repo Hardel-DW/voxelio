@@ -5,7 +5,7 @@ import type {
 	StructureSetProps,
 	StructureSetStructure
 } from "@/core/schema/structure_set/types";
-import type { ActionJsonFromClasses, ActionsFromClasses } from "@/core/engine/actions/domain";
+import type { ActionJsonFromClasses } from "@/core/engine/actions/domain";
 import { EngineAction } from "@/core/engine/actions/EngineAction";
 
 abstract class StructureSetEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
@@ -261,7 +261,6 @@ export const STRUCTURE_SET_ACTION_CLASSES = [
 	ReorderStructuresAction
 ] as const;
 
-export type StructureSetActionInstance = ActionsFromClasses<typeof STRUCTURE_SET_ACTION_CLASSES>;
 export type StructureSetAction = ActionJsonFromClasses<typeof STRUCTURE_SET_ACTION_CLASSES>;
 
 export const StructureSetActions = {

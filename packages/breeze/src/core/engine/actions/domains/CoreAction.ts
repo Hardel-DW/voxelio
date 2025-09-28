@@ -1,10 +1,9 @@
 import type { VoxelElement } from "@/core/Element";
-import type { ActionJsonFromClasses, ActionsFromClasses } from "@/core/engine/actions/domain";
+import type { ActionJsonFromClasses } from "@/core/engine/actions/domain";
 import { deleteValueAtPath, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
 import { EngineAction, type ActionExecutionContext, type ActionLike } from "@/core/engine/actions/EngineAction";
 
 export type Condition = (element: VoxelElement) => boolean;
-
 type BasePayload = Record<string, unknown>;
 
 function ensureArray<T>(value: unknown): T[] {
@@ -294,7 +293,6 @@ export const CORE_ACTION_CLASSES = [
 	RemoveTagsAction
 ] as const;
 
-export type CoreActionInstance = ActionsFromClasses<typeof CORE_ACTION_CLASSES>;
 export type CoreAction = ActionJsonFromClasses<typeof CORE_ACTION_CLASSES>;
 
 export const CoreActions = {

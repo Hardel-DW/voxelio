@@ -1,7 +1,7 @@
 import { getManager } from "@/core/engine/Manager";
 import { isArraySlotRegistryType, isSlotRegistryType, type SlotRegistryType } from "@/core/engine/managers/SlotManager";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
-import type { ActionJsonFromClasses, ActionsFromClasses } from "@/core/engine/actions/domain";
+import type { ActionJsonFromClasses } from "@/core/engine/actions/domain";
 import { getFieldValue, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
 import { EngineAction, type ActionExecutionContext } from "@/core/engine/actions/EngineAction";
 
@@ -109,7 +109,7 @@ export const ENCHANTMENT_ACTION_CLASSES = [
 	ToggleEnchantmentToExclusiveSetAction,
 	SetExclusiveSetWithTagsAction
 ] as const;
-export type EnchantmentActionInstance = ActionsFromClasses<typeof ENCHANTMENT_ACTION_CLASSES>;
+
 export type EnchantmentAction = ActionJsonFromClasses<typeof ENCHANTMENT_ACTION_CLASSES>;
 
 export const EnchantmentActions = {

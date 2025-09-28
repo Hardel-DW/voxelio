@@ -1,5 +1,5 @@
 import type { StructureProps, SpawnOverride, DecorationStep } from "@/core/schema/structure/types";
-import type { ActionJsonFromClasses, ActionsFromClasses } from "@/core/engine/actions/domain";
+import type { ActionJsonFromClasses } from "@/core/engine/actions/domain";
 import { EngineAction } from "@/core/engine/actions/EngineAction";
 
 abstract class StructureEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
@@ -202,7 +202,6 @@ export const STRUCTURE_ACTION_CLASSES = [
 	SetDecorationStepAction
 ] as const;
 
-export type StructureActionInstance = ActionsFromClasses<typeof STRUCTURE_ACTION_CLASSES>;
 export type StructureAction = ActionJsonFromClasses<typeof STRUCTURE_ACTION_CLASSES>;
 
 export const StructureActions = {
