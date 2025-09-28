@@ -1,89 +1,70 @@
-import register from "./domains/core";
-import type { Action, ActionHandler } from "./types";
+import registerCore from "@/core/engine/actions/domains/core";
+import registerEnchantment from "@/core/engine/actions/domains/enchantment";
+import registerLootTable from "@/core/engine/actions/domains/loot_table";
+import registerRecipe from "@/core/engine/actions/domains/recipe";
+import registerStructure from "@/core/engine/actions/domains/structure";
+import registerStructureSet from "@/core/engine/actions/domains/structure_set";
+import type { ActionHandler } from "@/core/engine/actions/types";
+import { ActionCodecRegistry, type ActionClass } from "@/core/engine/actions/ActionCodecRegistry";
+import { type ActionLike, isEngineAction, type ActionExecutionContext } from "@/core/engine/actions/EngineAction";
 
-const loadedDomains = new Set<string>();
+type DomainRegistrar = (registry: ActionRegistry) => Map<string, ActionHandler>;
 
-type DomainRegisterFunction = () => Map<string, ActionHandler>;
-type CoreRegisterFunction = (registry: ActionRegistry) => Map<string, ActionHandler>;
+const DOMAIN_REGISTRARS: Record<string, DomainRegistrar> = {
+	core: registerCore,
+	enchantment: registerEnchantment,
+	loot_table: registerLootTable,
+	recipe: registerRecipe,
+	structure: registerStructure,
+	structure_set: registerStructureSet
+};
 
-interface DomainModule {
-	default: DomainRegisterFunction | CoreRegisterFunction;
-}
+class ClassBasedActionHandler implements ActionHandler<ActionLike> {
+	constructor(
+		private readonly registry: ActionRegistry,
+		private readonly codec: ActionCodecRegistry
+	) {}
 
-function extractDomain(actionType: string): string {
-	const dotIndex = actionType.indexOf(".");
-	if (dotIndex === -1) {
-		throw new Error(`Invalid action type: ${actionType}. Expected format: 'domain.action'`);
+	async execute(action: ActionLike, element: Record<string, unknown>, version?: number): Promise<Record<string, unknown> | undefined> {
+		const instance = isEngineAction(action) ? action : this.codec.decode(action);
+		const context: ActionExecutionContext = {
+			version,
+			invoke: (nextAction, nextElement) => this.registry.execute(nextAction, nextElement, version)
+		};
+
+		return instance.execute(element, context);
 	}
-	return actionType.substring(0, dotIndex);
 }
 
 export class ActionRegistry {
-	private handlers = new Map<string, ActionHandler>();
+	private readonly handlers = new Map<string, ActionHandler>();
+	private readonly codec = new ActionCodecRegistry();
 
 	constructor() {
-		register(this);
-	}
-
-	register = (type: string, handler: ActionHandler) => {
-		this.handlers.set(type, handler);
-	};
-
-	private async ensureDomainLoaded(domain: string): Promise<void> {
-		if (loadedDomains.has(domain)) return;
-
-		// Mapping explicite des domains pour éviter les imports dynamiques
-		const domainMap: Record<string, () => Promise<DomainModule>> = {
-			core: () => import("./domains/core"),
-			loot_table: () => import("./domains/loot_table"),
-			recipe: () => import("./domains/recipe"),
-			structure: () => import("./domains/structure"),
-			structure_set: () => import("./domains/structure_set"),
-			enchantment: () => import("./domains/enchantment")
-		};
-
-		const domainLoader = domainMap[domain];
-		if (!domainLoader) {
-			throw new Error(`Unknown domain: ${domain}`);
-		}
-
-		try {
-			const domainModule: DomainModule = await domainLoader();
-			if (!domainModule.default) {
-				throw new Error(`Domain ${domain} must export a default register function`);
+		for (const registrar of Object.values(DOMAIN_REGISTRARS)) {
+			const domainHandlers = registrar(this);
+			for (const [type, handler] of domainHandlers) {
+				this.handlers.set(type, handler);
 			}
-
-			const handlers =
-				domain === "core"
-					? (domainModule.default as CoreRegisterFunction)(this)
-					: (domainModule.default as DomainRegisterFunction)();
-
-			for (const [actionType, handler] of handlers) {
-				this.register(actionType, handler);
-			}
-
-			loadedDomains.add(domain);
-		} catch (error) {
-			throw new Error(`Failed to load domain ${domain}: ${error instanceof Error ? error.message : String(error)}`);
 		}
 	}
 
-	async execute<T extends Record<string, unknown>>(action: Action, element: T, version?: number): Promise<Partial<T> | undefined> {
-		if (!this.handlers.has(action.type)) {
-			try {
-				await this.ensureDomainLoaded(extractDomain(action.type));
-			} catch (error) {
-				if (!action.type.startsWith("core.")) {
-					throw error;
-				}
-			}
-		}
+	registerClass<TActionClass extends ActionClass>(actionClass: TActionClass): ActionHandler {
+		this.codec.register(actionClass);
+		return new ClassBasedActionHandler(this, this.codec);
+	}
 
-		const handler = this.handlers.get(action.type);
+	async execute<T extends Record<string, unknown>>(action: ActionLike, element: T, version?: number): Promise<Partial<T> | undefined> {
+		const actionType = isEngineAction(action) ? action.type : action.type;
+		const handler = this.handlers.get(actionType);
+
 		if (!handler) {
-			throw new Error(`Unknown action type: ${action.type}`);
+			throw new Error(`Unknown action type: ${actionType}`);
 		}
-		return handler.execute(action, element, version) as Partial<T> | undefined;
+
+		const normalizedAction = handler instanceof ClassBasedActionHandler ? action : isEngineAction(action) ? action.toJSON() : action;
+
+		return handler.execute(normalizedAction as any, element, version) as Partial<T> | undefined;
 	}
 
 	has(type: string): boolean {

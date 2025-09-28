@@ -1,39 +1,13 @@
-import { type AllExpectedHandlerKeys, type ValidateHandlerRegistry, createHandlers } from "../../types";
+import type { ActionLike } from "@/core/engine/actions/EngineAction";
+import type { ActionJsonFromClasses } from "@/core/engine/actions/domain";
+import { RECIPE_ACTION_CLASSES } from "@/core/engine/actions/domains/recipe/actions";
 
-export interface RecipeActions {
-	add_ingredient: {
-		slot: string;
-		items: string[];
-		replace?: boolean;
-	};
-	add_shapeless_ingredient: {
-		items: string | string[];
-	};
-	remove_ingredient: {
-		slot: string;
-		items?: string[];
-	};
-	remove_item_everywhere: {
-		items: string[];
-	};
-	replace_item_everywhere: {
-		from: string;
-		to: string;
-	};
-	convert_recipe_type: {
-		newType: string;
-		preserveIngredients?: boolean;
-	};
-	clear_slot: {
-		slot: string;
-	};
+export { RecipeActions, RECIPE_ACTION_CLASSES } from "@/core/engine/actions/domains/recipe/actions";
+export type { RecipeActionInstance } from "@/core/engine/actions/domains/recipe/actions";
+export type RecipeAction = ActionJsonFromClasses<typeof RECIPE_ACTION_CLASSES>;
+
+export function isRecipeAction(action: ActionLike): action is RecipeAction {
+	return typeof action === "object" && action !== null && "type" in action && String(action.type).startsWith("recipe.");
 }
 
-export type RecipeAction = {
-	[K in keyof RecipeActions]: RecipeActions[K] & { type: `recipe.${K}` };
-}[keyof RecipeActions];
-
-export type RecipeHandlerKeys = AllExpectedHandlerKeys<"recipe", RecipeActions>;
-export const createRecipeHandlers = <T extends Record<RecipeHandlerKeys, any>>(
-	handlers: ValidateHandlerRegistry<T, RecipeHandlerKeys>
-): T => createHandlers(handlers);
+export const recipeActionTypes = RECIPE_ACTION_CLASSES.map((ctor) => ctor.type) as readonly string[];

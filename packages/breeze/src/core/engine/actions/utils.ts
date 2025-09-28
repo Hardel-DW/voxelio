@@ -1,4 +1,4 @@
-import type { ActionValue } from "./types";
+import type { ActionValue } from "@/core/engine/actions/types";
 
 /**
  * Get the field value from the action value

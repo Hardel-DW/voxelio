@@ -1,55 +1,13 @@
-import type { FrequencyReductionMethod, PlacementType, SpreadType } from "@/core/schema/structure_set/types";
-import { type AllExpectedHandlerKeys, type ValidateHandlerRegistry, createHandlers } from "../../types";
+import type { ActionLike } from "@/core/engine/actions/EngineAction";
+import type { ActionJsonFromClasses } from "@/core/engine/actions/domain";
+import { STRUCTURE_SET_ACTION_CLASSES } from "@/core/engine/actions/domains/structure_set/actions";
 
-export interface StructureSetActions {
-	add_structure: {
-		structure: string;
-		weight: number;
-		position?: number;
-	};
-	remove_structure: {
-		structureId: string;
-	};
-	modify_structure: {
-		structureId: string;
-		property: "structure" | "weight";
-		value: string | number;
-	};
-	set_placement_type: {
-		placementType: PlacementType;
-	};
-	configure_placement: {
-		salt?: number;
-		frequencyReductionMethod?: FrequencyReductionMethod;
-		frequency?: number;
-		locateOffset?: [number, number, number];
-	};
-	set_exclusion_zone: {
-		otherSet: string;
-		chunkCount: number;
-	};
-	remove_exclusion_zone: Record<string, never>;
-	configure_concentric_rings: {
-		distance?: number;
-		spread?: number;
-		count?: number;
-		preferredBiomes?: string[];
-	};
-	configure_random_spread: {
-		spacing?: number;
-		separation?: number;
-		spreadType?: SpreadType;
-	};
-	reorder_structures: {
-		structureIds: string[];
-	};
+export { StructureSetActions, STRUCTURE_SET_ACTION_CLASSES } from "@/core/engine/actions/domains/structure_set/actions";
+export type { StructureSetActionInstance } from "@/core/engine/actions/domains/structure_set/actions";
+export type StructureSetAction = ActionJsonFromClasses<typeof STRUCTURE_SET_ACTION_CLASSES>;
+
+export function isStructureSetAction(action: ActionLike): action is StructureSetAction {
+	return typeof action === "object" && action !== null && "type" in action && String(action.type).startsWith("structure_set.");
 }
 
-export type StructureSetAction = {
-	[K in keyof StructureSetActions]: StructureSetActions[K] & { type: `structure_set.${K}` };
-}[keyof StructureSetActions];
-
-export type StructureSetHandlerKeys = AllExpectedHandlerKeys<"structure_set", StructureSetActions>;
-export const createStructureSetHandlers = <T extends Record<StructureSetHandlerKeys, any>>(
-	handlers: ValidateHandlerRegistry<T, StructureSetHandlerKeys>
-): T => createHandlers(handlers);
+export const structureSetActionTypes = STRUCTURE_SET_ACTION_CLASSES.map((ctor) => ctor.type) as readonly string[];

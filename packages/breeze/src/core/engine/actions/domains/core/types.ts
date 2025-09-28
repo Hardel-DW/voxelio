@@ -1,51 +1,15 @@
-import { type AllExpectedHandlerKeys, type ValidateHandlerRegistry, createHandlers } from "@/core/engine/actions/types";
-import type { VoxelElement } from "@/core/Element";
+import type { ActionLike } from "@/core/engine/actions/EngineAction";
+import type { ActionJsonFromClasses, ActionsFromClasses } from "@/core/engine/actions/domain";
+import { CORE_ACTION_CLASSES, type Condition } from "@/core/engine/actions/domains/core/actions";
 
-export type Condition = (el: VoxelElement) => boolean;
+export { CoreActions, CORE_ACTION_CLASSES } from "@/core/engine/actions/domains/core/actions";
+export type { Condition };
 
-export interface CoreActions {
-	set_value: {
-		path: string;
-		value: unknown;
-	};
-	toggle_value: {
-		path: string;
-		value: unknown;
-	};
-	toggle_value_in_list: {
-		path: string;
-		value: unknown;
-	};
-	toggle_all_values_in_list: {
-		path: string;
-		values: any[];
-	};
-	set_undefined: {
-		path: string;
-	};
-	invert_boolean: {
-		path: string;
-	};
-	sequential: {
-		actions: Array<any>;
-	};
-	alternative: {
-		condition: boolean | Condition;
-		ifTrue: any;
-		ifFalse?: any;
-	};
-	add_tags: {
-		tags: string[];
-	};
-	remove_tags: {
-		tags: string[];
-	};
+export type CoreActionInstance = ActionsFromClasses<typeof CORE_ACTION_CLASSES>;
+export type CoreAction = ActionJsonFromClasses<typeof CORE_ACTION_CLASSES>;
+
+export function isCoreAction(action: ActionLike): action is CoreAction {
+	return typeof action === "object" && action !== null && "type" in action && String(action.type).startsWith("core.");
 }
 
-export type CoreAction = {
-	[K in keyof CoreActions]: CoreActions[K] & { type: `core.${K}` };
-}[keyof CoreActions];
-
-export type CoreHandlerKeys = AllExpectedHandlerKeys<"core", CoreActions>;
-export const createCoreHandlers = <T extends Record<CoreHandlerKeys, any>>(handlers: ValidateHandlerRegistry<T, CoreHandlerKeys>): T =>
-	createHandlers(handlers);
+export const coreActionTypes = CORE_ACTION_CLASSES.map((ctor) => ctor.type) as readonly string[];

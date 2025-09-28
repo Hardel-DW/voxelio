@@ -1,10 +1,10 @@
-import { ActionRegistry } from "./registry";
-import type { Action } from "./types";
+import { ActionRegistry } from "@/core/engine/actions/registry";
+import type { ActionLike } from "@/core/engine/actions/EngineAction";
 
 const registry = new ActionRegistry();
 
 export async function updateData<T extends Record<string, unknown>>(
-	action: Action,
+	action: ActionLike,
 	element: T,
 	version?: number
 ): Promise<Partial<T> | undefined> {
