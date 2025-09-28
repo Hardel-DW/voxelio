@@ -1,5 +1,5 @@
 import type { RecipeProps, RecipeType } from "@/core/schema/recipe/types";
-import type { ActionJsonFromClasses } from "@/core/engine/actions/domain";
+import { defineActionDomain, type ActionJsonFromClasses } from "@/core/engine/actions/domain";
 import { EngineAction } from "@/core/engine/actions/EngineAction";
 
 abstract class RecipeEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
@@ -11,9 +11,6 @@ abstract class RecipeEngineAction<TPayload extends Record<string, unknown>> exte
 type AddIngredientPayload = { slot: string; items: string[]; replace?: boolean };
 
 export class AddIngredientAction extends RecipeEngineAction<AddIngredientPayload> {
-	static readonly type = "recipe.add_ingredient" as const;
-	readonly type = AddIngredientAction.type;
-
 	static create(slot: string, items: string[], replace = false): AddIngredientAction {
 		return new AddIngredientAction({ slot, items, replace });
 	}
@@ -38,9 +35,6 @@ export class AddIngredientAction extends RecipeEngineAction<AddIngredientPayload
 type AddShapelessIngredientPayload = { items: string | string[] };
 
 export class AddShapelessIngredientAction extends RecipeEngineAction<AddShapelessIngredientPayload> {
-	static readonly type = "recipe.add_shapeless_ingredient" as const;
-	readonly type = AddShapelessIngredientAction.type;
-
 	static create(items: string | string[]): AddShapelessIngredientAction {
 		return new AddShapelessIngredientAction({ items });
 	}
@@ -58,9 +52,6 @@ export class AddShapelessIngredientAction extends RecipeEngineAction<AddShapeles
 type RemoveIngredientPayload = { slot: string; items?: string[] };
 
 export class RemoveIngredientAction extends RecipeEngineAction<RemoveIngredientPayload> {
-	static readonly type = "recipe.remove_ingredient" as const;
-	readonly type = RemoveIngredientAction.type;
-
 	static create(slot: string, items?: string[]): RemoveIngredientAction {
 		return new RemoveIngredientAction({ slot, items });
 	}
@@ -87,9 +78,6 @@ export class RemoveIngredientAction extends RecipeEngineAction<RemoveIngredientP
 type RemoveItemEverywherePayload = { items: string[] };
 
 export class RemoveItemEverywhereAction extends RecipeEngineAction<RemoveItemEverywherePayload> {
-	static readonly type = "recipe.remove_item_everywhere" as const;
-	readonly type = RemoveItemEverywhereAction.type;
-
 	static create(items: string[]): RemoveItemEverywhereAction {
 		return new RemoveItemEverywhereAction({ items });
 	}
@@ -115,9 +103,6 @@ export class RemoveItemEverywhereAction extends RecipeEngineAction<RemoveItemEve
 type ReplaceItemEverywherePayload = { from: string; to: string };
 
 export class ReplaceItemEverywhereAction extends RecipeEngineAction<ReplaceItemEverywherePayload> {
-	static readonly type = "recipe.replace_item_everywhere" as const;
-	readonly type = ReplaceItemEverywhereAction.type;
-
 	static create(from: string, to: string): ReplaceItemEverywhereAction {
 		return new ReplaceItemEverywhereAction({ from, to });
 	}
@@ -146,9 +131,6 @@ export class ReplaceItemEverywhereAction extends RecipeEngineAction<ReplaceItemE
 type ClearSlotPayload = { slot: string };
 
 export class ClearSlotAction extends RecipeEngineAction<ClearSlotPayload> {
-	static readonly type = "recipe.clear_slot" as const;
-	readonly type = ClearSlotAction.type;
-
 	static create(slot: string): ClearSlotAction {
 		return new ClearSlotAction({ slot });
 	}
@@ -163,9 +145,6 @@ export class ClearSlotAction extends RecipeEngineAction<ClearSlotPayload> {
 type ConvertRecipeTypePayload = { newType: string; preserveIngredients?: boolean };
 
 export class ConvertRecipeTypeAction extends RecipeEngineAction<ConvertRecipeTypePayload> {
-	static readonly type = "recipe.convert_recipe_type" as const;
-	readonly type = ConvertRecipeTypeAction.type;
-
 	static create(newType: string, preserveIngredients = true): ConvertRecipeTypeAction {
 		return new ConvertRecipeTypeAction({ newType, preserveIngredients });
 	}
@@ -205,24 +184,47 @@ export class ConvertRecipeTypeAction extends RecipeEngineAction<ConvertRecipeTyp
 	}
 }
 
-export const RECIPE_ACTION_CLASSES = [
-	AddIngredientAction,
-	AddShapelessIngredientAction,
-	RemoveIngredientAction,
-	RemoveItemEverywhereAction,
-	ReplaceItemEverywhereAction,
-	ConvertRecipeTypeAction,
-	ClearSlotAction
-] as const;
+const RECIPE_ACTION_DOMAIN = defineActionDomain("recipe", [
+	[
+		"addIngredient",
+		"add_ingredient",
+		AddIngredientAction,
+		(slot: string, items: string[], replace = false) => AddIngredientAction.create(slot, items, replace)
+	],
+	[
+		"addShapelessIngredient",
+		"add_shapeless_ingredient",
+		AddShapelessIngredientAction,
+		(items: string | string[]) => AddShapelessIngredientAction.create(items)
+	],
+	[
+		"removeIngredient",
+		"remove_ingredient",
+		RemoveIngredientAction,
+		(slot: string, items?: string[]) => RemoveIngredientAction.create(slot, items)
+	],
+	[
+		"removeItemEverywhere",
+		"remove_item_everywhere",
+		RemoveItemEverywhereAction,
+		(items: string[]) => RemoveItemEverywhereAction.create(items)
+	],
+	[
+		"replaceItemEverywhere",
+		"replace_item_everywhere",
+		ReplaceItemEverywhereAction,
+		(from: string, to: string) => ReplaceItemEverywhereAction.create(from, to)
+	],
+	[
+		"convertType",
+		"convert_recipe_type",
+		ConvertRecipeTypeAction,
+		(newType: string, preserveIngredients = true) => ConvertRecipeTypeAction.create(newType, preserveIngredients)
+	],
+	["clearSlot", "clear_slot", ClearSlotAction, (slot: string) => ClearSlotAction.create(slot)]
+] as const);
+
+export const RECIPE_ACTION_CLASSES = RECIPE_ACTION_DOMAIN.classes;
+export const RecipeActions = RECIPE_ACTION_DOMAIN.builders;
 
 export type RecipeAction = ActionJsonFromClasses<typeof RECIPE_ACTION_CLASSES>;
-
-export const RecipeActions = {
-	addIngredient: (slot: string, items: string[], replace = false) => AddIngredientAction.create(slot, items, replace),
-	addShapelessIngredient: (items: string | string[]) => AddShapelessIngredientAction.create(items),
-	removeIngredient: (slot: string, items?: string[]) => RemoveIngredientAction.create(slot, items),
-	removeItemEverywhere: (items: string[]) => RemoveItemEverywhereAction.create(items),
-	replaceItemEverywhere: (from: string, to: string) => ReplaceItemEverywhereAction.create(from, to),
-	clearSlot: (slot: string) => ClearSlotAction.create(slot),
-	convertType: (newType: string, preserveIngredients = true) => ConvertRecipeTypeAction.create(newType, preserveIngredients)
-};

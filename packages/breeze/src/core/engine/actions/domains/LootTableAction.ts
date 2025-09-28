@@ -1,5 +1,5 @@
 import type { LootGroup, LootItem, LootTableProps } from "@/core/schema/loot/types";
-import type { ActionJsonFromClasses } from "@/core/engine/actions/domain";
+import { defineActionDomain, type ActionJsonFromClasses } from "@/core/engine/actions/domain";
 import { EngineAction, type ActionExecutionContext, type ActionLike } from "@/core/engine/actions/EngineAction";
 
 abstract class LootTableEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
@@ -23,9 +23,6 @@ type AddLootItemPayload = {
 };
 
 export class AddLootItemAction extends LootTableEngineAction<AddLootItemPayload> {
-	static readonly type = "loot_table.add_loot_item" as const;
-	readonly type = AddLootItemAction.type;
-
 	static create(payload: AddLootItemPayload): AddLootItemAction {
 		return new AddLootItemAction(payload);
 	}
@@ -52,9 +49,6 @@ export class AddLootItemAction extends LootTableEngineAction<AddLootItemPayload>
 type RemoveLootItemPayload = { itemId: string };
 
 export class RemoveLootItemAction extends LootTableEngineAction<RemoveLootItemPayload> {
-	static readonly type = "loot_table.remove_loot_item" as const;
-	readonly type = RemoveLootItemAction.type;
-
 	static create(itemId: string): RemoveLootItemAction {
 		return new RemoveLootItemAction({ itemId });
 	}
@@ -73,9 +67,6 @@ export class RemoveLootItemAction extends LootTableEngineAction<RemoveLootItemPa
 type ModifyLootItemPayload = { itemId: string; property: "name" | "weight" | "quality"; value: unknown };
 
 export class ModifyLootItemAction extends LootTableEngineAction<ModifyLootItemPayload> {
-	static readonly type = "loot_table.modify_loot_item" as const;
-	readonly type = ModifyLootItemAction.type;
-
 	static create(payload: ModifyLootItemPayload): ModifyLootItemAction {
 		return new ModifyLootItemAction(payload);
 	}
@@ -103,9 +94,6 @@ export class ModifyLootItemAction extends LootTableEngineAction<ModifyLootItemPa
 type DuplicateLootItemPayload = { itemId: string; targetPoolIndex?: number };
 
 export class DuplicateLootItemAction extends LootTableEngineAction<DuplicateLootItemPayload> {
-	static readonly type = "loot_table.duplicate_loot_item" as const;
-	readonly type = DuplicateLootItemAction.type;
-
 	static create(itemId: string, targetPoolIndex?: number): DuplicateLootItemAction {
 		return new DuplicateLootItemAction({ itemId, targetPoolIndex });
 	}
@@ -133,9 +121,6 @@ type BulkModifyItemsPayload = {
 };
 
 export class BulkModifyItemsAction extends LootTableEngineAction<BulkModifyItemsPayload> {
-	static readonly type = "loot_table.bulk_modify_items" as const;
-	readonly type = BulkModifyItemsAction.type;
-
 	static create(payload: BulkModifyItemsPayload): BulkModifyItemsAction {
 		return new BulkModifyItemsAction(payload);
 	}
@@ -174,9 +159,6 @@ type CreateLootGroupPayload = {
 };
 
 export class CreateLootGroupAction extends LootTableEngineAction<CreateLootGroupPayload> {
-	static readonly type = "loot_table.create_loot_group" as const;
-	readonly type = CreateLootGroupAction.type;
-
 	static create(payload: CreateLootGroupPayload): CreateLootGroupAction {
 		return new CreateLootGroupAction(payload);
 	}
@@ -202,9 +184,6 @@ type ModifyLootGroupPayload = {
 };
 
 export class ModifyLootGroupAction extends LootTableEngineAction<ModifyLootGroupPayload> {
-	static readonly type = "loot_table.modify_loot_group" as const;
-	readonly type = ModifyLootGroupAction.type;
-
 	static create(payload: ModifyLootGroupPayload): ModifyLootGroupAction {
 		return new ModifyLootGroupAction(payload);
 	}
@@ -236,9 +215,6 @@ export class ModifyLootGroupAction extends LootTableEngineAction<ModifyLootGroup
 type DissolveLootGroupPayload = { groupId: string };
 
 export class DissolveLootGroupAction extends LootTableEngineAction<DissolveLootGroupPayload> {
-	static readonly type = "loot_table.dissolve_loot_group" as const;
-	readonly type = DissolveLootGroupAction.type;
-
 	static create(groupId: string): DissolveLootGroupAction {
 		return new DissolveLootGroupAction({ groupId });
 	}
@@ -260,9 +236,6 @@ type ConvertItemToGroupPayload = {
 };
 
 export class ConvertItemToGroupAction extends LootTableEngineAction<ConvertItemToGroupPayload> {
-	static readonly type = "loot_table.convert_item_to_group" as const;
-	readonly type = ConvertItemToGroupAction.type;
-
 	static create(payload: ConvertItemToGroupPayload): ConvertItemToGroupAction {
 		return new ConvertItemToGroupAction(payload);
 	}
@@ -287,9 +260,6 @@ export class ConvertItemToGroupAction extends LootTableEngineAction<ConvertItemT
 type ConvertGroupToItemPayload = { groupId: string; keepFirstItem?: boolean };
 
 export class ConvertGroupToItemAction extends LootTableEngineAction<ConvertGroupToItemPayload> {
-	static readonly type = "loot_table.convert_group_to_item" as const;
-	readonly type = ConvertGroupToItemAction.type;
-
 	static create(groupId: string, keepFirstItem?: boolean): ConvertGroupToItemAction {
 		return new ConvertGroupToItemAction({ groupId, keepFirstItem });
 	}
@@ -317,9 +287,6 @@ export class ConvertGroupToItemAction extends LootTableEngineAction<ConvertGroup
 type NestGroupInGroupPayload = { childGroupId: string; parentGroupId: string; position?: number };
 
 export class NestGroupInGroupAction extends LootTableEngineAction<NestGroupInGroupPayload> {
-	static readonly type = "loot_table.nest_group_in_group" as const;
-	readonly type = NestGroupInGroupAction.type;
-
 	static create(payload: NestGroupInGroupPayload): NestGroupInGroupAction {
 		return new NestGroupInGroupAction(payload);
 	}
@@ -338,9 +305,6 @@ export class NestGroupInGroupAction extends LootTableEngineAction<NestGroupInGro
 type UnnestGroupPayload = { groupId: string };
 
 export class UnnestGroupAction extends LootTableEngineAction<UnnestGroupPayload> {
-	static readonly type = "loot_table.unnest_group" as const;
-	readonly type = UnnestGroupAction.type;
-
 	static create(groupId: string): UnnestGroupAction {
 		return new UnnestGroupAction({ groupId });
 	}
@@ -357,9 +321,6 @@ export class UnnestGroupAction extends LootTableEngineAction<UnnestGroupPayload>
 type MoveItemBetweenPoolsPayload = { itemId: string; targetPoolIndex: number };
 
 export class MoveItemBetweenPoolsAction extends LootTableEngineAction<MoveItemBetweenPoolsPayload> {
-	static readonly type = "loot_table.move_item_between_pools" as const;
-	readonly type = MoveItemBetweenPoolsAction.type;
-
 	static create(itemId: string, targetPoolIndex: number): MoveItemBetweenPoolsAction {
 		return new MoveItemBetweenPoolsAction({ itemId, targetPoolIndex });
 	}
@@ -377,9 +338,6 @@ export class MoveItemBetweenPoolsAction extends LootTableEngineAction<MoveItemBe
 type MoveGroupBetweenPoolsPayload = { groupId: string; targetPoolIndex: number };
 
 export class MoveGroupBetweenPoolsAction extends LootTableEngineAction<MoveGroupBetweenPoolsPayload> {
-	static readonly type = "loot_table.move_group_between_pools" as const;
-	readonly type = MoveGroupBetweenPoolsAction.type;
-
 	static create(groupId: string, targetPoolIndex: number): MoveGroupBetweenPoolsAction {
 		return new MoveGroupBetweenPoolsAction({ groupId, targetPoolIndex });
 	}
@@ -397,9 +355,6 @@ export class MoveGroupBetweenPoolsAction extends LootTableEngineAction<MoveGroup
 type BalanceWeightsPayload = { poolIndex: number; targetTotal?: number };
 
 export class BalanceWeightsAction extends LootTableEngineAction<BalanceWeightsPayload> {
-	static readonly type = "loot_table.balance_weights" as const;
-	readonly type = BalanceWeightsAction.type;
-
 	static create(poolIndex: number, targetTotal?: number): BalanceWeightsAction {
 		return new BalanceWeightsAction({ poolIndex, targetTotal });
 	}
@@ -431,9 +386,6 @@ type ConditionalLootPayload = {
 };
 
 export class ConditionalLootAction extends LootTableEngineAction<ConditionalLootPayload> {
-	static readonly type = "loot_table.conditional_loot" as const;
-	readonly type = ConditionalLootAction.type;
-
 	static create(payload: ConditionalLootPayload): ConditionalLootAction {
 		return new ConditionalLootAction(payload);
 	}
@@ -468,42 +420,81 @@ export class ConditionalLootAction extends LootTableEngineAction<ConditionalLoot
 	}
 }
 
-export const LOOT_TABLE_ACTION_CLASSES = [
-	AddLootItemAction,
-	RemoveLootItemAction,
-	ModifyLootItemAction,
-	DuplicateLootItemAction,
-	BulkModifyItemsAction,
-	CreateLootGroupAction,
-	ModifyLootGroupAction,
-	DissolveLootGroupAction,
-	ConvertItemToGroupAction,
-	ConvertGroupToItemAction,
-	NestGroupInGroupAction,
-	UnnestGroupAction,
-	MoveItemBetweenPoolsAction,
-	MoveGroupBetweenPoolsAction,
-	BalanceWeightsAction,
-	ConditionalLootAction
-] as const;
+const LOOT_TABLE_ACTION_DOMAIN = defineActionDomain("loot_table", [
+	["addLootItem", "add_loot_item", AddLootItemAction, (payload: AddLootItemPayload) => AddLootItemAction.create(payload)],
+	["removeLootItem", "remove_loot_item", RemoveLootItemAction, (itemId: string) => RemoveLootItemAction.create(itemId)],
+	["modifyLootItem", "modify_loot_item", ModifyLootItemAction, (payload: ModifyLootItemPayload) => ModifyLootItemAction.create(payload)],
+	[
+		"duplicateLootItem",
+		"duplicate_loot_item",
+		DuplicateLootItemAction,
+		(itemId: string, targetPoolIndex?: number) => DuplicateLootItemAction.create(itemId, targetPoolIndex)
+	],
+	[
+		"bulkModifyItems",
+		"bulk_modify_items",
+		BulkModifyItemsAction,
+		(payload: BulkModifyItemsPayload) => BulkModifyItemsAction.create(payload)
+	],
+	[
+		"createLootGroup",
+		"create_loot_group",
+		CreateLootGroupAction,
+		(payload: CreateLootGroupPayload) => CreateLootGroupAction.create(payload)
+	],
+	[
+		"modifyLootGroup",
+		"modify_loot_group",
+		ModifyLootGroupAction,
+		(payload: ModifyLootGroupPayload) => ModifyLootGroupAction.create(payload)
+	],
+	["dissolveLootGroup", "dissolve_loot_group", DissolveLootGroupAction, (groupId: string) => DissolveLootGroupAction.create(groupId)],
+	[
+		"convertItemToGroup",
+		"convert_item_to_group",
+		ConvertItemToGroupAction,
+		(payload: ConvertItemToGroupPayload) => ConvertItemToGroupAction.create(payload)
+	],
+	[
+		"convertGroupToItem",
+		"convert_group_to_item",
+		ConvertGroupToItemAction,
+		(groupId: string, keepFirstItem?: boolean) => ConvertGroupToItemAction.create(groupId, keepFirstItem)
+	],
+	[
+		"nestGroupInGroup",
+		"nest_group_in_group",
+		NestGroupInGroupAction,
+		(payload: NestGroupInGroupPayload) => NestGroupInGroupAction.create(payload)
+	],
+	["unnestGroup", "unnest_group", UnnestGroupAction, (groupId: string) => UnnestGroupAction.create(groupId)],
+	[
+		"moveItemBetweenPools",
+		"move_item_between_pools",
+		MoveItemBetweenPoolsAction,
+		(itemId: string, targetPoolIndex: number) => MoveItemBetweenPoolsAction.create(itemId, targetPoolIndex)
+	],
+	[
+		"moveGroupBetweenPools",
+		"move_group_between_pools",
+		MoveGroupBetweenPoolsAction,
+		(groupId: string, targetPoolIndex: number) => MoveGroupBetweenPoolsAction.create(groupId, targetPoolIndex)
+	],
+	[
+		"balanceWeights",
+		"balance_weights",
+		BalanceWeightsAction,
+		(poolIndex: number, targetTotal?: number) => BalanceWeightsAction.create(poolIndex, targetTotal)
+	],
+	[
+		"conditionalLoot",
+		"conditional_loot",
+		ConditionalLootAction,
+		(payload: ConditionalLootPayload) => ConditionalLootAction.create(payload)
+	]
+] as const);
+
+export const LOOT_TABLE_ACTION_CLASSES = LOOT_TABLE_ACTION_DOMAIN.classes;
+export const LootTableActions = LOOT_TABLE_ACTION_DOMAIN.builders;
 
 export type LootTableAction = ActionJsonFromClasses<typeof LOOT_TABLE_ACTION_CLASSES>;
-
-export const LootTableActions = {
-	addLootItem: (payload: AddLootItemPayload) => AddLootItemAction.create(payload),
-	removeLootItem: (itemId: string) => RemoveLootItemAction.create(itemId),
-	modifyLootItem: (payload: ModifyLootItemPayload) => ModifyLootItemAction.create(payload),
-	duplicateLootItem: (itemId: string, targetPoolIndex?: number) => DuplicateLootItemAction.create(itemId, targetPoolIndex),
-	bulkModifyItems: (payload: BulkModifyItemsPayload) => BulkModifyItemsAction.create(payload),
-	createLootGroup: (payload: CreateLootGroupPayload) => CreateLootGroupAction.create(payload),
-	modifyLootGroup: (payload: ModifyLootGroupPayload) => ModifyLootGroupAction.create(payload),
-	dissolveLootGroup: (groupId: string) => DissolveLootGroupAction.create(groupId),
-	convertItemToGroup: (payload: ConvertItemToGroupPayload) => ConvertItemToGroupAction.create(payload),
-	convertGroupToItem: (groupId: string, keepFirstItem?: boolean) => ConvertGroupToItemAction.create(groupId, keepFirstItem),
-	nestGroupInGroup: (payload: NestGroupInGroupPayload) => NestGroupInGroupAction.create(payload),
-	unnestGroup: (groupId: string) => UnnestGroupAction.create(groupId),
-	moveItemBetweenPools: (itemId: string, targetPoolIndex: number) => MoveItemBetweenPoolsAction.create(itemId, targetPoolIndex),
-	moveGroupBetweenPools: (groupId: string, targetPoolIndex: number) => MoveGroupBetweenPoolsAction.create(groupId, targetPoolIndex),
-	balanceWeights: (poolIndex: number, targetTotal?: number) => BalanceWeightsAction.create(poolIndex, targetTotal),
-	conditionalLoot: (payload: ConditionalLootPayload) => ConditionalLootAction.create(payload)
-};

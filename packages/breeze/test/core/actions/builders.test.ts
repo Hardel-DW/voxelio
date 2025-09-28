@@ -2,9 +2,11 @@ import { updateData } from "@/core/engine/actions";
 import { CoreActions } from "@/core/engine/actions/domains/CoreAction";
 import { RecipeActions } from "@/core/engine/actions/domains/RecipeAction";
 import { LootTableActions } from "@/core/engine/actions/domains/LootTableAction";
+import { StructureActions } from "@/core/engine/actions/domains/StructureAction";
 import type { LootTableProps } from "@/core/schema/loot/types";
 import type { RecipeProps } from "@/core/schema/recipe/types";
-import { describe, it, expect } from "vitest";
+import type { StructureProps } from "@/core/schema/structure/types";
+import { describe, expect, it } from "vitest";
 
 describe("Core Actions", () => {
     it("creates and executes a setValue action", async () => {
@@ -22,6 +24,26 @@ describe("Core Actions", () => {
         );
         const result = await updateData(sequence, element, 48);
         expect(result).toEqual({ a: 1, b: 2 });
+    });
+});
+
+describe("Structure Actions", () => {
+    const baseStructure: StructureProps = {
+        type: "minecraft:jigsaw",
+        biomes: [],
+        step: "surface_structures",
+        identifier: { namespace: "test", registry: "structure", resource: "foo" }
+    } as StructureProps;
+
+    it("updates jigsaw config without wrapping structure", async () => {
+        const action = StructureActions.setJigsawConfig({
+            startPool: "minecraft:village/plains",
+            size: 2
+        });
+        const result = await updateData(action, baseStructure, 48);
+        expect(result?.startPool).toBe("minecraft:village/plains");
+        expect(result?.size).toBe(2);
+        expect(result).not.toHaveProperty("structure");
     });
 });
 

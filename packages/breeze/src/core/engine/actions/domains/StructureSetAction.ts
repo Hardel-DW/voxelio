@@ -5,7 +5,7 @@ import type {
 	StructureSetProps,
 	StructureSetStructure
 } from "@/core/schema/structure_set/types";
-import type { ActionJsonFromClasses } from "@/core/engine/actions/domain";
+import { defineActionDomain, type ActionJsonFromClasses } from "@/core/engine/actions/domain";
 import { EngineAction } from "@/core/engine/actions/EngineAction";
 
 abstract class StructureSetEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
@@ -17,9 +17,6 @@ abstract class StructureSetEngineAction<TPayload extends Record<string, unknown>
 type AddStructurePayload = { structure: string; weight: number; position?: number };
 
 export class AddStructureAction extends StructureSetEngineAction<AddStructurePayload> {
-	static readonly type = "structure_set.add_structure" as const;
-	readonly type = AddStructureAction.type;
-
 	static create(structure: string, weight: number, position?: number): AddStructureAction {
 		return new AddStructureAction({ structure, weight, position });
 	}
@@ -47,9 +44,6 @@ export class AddStructureAction extends StructureSetEngineAction<AddStructurePay
 type RemoveStructurePayload = { structureId: string };
 
 export class RemoveStructureAction extends StructureSetEngineAction<RemoveStructurePayload> {
-	static readonly type = "structure_set.remove_structure" as const;
-	readonly type = RemoveStructureAction.type;
-
 	static create(structureId: string): RemoveStructureAction {
 		return new RemoveStructureAction({ structureId });
 	}
@@ -68,9 +62,6 @@ type ModifyStructurePayload = {
 };
 
 export class ModifyStructureAction extends StructureSetEngineAction<ModifyStructurePayload> {
-	static readonly type = "structure_set.modify_structure" as const;
-	readonly type = ModifyStructureAction.type;
-
 	static create(payload: ModifyStructurePayload): ModifyStructureAction {
 		return new ModifyStructureAction(payload);
 	}
@@ -96,9 +87,6 @@ export class ModifyStructureAction extends StructureSetEngineAction<ModifyStruct
 type SetPlacementTypePayload = { placementType: PlacementType };
 
 export class SetPlacementTypeAction extends StructureSetEngineAction<SetPlacementTypePayload> {
-	static readonly type = "structure_set.set_placement_type" as const;
-	readonly type = SetPlacementTypeAction.type;
-
 	static create(placementType: PlacementType): SetPlacementTypeAction {
 		return new SetPlacementTypeAction({ placementType });
 	}
@@ -118,9 +106,6 @@ type ConfigurePlacementPayload = {
 };
 
 export class ConfigurePlacementAction extends StructureSetEngineAction<ConfigurePlacementPayload> {
-	static readonly type = "structure_set.configure_placement" as const;
-	readonly type = ConfigurePlacementAction.type;
-
 	static create(payload: ConfigurePlacementPayload): ConfigurePlacementAction {
 		return new ConfigurePlacementAction(payload);
 	}
@@ -140,9 +125,6 @@ export class ConfigurePlacementAction extends StructureSetEngineAction<Configure
 type SetExclusionZonePayload = { otherSet: string; chunkCount: number };
 
 export class SetExclusionZoneAction extends StructureSetEngineAction<SetExclusionZonePayload> {
-	static readonly type = "structure_set.set_exclusion_zone" as const;
-	readonly type = SetExclusionZoneAction.type;
-
 	static create(otherSet: string, chunkCount: number): SetExclusionZoneAction {
 		return new SetExclusionZoneAction({ otherSet, chunkCount });
 	}
@@ -158,9 +140,6 @@ export class SetExclusionZoneAction extends StructureSetEngineAction<SetExclusio
 }
 
 export class RemoveExclusionZoneAction extends StructureSetEngineAction<Record<string, never>> {
-	static readonly type = "structure_set.remove_exclusion_zone" as const;
-	readonly type = RemoveExclusionZoneAction.type;
-
 	constructor() {
 		super({});
 	}
@@ -184,9 +163,6 @@ type ConfigureConcentricRingsPayload = {
 };
 
 export class ConfigureConcentricRingsAction extends StructureSetEngineAction<ConfigureConcentricRingsPayload> {
-	static readonly type = "structure_set.configure_concentric_rings" as const;
-	readonly type = ConfigureConcentricRingsAction.type;
-
 	static create(payload: ConfigureConcentricRingsPayload): ConfigureConcentricRingsAction {
 		return new ConfigureConcentricRingsAction(payload);
 	}
@@ -208,9 +184,6 @@ type ConfigureRandomSpreadPayload = {
 };
 
 export class ConfigureRandomSpreadAction extends StructureSetEngineAction<ConfigureRandomSpreadPayload> {
-	static readonly type = "structure_set.configure_random_spread" as const;
-	readonly type = ConfigureRandomSpreadAction.type;
-
 	static create(payload: ConfigureRandomSpreadPayload): ConfigureRandomSpreadAction {
 		return new ConfigureRandomSpreadAction(payload);
 	}
@@ -227,9 +200,6 @@ export class ConfigureRandomSpreadAction extends StructureSetEngineAction<Config
 type ReorderStructuresPayload = { structureIds: string[] };
 
 export class ReorderStructuresAction extends StructureSetEngineAction<ReorderStructuresPayload> {
-	static readonly type = "structure_set.reorder_structures" as const;
-	readonly type = ReorderStructuresAction.type;
-
 	static create(structureIds: string[]): ReorderStructuresAction {
 		return new ReorderStructuresAction({ structureIds });
 	}
@@ -248,30 +218,60 @@ export class ReorderStructuresAction extends StructureSetEngineAction<ReorderStr
 	}
 }
 
-export const STRUCTURE_SET_ACTION_CLASSES = [
-	AddStructureAction,
-	RemoveStructureAction,
-	ModifyStructureAction,
-	SetPlacementTypeAction,
-	ConfigurePlacementAction,
-	SetExclusionZoneAction,
-	RemoveExclusionZoneAction,
-	ConfigureConcentricRingsAction,
-	ConfigureRandomSpreadAction,
-	ReorderStructuresAction
-] as const;
+const STRUCTURE_SET_ACTION_DOMAIN = defineActionDomain("structure_set", [
+	[
+		"addStructure",
+		"add_structure",
+		AddStructureAction,
+		(structure: string, weight: number, position?: number) => AddStructureAction.create(structure, weight, position)
+	],
+	["removeStructure", "remove_structure", RemoveStructureAction, (structureId: string) => RemoveStructureAction.create(structureId)],
+	[
+		"modifyStructure",
+		"modify_structure",
+		ModifyStructureAction,
+		(payload: ModifyStructurePayload) => ModifyStructureAction.create(payload)
+	],
+	[
+		"setPlacementType",
+		"set_placement_type",
+		SetPlacementTypeAction,
+		(placementType: PlacementType) => SetPlacementTypeAction.create(placementType)
+	],
+	[
+		"configurePlacement",
+		"configure_placement",
+		ConfigurePlacementAction,
+		(payload: ConfigurePlacementPayload) => ConfigurePlacementAction.create(payload)
+	],
+	[
+		"setExclusionZone",
+		"set_exclusion_zone",
+		SetExclusionZoneAction,
+		(otherSet: string, chunkCount: number) => SetExclusionZoneAction.create(otherSet, chunkCount)
+	],
+	["removeExclusionZone", "remove_exclusion_zone", RemoveExclusionZoneAction, () => RemoveExclusionZoneAction.create()],
+	[
+		"configureConcentricRings",
+		"configure_concentric_rings",
+		ConfigureConcentricRingsAction,
+		(payload: ConfigureConcentricRingsPayload) => ConfigureConcentricRingsAction.create(payload)
+	],
+	[
+		"configureRandomSpread",
+		"configure_random_spread",
+		ConfigureRandomSpreadAction,
+		(payload: ConfigureRandomSpreadPayload) => ConfigureRandomSpreadAction.create(payload)
+	],
+	[
+		"reorderStructures",
+		"reorder_structures",
+		ReorderStructuresAction,
+		(structureIds: string[]) => ReorderStructuresAction.create(structureIds)
+	]
+] as const);
+
+export const STRUCTURE_SET_ACTION_CLASSES = STRUCTURE_SET_ACTION_DOMAIN.classes;
+export const StructureSetActions = STRUCTURE_SET_ACTION_DOMAIN.builders;
 
 export type StructureSetAction = ActionJsonFromClasses<typeof STRUCTURE_SET_ACTION_CLASSES>;
-
-export const StructureSetActions = {
-	addStructure: (structure: string, weight: number, position?: number) => AddStructureAction.create(structure, weight, position),
-	removeStructure: (structureId: string) => RemoveStructureAction.create(structureId),
-	modifyStructure: (payload: ModifyStructurePayload) => ModifyStructureAction.create(payload),
-	setPlacementType: (placementType: PlacementType) => SetPlacementTypeAction.create(placementType),
-	configurePlacement: (payload: ConfigurePlacementPayload) => ConfigurePlacementAction.create(payload),
-	setExclusionZone: (otherSet: string, chunkCount: number) => SetExclusionZoneAction.create(otherSet, chunkCount),
-	removeExclusionZone: () => RemoveExclusionZoneAction.create(),
-	configureConcentricRings: (payload: ConfigureConcentricRingsPayload) => ConfigureConcentricRingsAction.create(payload),
-	configureRandomSpread: (payload: ConfigureRandomSpreadPayload) => ConfigureRandomSpreadAction.create(payload),
-	reorderStructures: (structureIds: string[]) => ReorderStructuresAction.create(structureIds)
-};

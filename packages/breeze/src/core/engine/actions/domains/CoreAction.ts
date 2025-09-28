@@ -1,5 +1,5 @@
 import type { VoxelElement } from "@/core/Element";
-import type { ActionJsonFromClasses } from "@/core/engine/actions/domain";
+import { defineActionDomain, type ActionJsonFromClasses } from "@/core/engine/actions/domain";
 import { deleteValueAtPath, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
 import { EngineAction, type ActionExecutionContext, type ActionLike } from "@/core/engine/actions/EngineAction";
 
@@ -19,9 +19,6 @@ abstract class CoreEngineAction<TPayload extends BasePayload> extends EngineActi
 type SetValuePayload = { path: string; value: unknown };
 
 export class SetValueAction extends CoreEngineAction<SetValuePayload> {
-	static readonly type = "core.set_value";
-	readonly type = SetValueAction.type;
-
 	constructor(payload: SetValuePayload) {
 		if (!payload.path) {
 			throw new Error("SetValueAction requires a path");
@@ -41,9 +38,6 @@ export class SetValueAction extends CoreEngineAction<SetValuePayload> {
 type ToggleValuePayload = { path: string; value: unknown };
 
 export class ToggleValueAction extends CoreEngineAction<ToggleValuePayload> {
-	static readonly type = "core.toggle_value";
-	readonly type = ToggleValueAction.type;
-
 	constructor(payload: ToggleValuePayload) {
 		if (!payload.path) {
 			throw new Error("ToggleValueAction requires a path");
@@ -65,9 +59,6 @@ export class ToggleValueAction extends CoreEngineAction<ToggleValuePayload> {
 type ToggleValueInListPayload = { path: string; value: unknown };
 
 export class ToggleValueInListAction extends CoreEngineAction<ToggleValueInListPayload> {
-	static readonly type = "core.toggle_value_in_list";
-	readonly type = ToggleValueInListAction.type;
-
 	constructor(payload: ToggleValueInListPayload) {
 		if (!payload.path) {
 			throw new Error("ToggleValueInListAction requires a path");
@@ -91,9 +82,6 @@ export class ToggleValueInListAction extends CoreEngineAction<ToggleValueInListP
 type ToggleAllValuesPayload = { path: string; values: unknown[] };
 
 export class ToggleAllValuesInListAction extends CoreEngineAction<ToggleAllValuesPayload> {
-	static readonly type = "core.toggle_all_values_in_list";
-	readonly type = ToggleAllValuesInListAction.type;
-
 	constructor(payload: ToggleAllValuesPayload) {
 		if (!payload.path) {
 			throw new Error("ToggleAllValuesInListAction requires a path");
@@ -130,9 +118,6 @@ export class ToggleAllValuesInListAction extends CoreEngineAction<ToggleAllValue
 type SetUndefinedPayload = { path: string };
 
 export class SetUndefinedAction extends CoreEngineAction<SetUndefinedPayload> {
-	static readonly type = "core.set_undefined";
-	readonly type = SetUndefinedAction.type;
-
 	constructor(payload: SetUndefinedPayload) {
 		if (!payload.path) {
 			throw new Error("SetUndefinedAction requires a path");
@@ -152,9 +137,6 @@ export class SetUndefinedAction extends CoreEngineAction<SetUndefinedPayload> {
 type InvertBooleanPayload = { path: string };
 
 export class InvertBooleanAction extends CoreEngineAction<InvertBooleanPayload> {
-	static readonly type = "core.invert_boolean";
-	readonly type = InvertBooleanAction.type;
-
 	constructor(payload: InvertBooleanPayload) {
 		if (!payload.path) {
 			throw new Error("InvertBooleanAction requires a path");
@@ -178,9 +160,6 @@ export class InvertBooleanAction extends CoreEngineAction<InvertBooleanPayload> 
 type SequentialPayload = { actions: ActionLike[] };
 
 export class SequentialAction extends CoreEngineAction<SequentialPayload> {
-	static readonly type = "core.sequential";
-	readonly type = SequentialAction.type;
-
 	constructor(payload: SequentialPayload) {
 		if (!Array.isArray(payload.actions)) {
 			throw new Error("SequentialAction requires an array of actions");
@@ -209,9 +188,6 @@ export class SequentialAction extends CoreEngineAction<SequentialPayload> {
 type AlternativePayload = { condition: boolean | Condition; ifTrue?: ActionLike; ifFalse?: ActionLike };
 
 export class AlternativeAction extends CoreEngineAction<AlternativePayload> {
-	static readonly type = "core.alternative";
-	readonly type = AlternativeAction.type;
-
 	static create(condition: boolean | Condition, ifTrue: ActionLike, ifFalse?: ActionLike): AlternativeAction {
 		return new AlternativeAction({ condition, ifTrue, ifFalse });
 	}
@@ -239,9 +215,6 @@ export class AlternativeAction extends CoreEngineAction<AlternativePayload> {
 type TagsPayload = { tags: string[] };
 
 export class AddTagsAction extends CoreEngineAction<TagsPayload> {
-	static readonly type = "core.add_tags";
-	readonly type = AddTagsAction.type;
-
 	constructor(payload: TagsPayload) {
 		super({ tags: [...payload.tags] });
 	}
@@ -260,9 +233,6 @@ export class AddTagsAction extends CoreEngineAction<TagsPayload> {
 }
 
 export class RemoveTagsAction extends CoreEngineAction<TagsPayload> {
-	static readonly type = "core.remove_tags";
-	readonly type = RemoveTagsAction.type;
-
 	constructor(payload: TagsPayload) {
 		super({ tags: [...payload.tags] });
 	}
@@ -280,31 +250,34 @@ export class RemoveTagsAction extends CoreEngineAction<TagsPayload> {
 	}
 }
 
-export const CORE_ACTION_CLASSES = [
-	SetValueAction,
-	ToggleValueAction,
-	ToggleValueInListAction,
-	ToggleAllValuesInListAction,
-	SetUndefinedAction,
-	InvertBooleanAction,
-	SequentialAction,
-	AlternativeAction,
-	AddTagsAction,
-	RemoveTagsAction
-] as const;
+const CORE_ACTION_DOMAIN = defineActionDomain("core", [
+	["setValue", "set_value", SetValueAction, (path: string, value: unknown) => SetValueAction.create(path, value)],
+	["toggleValue", "toggle_value", ToggleValueAction, (path: string, value: unknown) => ToggleValueAction.create(path, value)],
+	[
+		"toggleValueInList",
+		"toggle_value_in_list",
+		ToggleValueInListAction,
+		(path: string, value: unknown) => ToggleValueInListAction.create(path, value)
+	],
+	[
+		"toggleAllValuesInList",
+		"toggle_all_values_in_list",
+		ToggleAllValuesInListAction,
+		(path: string, values: unknown[]) => ToggleAllValuesInListAction.create(path, values)
+	],
+	["setUndefined", "set_undefined", SetUndefinedAction, (path: string) => SetUndefinedAction.create(path)],
+	["invertBoolean", "invert_boolean", InvertBooleanAction, (path: string) => InvertBooleanAction.create(path)],
+	["sequential", "sequential", SequentialAction, (...actions: ActionLike[]) => SequentialAction.create(...actions)],
+	[
+		"alternative",
+		"alternative",
+		AlternativeAction,
+		(condition: boolean | Condition, ifTrue: ActionLike, ifFalse?: ActionLike) => AlternativeAction.create(condition, ifTrue, ifFalse)
+	],
+	["addTags", "add_tags", AddTagsAction, (...tags: string[]) => AddTagsAction.create(tags)],
+	["removeTags", "remove_tags", RemoveTagsAction, (...tags: string[]) => RemoveTagsAction.create(tags)]
+] as const);
 
+export const CORE_ACTION_CLASSES = CORE_ACTION_DOMAIN.classes;
+export const CoreActions = CORE_ACTION_DOMAIN.builders;
 export type CoreAction = ActionJsonFromClasses<typeof CORE_ACTION_CLASSES>;
-
-export const CoreActions = {
-	setValue: (path: string, value: unknown) => SetValueAction.create(path, value),
-	toggleValue: (path: string, value: unknown) => ToggleValueAction.create(path, value),
-	toggleValueInList: (path: string, value: unknown) => ToggleValueInListAction.create(path, value),
-	toggleAllValuesInList: (path: string, values: unknown[]) => ToggleAllValuesInListAction.create(path, values),
-	setUndefined: (path: string) => SetUndefinedAction.create(path),
-	invertBoolean: (path: string) => InvertBooleanAction.create(path),
-	sequential: (...actions: ActionLike[]) => SequentialAction.create(...actions),
-	alternative: (condition: boolean | Condition, ifTrue: ActionLike, ifFalse?: ActionLike) =>
-		AlternativeAction.create(condition, ifTrue, ifFalse),
-	addTags: (...tags: string[]) => AddTagsAction.create(tags),
-	removeTags: (...tags: string[]) => RemoveTagsAction.create(tags)
-};

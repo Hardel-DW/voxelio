@@ -8,13 +8,22 @@ export interface ActionExecutionContext {
 }
 
 export abstract class EngineAction<TPayload extends ActionPayload = ActionPayload> {
+	static readonly type: string;
+
 	readonly payload: Readonly<TPayload>;
 
 	protected constructor(payload: TPayload) {
 		this.payload = payload;
 	}
 
-	abstract readonly type: string;
+	get type(): string {
+		const ctor = this.constructor as typeof EngineAction & { type?: string };
+		if (!ctor.type) {
+			const name = ctor.name && ctor.name !== "Function" ? ctor.name : "<anonymous>";
+			throw new Error(`Action class ${name} is missing a static 'type'.`);
+		}
+		return ctor.type;
+	}
 
 	toJSON(): Action {
 		return { type: this.type, ...this.payload } as Action;
