@@ -134,5 +134,5 @@ export const STRUCTURE_ACTION_CLASSES = [
 	AddPoolAliasAction,
 	RemovePoolAliasAction,
 	SetTerrainAdaptationAction,
-	SetDecorationStepAction,
+	SetDecorationStepAction
 ] as const;

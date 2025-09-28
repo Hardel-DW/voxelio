@@ -157,5 +157,5 @@ export const RECIPE_ACTION_CLASSES = [
 	RemoveItemEverywhereAction,
 	ReplaceItemEverywhereAction,
 	ClearSlotAction,
-	ConvertRecipeTypeAction,
+	ConvertRecipeTypeAction
 ] as const;

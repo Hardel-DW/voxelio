@@ -105,7 +105,7 @@ describe("Logger System", () => {
 	});
 
 	describe("replay", () => {
-		it("should replay changes on target elements", async () => {
+		it("should replay changes on target elements", () => {
 			// Create source logger with changes
 			const sourceLogger = new Logger();
 			sourceLogger.setDatapackInfo({
@@ -122,7 +122,7 @@ describe("Logger System", () => {
 				value: 42
 			};
 
-			await sourceLogger.trackChanges(element, async (el) => {
+			sourceLogger.trackChanges(element, (el) => {
 				return { ...el, name: "Modified", value: 100 };
 			});
 
@@ -139,7 +139,7 @@ describe("Logger System", () => {
 			const replayLogger = new Logger(logsJson);
 
 			// Replay changes
-			const modifiedElements = await replayLogger.replay(targetElements, 48);
+			const modifiedElements = replayLogger.replay(targetElements, 48);
 
 			// Verify original elements unchanged
 			expect(targetElements.get("test:item$recipe").name).toBe("Target Original");
@@ -152,7 +152,7 @@ describe("Logger System", () => {
 			expect(modifiedElement.value).toBe(100);
 		});
 
-		it("should handle multiple elements and changes", async () => {
+		it("should handle multiple elements and changes", () => {
 			const logs = {
 				id: "test",
 				generated_at: "2024-01-01T00:00:00.000Z",
@@ -187,7 +187,7 @@ describe("Logger System", () => {
 			targetElements.set("test:item2$recipe", { enabled: true, count: 5 });
 			targetElements.set("test:item3$recipe", { name: "Unchanged" }); // Should remain unchanged
 
-			const modifiedElements = await logger.replay(targetElements, 48);
+			const modifiedElements = logger.replay(targetElements, 48);
 
 			// Verify changes applied correctly
 			expect(modifiedElements.get("test:item1$recipe").name).toBe("Modified Item 1");
@@ -197,7 +197,7 @@ describe("Logger System", () => {
 			expect(modifiedElements.get("test:item3$recipe").name).toBe("Unchanged"); // Element not in logs
 		});
 
-		it("should skip elements not found in target", async () => {
+		it("should skip elements not found in target", () => {
 			const logs = {
 				id: "test",
 				generated_at: "2024-01-01T00:00:00.000Z",
@@ -220,29 +220,29 @@ describe("Logger System", () => {
 			const targetElements = new Map();
 			targetElements.set("test:existing$recipe", { name: "Existing" });
 
-			const modifiedElements = await logger.replay(targetElements, 48);
+			const modifiedElements = logger.replay(targetElements, 48);
 
 			// Should return elements unchanged since "test:missing" doesn't exist
 			expect(modifiedElements.get("test:existing$recipe").name).toBe("Existing");
 			expect(modifiedElements.has("test:missing$recipe")).toBe(false);
 		});
 
-		it("should handle empty logs", async () => {
+		it("should handle empty logs", () => {
 			const logger = new Logger();
 			const targetElements = new Map();
 			targetElements.set("test:item$recipe", { name: "Original" });
 
-			const modifiedElements = await logger.replay(targetElements, 48);
+			const modifiedElements = logger.replay(targetElements, 48);
 
 			expect(modifiedElements.get("test:item$recipe").name).toBe("Original");
 		});
 	});
 
 	describe("trackChanges", () => {
-		it("should track changes when element is modified", async () => {
+		it("should track changes when element is modified", () => {
 			const element = { name: "test", value: 42 };
 
-			const result = await testLogger.trackChanges(element, async (el) => {
+			const result = testLogger.trackChanges(element, (el) => {
 				return { ...el, value: 100 };
 			});
 
@@ -259,10 +259,10 @@ describe("Logger System", () => {
 			});
 		});
 
-		it("should not track changes when element is unchanged", async () => {
+		it("should not track changes when element is unchanged", () => {
 			const element = { name: "test", value: 42 };
 
-			const result = await testLogger.trackChanges(element, async (el) => {
+			const result = testLogger.trackChanges(element, (el) => {
 				return { ...el };
 			});
 
@@ -270,10 +270,10 @@ describe("Logger System", () => {
 			expect(testLogger.getChanges()).toHaveLength(0);
 		});
 
-		it("should handle operations that return undefined", async () => {
+		it("should handle operations that return undefined", () => {
 			const element = { name: "test", value: 42 };
 
-			const result = await testLogger.trackChanges(element, async () => {
+			const result = testLogger.trackChanges(element, () => {
 				return undefined;
 			});
 
@@ -281,15 +281,15 @@ describe("Logger System", () => {
 			expect(testLogger.getChanges()).toHaveLength(0);
 		});
 
-		it("should track with real actions", async () => {
+		it("should track with real actions", () => {
 			const element = {
 				identifier: { namespace: "test", registry: "loot_table", resource: "simple" },
 				name: "Simple Test",
 				value: 42
 			};
 
-			const result = await testLogger.trackChanges(element, async (el) => {
-				return await updateData({ type: "core.set_value", path: "value", value: 100 }, el, 48);
+			const result = testLogger.trackChanges(element, (el) => {
+				return updateData({ type: "core.set_value", path: "value", value: 100 }, el, 48);
 			});
 
 			expect(result).toBeDefined();
@@ -336,10 +336,10 @@ describe("Logger System", () => {
 	});
 
 	describe("export/import", () => {
-		it("should export new JSON format with datapack info", async () => {
+		it("should export new JSON format with datapack info", () => {
 			const element = { name: "test", value: 42 };
 
-			await testLogger.trackChanges(element, async (el) => {
+			testLogger.trackChanges(element, (el) => {
 				return { ...el, value: 100 };
 			});
 
@@ -441,9 +441,9 @@ describe("Logger System", () => {
 	});
 
 	describe("mixed operations", () => {
-		it("should handle both track and sync operations", async () => {
+		it("should handle both track and sync operations", () => {
 			// Tool operation
-			await testLogger.trackChanges({ id: "test1", value: 42 }, async (el) => {
+			testLogger.trackChanges({ id: "test1", value: 42 }, (el) => {
 				return { ...el, value: 100 };
 			});
 

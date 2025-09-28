@@ -13,7 +13,7 @@ describe("Action System", () => {
 	});
 
 	describe("Core Domain Actions", () => {
-		it("should set a value", async () => {
+		it("should set a value", () => {
 			expect(mockElement.data.minCostBase).toBe(1);
 
 			const action: ActionLike = {
@@ -22,14 +22,14 @@ describe("Action System", () => {
 				value: 20
 			};
 
-			const result = await updateData(action, mockElement.data, 48);
+			const result = updateData(action, mockElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.minCostBase).toBe(20);
 			expect(mockElement.data.minCostBase).toBe(1);
 			expect(result).not.toBe(mockElement.data);
 		});
 
-		it("should toggle a value", async () => {
+		it("should toggle a value", () => {
 			const element = createMockEnchantmentElement({ minCostBase: 5 });
 			expect(element.data.minCostBase).toBe(5);
 
@@ -39,14 +39,14 @@ describe("Action System", () => {
 				value: 5
 			};
 
-			const result = await updateData(action, element.data, 48);
+			const result = updateData(action, element.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.minCostBase).toBeUndefined();
 			expect(element.data.minCostBase).toBe(5);
 			expect(result).not.toBe(element.data);
 		});
 
-		it("should set undefined", async () => {
+		it("should set undefined", () => {
 			const element = createMockEnchantmentElement({ minCostBase: 5 });
 			expect(element.data.minCostBase).toBe(5);
 			expect(element.data).toHaveProperty("minCostBase");
@@ -56,7 +56,7 @@ describe("Action System", () => {
 				path: "minCostBase"
 			};
 
-			const result = await updateData(action, element.data, 48);
+			const result = updateData(action, element.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.minCostBase).toBeUndefined();
 			// set_undefined met la valeur à undefined mais garde la propriété
@@ -68,7 +68,7 @@ describe("Action System", () => {
 			expect(result).not.toBe(element.data);
 		});
 
-		it("should invert boolean values", async () => {
+		it("should invert boolean values", () => {
 			const element = createMockEnchantmentElement({
 				isActive: true,
 				isDisabled: false
@@ -83,7 +83,7 @@ describe("Action System", () => {
 				path: "isActive"
 			};
 
-			const result = await updateData(action, element.data, 48);
+			const result = updateData(action, element.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.isActive).toBe(false);
 			expect(result?.isDisabled).toBe(false); // Pas touché
@@ -94,7 +94,7 @@ describe("Action System", () => {
 			expect(result).not.toBe(element.data);
 		});
 
-		it("should not change non-boolean values with invert_boolean", async () => {
+		it("should not change non-boolean values with invert_boolean", () => {
 			const element = createMockEnchantmentElement({
 				minCostBase: 10,
 				description: "test"
@@ -105,7 +105,7 @@ describe("Action System", () => {
 				path: "minCostBase"
 			};
 
-			const result = await updateData(action, element.data, 48);
+			const result = updateData(action, element.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.minCostBase).toBe(10); // Pas changé car pas un boolean
 			expect(result).toBe(element.data); // Même objet car pas de changement
@@ -113,21 +113,21 @@ describe("Action System", () => {
 	});
 
 	describe("Identifier Preservation", () => {
-		it("should maintain Identifier instance through set_value", async () => {
+		it("should maintain Identifier instance through set_value", () => {
 			const action: ActionLike = {
 				type: "core.set_value",
 				path: "minCostBase",
 				value: 5
 			};
 
-			const result = await updateData(action, mockElement.data, 48);
+			const result = updateData(action, mockElement.data, 48);
 			expect(result?.identifier).toBeDefined();
 			expect(mockElement.data.identifier).toEqual(result?.identifier);
 		});
 	});
 
 	describe("Complex Operations", () => {
-		it("should handle nested path operations in objects", async () => {
+		it("should handle nested path operations in objects", () => {
 			// Test modification d'un objet imbriqué
 			expect(complexElement.data.identifier.namespace).toBe("enchantplus");
 			expect(complexElement.data.identifier.resource).toBe("bow/accuracy_shot");
@@ -138,7 +138,7 @@ describe("Action System", () => {
 				value: "modpack"
 			};
 
-			const result = await updateData(action, complexElement.data, 48);
+			const result = updateData(action, complexElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.identifier?.namespace).toBe("modpack");
 			expect(result?.identifier?.resource).toBe("bow/accuracy_shot"); // Pas touché
@@ -148,7 +148,7 @@ describe("Action System", () => {
 			expect(result).not.toBe(complexElement.data);
 		});
 
-		it("should handle nested path operations in arrays", async () => {
+		it("should handle nested path operations in arrays", () => {
 			expect(complexElement.data.effects).toBeDefined();
 			expect(complexElement.data.effects?.["minecraft:projectile_spawned"]).toBeDefined();
 			expect(Array.isArray(complexElement.data.effects?.["minecraft:projectile_spawned"])).toBe(true);
@@ -163,7 +163,7 @@ describe("Action System", () => {
 				value: "modpack:new_function"
 			};
 
-			const result = await updateData(action, complexElement.data, 48);
+			const result = updateData(action, complexElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.effects).toBeDefined();
 
@@ -176,7 +176,7 @@ describe("Action System", () => {
 			expect(result).not.toBe(complexElement.data);
 		});
 
-		it("should handle nested path operations with description", async () => {
+		it("should handle nested path operations with description", () => {
 			// Test modification d'un objet de description
 			expect(complexElement.data.description).toBeDefined();
 			expect(typeof complexElement.data.description).toBe("object");
@@ -192,7 +192,7 @@ describe("Action System", () => {
 				value: "New Test Description"
 			};
 
-			const result = await updateData(action, complexElement.data, 48);
+			const result = updateData(action, complexElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.description).toBeDefined();
 
@@ -208,7 +208,7 @@ describe("Action System", () => {
 			expect(result).not.toBe(complexElement.data);
 		});
 
-		it("should handle array index operations", async () => {
+		it("should handle array index operations", () => {
 			// Test modification d'un élément spécifique dans un array
 			expect(complexElement.data.exclusiveSet).toBeDefined();
 			expect(Array.isArray(complexElement.data.exclusiveSet)).toBe(true);
@@ -223,7 +223,7 @@ describe("Action System", () => {
 				value: "minecraft:mending"
 			};
 
-			const result = await updateData(action, complexElement.data, 48);
+			const result = updateData(action, complexElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.exclusiveSet).toBeDefined();
 			expect(Array.isArray(result?.exclusiveSet)).toBe(true);

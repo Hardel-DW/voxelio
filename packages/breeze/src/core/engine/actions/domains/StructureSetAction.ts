@@ -180,5 +180,5 @@ export const STRUCTURE_SET_ACTION_CLASSES = [
 	RemoveExclusionZoneAction,
 	ConfigureConcentricRingsAction,
 	ConfigureRandomSpreadAction,
-	ReorderStructuresAction,
+	ReorderStructuresAction
 ] as const;

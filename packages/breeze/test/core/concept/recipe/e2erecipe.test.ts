@@ -151,7 +151,7 @@ describe("Recipe E2E Tests", () => {
 		});
 
 		describe("Data integrity verification", () => {
-			it("should identify data preservation in shapeless recipe", async () => {
+			it("should identify data preservation in shapeless recipe", () => {
 				const originalJson = shapeless.data;
 
 				const compiled = VoxelToRecipeDataDriven(shapelessRecipe, "recipe", shapeless.data);
@@ -167,7 +167,7 @@ describe("Recipe E2E Tests", () => {
 				expect(originalJson.ingredients?.[0]).toBe("#minecraft:acacia_logs");
 			});
 
-			it("should identify data preservation in shaped recipe", async () => {
+			it("should identify data preservation in shaped recipe", () => {
 				const originalJson = shaped.data;
 
 				const compiled = VoxelToRecipeDataDriven(shapedRecipe, "recipe", shaped.data);
@@ -187,7 +187,7 @@ describe("Recipe E2E Tests", () => {
 				});
 			});
 
-			it("should identify data preservation in complex shaped recipe", async () => {
+			it("should identify data preservation in complex shaped recipe", () => {
 				const originalJson = shaped2.data;
 
 				const compiled = VoxelToRecipeDataDriven(shaped2Recipe, "recipe", shaped2.data);
@@ -201,7 +201,7 @@ describe("Recipe E2E Tests", () => {
 				expect(compiledData.result).toEqual(originalJson.result);
 			});
 
-			it("should identify data preservation in smelting recipe", async () => {
+			it("should identify data preservation in smelting recipe", () => {
 				const originalJson = blasting.data;
 
 				const compiled = VoxelToRecipeDataDriven(blastingRecipe, "recipe", blasting.data);
@@ -218,7 +218,7 @@ describe("Recipe E2E Tests", () => {
 				expect(originalJson.ingredient).toBe("minecraft:iron_ore");
 			});
 
-			it("should identify data preservation in stonecutting recipe", async () => {
+			it("should identify data preservation in stonecutting recipe", () => {
 				const originalJson = stonecutting.data;
 
 				const compiled = VoxelToRecipeDataDriven(stonecuttingRecipe, "recipe", stonecutting.data);
@@ -319,7 +319,7 @@ describe("Recipe E2E Tests", () => {
 		});
 
 		describe("Round-trip integrity for all recipe types", () => {
-			it("should maintain data integrity through full round-trip for all recipes", async () => {
+			it("should maintain data integrity through full round-trip for all recipes", () => {
 				const recipes = Array.from(parsedDatapack.elements.values()).filter(
 					(element): element is RecipeProps => element.identifier.registry === "recipe"
 				);

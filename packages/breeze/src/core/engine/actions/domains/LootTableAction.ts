@@ -306,7 +306,6 @@ export class BalanceWeightsAction extends Action<{ poolIndex: number; targetTota
 	}
 }
 
-
 // Liste des classes d'actions LootTable - ajouter ici pour créer une nouvelle action
 export const LOOT_TABLE_ACTION_CLASSES = [
 	AddLootItemAction,
@@ -323,5 +322,5 @@ export const LOOT_TABLE_ACTION_CLASSES = [
 	UnnestGroupAction,
 	MoveItemBetweenPoolsAction,
 	MoveGroupBetweenPoolsAction,
-	BalanceWeightsAction,
+	BalanceWeightsAction
 ] as const;

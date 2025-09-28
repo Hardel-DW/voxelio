@@ -77,7 +77,6 @@ export class InvertBooleanAction extends Action<{ path: string }> {
 	}
 }
 
-
 export class AddTagsAction extends Action<{ tags: string[] }> {
 	readonly type = "core.add_tags" as const;
 
@@ -111,5 +110,5 @@ export const CORE_ACTION_CLASSES = [
 	SetUndefinedAction,
 	InvertBooleanAction,
 	AddTagsAction,
-	RemoveTagsAction,
+	RemoveTagsAction
 ] as const;

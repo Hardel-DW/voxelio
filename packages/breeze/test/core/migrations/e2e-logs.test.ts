@@ -23,12 +23,12 @@ describe("E2E Logs System", () => {
 			if (!element) throw new Error("Element not found");
 
 			// Apply some actions with logging
-			await logger.trackChanges(element, async (el) => {
-				return await updateData({ type: "core.set_value", path: "name", value: "Modified Name" }, el, 123);
+			logger.trackChanges(element, (el) => {
+				return updateData({ type: "core.set_value", path: "name", value: "Modified Name" }, el, 123);
 			});
 
-			await logger.trackChanges(element, async (el) => {
-				return await updateData({ type: "core.set_value", path: "value", value: 999 }, el, 123);
+			logger.trackChanges(element, (el) => {
+				return updateData({ type: "core.set_value", path: "value", value: 999 }, el, 123);
 			});
 
 			// Verify changes were tracked
@@ -70,8 +70,8 @@ describe("E2E Logs System", () => {
 			const element = result.elements.get(elementKey);
 			if (!element) throw new Error("Element not found");
 
-			await logger.trackChanges(element, async (el) => {
-				return await updateData({ type: "core.set_value", path: "pools.0.bonus_rolls", value: 2 }, el, 123);
+			logger.trackChanges(element, (el) => {
+				return updateData({ type: "core.set_value", path: "pools.0.bonus_rolls", value: 2 }, el, 123);
 			});
 
 			// Verify combined history
@@ -169,7 +169,7 @@ describe("E2E Logs System", () => {
 				type: "minecraft:entity"
 			};
 
-			await logger.trackChanges(testElement, async (el) => {
+			logger.trackChanges(testElement, (el) => {
 				return { ...el, pools: [{ rolls: 5, entries: [] }] };
 			});
 
@@ -232,11 +232,11 @@ describe("E2E Logs Replay System", () => {
 			min_cost: { base: 10, per_level: 5 }
 		};
 
-		await sourceLogger.trackChanges(element1, async (el) => {
+		sourceLogger.trackChanges(element1, (el) => {
 			return { ...el, pools: [{ rolls: 8, entries: [] }], type: "minecraft:chest" };
 		});
 
-		await sourceLogger.trackChanges(element2, async (el) => {
+		sourceLogger.trackChanges(element2, (el) => {
 			return { ...el, max_level: 15, min_cost: { base: 25, per_level: 5 } };
 		});
 
@@ -259,7 +259,7 @@ describe("E2E Logs Replay System", () => {
 
 		// Use new migration API
 		const logger = new Logger(sourceLogFile);
-		const modifiedElements = await logger.replay(target.elements, target.version);
+		const modifiedElements = logger.replay(target.elements, target.version);
 
 		// Map log identifiers to target keys (they have registry suffix)
 		const lootTableKey = "test:test$loot_table";
@@ -411,7 +411,7 @@ describe("E2E Logs Replay System", () => {
 			// Apply all differences for this element
 			for (const change of changes) {
 				for (const difference of change.differences) {
-					currentElement = await updateData(
+					currentElement = updateData(
 						{ type: "core.set_value", path: difference.path, value: difference.value },
 						currentElement,
 						123

@@ -79,5 +79,5 @@ export class SetExclusiveSetWithTagsAction extends Action<{ value: string }> {
 export const ENCHANTMENT_ACTION_CLASSES = [
 	SetComputedSlotAction,
 	ToggleEnchantmentToExclusiveSetAction,
-	SetExclusiveSetWithTagsAction,
+	SetExclusiveSetWithTagsAction
 ] as const;

@@ -173,7 +173,7 @@ describe("Datapack", () => {
 	});
 
 	describe("generate", () => {
-		it("should generate a new datapack with updated content", async () => {
+		it("should generate a new datapack with updated content", () => {
 			const datapack = new Datapack(enchantmentWithTagFiles);
 			const content: LabeledElement[] = [
 				{
@@ -196,7 +196,7 @@ describe("Datapack", () => {
 			expect(result).toBeInstanceOf(Response);
 		});
 
-		it("should handle deleted elements by keeping empty tags", async () => {
+		it("should handle deleted elements by keeping empty tags", () => {
 			const datapack = new Datapack(enchantmentWithTagFiles);
 			const content: LabeledElement[] = [
 				{
@@ -209,7 +209,7 @@ describe("Datapack", () => {
 				}
 			];
 
-			const result = await datapack.generate(content, { isMinified: true });
+			const result = datapack.generate(content, { isMinified: true });
 			expect(result).toBeInstanceOf(Response);
 		});
 	});

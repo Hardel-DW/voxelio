@@ -28,7 +28,7 @@ export class Logger {
 	/**
 	 * Replay logged changes on target elements
 	 */
-	async replay<T extends Record<string, unknown>>(elements: Map<string, T>, version: number): Promise<Map<string, T>> {
+	replay<T extends Record<string, unknown>>(elements: Map<string, T>, version: number): Map<string, T> {
 		const clonedElements = new Map(elements);
 
 		for (const change of this.changes) {
@@ -45,7 +45,7 @@ export class Logger {
 
 			for (const difference of change.differences) {
 				const action = new SetValueAction({ path: difference.path, value: difference.value });
-				const result = await updateData(action, element, version);
+				const result = updateData(action, element, version);
 
 				if (result) {
 					element = result as T;
@@ -81,12 +81,9 @@ export class Logger {
 	/**
 	 * Tracks changes during a tool operation
 	 */
-	async trackChanges<T extends Record<string, unknown>>(
-		element: T,
-		operation: (element: T) => Promise<Partial<T> | undefined>
-	): Promise<Partial<T> | undefined> {
+	trackChanges<T extends Record<string, unknown>>(element: T, operation: (element: T) => Partial<T> | undefined): Partial<T> | undefined {
 		const beforeState = normalizeValue(element) as Record<string, unknown>;
-		const result = await operation(element);
+		const result = operation(element);
 
 		if (result) {
 			const afterState = normalizeValue(result) as Record<string, unknown>;

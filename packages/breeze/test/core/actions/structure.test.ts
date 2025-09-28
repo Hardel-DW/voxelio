@@ -12,8 +12,8 @@ describe("Structure Actions", () => {
 	};
 
 	describe("structure.set_biomes", () => {
-		it("should replace biomes when replace is true", async () => {
-			const result = await updateData(
+		it("should replace biomes when replace is true", () => {
+			const result = updateData(
 				{
 					type: "structure.set_biomes",
 					biomes: ["minecraft:desert", "minecraft:savanna"],
@@ -25,8 +25,8 @@ describe("Structure Actions", () => {
 			expect(result?.biomes).toEqual(["minecraft:desert", "minecraft:savanna"]);
 		});
 
-		it("should add biomes when replace is false", async () => {
-			const result = await updateData(
+		it("should add biomes when replace is false", () => {
+			const result = updateData(
 				{
 					type: "structure.set_biomes",
 					biomes: ["minecraft:desert", "minecraft:savanna"],
@@ -40,8 +40,8 @@ describe("Structure Actions", () => {
 	});
 
 	describe("structure.add_spawn_override", () => {
-		it("should add new spawn override", async () => {
-			const result = await updateData(
+		it("should add new spawn override", () => {
+			const result = updateData(
 				{
 					type: "structure.add_spawn_override",
 					mobCategory: "monster",
@@ -64,8 +64,8 @@ describe("Structure Actions", () => {
 	});
 
 	describe("structure.set_jigsaw_config", () => {
-		it("should set jigsaw configuration properties", async () => {
-			const result = await updateData(
+		it("should set jigsaw configuration properties", () => {
+			const result = updateData(
 				{
 					type: "structure.set_jigsaw_config",
 					startPool: "minecraft:village/common",

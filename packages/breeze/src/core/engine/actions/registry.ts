@@ -8,18 +8,26 @@ import { type Action, isAction } from "@/core/engine/actions/EngineAction";
 import type { ActionLike } from "@/core/engine/actions/index";
 
 // Liste de toutes les classes d'actions disponibles
-const ALL_ACTION_CLASSES = [
+export const ALL_ACTION_CLASSES = [
 	...CORE_ACTION_CLASSES,
 	...ENCHANTMENT_ACTION_CLASSES,
 	...LOOT_TABLE_ACTION_CLASSES,
 	...RECIPE_ACTION_CLASSES,
 	...STRUCTURE_ACTION_CLASSES,
-	...STRUCTURE_SET_ACTION_CLASSES,
+	...STRUCTURE_SET_ACTION_CLASSES
 ] as const;
+
+// Helper pour extraire automatiquement les types d'actions
+type ExtractActionType<T extends readonly any[]> = {
+	[K in keyof T]: T[K] extends new (params: any) => { readonly type: infer U } ? U : never;
+}[number];
+
+// Type union automatique de tous les types d'actions
+export type ActionType = ExtractActionType<typeof ALL_ACTION_CLASSES>;
 
 // Registry simplifié - génération automatique du Map type -> Constructor
 const ACTION_REGISTRY = new Map<string, new (params: any) => Action>(
-	ALL_ACTION_CLASSES.map(ActionClass => {
+	ALL_ACTION_CLASSES.map((ActionClass) => {
 		const instance = new ActionClass({} as any); // Juste pour récupérer le type
 		return [instance.type, ActionClass];
 	})
@@ -46,17 +54,4 @@ export function executeAction(
 
 	const action = new ActionClass(params);
 	return action.apply(element, version);
-}
-
-/**
- * Registry class pour compatibilité (à supprimer progressivement)
- */
-export class ActionRegistry {
-	execute<T extends Record<string, unknown>>(action: ActionLike, element: T, version?: number): Partial<T> | undefined {
-		return executeAction(action, element, version) as Partial<T> | undefined;
-	}
-
-	has(type: string): boolean {
-		return ACTION_REGISTRY.has(type);
-	}
 }

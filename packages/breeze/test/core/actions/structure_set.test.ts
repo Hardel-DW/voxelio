@@ -19,8 +19,8 @@ describe("StructureSet Actions", () => {
 	};
 
 	describe("structure_set.add_structure", () => {
-		it("should add structure at the end by default", async () => {
-			const result = await updateData(
+		it("should add structure at the end by default", () => {
+			const result = updateData(
 				{
 					type: "structure_set.add_structure",
 					structure: "minecraft:village_desert",
@@ -36,8 +36,8 @@ describe("StructureSet Actions", () => {
 			});
 		});
 
-		it("should add structure at specific position", async () => {
-			const result = await updateData(
+		it("should add structure at specific position", () => {
+			const result = updateData(
 				{
 					type: "structure_set.add_structure",
 					structure: "minecraft:village_desert",
@@ -60,13 +60,13 @@ describe("StructureSet Actions", () => {
 	});
 
 	describe("structure_set.remove_structure", () => {
-		it("should remove structure by ID", async () => {
+		it("should remove structure by ID", () => {
 			const extendedStructureSet = {
 				...baseStructureSet,
 				structures: [...baseStructureSet.structures, { structure: "minecraft:village_desert", weight: 5 }]
 			};
 
-			const result = await updateData(
+			const result = updateData(
 				{
 					type: "structure_set.remove_structure",
 					structureId: "structure_1"
@@ -83,8 +83,8 @@ describe("StructureSet Actions", () => {
 	});
 
 	describe("structure_set.modify_structure", () => {
-		it("should modify structure weight", async () => {
-			const result = await updateData(
+		it("should modify structure weight", () => {
+			const result = updateData(
 				{
 					type: "structure_set.modify_structure",
 					structureId: "structure_0",
@@ -100,8 +100,8 @@ describe("StructureSet Actions", () => {
 			});
 		});
 
-		it("should modify structure ID", async () => {
-			const result = await updateData(
+		it("should modify structure ID", () => {
+			const result = updateData(
 				{
 					type: "structure_set.modify_structure",
 					structureId: "structure_0",
@@ -119,8 +119,8 @@ describe("StructureSet Actions", () => {
 	});
 
 	describe("structure_set.set_placement_type", () => {
-		it("should change placement type", async () => {
-			const result = await updateData(
+		it("should change placement type", () => {
+			const result = updateData(
 				{
 					type: "structure_set.set_placement_type",
 					placementType: "minecraft:concentric_rings"
@@ -133,8 +133,8 @@ describe("StructureSet Actions", () => {
 	});
 
 	describe("structure_set.configure_placement", () => {
-		it("should configure placement properties", async () => {
-			const result = await updateData(
+		it("should configure placement properties", () => {
+			const result = updateData(
 				{
 					type: "structure_set.configure_placement",
 					salt: 54321,
@@ -153,8 +153,8 @@ describe("StructureSet Actions", () => {
 	});
 
 	describe("structure_set.set_exclusion_zone", () => {
-		it("should set exclusion zone", async () => {
-			const result = await updateData(
+		it("should set exclusion zone", () => {
+			const result = updateData(
 				{
 					type: "structure_set.set_exclusion_zone",
 					otherSet: "minecraft:strongholds",
@@ -171,7 +171,7 @@ describe("StructureSet Actions", () => {
 	});
 
 	describe("structure_set.remove_exclusion_zone", () => {
-		it("should remove exclusion zone", async () => {
+		it("should remove exclusion zone", () => {
 			const structureSetWithExclusion = {
 				...baseStructureSet,
 				exclusionZone: {
@@ -180,7 +180,7 @@ describe("StructureSet Actions", () => {
 				}
 			};
 
-			const result = await updateData(
+			const result = updateData(
 				{
 					type: "structure_set.remove_exclusion_zone"
 				},
@@ -192,8 +192,8 @@ describe("StructureSet Actions", () => {
 	});
 
 	describe("structure_set.configure_concentric_rings", () => {
-		it("should configure concentric rings properties", async () => {
-			const result = await updateData(
+		it("should configure concentric rings properties", () => {
+			const result = updateData(
 				{
 					type: "structure_set.configure_concentric_rings",
 					distance: 32,
@@ -212,8 +212,8 @@ describe("StructureSet Actions", () => {
 	});
 
 	describe("structure_set.configure_random_spread", () => {
-		it("should configure random spread properties", async () => {
-			const result = await updateData(
+		it("should configure random spread properties", () => {
+			const result = updateData(
 				{
 					type: "structure_set.configure_random_spread",
 					spacing: 40,
@@ -230,7 +230,7 @@ describe("StructureSet Actions", () => {
 	});
 
 	describe("structure_set.reorder_structures", () => {
-		it("should reorder structures", async () => {
+		it("should reorder structures", () => {
 			const extendedStructureSet = {
 				...baseStructureSet,
 				structures: [
@@ -240,7 +240,7 @@ describe("StructureSet Actions", () => {
 				]
 			};
 
-			const result = await updateData(
+			const result = updateData(
 				{
 					type: "structure_set.reorder_structures",
 					structureIds: ["structure_2", "structure_0", "structure_1"]
