@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.9.0
+
+### Minor Changes
+
+- d363ddc: Refactor Actions
+
 ## 1.8.12
 
 ### Patch Changes
