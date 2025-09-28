@@ -2,7 +2,7 @@ import { parseDatapack } from "@/core/engine/Parser";
 import { updateData } from "@/core/engine/actions";
 import { VoxelToLootDataDriven } from "@/core/schema/loot/Compiler";
 import type { LootTableProps } from "@/core/schema/loot/types";
-import type { LootTableAction } from "@/core/engine/actions/domains/LootTableAction";
+import type { ActionLike } from "@/core/engine/actions/index";
 import { lootTableFile, lootTableZip } from "@test/mock/datapack";
 import { describe, it, expect, beforeEach } from "vitest";
 
@@ -485,7 +485,7 @@ describe("LootTable E2E Tests", () => {
 
 			it("should add items through actions", async () => {
 				// Add a diamond to pool 0
-				const addDiamondAction: LootTableAction = {
+				const addDiamondAction: ActionLike = {
 					type: "loot_table.add_loot_item",
 					poolIndex: 0,
 					item: {
@@ -502,7 +502,7 @@ describe("LootTable E2E Tests", () => {
 				expect(result1.items[1].quality).toBe(10);
 
 				// Add an emerald to pool 1 (new pool)
-				const addEmeraldAction: LootTableAction = {
+				const addEmeraldAction: ActionLike = {
 					type: "loot_table.add_loot_item",
 					poolIndex: 1,
 					item: {
@@ -522,7 +522,7 @@ describe("LootTable E2E Tests", () => {
 				// Add multiple items
 				let result = simpleLootTable;
 
-				const addActions: LootTableAction[] = [
+				const addActions: ActionLike[] = [
 					{
 						type: "loot_table.add_loot_item",
 						poolIndex: 0,
@@ -548,7 +548,7 @@ describe("LootTable E2E Tests", () => {
 				expect(result.items).toHaveLength(4); // Original + 3 new items
 
 				// Create an alternatives group with rare items (diamond + emerald)
-				const createRareGroupAction: LootTableAction = {
+				const createRareGroupAction: ActionLike = {
 					type: "loot_table.create_loot_group",
 					groupType: "alternatives",
 					itemIds: ["item_1", "item_2"], // diamond and emerald
@@ -601,7 +601,7 @@ describe("LootTable E2E Tests", () => {
 				let result = advancedLootTable;
 
 				// Add a new item to pool 1
-				const addItemAction: LootTableAction = {
+				const addItemAction: ActionLike = {
 					type: "loot_table.add_loot_item",
 					poolIndex: 1,
 					item: {
@@ -635,7 +635,7 @@ describe("LootTable E2E Tests", () => {
 				let result = ultimateLootTable;
 
 				// Dissolve one of the nested groups
-				const dissolveGroupAction: LootTableAction = {
+				const dissolveGroupAction: ActionLike = {
 					type: "loot_table.dissolve_loot_group",
 					groupId: "group_1" // One of the nested groups
 				};
@@ -644,7 +644,7 @@ describe("LootTable E2E Tests", () => {
 				expect(result.groups).toHaveLength(2); // One group dissolved
 
 				// Create a new sequence group with remaining items
-				const createSequenceAction: LootTableAction = {
+				const createSequenceAction: ActionLike = {
 					type: "loot_table.create_loot_group",
 					groupType: "sequence",
 					itemIds: ["item_0", "item_1"], // acacia_sapling and loot_table
@@ -659,7 +659,7 @@ describe("LootTable E2E Tests", () => {
 				expect(sequenceGroup?.items).toEqual(["item_0", "item_1"]);
 
 				// Duplicate an item to another pool
-				const duplicateAction: LootTableAction = {
+				const duplicateAction: ActionLike = {
 					type: "loot_table.duplicate_loot_item",
 					itemId: "item_0", // acacia_sapling
 					targetPoolIndex: 1
@@ -740,7 +740,7 @@ describe("LootTable E2E Tests", () => {
 				const originalGroupCount = result.groups.length;
 
 				// Add a new legendary item to pool 0
-				const addLegendaryAction: LootTableAction = {
+				const addLegendaryAction: ActionLike = {
 					type: "loot_table.add_loot_item",
 					poolIndex: 0,
 					item: {
@@ -754,7 +754,7 @@ describe("LootTable E2E Tests", () => {
 				expect(result.items).toHaveLength(originalItemCount + 1);
 
 				// Create a new alternatives group with rare items
-				const createRareGroupAction: LootTableAction = {
+				const createRareGroupAction: ActionLike = {
 					type: "loot_table.create_loot_group",
 					groupType: "alternatives",
 					itemIds: [result.items[result.items.length - 1].id], // The netherite sword
@@ -765,7 +765,7 @@ describe("LootTable E2E Tests", () => {
 				expect(result.groups).toHaveLength(originalGroupCount + 1);
 
 				// Move an item between pools
-				const moveItemAction: LootTableAction = {
+				const moveItemAction: ActionLike = {
 					type: "loot_table.move_item_between_pools",
 					itemId: result.items[0].id, // First item
 					targetPoolIndex: 1
@@ -809,7 +809,7 @@ describe("LootTable E2E Tests", () => {
 					// Store the original items before dissolving
 					const originalItems = [...complexGroup.items];
 
-					const dissolveAction: LootTableAction = {
+					const dissolveAction: ActionLike = {
 						type: "loot_table.dissolve_loot_group",
 						groupId: complexGroup.id
 					};
@@ -855,7 +855,7 @@ describe("LootTable E2E Tests", () => {
 				const originalGroupCount = result.groups.length;
 
 				// Apply a series of actions
-				const actions: LootTableAction[] = [
+				const actions: ActionLike[] = [
 					// Add items
 					{
 						type: "loot_table.add_loot_item",
@@ -922,7 +922,7 @@ describe("LootTable E2E Tests", () => {
 		describe("Error handling and edge cases", () => {
 			it("should handle invalid actions gracefully", async () => {
 				// Try to remove non-existent item
-				const invalidRemoveAction: LootTableAction = {
+				const invalidRemoveAction: ActionLike = {
 					type: "loot_table.remove_loot_item",
 					itemId: "non_existent_item"
 				};
@@ -931,7 +931,7 @@ describe("LootTable E2E Tests", () => {
 				expect(result1.items).toHaveLength(simpleLootTable.items.length); // No change
 
 				// Try to modify non-existent item
-				const invalidModifyAction: LootTableAction = {
+				const invalidModifyAction: ActionLike = {
 					type: "loot_table.modify_loot_item",
 					itemId: "non_existent_item",
 					property: "weight",
@@ -942,7 +942,7 @@ describe("LootTable E2E Tests", () => {
 				expect(result2.items).toEqual(simpleLootTable.items); // No change
 
 				// Try to create group with non-existent items - this might actually create an empty group
-				const invalidGroupAction: LootTableAction = {
+				const invalidGroupAction: ActionLike = {
 					type: "loot_table.create_loot_group",
 					groupType: "alternatives",
 					itemIds: ["non_existent_1", "non_existent_2"],
@@ -955,7 +955,7 @@ describe("LootTable E2E Tests", () => {
 
 			it("should handle empty groups correctly", async () => {
 				let result = advancedLootTable;
-				const dissolveGroupAction: LootTableAction = {
+				const dissolveGroupAction: ActionLike = {
 					type: "loot_table.dissolve_loot_group",
 					groupId: "group_0"
 				};

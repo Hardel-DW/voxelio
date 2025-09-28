@@ -1,17 +1,10 @@
 import type { LootGroup, LootItem, LootTableProps } from "@/core/schema/loot/types";
-import { createActions } from "@/core/engine/actions/domain";
-import { EngineAction } from "@/core/engine/actions/EngineAction";
-
-abstract class LootTableEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
-	protected clone(element: Record<string, unknown>): LootTableProps {
-		return structuredClone(element) as LootTableProps;
-	}
-}
+import { Action } from "@/core/engine/actions/EngineAction";
 
 let globalItemCounter = 0;
 let globalGroupCounter = 0;
 
-type AddLootItemPayload = {
+export class AddLootItemAction extends Action<{
 	poolIndex: number;
 	item: {
 		name: string;
@@ -20,23 +13,19 @@ type AddLootItemPayload = {
 		conditions?: string[];
 		functions?: string[];
 	};
-};
+}> {
+	readonly type = "loot_table.add_loot_item" as const;
 
-export class AddLootItemAction extends LootTableEngineAction<AddLootItemPayload> {
-	static create(payload: AddLootItemPayload): AddLootItemAction {
-		return new AddLootItemAction(payload);
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
 		const item: LootItem = {
 			id: `item_${globalItemCounter++}`,
-			name: this.payload.item.name,
-			weight: this.payload.item.weight,
-			quality: this.payload.item.quality,
-			conditions: this.payload.item.conditions || [],
-			functions: this.payload.item.functions || [],
-			poolIndex: this.payload.poolIndex,
+			name: this.params.item.name,
+			weight: this.params.item.weight,
+			quality: this.params.item.quality,
+			conditions: this.params.item.conditions || [],
+			functions: this.params.item.functions || [],
+			poolIndex: this.params.poolIndex,
 			entryIndex: 0,
 			entryType: "minecraft:item"
 		};
@@ -46,44 +35,36 @@ export class AddLootItemAction extends LootTableEngineAction<AddLootItemPayload>
 	}
 }
 
-type RemoveLootItemPayload = { itemId: string };
+export class RemoveLootItemAction extends Action<{ itemId: string }> {
+	readonly type = "loot_table.remove_loot_item" as const;
 
-export class RemoveLootItemAction extends LootTableEngineAction<RemoveLootItemPayload> {
-	static create(itemId: string): RemoveLootItemAction {
-		return new RemoveLootItemAction({ itemId });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
-		lootTable.items = lootTable.items.filter((item) => item.id !== this.payload.itemId);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
+		lootTable.items = lootTable.items.filter((item) => item.id !== this.params.itemId);
 		for (const group of lootTable.groups) {
-			group.items = group.items.filter((itemId) => itemId !== this.payload.itemId);
+			group.items = group.items.filter((itemId) => itemId !== this.params.itemId);
 		}
 		lootTable.groups = lootTable.groups.filter((group) => group.items.length > 0);
 		return lootTable;
 	}
 }
 
-type ModifyLootItemPayload = { itemId: string; property: "name" | "weight" | "quality"; value: unknown };
+export class ModifyLootItemAction extends Action<{ itemId: string; property: "name" | "weight" | "quality"; value: unknown }> {
+	readonly type = "loot_table.modify_loot_item" as const;
 
-export class ModifyLootItemAction extends LootTableEngineAction<ModifyLootItemPayload> {
-	static create(payload: ModifyLootItemPayload): ModifyLootItemAction {
-		return new ModifyLootItemAction(payload);
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
-		const item = lootTable.items.find((candidate) => candidate.id === this.payload.itemId);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
+		const item = lootTable.items.find((candidate) => candidate.id === this.params.itemId);
 		if (item) {
-			switch (this.payload.property) {
+			switch (this.params.property) {
 				case "name":
-					item.name = this.payload.value as string;
+					item.name = this.params.value as string;
 					break;
 				case "weight":
-					item.weight = this.payload.value as number;
+					item.weight = this.params.value as number;
 					break;
 				case "quality":
-					item.quality = this.payload.value as number;
+					item.quality = this.params.value as number;
 					break;
 			}
 		}
@@ -91,21 +72,17 @@ export class ModifyLootItemAction extends LootTableEngineAction<ModifyLootItemPa
 	}
 }
 
-type DuplicateLootItemPayload = { itemId: string; targetPoolIndex?: number };
+export class DuplicateLootItemAction extends Action<{ itemId: string; targetPoolIndex?: number }> {
+	readonly type = "loot_table.duplicate_loot_item" as const;
 
-export class DuplicateLootItemAction extends LootTableEngineAction<DuplicateLootItemPayload> {
-	static create(itemId: string, targetPoolIndex?: number): DuplicateLootItemAction {
-		return new DuplicateLootItemAction({ itemId, targetPoolIndex });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
-		const source = lootTable.items.find((candidate) => candidate.id === this.payload.itemId);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
+		const source = lootTable.items.find((candidate) => candidate.id === this.params.itemId);
 		if (source) {
 			const duplicate: LootItem = {
 				...source,
 				id: `item_${globalItemCounter++}`,
-				poolIndex: this.payload.targetPoolIndex ?? source.poolIndex
+				poolIndex: this.params.targetPoolIndex ?? source.poolIndex
 			};
 			lootTable.items.push(duplicate);
 		}
@@ -113,141 +90,121 @@ export class DuplicateLootItemAction extends LootTableEngineAction<DuplicateLoot
 	}
 }
 
-type BulkModifyItemsPayload = {
+export class BulkModifyItemsAction extends Action<{
 	itemIds: string[];
 	property: "weight" | "quality";
 	operation: "multiply" | "add" | "set";
 	value: number;
-};
+}> {
+	readonly type = "loot_table.bulk_modify_items" as const;
 
-export class BulkModifyItemsAction extends LootTableEngineAction<BulkModifyItemsPayload> {
-	static create(payload: BulkModifyItemsPayload): BulkModifyItemsAction {
-		return new BulkModifyItemsAction(payload);
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
-		for (const itemId of this.payload.itemIds) {
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
+		for (const itemId of this.params.itemIds) {
 			const item = lootTable.items.find((candidate) => candidate.id === itemId);
 			if (!item) continue;
 
-			const current = (this.payload.property === "weight" ? item.weight : item.quality) ?? 0;
+			const current = (this.params.property === "weight" ? item.weight : item.quality) ?? 0;
 			let next = current;
-			switch (this.payload.operation) {
+			switch (this.params.operation) {
 				case "multiply":
-					next = current * this.payload.value;
+					next = current * this.params.value;
 					break;
 				case "add":
-					next = current + this.payload.value;
+					next = current + this.params.value;
 					break;
 				case "set":
-					next = this.payload.value;
+					next = this.params.value;
 					break;
 			}
-			if (this.payload.property === "weight") item.weight = next;
+			if (this.params.property === "weight") item.weight = next;
 			else item.quality = next;
 		}
 		return lootTable;
 	}
 }
 
-type CreateLootGroupPayload = {
+export class CreateLootGroupAction extends Action<{
 	groupType: "alternatives" | "group" | "sequence";
 	itemIds: string[];
 	poolIndex: number;
 	entryIndex?: number;
-};
+}> {
+	readonly type = "loot_table.create_loot_group" as const;
 
-export class CreateLootGroupAction extends LootTableEngineAction<CreateLootGroupPayload> {
-	static create(payload: CreateLootGroupPayload): CreateLootGroupAction {
-		return new CreateLootGroupAction(payload);
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
 		const group: LootGroup = {
 			id: `group_${globalGroupCounter++}`,
-			type: this.payload.groupType,
-			items: [...this.payload.itemIds],
-			poolIndex: this.payload.poolIndex,
-			entryIndex: this.payload.entryIndex ?? 0
+			type: this.params.groupType,
+			items: [...this.params.itemIds],
+			poolIndex: this.params.poolIndex,
+			entryIndex: this.params.entryIndex ?? 0
 		};
 		lootTable.groups.push(group);
 		return lootTable;
 	}
 }
 
-type ModifyLootGroupPayload = {
+export class ModifyLootGroupAction extends Action<{
 	groupId: string;
 	operation: "add_item" | "remove_item" | "change_type";
 	value: unknown;
-};
+}> {
+	readonly type = "loot_table.modify_loot_group" as const;
 
-export class ModifyLootGroupAction extends LootTableEngineAction<ModifyLootGroupPayload> {
-	static create(payload: ModifyLootGroupPayload): ModifyLootGroupAction {
-		return new ModifyLootGroupAction(payload);
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
-		const group = lootTable.groups.find((candidate) => candidate.id === this.payload.groupId);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
+		const group = lootTable.groups.find((candidate) => candidate.id === this.params.groupId);
 		if (!group) return lootTable;
 
-		switch (this.payload.operation) {
+		switch (this.params.operation) {
 			case "add_item": {
-				const value = this.payload.value as string;
+				const value = this.params.value as string;
 				if (!group.items.includes(value)) group.items.push(value);
 				break;
 			}
 			case "remove_item": {
-				const value = this.payload.value as string;
+				const value = this.params.value as string;
 				group.items = group.items.filter((itemId) => itemId !== value);
 				break;
 			}
 			case "change_type":
-				group.type = this.payload.value as LootGroup["type"];
+				group.type = this.params.value as LootGroup["type"];
 				break;
 		}
 		return lootTable;
 	}
 }
 
-type DissolveLootGroupPayload = { groupId: string };
+export class DissolveLootGroupAction extends Action<{ groupId: string }> {
+	readonly type = "loot_table.dissolve_loot_group" as const;
 
-export class DissolveLootGroupAction extends LootTableEngineAction<DissolveLootGroupPayload> {
-	static create(groupId: string): DissolveLootGroupAction {
-		return new DissolveLootGroupAction({ groupId });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
-		lootTable.groups = lootTable.groups.filter((group) => group.id !== this.payload.groupId);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
+		lootTable.groups = lootTable.groups.filter((group) => group.id !== this.params.groupId);
 		for (const group of lootTable.groups) {
-			group.items = group.items.filter((itemId) => itemId !== this.payload.groupId);
+			group.items = group.items.filter((itemId) => itemId !== this.params.groupId);
 		}
 		return lootTable;
 	}
 }
 
-type ConvertItemToGroupPayload = {
+export class ConvertItemToGroupAction extends Action<{
 	itemId: string;
 	groupType: "alternatives" | "group" | "sequence";
 	additionalItems?: string[];
-};
+}> {
+	readonly type = "loot_table.convert_item_to_group" as const;
 
-export class ConvertItemToGroupAction extends LootTableEngineAction<ConvertItemToGroupPayload> {
-	static create(payload: ConvertItemToGroupPayload): ConvertItemToGroupAction {
-		return new ConvertItemToGroupAction(payload);
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
-		const item = lootTable.items.find((candidate) => candidate.id === this.payload.itemId);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
+		const item = lootTable.items.find((candidate) => candidate.id === this.params.itemId);
 		if (item) {
 			const group: LootGroup = {
 				id: `group_${globalGroupCounter++}`,
-				type: this.payload.groupType,
-				items: [this.payload.itemId, ...(this.payload.additionalItems ?? [])],
+				type: this.params.groupType,
+				items: [this.params.itemId, ...(this.params.additionalItems ?? [])],
 				poolIndex: item.poolIndex,
 				entryIndex: item.entryIndex
 			};
@@ -257,112 +214,88 @@ export class ConvertItemToGroupAction extends LootTableEngineAction<ConvertItemT
 	}
 }
 
-type ConvertGroupToItemPayload = { groupId: string; keepFirstItem?: boolean };
+export class ConvertGroupToItemAction extends Action<{ groupId: string; keepFirstItem?: boolean }> {
+	readonly type = "loot_table.convert_group_to_item" as const;
 
-export class ConvertGroupToItemAction extends LootTableEngineAction<ConvertGroupToItemPayload> {
-	static create(groupId: string, keepFirstItem?: boolean): ConvertGroupToItemAction {
-		return new ConvertGroupToItemAction({ groupId, keepFirstItem });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
-		const group = lootTable.groups.find((candidate) => candidate.id === this.payload.groupId);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
+		const group = lootTable.groups.find((candidate) => candidate.id === this.params.groupId);
 		if (!group || group.items.length === 0) return lootTable;
 
-		if (this.payload.keepFirstItem) {
-			lootTable.groups = lootTable.groups.filter((g) => g.id !== this.payload.groupId);
+		if (this.params.keepFirstItem) {
+			lootTable.groups = lootTable.groups.filter((g) => g.id !== this.params.groupId);
 			for (const remaining of lootTable.groups) {
-				remaining.items = remaining.items.filter((itemId) => itemId !== this.payload.groupId);
+				remaining.items = remaining.items.filter((itemId) => itemId !== this.params.groupId);
 			}
 		} else {
 			for (const itemId of group.items) {
 				lootTable.items = lootTable.items.filter((item) => item.id !== itemId);
 			}
-			lootTable.groups = lootTable.groups.filter((g) => g.id !== this.payload.groupId);
+			lootTable.groups = lootTable.groups.filter((g) => g.id !== this.params.groupId);
 		}
 		return lootTable;
 	}
 }
 
-type NestGroupInGroupPayload = { childGroupId: string; parentGroupId: string; position?: number };
+export class NestGroupInGroupAction extends Action<{ childGroupId: string; parentGroupId: string; position?: number }> {
+	readonly type = "loot_table.nest_group_in_group" as const;
 
-export class NestGroupInGroupAction extends LootTableEngineAction<NestGroupInGroupPayload> {
-	static create(payload: NestGroupInGroupPayload): NestGroupInGroupAction {
-		return new NestGroupInGroupAction(payload);
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
-		const parent = lootTable.groups.find((candidate) => candidate.id === this.payload.parentGroupId);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
+		const parent = lootTable.groups.find((candidate) => candidate.id === this.params.parentGroupId);
 		if (parent) {
-			const insertionIndex = this.payload.position ?? parent.items.length;
-			parent.items.splice(insertionIndex, 0, this.payload.childGroupId);
+			const insertionIndex = this.params.position ?? parent.items.length;
+			parent.items.splice(insertionIndex, 0, this.params.childGroupId);
 		}
 		return lootTable;
 	}
 }
 
-type UnnestGroupPayload = { groupId: string };
+export class UnnestGroupAction extends Action<{ groupId: string }> {
+	readonly type = "loot_table.unnest_group" as const;
 
-export class UnnestGroupAction extends LootTableEngineAction<UnnestGroupPayload> {
-	static create(groupId: string): UnnestGroupAction {
-		return new UnnestGroupAction({ groupId });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
 		for (const group of lootTable.groups) {
-			group.items = group.items.filter((itemId) => itemId !== this.payload.groupId);
+			group.items = group.items.filter((itemId) => itemId !== this.params.groupId);
 		}
 		return lootTable;
 	}
 }
 
-type MoveItemBetweenPoolsPayload = { itemId: string; targetPoolIndex: number };
+export class MoveItemBetweenPoolsAction extends Action<{ itemId: string; targetPoolIndex: number }> {
+	readonly type = "loot_table.move_item_between_pools" as const;
 
-export class MoveItemBetweenPoolsAction extends LootTableEngineAction<MoveItemBetweenPoolsPayload> {
-	static create(itemId: string, targetPoolIndex: number): MoveItemBetweenPoolsAction {
-		return new MoveItemBetweenPoolsAction({ itemId, targetPoolIndex });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
-		const item = lootTable.items.find((candidate) => candidate.id === this.payload.itemId);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
+		const item = lootTable.items.find((candidate) => candidate.id === this.params.itemId);
 		if (item) {
-			item.poolIndex = this.payload.targetPoolIndex;
+			item.poolIndex = this.params.targetPoolIndex;
 		}
 		return lootTable;
 	}
 }
 
-type MoveGroupBetweenPoolsPayload = { groupId: string; targetPoolIndex: number };
+export class MoveGroupBetweenPoolsAction extends Action<{ groupId: string; targetPoolIndex: number }> {
+	readonly type = "loot_table.move_group_between_pools" as const;
 
-export class MoveGroupBetweenPoolsAction extends LootTableEngineAction<MoveGroupBetweenPoolsPayload> {
-	static create(groupId: string, targetPoolIndex: number): MoveGroupBetweenPoolsAction {
-		return new MoveGroupBetweenPoolsAction({ groupId, targetPoolIndex });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
-		const group = lootTable.groups.find((candidate) => candidate.id === this.payload.groupId);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
+		const group = lootTable.groups.find((candidate) => candidate.id === this.params.groupId);
 		if (group) {
-			group.poolIndex = this.payload.targetPoolIndex;
+			group.poolIndex = this.params.targetPoolIndex;
 		}
 		return lootTable;
 	}
 }
 
-type BalanceWeightsPayload = { poolIndex: number; targetTotal?: number };
+export class BalanceWeightsAction extends Action<{ poolIndex: number; targetTotal?: number }> {
+	readonly type = "loot_table.balance_weights" as const;
 
-export class BalanceWeightsAction extends LootTableEngineAction<BalanceWeightsPayload> {
-	static create(poolIndex: number, targetTotal?: number): BalanceWeightsAction {
-		return new BalanceWeightsAction({ poolIndex, targetTotal });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const lootTable = this.clone(element);
-		const poolItems = lootTable.items.filter((item) => item.poolIndex === this.payload.poolIndex);
-		const targetTotal = this.payload.targetTotal ?? 100;
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const lootTable = structuredClone(element) as LootTableProps;
+		const poolItems = lootTable.items.filter((item) => item.poolIndex === this.params.poolIndex);
+		const targetTotal = this.params.targetTotal ?? 100;
 		if (poolItems.length > 0) {
 			const weightPerItem = Math.floor(targetTotal / poolItems.length);
 			for (const item of poolItems) {
@@ -374,83 +307,21 @@ export class BalanceWeightsAction extends LootTableEngineAction<BalanceWeightsPa
 }
 
 
-const LOOT_TABLE_DOMAIN = createActions({
-	addLootItem: {
-		type: "loot_table.add_loot_item",
-		class: AddLootItemAction,
-		create: (payload: AddLootItemPayload) => AddLootItemAction.create(payload)
-	},
-	removeLootItem: {
-		type: "loot_table.remove_loot_item",
-		class: RemoveLootItemAction,
-		create: (itemId: string) => RemoveLootItemAction.create(itemId)
-	},
-	modifyLootItem: {
-		type: "loot_table.modify_loot_item",
-		class: ModifyLootItemAction,
-		create: (payload: ModifyLootItemPayload) => ModifyLootItemAction.create(payload)
-	},
-	duplicateLootItem: {
-		type: "loot_table.duplicate_loot_item",
-		class: DuplicateLootItemAction,
-		create: (itemId: string, targetPoolIndex?: number) => DuplicateLootItemAction.create(itemId, targetPoolIndex)
-	},
-	bulkModifyItems: {
-		type: "loot_table.bulk_modify_items",
-		class: BulkModifyItemsAction,
-		create: (payload: BulkModifyItemsPayload) => BulkModifyItemsAction.create(payload)
-	},
-	createLootGroup: {
-		type: "loot_table.create_loot_group",
-		class: CreateLootGroupAction,
-		create: (payload: CreateLootGroupPayload) => CreateLootGroupAction.create(payload)
-	},
-	modifyLootGroup: {
-		type: "loot_table.modify_loot_group",
-		class: ModifyLootGroupAction,
-		create: (payload: ModifyLootGroupPayload) => ModifyLootGroupAction.create(payload)
-	},
-	dissolveLootGroup: {
-		type: "loot_table.dissolve_loot_group",
-		class: DissolveLootGroupAction,
-		create: (groupId: string) => DissolveLootGroupAction.create(groupId)
-	},
-	convertItemToGroup: {
-		type: "loot_table.convert_item_to_group",
-		class: ConvertItemToGroupAction,
-		create: (payload: ConvertItemToGroupPayload) => ConvertItemToGroupAction.create(payload)
-	},
-	convertGroupToItem: {
-		type: "loot_table.convert_group_to_item",
-		class: ConvertGroupToItemAction,
-		create: (groupId: string, keepFirstItem?: boolean) => ConvertGroupToItemAction.create(groupId, keepFirstItem)
-	},
-	nestGroupInGroup: {
-		type: "loot_table.nest_group_in_group",
-		class: NestGroupInGroupAction,
-		create: (payload: NestGroupInGroupPayload) => NestGroupInGroupAction.create(payload)
-	},
-	unnestGroup: {
-		type: "loot_table.unnest_group",
-		class: UnnestGroupAction,
-		create: (groupId: string) => UnnestGroupAction.create(groupId)
-	},
-	moveItemBetweenPools: {
-		type: "loot_table.move_item_between_pools",
-		class: MoveItemBetweenPoolsAction,
-		create: (itemId: string, targetPoolIndex: number) => MoveItemBetweenPoolsAction.create(itemId, targetPoolIndex)
-	},
-	moveGroupBetweenPools: {
-		type: "loot_table.move_group_between_pools",
-		class: MoveGroupBetweenPoolsAction,
-		create: (groupId: string, targetPoolIndex: number) => MoveGroupBetweenPoolsAction.create(groupId, targetPoolIndex)
-	},
-	balanceWeights: {
-		type: "loot_table.balance_weights",
-		class: BalanceWeightsAction,
-		create: (poolIndex: number, targetTotal?: number) => BalanceWeightsAction.create(poolIndex, targetTotal)
-	}
-});
-
-export const LOOT_TABLE_ACTION_CLASSES = LOOT_TABLE_DOMAIN.classes;
-export const LootTableActions = LOOT_TABLE_DOMAIN.builders;
+// Liste des classes d'actions LootTable - ajouter ici pour créer une nouvelle action
+export const LOOT_TABLE_ACTION_CLASSES = [
+	AddLootItemAction,
+	RemoveLootItemAction,
+	ModifyLootItemAction,
+	DuplicateLootItemAction,
+	BulkModifyItemsAction,
+	CreateLootGroupAction,
+	ModifyLootGroupAction,
+	DissolveLootGroupAction,
+	ConvertItemToGroupAction,
+	ConvertGroupToItemAction,
+	NestGroupInGroupAction,
+	UnnestGroupAction,
+	MoveItemBetweenPoolsAction,
+	MoveGroupBetweenPoolsAction,
+	BalanceWeightsAction,
+] as const;

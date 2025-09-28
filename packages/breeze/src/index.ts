@@ -12,12 +12,13 @@ export { TagsComparator } from "@/core/TagComparator";
 export { DatapackError } from "@/core/DatapackError";
 export { TagCompiler } from "@/core/TagCompiler";
 export { LootTableAppearanceProbability } from "@/core/calculation/LootTableAppearanceProbability";
-export { CoreActions } from "@/core/engine/actions/domains/CoreAction";
-export { RecipeActions } from "@/core/engine/actions/domains/RecipeAction";
-export { LootTableActions } from "@/core/engine/actions/domains/LootTableAction";
-export { StructureActions } from "@/core/engine/actions/domains/StructureAction";
-export { StructureSetActions } from "@/core/engine/actions/domains/StructureSetAction";
-export { EnchantmentActions } from "@/core/engine/actions/domains/EnchantmentAction";
+
+export * from "@/core/engine/actions/domains/CoreAction";
+export * from "@/core/engine/actions/domains/RecipeAction";
+export * from "@/core/engine/actions/domains/LootTableAction";
+export * from "@/core/engine/actions/domains/StructureAction";
+export * from "@/core/engine/actions/domains/StructureSetAction";
+export * from "@/core/engine/actions/domains/EnchantmentAction";
 
 export { PACK_VERSION, getMinecraftVersion } from "@/core/Version";
 export { analyserCollection, isVoxel } from "@/core/engine/Analyser";
@@ -38,7 +39,7 @@ export type { Compiler } from "@/core/engine/Compiler";
 export type { Parser, ParseDatapackResult } from "@/core/engine/Parser";
 export type { DataDrivenElement, DataDrivenRegistryElement, LabeledElement, VoxelElement } from "@/core/Element";
 export type { Analysers, Analyser, GetAnalyserVoxel } from "@/core/engine/Analyser";
-export type { Action, ActionValue, ActionLike } from "@/core/engine/actions/index";
+export type { ActionValue, ActionLike } from "@/core/engine/actions/index";
 export type { SlotRegistryType } from "@/core/engine/managers/SlotManager";
 export type { TextComponentType } from "@/core/schema/TextComponentType";
 export type { TagType, OptionalTag, TagRegistry } from "@/core/Tag";

@@ -2,14 +2,13 @@ import { parseDatapack } from "@/core/engine/Parser";
 import { updateData } from "@/core/engine/actions";
 import { VoxelToRecipeDataDriven } from "@/core/schema/recipe/Compiler";
 import type { RecipeProps } from "@/core/schema/recipe/types";
-import type { RecipeAction } from "@/core/engine/actions/domains/RecipeAction";
-import type { CoreAction } from "@/core/engine/actions/domains/CoreAction";
+import type { ActionLike } from "@/core/engine/actions/index";
 import { recipeFile } from "@test/mock/datapack";
 import { createZipFile } from "@test/mock/utils";
 import { describe, it, expect, beforeEach } from "vitest";
 
 // Helper function to update recipe data with proper typing
-async function updateRecipe(action: RecipeAction | CoreAction, recipe: RecipeProps, packVersion = 48): Promise<RecipeProps> {
+async function updateRecipe(action: ActionLike, recipe: RecipeProps, packVersion = 48): Promise<RecipeProps> {
 	const result = await updateData(action, recipe, packVersion);
 	expect(result).toBeDefined();
 	return result as RecipeProps;
@@ -56,7 +55,7 @@ describe("Recipe E2E Actions Tests", () => {
 		describe("Recipe ingredient management actions", () => {
 			it("should add ingredients to shapeless recipe", async () => {
 				// Add diamond to shapeless recipe
-				const addDiamondAction: RecipeAction = {
+				const addDiamondAction: ActionLike = {
 					type: "recipe.add_shapeless_ingredient",
 					items: ["minecraft:diamond"]
 				};
@@ -74,7 +73,7 @@ describe("Recipe E2E Actions Tests", () => {
 
 			it("should replace ingredients in shapeless recipe", async () => {
 				// Replace existing ingredient
-				const replaceAction: RecipeAction = {
+				const replaceAction: ActionLike = {
 					type: "recipe.add_shapeless_ingredient",
 					items: ["minecraft:diamond", "minecraft:emerald"]
 				};
@@ -91,7 +90,7 @@ describe("Recipe E2E Actions Tests", () => {
 
 			it("should remove specific ingredients from recipe", async () => {
 				// First add multiple ingredients
-				const addAction: RecipeAction = {
+				const addAction: ActionLike = {
 					type: "recipe.add_shapeless_ingredient",
 					items: ["minecraft:diamond", "minecraft:emerald", "minecraft:gold_ingot"]
 				};
@@ -100,7 +99,7 @@ describe("Recipe E2E Actions Tests", () => {
 				expect(result.slots["1"]).toEqual(["minecraft:diamond", "minecraft:emerald", "minecraft:gold_ingot"]);
 
 				// Remove specific items
-				const removeAction: RecipeAction = {
+				const removeAction: ActionLike = {
 					type: "recipe.remove_ingredient",
 					slot: "1",
 					items: ["minecraft:emerald"]
@@ -116,7 +115,7 @@ describe("Recipe E2E Actions Tests", () => {
 
 			it("should clear entire slot", async () => {
 				// Add ingredient first
-				const addAction: RecipeAction = {
+				const addAction: ActionLike = {
 					type: "recipe.add_shapeless_ingredient",
 					items: ["minecraft:diamond"]
 				};
@@ -125,7 +124,7 @@ describe("Recipe E2E Actions Tests", () => {
 				expect(result.slots["1"]).toEqual(["minecraft:diamond"]);
 
 				// Clear the slot
-				const clearAction: RecipeAction = {
+				const clearAction: ActionLike = {
 					type: "recipe.clear_slot",
 					slot: "1"
 				};
@@ -139,7 +138,7 @@ describe("Recipe E2E Actions Tests", () => {
 
 			it("should swap ingredients between slots", async () => {
 				// Add ingredient to slot 1
-				const addAction: RecipeAction = {
+				const addAction: ActionLike = {
 					type: "recipe.add_shapeless_ingredient",
 					items: ["minecraft:diamond"]
 				};
@@ -157,7 +156,7 @@ describe("Recipe E2E Actions Tests", () => {
 
 		describe("Recipe type conversion actions", () => {
 			it("should convert shapeless to shaped recipe", async () => {
-				const convertAction: RecipeAction = {
+				const convertAction: ActionLike = {
 					type: "recipe.convert_recipe_type",
 					newType: "minecraft:crafting_shaped",
 					preserveIngredients: true
@@ -176,7 +175,7 @@ describe("Recipe E2E Actions Tests", () => {
 			});
 
 			it("should convert shaped to smelting recipe", async () => {
-				const convertAction: RecipeAction = {
+				const convertAction: ActionLike = {
 					type: "recipe.convert_recipe_type",
 					newType: "minecraft:smelting",
 					preserveIngredients: true
@@ -196,7 +195,7 @@ describe("Recipe E2E Actions Tests", () => {
 			});
 
 			it("should convert smelting to stonecutting recipe", async () => {
-				const convertAction: RecipeAction = {
+				const convertAction: ActionLike = {
 					type: "recipe.convert_recipe_type",
 					newType: "minecraft:stonecutting",
 					preserveIngredients: true
@@ -216,7 +215,7 @@ describe("Recipe E2E Actions Tests", () => {
 			});
 
 			it("should convert without preserving ingredients", async () => {
-				const convertAction: RecipeAction = {
+				const convertAction: ActionLike = {
 					type: "recipe.convert_recipe_type",
 					newType: "minecraft:crafting_shapeless",
 					preserveIngredients: false
@@ -232,7 +231,7 @@ describe("Recipe E2E Actions Tests", () => {
 
 		describe("Core actions on recipes", () => {
 			it("should set recipe values using core.set_value", async () => {
-				const setGroupAction: CoreAction = {
+				const setGroupAction: ActionLike = {
 					type: "core.set_value",
 					path: "group",
 					value: "custom_planks"
@@ -247,7 +246,7 @@ describe("Recipe E2E Actions Tests", () => {
 			});
 
 			it("should toggle recipe values using core.toggle_value", async () => {
-				const toggleNotificationAction: CoreAction = {
+				const toggleNotificationAction: ActionLike = {
 					type: "core.toggle_value",
 					path: "showNotification",
 					value: false
@@ -266,7 +265,7 @@ describe("Recipe E2E Actions Tests", () => {
 			});
 
 			it("should set result properties using core.set_value", async () => {
-				const setCountAction: CoreAction = {
+				const setCountAction: ActionLike = {
 					type: "core.set_value",
 					path: "result.count",
 					value: 8
@@ -284,7 +283,7 @@ describe("Recipe E2E Actions Tests", () => {
 			});
 
 			it("should modify smelting data using core.set_value", async () => {
-				const setExperienceAction: CoreAction = {
+				const setExperienceAction: ActionLike = {
 					type: "core.set_value",
 					path: "typeSpecific.experience",
 					value: 1.5
@@ -300,7 +299,7 @@ describe("Recipe E2E Actions Tests", () => {
 			});
 
 			it("should use core.set_undefined to remove properties", async () => {
-				const removeGroupAction: CoreAction = {
+				const removeGroupAction: ActionLike = {
 					type: "core.set_undefined",
 					path: "group"
 				};
@@ -319,7 +318,7 @@ describe("Recipe E2E Actions Tests", () => {
 				let result = shapedRecipe;
 
 				// Step 1: Convert to shapeless
-				const convertAction: RecipeAction = {
+				const convertAction: ActionLike = {
 					type: "recipe.convert_recipe_type",
 					newType: "minecraft:crafting_shapeless",
 					preserveIngredients: true
@@ -327,14 +326,14 @@ describe("Recipe E2E Actions Tests", () => {
 				result = await updateRecipe(convertAction, result);
 
 				// Step 2: Add more ingredients
-				const addAction: RecipeAction = {
+				const addAction: ActionLike = {
 					type: "recipe.add_shapeless_ingredient",
 					items: ["minecraft:stick"]
 				};
 				result = await updateRecipe(addAction, result);
 
 				// Step 3: Modify result count
-				const setCountAction: CoreAction = {
+				const setCountAction: ActionLike = {
 					type: "core.set_value",
 					path: "result.count",
 					value: 12
@@ -342,7 +341,7 @@ describe("Recipe E2E Actions Tests", () => {
 				result = await updateRecipe(setCountAction, result);
 
 				// Step 4: Set group
-				const setGroupAction: CoreAction = {
+				const setGroupAction: ActionLike = {
 					type: "core.set_value",
 					path: "group",
 					value: "enhanced_slabs"
@@ -371,14 +370,14 @@ describe("Recipe E2E Actions Tests", () => {
 				let result = shaped2Recipe; // Complex shaped recipe with tags
 
 				// Step 1: Clear a specific slot
-				const clearCenterAction: RecipeAction = {
+				const clearCenterAction: ActionLike = {
 					type: "recipe.clear_slot",
 					slot: "4" // Center slot
 				};
 				result = await updateRecipe(clearCenterAction, result);
 
 				// Step 2: Add new ingredient to center
-				const addCenterAction: RecipeAction = {
+				const addCenterAction: ActionLike = {
 					type: "recipe.add_ingredient",
 					slot: "4",
 					items: ["minecraft:glowstone_dust"],
@@ -411,17 +410,17 @@ describe("Recipe E2E Actions Tests", () => {
 							type: "core.set_value",
 							path: "group",
 							value: "test_group"
-						} as CoreAction,
+						} as ActionLike,
 						{
 							type: "core.toggle_value",
 							path: "showNotification",
 							value: true
-						} as CoreAction,
+						} as ActionLike,
 						{
 							type: "core.toggle_value",
 							path: "showNotification",
 							value: true
-						} as CoreAction // Toggle back to undefined
+						} as ActionLike // Toggle back to undefined
 					];
 
 					for (const action of actions) {
@@ -464,7 +463,7 @@ describe("Recipe E2E Actions Tests", () => {
 		describe("Error handling and edge cases", () => {
 			it("should handle invalid path operations gracefully", async () => {
 				// Try to set invalid nested path
-				const invalidPathAction: CoreAction = {
+				const invalidPathAction: ActionLike = {
 					type: "core.set_value",
 					path: "nonexistent.deeply.nested.path",
 					value: "test"
@@ -477,7 +476,7 @@ describe("Recipe E2E Actions Tests", () => {
 
 			it("should handle recipe type conversion edge cases", async () => {
 				// Convert to same type (should be no-op essentially)
-				const convertAction: RecipeAction = {
+				const convertAction: ActionLike = {
 					type: "recipe.convert_recipe_type",
 					newType: "minecraft:crafting_shapeless",
 					preserveIngredients: true
@@ -488,7 +487,7 @@ describe("Recipe E2E Actions Tests", () => {
 				expect(result.slots).toEqual(shapelessRecipe.slots);
 
 				// Convert to unknown type
-				const unknownTypeAction: RecipeAction = {
+				const unknownTypeAction: ActionLike = {
 					type: "recipe.convert_recipe_type",
 					newType: "minecraft:unknown_recipe_type" as any,
 					preserveIngredients: true

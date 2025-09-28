@@ -4,65 +4,59 @@ import { LOOT_TABLE_ACTION_CLASSES } from "@/core/engine/actions/domains/LootTab
 import { RECIPE_ACTION_CLASSES } from "@/core/engine/actions/domains/RecipeAction";
 import { STRUCTURE_ACTION_CLASSES } from "@/core/engine/actions/domains/StructureAction";
 import { STRUCTURE_SET_ACTION_CLASSES } from "@/core/engine/actions/domains/StructureSetAction";
-import { ActionCodecRegistry, type ActionClass } from "@/core/engine/actions/ActionCodecRegistry";
-import type { ActionHandler } from "@/core/engine/actions/domain";
+import { type Action, isAction } from "@/core/engine/actions/EngineAction";
 import type { ActionLike } from "@/core/engine/actions/index";
-import { isEngineAction } from "@/core/engine/actions/EngineAction";
 
+// Liste de toutes les classes d'actions disponibles
+const ALL_ACTION_CLASSES = [
+	...CORE_ACTION_CLASSES,
+	...ENCHANTMENT_ACTION_CLASSES,
+	...LOOT_TABLE_ACTION_CLASSES,
+	...RECIPE_ACTION_CLASSES,
+	...STRUCTURE_ACTION_CLASSES,
+	...STRUCTURE_SET_ACTION_CLASSES,
+] as const;
 
-const DOMAIN_ACTION_GROUPS: readonly (readonly ActionClass[])[] = [
-	CORE_ACTION_CLASSES,
-	ENCHANTMENT_ACTION_CLASSES,
-	LOOT_TABLE_ACTION_CLASSES,
-	RECIPE_ACTION_CLASSES,
-	STRUCTURE_ACTION_CLASSES,
-	STRUCTURE_SET_ACTION_CLASSES
-];
+// Registry simplifié - génération automatique du Map type -> Constructor
+const ACTION_REGISTRY = new Map<string, new (params: any) => Action>(
+	ALL_ACTION_CLASSES.map(ActionClass => {
+		const instance = new ActionClass({} as any); // Juste pour récupérer le type
+		return [instance.type, ActionClass];
+	})
+);
 
-class ClassBasedActionHandler implements ActionHandler<ActionLike> {
-	constructor(
-		private readonly registry: ActionRegistry,
-		private readonly codec: ActionCodecRegistry
-	) { }
-
-	execute(action: ActionLike, element: Record<string, unknown>, version?: number): Record<string, unknown> | undefined {
-		const instance = isEngineAction(action) ? action : this.codec.decode(action);
-		return instance.execute(element, version);
+/**
+ * Execution universelle des actions
+ */
+export function executeAction(
+	actionLike: ActionLike,
+	element: Record<string, unknown>,
+	version?: number
+): Record<string, unknown> | undefined {
+	if (isAction(actionLike)) {
+		return actionLike.apply(element, version);
 	}
+
+	// Reconstruction depuis JSON pour replay logs
+	const { type, ...params } = actionLike;
+	const ActionClass = ACTION_REGISTRY.get(type);
+	if (!ActionClass) {
+		throw new Error(`Unknown action type: ${type}`);
+	}
+
+	const action = new ActionClass(params);
+	return action.apply(element, version);
 }
 
+/**
+ * Registry class pour compatibilité (à supprimer progressivement)
+ */
 export class ActionRegistry {
-	private readonly handlers = new Map<string, ActionHandler>();
-	private readonly codec = new ActionCodecRegistry();
-
-	constructor() {
-		for (const actionClasses of DOMAIN_ACTION_GROUPS) {
-			for (const actionClass of actionClasses) {
-				const handler = this.registerClass(actionClass);
-				this.handlers.set(actionClass.type, handler);
-			}
-		}
-	}
-
-	registerClass<TActionClass extends ActionClass>(actionClass: TActionClass): ActionHandler {
-		this.codec.register(actionClass);
-		return new ClassBasedActionHandler(this, this.codec);
-	}
-
 	execute<T extends Record<string, unknown>>(action: ActionLike, element: T, version?: number): Partial<T> | undefined {
-		const actionType = isEngineAction(action) ? action.type : action.type;
-		const handler = this.handlers.get(actionType);
-
-		if (!handler) {
-			throw new Error(`Unknown action type: ${actionType}`);
-		}
-
-		const normalizedAction = handler instanceof ClassBasedActionHandler ? action : isEngineAction(action) ? action.toJSON() : action;
-
-		return handler.execute(normalizedAction as any, element, version) as Partial<T> | undefined;
+		return executeAction(action, element, version) as Partial<T> | undefined;
 	}
 
 	has(type: string): boolean {
-		return this.handlers.has(type);
+		return ACTION_REGISTRY.has(type);
 	}
 }

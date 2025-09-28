@@ -5,31 +5,20 @@ import type {
 	StructureSetProps,
 	StructureSetStructure
 } from "@/core/schema/structure_set/types";
-import { createActions } from "@/core/engine/actions/domain";
-import { EngineAction } from "@/core/engine/actions/EngineAction";
+import { Action } from "@/core/engine/actions/EngineAction";
 
-abstract class StructureSetEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
-	protected clone(element: Record<string, unknown>): StructureSetProps {
-		return structuredClone(element) as StructureSetProps;
-	}
-}
+export class AddStructureAction extends Action<{ structure: string; weight: number; position?: number }> {
+	readonly type = "structure_set.add_structure" as const;
 
-type AddStructurePayload = { structure: string; weight: number; position?: number };
-
-export class AddStructureAction extends StructureSetEngineAction<AddStructurePayload> {
-	static create(structure: string, weight: number, position?: number): AddStructureAction {
-		return new AddStructureAction({ structure, weight, position });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structureSet = this.clone(element);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const structureSet = structuredClone(element) as StructureSetProps;
 		const newStructure: StructureSetStructure = {
-			structure: this.payload.structure,
-			weight: this.payload.weight
+			structure: this.params.structure,
+			weight: this.params.weight
 		};
 
 		const structures = [...structureSet.structures];
-		const { position } = this.payload;
+		const { position } = this.params;
 		if (position !== undefined && position >= 0 && position <= structures.length) {
 			structures.splice(position, 0, newStructure);
 		} else {
@@ -41,34 +30,26 @@ export class AddStructureAction extends StructureSetEngineAction<AddStructurePay
 	}
 }
 
-type RemoveStructurePayload = { structureId: string };
+export class RemoveStructureAction extends Action<{ structureId: string }> {
+	readonly type = "structure_set.remove_structure" as const;
 
-export class RemoveStructureAction extends StructureSetEngineAction<RemoveStructurePayload> {
-	static create(structureId: string): RemoveStructureAction {
-		return new RemoveStructureAction({ structureId });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structureSet = this.clone(element);
-		structureSet.structures = structureSet.structures.filter((_, index) => `structure_${index}` !== this.payload.structureId);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const structureSet = structuredClone(element) as StructureSetProps;
+		structureSet.structures = structureSet.structures.filter((_, index) => `structure_${index}` !== this.params.structureId);
 		return structureSet;
 	}
 }
 
-type ModifyStructurePayload = {
+export class ModifyStructureAction extends Action<{
 	structureId: string;
 	property: "structure" | "weight";
 	value: string | number;
-};
+}> {
+	readonly type = "structure_set.modify_structure" as const;
 
-export class ModifyStructureAction extends StructureSetEngineAction<ModifyStructurePayload> {
-	static create(payload: ModifyStructurePayload): ModifyStructureAction {
-		return new ModifyStructureAction(payload);
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structureSet = this.clone(element);
-		const index = Number.parseInt(this.payload.structureId.replace("structure_", ""), 10);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const structureSet = structuredClone(element) as StructureSetProps;
+		const index = Number.parseInt(this.params.structureId.replace("structure_", ""), 10);
 		if (Number.isNaN(index) || index < 0 || index >= structureSet.structures.length) {
 			return structureSet;
 		}
@@ -76,7 +57,7 @@ export class ModifyStructureAction extends StructureSetEngineAction<ModifyStruct
 		const structures = [...structureSet.structures];
 		structures[index] = {
 			...structures[index],
-			[this.payload.property]: this.payload.value
+			[this.params.property]: this.params.value
 		} as StructureSetStructure;
 
 		structureSet.structures = structures;
@@ -84,129 +65,99 @@ export class ModifyStructureAction extends StructureSetEngineAction<ModifyStruct
 	}
 }
 
-type SetPlacementTypePayload = { placementType: PlacementType };
+export class SetPlacementTypeAction extends Action<{ placementType: PlacementType }> {
+	readonly type = "structure_set.set_placement_type" as const;
 
-export class SetPlacementTypeAction extends StructureSetEngineAction<SetPlacementTypePayload> {
-	static create(placementType: PlacementType): SetPlacementTypeAction {
-		return new SetPlacementTypeAction({ placementType });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structureSet = this.clone(element);
-		structureSet.placementType = this.payload.placementType;
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const structureSet = structuredClone(element) as StructureSetProps;
+		structureSet.placementType = this.params.placementType;
 		return structureSet;
 	}
 }
 
-type ConfigurePlacementPayload = {
+export class ConfigurePlacementAction extends Action<{
 	salt?: number;
 	frequencyReductionMethod?: FrequencyReductionMethod;
 	frequency?: number;
 	locateOffset?: [number, number, number];
-};
+}> {
+	readonly type = "structure_set.configure_placement" as const;
 
-export class ConfigurePlacementAction extends StructureSetEngineAction<ConfigurePlacementPayload> {
-	static create(payload: ConfigurePlacementPayload): ConfigurePlacementAction {
-		return new ConfigurePlacementAction(payload);
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structureSet = this.clone(element);
-		if (this.payload.salt !== undefined) structureSet.salt = this.payload.salt;
-		if (this.payload.frequencyReductionMethod !== undefined) {
-			structureSet.frequencyReductionMethod = this.payload.frequencyReductionMethod;
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const structureSet = structuredClone(element) as StructureSetProps;
+		if (this.params.salt !== undefined) structureSet.salt = this.params.salt;
+		if (this.params.frequencyReductionMethod !== undefined) {
+			structureSet.frequencyReductionMethod = this.params.frequencyReductionMethod;
 		}
-		if (this.payload.frequency !== undefined) structureSet.frequency = this.payload.frequency;
-		if (this.payload.locateOffset !== undefined) structureSet.locateOffset = this.payload.locateOffset;
+		if (this.params.frequency !== undefined) structureSet.frequency = this.params.frequency;
+		if (this.params.locateOffset !== undefined) structureSet.locateOffset = this.params.locateOffset;
 		return structureSet;
 	}
 }
 
-type SetExclusionZonePayload = { otherSet: string; chunkCount: number };
+export class SetExclusionZoneAction extends Action<{ otherSet: string; chunkCount: number }> {
+	readonly type = "structure_set.set_exclusion_zone" as const;
 
-export class SetExclusionZoneAction extends StructureSetEngineAction<SetExclusionZonePayload> {
-	static create(otherSet: string, chunkCount: number): SetExclusionZoneAction {
-		return new SetExclusionZoneAction({ otherSet, chunkCount });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structureSet = this.clone(element);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const structureSet = structuredClone(element) as StructureSetProps;
 		structureSet.exclusionZone = {
-			otherSet: this.payload.otherSet,
-			chunkCount: this.payload.chunkCount
+			otherSet: this.params.otherSet,
+			chunkCount: this.params.chunkCount
 		};
 		return structureSet;
 	}
 }
 
-export class RemoveExclusionZoneAction extends StructureSetEngineAction<Record<string, never>> {
-	constructor() {
-		super({});
-	}
+export class RemoveExclusionZoneAction extends Action<Record<string, never>> {
+	readonly type = "structure_set.remove_exclusion_zone" as const;
 
-	static create(): RemoveExclusionZoneAction {
-		return new RemoveExclusionZoneAction();
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structureSet = this.clone(element);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const structureSet = structuredClone(element) as StructureSetProps;
 		structureSet.exclusionZone = undefined;
 		return structureSet;
 	}
 }
 
-type ConfigureConcentricRingsPayload = {
+export class ConfigureConcentricRingsAction extends Action<{
 	distance?: number;
 	spread?: number;
 	count?: number;
 	preferredBiomes?: string[];
-};
+}> {
+	readonly type = "structure_set.configure_concentric_rings" as const;
 
-export class ConfigureConcentricRingsAction extends StructureSetEngineAction<ConfigureConcentricRingsPayload> {
-	static create(payload: ConfigureConcentricRingsPayload): ConfigureConcentricRingsAction {
-		return new ConfigureConcentricRingsAction(payload);
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structureSet = this.clone(element);
-		if (this.payload.distance !== undefined) structureSet.distance = this.payload.distance;
-		if (this.payload.spread !== undefined) structureSet.spread = this.payload.spread;
-		if (this.payload.count !== undefined) structureSet.count = this.payload.count;
-		if (this.payload.preferredBiomes !== undefined) structureSet.preferredBiomes = this.payload.preferredBiomes;
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const structureSet = structuredClone(element) as StructureSetProps;
+		if (this.params.distance !== undefined) structureSet.distance = this.params.distance;
+		if (this.params.spread !== undefined) structureSet.spread = this.params.spread;
+		if (this.params.count !== undefined) structureSet.count = this.params.count;
+		if (this.params.preferredBiomes !== undefined) structureSet.preferredBiomes = this.params.preferredBiomes;
 		return structureSet;
 	}
 }
 
-type ConfigureRandomSpreadPayload = {
+export class ConfigureRandomSpreadAction extends Action<{
 	spacing?: number;
 	separation?: number;
 	spreadType?: SpreadType;
-};
+}> {
+	readonly type = "structure_set.configure_random_spread" as const;
 
-export class ConfigureRandomSpreadAction extends StructureSetEngineAction<ConfigureRandomSpreadPayload> {
-	static create(payload: ConfigureRandomSpreadPayload): ConfigureRandomSpreadAction {
-		return new ConfigureRandomSpreadAction(payload);
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structureSet = this.clone(element);
-		if (this.payload.spacing !== undefined) structureSet.spacing = this.payload.spacing;
-		if (this.payload.separation !== undefined) structureSet.separation = this.payload.separation;
-		if (this.payload.spreadType !== undefined) structureSet.spreadType = this.payload.spreadType;
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const structureSet = structuredClone(element) as StructureSetProps;
+		if (this.params.spacing !== undefined) structureSet.spacing = this.params.spacing;
+		if (this.params.separation !== undefined) structureSet.separation = this.params.separation;
+		if (this.params.spreadType !== undefined) structureSet.spreadType = this.params.spreadType;
 		return structureSet;
 	}
 }
 
-type ReorderStructuresPayload = { structureIds: string[] };
+export class ReorderStructuresAction extends Action<{ structureIds: string[] }> {
+	readonly type = "structure_set.reorder_structures" as const;
 
-export class ReorderStructuresAction extends StructureSetEngineAction<ReorderStructuresPayload> {
-	static create(structureIds: string[]): ReorderStructuresAction {
-		return new ReorderStructuresAction({ structureIds });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structureSet = this.clone(element);
-		const reordered = this.payload.structureIds
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const structureSet = structuredClone(element) as StructureSetProps;
+		const reordered = this.params.structureIds
 			.map((id) => {
 				const index = Number.parseInt(id.replace("structure_", ""), 10);
 				return structureSet.structures[index];
@@ -218,58 +169,16 @@ export class ReorderStructuresAction extends StructureSetEngineAction<ReorderStr
 	}
 }
 
-const STRUCTURE_SET_DOMAIN = createActions({
-	addStructure: {
-		type: "structure_set.add_structure",
-		class: AddStructureAction,
-		create: (structure: string, weight: number, position?: number) => AddStructureAction.create(structure, weight, position)
-	},
-	removeStructure: {
-		type: "structure_set.remove_structure",
-		class: RemoveStructureAction,
-		create: (structureId: string) => RemoveStructureAction.create(structureId)
-	},
-	modifyStructure: {
-		type: "structure_set.modify_structure",
-		class: ModifyStructureAction,
-		create: (payload: ModifyStructurePayload) => ModifyStructureAction.create(payload)
-	},
-	setPlacementType: {
-		type: "structure_set.set_placement_type",
-		class: SetPlacementTypeAction,
-		create: (placementType: PlacementType) => SetPlacementTypeAction.create(placementType)
-	},
-	configurePlacement: {
-		type: "structure_set.configure_placement",
-		class: ConfigurePlacementAction,
-		create: (payload: ConfigurePlacementPayload) => ConfigurePlacementAction.create(payload)
-	},
-	setExclusionZone: {
-		type: "structure_set.set_exclusion_zone",
-		class: SetExclusionZoneAction,
-		create: (otherSet: string, chunkCount: number) => SetExclusionZoneAction.create(otherSet, chunkCount)
-	},
-	removeExclusionZone: {
-		type: "structure_set.remove_exclusion_zone",
-		class: RemoveExclusionZoneAction,
-		create: () => RemoveExclusionZoneAction.create()
-	},
-	configureConcentricRings: {
-		type: "structure_set.configure_concentric_rings",
-		class: ConfigureConcentricRingsAction,
-		create: (payload: ConfigureConcentricRingsPayload) => ConfigureConcentricRingsAction.create(payload)
-	},
-	configureRandomSpread: {
-		type: "structure_set.configure_random_spread",
-		class: ConfigureRandomSpreadAction,
-		create: (payload: ConfigureRandomSpreadPayload) => ConfigureRandomSpreadAction.create(payload)
-	},
-	reorderStructures: {
-		type: "structure_set.reorder_structures",
-		class: ReorderStructuresAction,
-		create: (structureIds: string[]) => ReorderStructuresAction.create(structureIds)
-	}
-});
-
-export const STRUCTURE_SET_ACTION_CLASSES = STRUCTURE_SET_DOMAIN.classes;
-export const StructureSetActions = STRUCTURE_SET_DOMAIN.builders;
+// Liste des classes d'actions StructureSet - ajouter ici pour créer une nouvelle action
+export const STRUCTURE_SET_ACTION_CLASSES = [
+	AddStructureAction,
+	RemoveStructureAction,
+	ModifyStructureAction,
+	SetPlacementTypeAction,
+	ConfigurePlacementAction,
+	SetExclusionZoneAction,
+	RemoveExclusionZoneAction,
+	ConfigureConcentricRingsAction,
+	ConfigureRandomSpreadAction,
+	ReorderStructuresAction,
+] as const;

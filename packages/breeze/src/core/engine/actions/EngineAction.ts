@@ -1,40 +1,24 @@
-import type { Action, ActionPayload } from "@/core/engine/actions/index";
+/**
+ * Base action class for the simplified action system
+ */
+export abstract class Action<P = any> {
+	abstract readonly type: string;
 
-export abstract class EngineAction<TPayload extends ActionPayload = ActionPayload> {
-	static readonly type: string;
+	constructor(public readonly params: P) {}
 
-	readonly payload: Readonly<TPayload>;
-
-	protected constructor(payload: TPayload) {
-		this.payload = payload;
+	/**
+	 * Serialize action to JSON for logging/replay
+	 */
+	toJSON() {
+		return { type: this.type, ...this.params };
 	}
 
-	get type(): string {
-		const ctor = this.constructor as typeof EngineAction & { type?: string };
-		if (!ctor.type) {
-			const name = ctor.name && ctor.name !== "Function" ? ctor.name : "<anonymous>";
-			throw new Error(`Action class ${name} is missing a static 'type'.`);
-		}
-		return ctor.type;
-	}
-
-	toJSON(): Action {
-		return { type: this.type, ...this.payload } as Action;
-	}
-
-	execute(element: Record<string, unknown>, version?: number): Record<string, unknown> | undefined {
-		return this.apply(element, version);
-	}
-
-	protected abstract apply(element: Record<string, unknown>, version?: number): Record<string, unknown> | undefined;
+	/**
+	 * Apply the action to an element
+	 */
+	abstract apply(element: Record<string, unknown>, version?: number): Record<string, unknown>;
 }
 
-export function isEngineAction(value: unknown): value is EngineAction {
-	return value instanceof EngineAction;
-}
-
-export function extractPayload<T extends Action>(action: T): Omit<T, "type"> {
-	// biome-ignore lint/correctness/noUnusedVariables: type is intentionally destructured and not used to extract payload
-	const { type, ...payload } = action;
-	return payload;
+export function isAction(value: unknown): value is Action {
+	return value instanceof Action;
 }

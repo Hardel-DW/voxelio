@@ -1,5 +1,5 @@
 import { updateData } from "@/core/engine/actions";
-import { CoreActions } from "@/core/engine/actions/domains/CoreAction";
+import { SetValueAction } from "@/core/engine/actions/domains/CoreAction";
 import { deepDiff, normalizeValue } from "@/core/engine/migrations/differ";
 import type { ChangeSet, DatapackInfo, LogsStructure } from "@/core/engine/migrations/types";
 
@@ -44,7 +44,8 @@ export class Logger {
 			if (!element) continue;
 
 			for (const difference of change.differences) {
-				const result = await updateData(CoreActions.setValue(difference.path, difference.value), element, version);
+				const action = new SetValueAction({ path: difference.path, value: difference.value });
+				const result = await updateData(action, element, version);
 
 				if (result) {
 					element = result as T;

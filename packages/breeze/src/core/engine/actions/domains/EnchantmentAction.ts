@@ -1,24 +1,13 @@
 import { getManager } from "@/core/engine/Manager";
 import { isArraySlotRegistryType, isSlotRegistryType, type SlotRegistryType } from "@/core/engine/managers/SlotManager";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
-import { createActions } from "@/core/engine/actions/domain";
 import { getFieldValue, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
-import { EngineAction } from "@/core/engine/actions/EngineAction";
+import { Action } from "@/core/engine/actions/EngineAction";
 
-abstract class EnchantmentEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
-	protected clone(element: Record<string, unknown>): EnchantmentProps {
-		return structuredClone(element) as EnchantmentProps;
-	}
-}
+export class SetComputedSlotAction extends Action<{ path: string; slot: SlotRegistryType | unknown }> {
+	readonly type = "enchantment.set_computed_slot" as const;
 
-type SetComputedSlotPayload = { path: string; slot: SlotRegistryType | unknown };
-
-export class SetComputedSlotAction extends EnchantmentEngineAction<SetComputedSlotPayload> {
-	static create(path: string, slot: SlotRegistryType | unknown): SetComputedSlotAction {
-		return new SetComputedSlotAction({ path, slot });
-	}
-
-	protected apply(element: Record<string, unknown>, version?: number): Record<string, unknown> {
+	apply(element: Record<string, unknown>, version?: number): Record<string, unknown> {
 		if (!version) {
 			throw new Error("Version is required for computed slot actions");
 		}
@@ -28,12 +17,12 @@ export class SetComputedSlotAction extends EnchantmentEngineAction<SetComputedSl
 			throw new Error(`SlotManager is not available for version ${version}`);
 		}
 
-		const computedValue = getFieldValue(this.payload.slot);
+		const computedValue = getFieldValue(this.params.slot);
 		if (typeof computedValue !== "string" || !isSlotRegistryType(computedValue)) {
 			throw new Error(`Invalid SlotRegistryType: ${String(computedValue)}`);
 		}
 
-		const currentRaw = getValueAtPath(element, this.payload.path);
+		const currentRaw = getValueAtPath(element, this.params.path);
 		if (
 			!Array.isArray(currentRaw) ||
 			!currentRaw.every((value) => typeof value === "string") ||
@@ -43,20 +32,16 @@ export class SetComputedSlotAction extends EnchantmentEngineAction<SetComputedSl
 		}
 
 		const nextSlots = slotManager.apply(currentRaw as SlotRegistryType[], computedValue);
-		return setValueAtPath(element, this.payload.path, nextSlots);
+		return setValueAtPath(element, this.params.path, nextSlots);
 	}
 }
 
-type ToggleExclusivePayload = { enchantment: string };
+export class ToggleEnchantmentToExclusiveSetAction extends Action<{ enchantment: string }> {
+	readonly type = "enchantment.toggle_enchantment_to_exclusive_set" as const;
 
-export class ToggleEnchantmentToExclusiveSetAction extends EnchantmentEngineAction<ToggleExclusivePayload> {
-	static create(enchantment: string): ToggleEnchantmentToExclusiveSetAction {
-		return new ToggleEnchantmentToExclusiveSetAction({ enchantment });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const props = this.clone(element);
-		const enchantment = this.payload.enchantment;
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const props = structuredClone(element) as EnchantmentProps;
+		const enchantment = this.params.enchantment;
 
 		if (typeof props.exclusiveSet === "string") {
 			if (props.exclusiveSet.startsWith("#")) {
@@ -75,42 +60,24 @@ export class ToggleEnchantmentToExclusiveSetAction extends EnchantmentEngineActi
 	}
 }
 
-type SetExclusivePayload = { value: string };
+export class SetExclusiveSetWithTagsAction extends Action<{ value: string }> {
+	readonly type = "enchantment.set_exclusive_set_with_tags" as const;
 
-export class SetExclusiveSetWithTagsAction extends EnchantmentEngineAction<SetExclusivePayload> {
-	static create(value: string): SetExclusiveSetWithTagsAction {
-		return new SetExclusiveSetWithTagsAction({ value });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const props = this.clone(element);
-		if (props.exclusiveSet === this.payload.value) {
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const props = structuredClone(element) as EnchantmentProps;
+		if (props.exclusiveSet === this.params.value) {
 			props.exclusiveSet = undefined;
 			return props;
 		}
 
-		props.exclusiveSet = this.payload.value;
+		props.exclusiveSet = this.params.value;
 		return props;
 	}
 }
 
-const ENCHANTMENT_DOMAIN = createActions({
-	setComputedSlot: {
-		type: "enchantment.set_computed_slot",
-		class: SetComputedSlotAction,
-		create: (path: string, slot: SlotRegistryType | unknown) => SetComputedSlotAction.create(path, slot)
-	},
-	toggleEnchantmentToExclusiveSet: {
-		type: "enchantment.toggle_enchantment_to_exclusive_set",
-		class: ToggleEnchantmentToExclusiveSetAction,
-		create: (enchantment: string) => ToggleEnchantmentToExclusiveSetAction.create(enchantment)
-	},
-	setExclusiveSetWithTags: {
-		type: "enchantment.set_exclusive_set_with_tags",
-		class: SetExclusiveSetWithTagsAction,
-		create: (value: string) => SetExclusiveSetWithTagsAction.create(value)
-	}
-});
-
-export const ENCHANTMENT_ACTION_CLASSES = ENCHANTMENT_DOMAIN.classes;
-export const EnchantmentActions = ENCHANTMENT_DOMAIN.builders;
+// Liste des classes d'actions Enchantment - ajouter ici pour créer une nouvelle action
+export const ENCHANTMENT_ACTION_CLASSES = [
+	SetComputedSlotAction,
+	ToggleEnchantmentToExclusiveSetAction,
+	SetExclusiveSetWithTagsAction,
+] as const;

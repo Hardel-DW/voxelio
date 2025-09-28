@@ -1,25 +1,14 @@
 import type { RecipeProps, RecipeType } from "@/core/schema/recipe/types";
-import { createActions } from "@/core/engine/actions/domain";
-import { EngineAction } from "@/core/engine/actions/EngineAction";
+import { Action } from "@/core/engine/actions/EngineAction";
 
-abstract class RecipeEngineAction<TPayload extends Record<string, unknown>> extends EngineAction<TPayload> {
-	protected clone(element: Record<string, unknown>): RecipeProps {
-		return structuredClone(element) as RecipeProps;
-	}
-}
+export class AddIngredientAction extends Action<{ slot: string; items: string[]; replace?: boolean }> {
+	readonly type = "recipe.add_ingredient" as const;
 
-type AddIngredientPayload = { slot: string; items: string[]; replace?: boolean };
-
-export class AddIngredientAction extends RecipeEngineAction<AddIngredientPayload> {
-	static create(slot: string, items: string[], replace = false): AddIngredientAction {
-		return new AddIngredientAction({ slot, items, replace });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const recipe = this.clone(element);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const recipe = structuredClone(element) as RecipeProps;
 		if (recipe.type === "minecraft:crafting_shapeless") return recipe;
 
-		const { slot, items, replace } = this.payload;
+		const { slot, items, replace } = this.params;
 		if (replace || !recipe.slots[slot]) {
 			recipe.slots[slot] = items;
 		} else {
@@ -32,33 +21,25 @@ export class AddIngredientAction extends RecipeEngineAction<AddIngredientPayload
 	}
 }
 
-type AddShapelessIngredientPayload = { items: string | string[] };
+export class AddShapelessIngredientAction extends Action<{ items: string | string[] }> {
+	readonly type = "recipe.add_shapeless_ingredient" as const;
 
-export class AddShapelessIngredientAction extends RecipeEngineAction<AddShapelessIngredientPayload> {
-	static create(items: string | string[]): AddShapelessIngredientAction {
-		return new AddShapelessIngredientAction({ items });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const recipe = this.clone(element);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const recipe = structuredClone(element) as RecipeProps;
 		if (recipe.type !== "minecraft:crafting_shapeless") return recipe;
 
 		const nextSlot = Object.keys(recipe.slots).length.toString();
-		recipe.slots[nextSlot] = this.payload.items;
+		recipe.slots[nextSlot] = this.params.items;
 		return recipe;
 	}
 }
 
-type RemoveIngredientPayload = { slot: string; items?: string[] };
+export class RemoveIngredientAction extends Action<{ slot: string; items?: string[] }> {
+	readonly type = "recipe.remove_ingredient" as const;
 
-export class RemoveIngredientAction extends RecipeEngineAction<RemoveIngredientPayload> {
-	static create(slot: string, items?: string[]): RemoveIngredientAction {
-		return new RemoveIngredientAction({ slot, items });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const recipe = this.clone(element);
-		const { slot, items } = this.payload;
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const recipe = structuredClone(element) as RecipeProps;
+		const { slot, items } = this.params;
 		const content = recipe.slots[slot];
 		if (!content) return recipe;
 
@@ -75,16 +56,12 @@ export class RemoveIngredientAction extends RecipeEngineAction<RemoveIngredientP
 	}
 }
 
-type RemoveItemEverywherePayload = { items: string[] };
+export class RemoveItemEverywhereAction extends Action<{ items: string[] }> {
+	readonly type = "recipe.remove_item_everywhere" as const;
 
-export class RemoveItemEverywhereAction extends RecipeEngineAction<RemoveItemEverywherePayload> {
-	static create(items: string[]): RemoveItemEverywhereAction {
-		return new RemoveItemEverywhereAction({ items });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const recipe = this.clone(element);
-		const toRemove = new Set(this.payload.items);
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const recipe = structuredClone(element) as RecipeProps;
+		const toRemove = new Set(this.params.items);
 
 		for (const [key, content] of Object.entries(recipe.slots)) {
 			if (typeof content === "string") {
@@ -100,16 +77,12 @@ export class RemoveItemEverywhereAction extends RecipeEngineAction<RemoveItemEve
 	}
 }
 
-type ReplaceItemEverywherePayload = { from: string; to: string };
+export class ReplaceItemEverywhereAction extends Action<{ from: string; to: string }> {
+	readonly type = "recipe.replace_item_everywhere" as const;
 
-export class ReplaceItemEverywhereAction extends RecipeEngineAction<ReplaceItemEverywherePayload> {
-	static create(from: string, to: string): ReplaceItemEverywhereAction {
-		return new ReplaceItemEverywhereAction({ from, to });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const recipe = this.clone(element);
-		const { from, to } = this.payload;
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const recipe = structuredClone(element) as RecipeProps;
+		const { from, to } = this.params;
 
 		for (const [key, content] of Object.entries(recipe.slots)) {
 			if (typeof content === "string" && content === from) {
@@ -128,30 +101,22 @@ export class ReplaceItemEverywhereAction extends RecipeEngineAction<ReplaceItemE
 	}
 }
 
-type ClearSlotPayload = { slot: string };
+export class ClearSlotAction extends Action<{ slot: string }> {
+	readonly type = "recipe.clear_slot" as const;
 
-export class ClearSlotAction extends RecipeEngineAction<ClearSlotPayload> {
-	static create(slot: string): ClearSlotAction {
-		return new ClearSlotAction({ slot });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const recipe = this.clone(element);
-		delete recipe.slots[this.payload.slot];
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const recipe = structuredClone(element) as RecipeProps;
+		delete recipe.slots[this.params.slot];
 		return recipe;
 	}
 }
 
-type ConvertRecipeTypePayload = { newType: string; preserveIngredients?: boolean };
+export class ConvertRecipeTypeAction extends Action<{ newType: string; preserveIngredients?: boolean }> {
+	readonly type = "recipe.convert_recipe_type" as const;
 
-export class ConvertRecipeTypeAction extends RecipeEngineAction<ConvertRecipeTypePayload> {
-	static create(newType: string, preserveIngredients = true): ConvertRecipeTypeAction {
-		return new ConvertRecipeTypeAction({ newType, preserveIngredients });
-	}
-
-	protected apply(element: Record<string, unknown>): Record<string, unknown> {
-		const recipe = this.clone(element);
-		const { newType, preserveIngredients = true } = this.payload;
+	apply(element: Record<string, unknown>): Record<string, unknown> {
+		const recipe = structuredClone(element) as RecipeProps;
+		const { newType, preserveIngredients = true } = this.params;
 		recipe.type = newType as RecipeType;
 		if (!preserveIngredients) return recipe;
 
@@ -184,43 +149,13 @@ export class ConvertRecipeTypeAction extends RecipeEngineAction<ConvertRecipeTyp
 	}
 }
 
-const RECIPE_DOMAIN = createActions({
-	addIngredient: {
-		type: "recipe.add_ingredient",
-		class: AddIngredientAction,
-		create: (slot: string, items: string[], replace = false) => AddIngredientAction.create(slot, items, replace)
-	},
-	addShapelessIngredient: {
-		type: "recipe.add_shapeless_ingredient",
-		class: AddShapelessIngredientAction,
-		create: (items: string | string[]) => AddShapelessIngredientAction.create(items)
-	},
-	removeIngredient: {
-		type: "recipe.remove_ingredient",
-		class: RemoveIngredientAction,
-		create: (slot: string, items?: string[]) => RemoveIngredientAction.create(slot, items)
-	},
-	removeItemEverywhere: {
-		type: "recipe.remove_item_everywhere",
-		class: RemoveItemEverywhereAction,
-		create: (items: string[]) => RemoveItemEverywhereAction.create(items)
-	},
-	replaceItemEverywhere: {
-		type: "recipe.replace_item_everywhere",
-		class: ReplaceItemEverywhereAction,
-		create: (from: string, to: string) => ReplaceItemEverywhereAction.create(from, to)
-	},
-	convertType: {
-		type: "recipe.convert_recipe_type",
-		class: ConvertRecipeTypeAction,
-		create: (newType: string, preserveIngredients = true) => ConvertRecipeTypeAction.create(newType, preserveIngredients)
-	},
-	clearSlot: {
-		type: "recipe.clear_slot",
-		class: ClearSlotAction,
-		create: (slot: string) => ClearSlotAction.create(slot)
-	}
-});
-
-export const RECIPE_ACTION_CLASSES = RECIPE_DOMAIN.classes;
-export const RecipeActions = RECIPE_DOMAIN.builders;
+// Liste des classes d'actions Recipe - ajouter ici pour créer une nouvelle action
+export const RECIPE_ACTION_CLASSES = [
+	AddIngredientAction,
+	AddShapelessIngredientAction,
+	RemoveIngredientAction,
+	RemoveItemEverywhereAction,
+	ReplaceItemEverywhereAction,
+	ClearSlotAction,
+	ConvertRecipeTypeAction,
+] as const;

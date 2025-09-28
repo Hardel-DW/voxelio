@@ -1,5 +1,5 @@
 import { updateData } from "@/core/engine/actions";
-import type { RecipeAction } from "@/core/engine/actions/domains/RecipeAction";
+import type { ActionLike } from "@/core/engine/actions/index";
 import type { RecipeProps } from "@/core/schema/recipe/types";
 import { parseDatapack } from "@/core/engine/Parser";
 import { recipeFile } from "@test/mock/datapack";
@@ -46,7 +46,7 @@ describe("Recipe Actions", () => {
 		describe("add_ingredient", () => {
 			it("should add ingredient to empty slot", async () => {
 				expect(shapedRecipe.slots["2"]).toBeDefined();
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.add_ingredient",
 					slot: "3",
 					items: ["minecraft:emerald"]
@@ -62,7 +62,7 @@ describe("Recipe Actions", () => {
 				const originalSlotZero = shapedRecipe.slots["0"];
 				expect(originalSlotZero).toBeDefined();
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.add_ingredient",
 					slot: "0",
 					items: ["minecraft:emerald"]
@@ -80,7 +80,7 @@ describe("Recipe Actions", () => {
 				const originalSlotZero = shapedRecipe.slots["0"];
 				expect(originalSlotZero).toBeDefined();
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.add_ingredient",
 					slot: "0",
 					items: ["minecraft:emerald"],
@@ -97,7 +97,7 @@ describe("Recipe Actions", () => {
 			it("should avoid duplicate items when merging", async () => {
 				const recipeWithDuplicates = { ...shapedRecipe, slots: { "0": ["minecraft:diamond", "minecraft:stick"] } };
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.add_ingredient",
 					slot: "0",
 					items: ["minecraft:diamond", "minecraft:emerald"] // diamond déjà présent
@@ -112,7 +112,7 @@ describe("Recipe Actions", () => {
 			it("should remove entire slot when no items specified", async () => {
 				expect(shapedRecipe.slots["0"]).toBeDefined();
 				expect(shapedRecipe.slots["1"]).toBeDefined();
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.remove_ingredient",
 					slot: "0"
 				};
@@ -131,7 +131,7 @@ describe("Recipe Actions", () => {
 					...shapedRecipe,
 					slots: { "0": ["minecraft:diamond", "minecraft:emerald", "minecraft:gold_ingot"] }
 				};
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.remove_ingredient",
 					slot: "0",
 					items: ["minecraft:emerald"]
@@ -147,7 +147,7 @@ describe("Recipe Actions", () => {
 			it("should remove slot when it becomes empty", async () => {
 				const recipeWithSingleItem = { ...shapedRecipe, slots: { "0": ["minecraft:diamond"] } };
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.remove_ingredient",
 					slot: "0",
 					items: ["minecraft:diamond"]
@@ -158,7 +158,7 @@ describe("Recipe Actions", () => {
 			});
 
 			it("should handle removing from non-existent slot gracefully", async () => {
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.remove_ingredient",
 					slot: "99"
 				};
@@ -173,7 +173,7 @@ describe("Recipe Actions", () => {
 				expect(shapedRecipe.type).toBe("minecraft:crafting_shaped");
 				expect(shapedRecipe.gridSize).toEqual({ width: 3, height: 1 });
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.convert_recipe_type",
 					newType: "minecraft:crafting_shapeless"
 				};
@@ -192,7 +192,7 @@ describe("Recipe Actions", () => {
 				expect(shapelessRecipe.type).toBe("minecraft:crafting_shapeless");
 				expect(shapelessRecipe.gridSize).toBeUndefined();
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.convert_recipe_type",
 					newType: "minecraft:crafting_shaped"
 				};
@@ -210,7 +210,7 @@ describe("Recipe Actions", () => {
 				const originalSlots = shapedRecipe.slots;
 				const firstSlotValue = Object.values(originalSlots)[0];
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.convert_recipe_type",
 					newType: "minecraft:smelting"
 				};
@@ -225,7 +225,7 @@ describe("Recipe Actions", () => {
 			});
 
 			it("should convert to stonecutting and remove type-specific data", async () => {
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.convert_recipe_type",
 					newType: "minecraft:stonecutting"
 				};
@@ -250,7 +250,7 @@ describe("Recipe Actions", () => {
 				expect(shapedRecipe.slots["1"]).toEqual(["minecraft:acacia_planks"]);
 				expect(shapedRecipe.slots["2"]).toEqual(["minecraft:acacia_planks"]);
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.clear_slot",
 					slot: "0"
 				};
@@ -267,7 +267,7 @@ describe("Recipe Actions", () => {
 			});
 
 			it("should handle clearing non-existent slot gracefully", async () => {
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.clear_slot",
 					slot: "99"
 				};
@@ -282,7 +282,7 @@ describe("Recipe Actions", () => {
 				const originalSlots = shapelessRecipe.slots;
 				const slotsCount = Object.keys(originalSlots).length;
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.add_shapeless_ingredient",
 					items: ["minecraft:emerald"]
 				};
@@ -299,7 +299,7 @@ describe("Recipe Actions", () => {
 				const originalSlots = shapelessRecipe.slots;
 				const slotsCount = Object.keys(originalSlots).length;
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.add_shapeless_ingredient",
 					items: "#minecraft:logs"
 				};
@@ -316,7 +316,7 @@ describe("Recipe Actions", () => {
 				const originalSlots = shapelessRecipe.slots;
 				const slotsCount = Object.keys(originalSlots).length;
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.add_shapeless_ingredient",
 					items: ["minecraft:emerald", "minecraft:diamond"]
 				};
@@ -330,7 +330,7 @@ describe("Recipe Actions", () => {
 			});
 
 			it("should ignore non-shapeless recipes", async () => {
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.add_shapeless_ingredient",
 					items: ["minecraft:emerald"]
 				};
@@ -353,7 +353,7 @@ describe("Recipe Actions", () => {
 					}
 				};
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.remove_item_everywhere",
 					items: ["minecraft:acacia_planks"]
 				};
@@ -378,7 +378,7 @@ describe("Recipe Actions", () => {
 					}
 				};
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.remove_item_everywhere",
 					items: ["#minecraft:logs"]
 				};
@@ -402,7 +402,7 @@ describe("Recipe Actions", () => {
 					}
 				};
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.remove_item_everywhere",
 					items: ["minecraft:oak_planks", "minecraft:birch_planks"]
 				};
@@ -428,7 +428,7 @@ describe("Recipe Actions", () => {
 					}
 				};
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.replace_item_everywhere",
 					from: "minecraft:oak_planks",
 					to: "minecraft:birch_planks"
@@ -453,7 +453,7 @@ describe("Recipe Actions", () => {
 					}
 				};
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.replace_item_everywhere",
 					from: "#minecraft:logs",
 					to: "minecraft:oak_log"
@@ -477,7 +477,7 @@ describe("Recipe Actions", () => {
 					}
 				};
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.replace_item_everywhere",
 					from: "minecraft:birch_planks",
 					to: "minecraft:oak_planks"
@@ -501,7 +501,7 @@ describe("Recipe Actions", () => {
 					}
 				};
 
-				const action: RecipeAction = {
+				const action: ActionLike = {
 					type: "recipe.replace_item_everywhere",
 					from: "minecraft:oak_log",
 					to: "#minecraft:logs"
@@ -520,7 +520,7 @@ describe("Recipe Actions", () => {
 
 	describe("Complex Recipe Operations", () => {
 		it("should preserve identifier through recipe actions", async () => {
-			const action: RecipeAction = {
+			const action: ActionLike = {
 				type: "recipe.add_ingredient",
 				slot: "5",
 				items: ["minecraft:coal"]
@@ -545,7 +545,7 @@ describe("Recipe Actions", () => {
 				gridSize: { width: 3, height: 2 }
 			};
 
-			const action: RecipeAction = {
+			const action: ActionLike = {
 				type: "recipe.convert_recipe_type",
 				newType: "minecraft:campfire_cooking"
 			};
