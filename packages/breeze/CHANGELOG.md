@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.9.1
+
+### Patch Changes
+
+- 9d5bb71: Total refacot for actions, added tags actions and some tweaks for enchantment
+
 ## 1.9.0
 
 ### Minor Changes
