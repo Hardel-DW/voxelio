@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.9.2
+
+### Patch Changes
+
+- 9cc3890: Refactor Actions again. Final State Removed JSON actions.
+
 ## 1.9.1
 
 ### Patch Changes
