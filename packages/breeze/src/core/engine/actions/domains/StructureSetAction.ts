@@ -5,7 +5,7 @@ import type {
 	StructureSetProps,
 	StructureSetStructure
 } from "@/core/schema/structure_set/types";
-import { Action } from "@/core/engine/actions/EngineAction";
+import { Action } from "@/core/engine/actions/Action";
 
 export class AddStructureAction extends Action<{ structure: string; weight: number; position?: number }> {
 	readonly type = "structure_set.add_structure" as const;

@@ -1,5 +1,5 @@
 import type { StructureProps, SpawnOverride, DecorationStep } from "@/core/schema/structure/types";
-import { Action } from "@/core/engine/actions/EngineAction";
+import { Action } from "@/core/engine/actions/Action";
 
 export class SetBiomesAction extends Action<{ biomes: string[]; replace?: boolean }> {
 	readonly type = "structure.set_biomes" as const;

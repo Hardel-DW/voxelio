@@ -4,7 +4,7 @@ import { LOOT_TABLE_ACTION_CLASSES } from "@/core/engine/actions/domains/LootTab
 import { RECIPE_ACTION_CLASSES } from "@/core/engine/actions/domains/RecipeAction";
 import { STRUCTURE_ACTION_CLASSES } from "@/core/engine/actions/domains/StructureAction";
 import { STRUCTURE_SET_ACTION_CLASSES } from "@/core/engine/actions/domains/StructureSetAction";
-import { type Action, isAction } from "@/core/engine/actions/EngineAction";
+import { type Action, isAction } from "@/core/engine/actions/Action";
 import type { IdentifierObject } from "@/core/Identifier";
 
 export const ALL_ACTION_CLASSES = [
@@ -16,21 +16,19 @@ export const ALL_ACTION_CLASSES = [
 	...STRUCTURE_SET_ACTION_CLASSES
 ] as const;
 
-type ExtractActionType<T> = T extends new (...args: any[]) => infer R
-	? R extends Action<any>
-	? R
-	: never
-	: never;
+type ExtractActionType<T> = T extends new (...args: any[]) => infer R ? (R extends Action<any> ? R : never) : never;
 
 type ExtractParams<T> = T extends Action<infer P> ? P : never;
 
-type ActionInstances = ExtractActionType<typeof ALL_ACTION_CLASSES[number]>;
+type ActionInstances = ExtractActionType<(typeof ALL_ACTION_CLASSES)[number]>;
 
-export type ActionLike = Action | {
-	[K in ActionInstances as K["type"]]: ExtractParams<K> & {
-		type: K["type"];
-	};
-}[ActionInstances["type"]];
+export type ActionLike =
+	| Action
+	| {
+		[K in ActionInstances as K["type"]]: ExtractParams<K> & {
+			type: K["type"];
+		};
+	}[ActionInstances["type"]];
 
 export type ActionValue = string | number | boolean | IdentifierObject | unknown;
 

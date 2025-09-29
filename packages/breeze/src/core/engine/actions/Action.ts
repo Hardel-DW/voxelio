@@ -1,6 +1,3 @@
-/**
- * Base action class for the simplified action system
- */
 export abstract class Action<P = any> {
 	abstract readonly type: string;
 

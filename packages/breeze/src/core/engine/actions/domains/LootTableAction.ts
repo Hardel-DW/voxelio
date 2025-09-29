@@ -1,5 +1,5 @@
 import type { LootGroup, LootItem, LootTableProps } from "@/core/schema/loot/types";
-import { Action } from "@/core/engine/actions/EngineAction";
+import { Action } from "@/core/engine/actions/Action";
 
 let globalItemCounter = 0;
 let globalGroupCounter = 0;

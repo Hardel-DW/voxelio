@@ -2,7 +2,7 @@ import { getManager } from "@/core/engine/Manager";
 import { isArraySlotRegistryType, isSlotRegistryType, type SlotRegistryType } from "@/core/engine/managers/SlotManager";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
 import { getFieldValue, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
-import { Action } from "@/core/engine/actions/EngineAction";
+import { Action } from "@/core/engine/actions/Action";
 
 export class SetComputedSlotAction extends Action<{ path: string; slot: SlotRegistryType | unknown }> {
 	readonly type = "enchantment.set_computed_slot" as const;

@@ -1,5 +1,5 @@
 import { deleteValueAtPath, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
-import { Action } from "@/core/engine/actions/EngineAction";
+import { Action } from "@/core/engine/actions/Action";
 
 function ensureArray<T>(value: unknown): T[] {
 	return Array.isArray(value) ? (value as T[]) : [];

@@ -1,5 +1,5 @@
 import type { RecipeProps, RecipeType } from "@/core/schema/recipe/types";
-import { Action } from "@/core/engine/actions/EngineAction";
+import { Action } from "@/core/engine/actions/Action";
 
 export class AddIngredientAction extends Action<{ slot: string; items: string[]; replace?: boolean }> {
 	readonly type = "recipe.add_ingredient" as const;
