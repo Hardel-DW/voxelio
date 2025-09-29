@@ -2,7 +2,7 @@ import { parseDatapack } from "@/core/engine/Parser";
 import { updateData } from "@/core/engine/actions";
 import { VoxelToLootDataDriven } from "@/core/schema/loot/Compiler";
 import type { LootTableProps } from "@/core/schema/loot/types";
-import type { ActionLike } from "@/core/engine/actions/index";
+import type { ActionLike } from "@/core/engine/actions/registry";
 import { lootTableFile, lootTableZip } from "@test/mock/datapack";
 import { describe, it, expect, beforeEach } from "vitest";
 

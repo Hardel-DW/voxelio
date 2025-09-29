@@ -31,16 +31,15 @@ export const EnchantmentDataDrivenToVoxelFormat: Parser<EnchantmentProps, Enchan
 	const effects = data.effects;
 	const slots = data.slots;
 
-	const tagsWithoutExclusiveSet = tags.filter((tag) => !(typeof data.exclusive_set === "string" && tag === data.exclusive_set));
 	const hasEffects = data.effects && Object.entries(data.effects).length > 0;
 
 	let mode: "normal" | "soft_delete" | "only_creative" = "normal";
 
-	if (tagsWithoutExclusiveSet.every((tag) => FUNCTIONALITY_TAGS_CACHE.has(tag))) {
+	if (tags.every((tag) => FUNCTIONALITY_TAGS_CACHE.has(tag))) {
 		mode = "only_creative";
 	}
 
-	if (!hasEffects && tagsWithoutExclusiveSet.length === 0) {
+	if (!hasEffects && tags.length === 0) {
 		mode = "soft_delete";
 	}
 
@@ -60,7 +59,7 @@ export const EnchantmentDataDrivenToVoxelFormat: Parser<EnchantmentProps, Enchan
 		maxCostBase,
 		maxCostPerLevelAboveFirst,
 		effects,
-		tags: tagsWithoutExclusiveSet,
+		tags,
 		slots,
 		mode,
 		disabledEffects: [],

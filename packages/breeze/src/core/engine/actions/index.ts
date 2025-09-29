@@ -1,10 +1,28 @@
-import { type ActionType, executeAction } from "@/core/engine/actions/registry";
-import type { Action } from "@/core/engine/actions/EngineAction";
-import type { IdentifierObject } from "@/core/Identifier";
+import { executeAction } from "@/core/engine/actions/registry";
+import type { ActionLike } from "@/core/engine/actions/registry";
 
 export function updateData<T extends Record<string, unknown>>(action: ActionLike, element: T, version?: number): Partial<T> | undefined {
 	return executeAction(action, element, version) as Partial<T> | undefined;
 }
 
-export type ActionLike = Action | { type: ActionType;[key: string]: any };
-export type ActionValue = string | number | boolean | IdentifierObject | unknown;
+export abstract class Action<P = any> {
+	abstract readonly type: string;
+
+	constructor(public readonly params: P) { }
+
+	/**
+	 * Serialize action to JSON for logging/replay
+	 */
+	toJSON() {
+		return { type: this.type, ...this.params };
+	}
+
+	/**
+	 * Apply the action to an element
+	 */
+	abstract apply(element: Record<string, unknown>, version?: number): Record<string, unknown>;
+}
+
+export function isAction(value: unknown): value is Action {
+	return value instanceof Action;
+}

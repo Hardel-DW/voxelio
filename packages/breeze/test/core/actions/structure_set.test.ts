@@ -182,7 +182,7 @@ describe("StructureSet Actions", () => {
 
 			const result = updateData(
 				{
-					type: "structure_set.remove_exclusion_zone"
+					type: "structure_set.remove_exclusion_zone",
 				},
 				structureSetWithExclusion
 			);

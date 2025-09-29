@@ -1,4 +1,4 @@
-import type { ActionValue } from "@/core/engine/actions/index";
+import type { ActionValue } from "@/core/engine/actions/registry";
 
 /**
  * Get the field value from the action value

@@ -2,7 +2,7 @@ import { parseDatapack } from "@/core/engine/Parser";
 import { updateData } from "@/core/engine/actions";
 import { VoxelToRecipeDataDriven } from "@/core/schema/recipe/Compiler";
 import type { RecipeProps } from "@/core/schema/recipe/types";
-import type { ActionLike } from "@/core/engine/actions/index";
+import type { ActionLike } from "@/core/engine/actions/registry";
 import { recipeFile } from "@test/mock/datapack";
 import { createZipFile } from "@test/mock/utils";
 import { describe, it, expect, beforeEach } from "vitest";

@@ -1,5 +1,5 @@
 import { updateData } from "@/core/engine/actions";
-import type { ActionLike } from "@/core/engine/actions/index";
+import { action } from "@/core/engine/actions/registry";
 import { describe, expect, it, beforeEach } from "vitest";
 import { createComplexMockElement, createMockEnchantmentElement } from "@test/mock/enchant/VoxelDriven";
 
@@ -16,13 +16,12 @@ describe("Action System", () => {
 		it("should set a value", () => {
 			expect(mockElement.data.minCostBase).toBe(1);
 
-			const action: ActionLike = {
-				type: "core.set_value",
+			const actions = action("core.set_value", {
 				path: "minCostBase",
 				value: 20
-			};
+			});
 
-			const result = updateData(action, mockElement.data, 48);
+			const result = updateData(actions, mockElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.minCostBase).toBe(20);
 			expect(mockElement.data.minCostBase).toBe(1);
@@ -33,13 +32,12 @@ describe("Action System", () => {
 			const element = createMockEnchantmentElement({ minCostBase: 5 });
 			expect(element.data.minCostBase).toBe(5);
 
-			const action: ActionLike = {
-				type: "core.toggle_value",
+			const response = action("core.toggle_value", {
 				path: "minCostBase",
 				value: 5
-			};
+			});
 
-			const result = updateData(action, element.data, 48);
+			const result = updateData(response, element.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.minCostBase).toBeUndefined();
 			expect(element.data.minCostBase).toBe(5);
@@ -51,12 +49,11 @@ describe("Action System", () => {
 			expect(element.data.minCostBase).toBe(5);
 			expect(element.data).toHaveProperty("minCostBase");
 
-			const action: ActionLike = {
-				type: "core.set_undefined",
+			const response = action("core.set_undefined", {
 				path: "minCostBase"
-			};
+			});
 
-			const result = updateData(action, element.data, 48);
+			const result = updateData(response, element.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.minCostBase).toBeUndefined();
 			// set_undefined met la valeur à undefined mais garde la propriété
@@ -78,12 +75,11 @@ describe("Action System", () => {
 			expect(element.data.isActive).toBe(true);
 			expect(element.data.isDisabled).toBe(false);
 
-			const action: ActionLike = {
-				type: "core.invert_boolean",
+			const response = action("core.invert_boolean", {
 				path: "isActive"
-			};
+			});
 
-			const result = updateData(action, element.data, 48);
+			const result = updateData(response, element.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.isActive).toBe(false);
 			expect(result?.isDisabled).toBe(false); // Pas touché
@@ -100,12 +96,11 @@ describe("Action System", () => {
 				description: "test"
 			});
 
-			const action: ActionLike = {
-				type: "core.invert_boolean",
+			const response = action("core.invert_boolean", {
 				path: "minCostBase"
-			};
+			});
 
-			const result = updateData(action, element.data, 48);
+			const result = updateData(response, element.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.minCostBase).toBe(10); // Pas changé car pas un boolean
 			expect(result).toBe(element.data); // Même objet car pas de changement
@@ -114,13 +109,12 @@ describe("Action System", () => {
 
 	describe("Identifier Preservation", () => {
 		it("should maintain Identifier instance through set_value", () => {
-			const action: ActionLike = {
-				type: "core.set_value",
+			const response = action("core.set_value", {
 				path: "minCostBase",
 				value: 5
-			};
+			});
 
-			const result = updateData(action, mockElement.data, 48);
+			const result = updateData(response, mockElement.data, 48);
 			expect(result?.identifier).toBeDefined();
 			expect(mockElement.data.identifier).toEqual(result?.identifier);
 		});
@@ -132,13 +126,12 @@ describe("Action System", () => {
 			expect(complexElement.data.identifier.namespace).toBe("enchantplus");
 			expect(complexElement.data.identifier.resource).toBe("bow/accuracy_shot");
 
-			const action: ActionLike = {
-				type: "core.set_value",
+			const response = action("core.set_value", {
 				path: "identifier.namespace",
 				value: "modpack"
-			};
+			});
 
-			const result = updateData(action, complexElement.data, 48);
+			const result = updateData(response, complexElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.identifier?.namespace).toBe("modpack");
 			expect(result?.identifier?.resource).toBe("bow/accuracy_shot"); // Pas touché
@@ -157,13 +150,12 @@ describe("Action System", () => {
 			expect(projectileSpawned[0].effect.type).toBe("minecraft:run_function");
 			expect(projectileSpawned[0].effect.function).toBe("enchantplus:actions/accuracy_shot/on_shoot");
 
-			const action: ActionLike = {
-				type: "core.set_value",
+			const response = action("core.set_value", {
 				path: "effects.minecraft:projectile_spawned.0.effect.function",
 				value: "modpack:new_function"
-			};
+			});
 
-			const result = updateData(action, complexElement.data, 48);
+			const result = updateData(response, complexElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.effects).toBeDefined();
 
@@ -186,13 +178,12 @@ describe("Action System", () => {
 			expect(description.translate).toBe("enchantment.test.foo");
 			expect(description.fallback).toBe("Enchantment Test");
 
-			const action: ActionLike = {
-				type: "core.set_value",
+			const response = action("core.set_value", {
 				path: "description.fallback",
 				value: "New Test Description"
-			};
+			});
 
-			const result = updateData(action, complexElement.data, 48);
+			const result = updateData(response, complexElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.description).toBeDefined();
 
@@ -217,13 +208,12 @@ describe("Action System", () => {
 			expect(exclusiveSet[0]).toBe("minecraft:efficiency");
 			expect(exclusiveSet[1]).toBe("minecraft:unbreaking");
 
-			const action: ActionLike = {
-				type: "core.set_value",
+			const response = action("core.set_value", {
 				path: "exclusiveSet.1",
 				value: "minecraft:mending"
-			};
+			});
 
-			const result = updateData(action, complexElement.data, 48);
+			const result = updateData(response, complexElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.exclusiveSet).toBeDefined();
 			expect(Array.isArray(result?.exclusiveSet)).toBe(true);

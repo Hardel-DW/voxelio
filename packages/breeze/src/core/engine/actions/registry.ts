@@ -5,9 +5,8 @@ import { RECIPE_ACTION_CLASSES } from "@/core/engine/actions/domains/RecipeActio
 import { STRUCTURE_ACTION_CLASSES } from "@/core/engine/actions/domains/StructureAction";
 import { STRUCTURE_SET_ACTION_CLASSES } from "@/core/engine/actions/domains/StructureSetAction";
 import { type Action, isAction } from "@/core/engine/actions/EngineAction";
-import type { ActionLike } from "@/core/engine/actions/index";
+import type { IdentifierObject } from "@/core/Identifier";
 
-// Liste de toutes les classes d'actions disponibles
 export const ALL_ACTION_CLASSES = [
 	...CORE_ACTION_CLASSES,
 	...ENCHANTMENT_ACTION_CLASSES,
@@ -17,24 +16,44 @@ export const ALL_ACTION_CLASSES = [
 	...STRUCTURE_SET_ACTION_CLASSES
 ] as const;
 
-// Helper pour extraire automatiquement les types d'actions
-type ExtractActionType<T extends readonly any[]> = {
-	[K in keyof T]: T[K] extends new (params: any) => { readonly type: infer U } ? U : never;
-}[number];
+type ExtractActionType<T> = T extends new (...args: any[]) => infer R
+	? R extends Action<any>
+	? R
+	: never
+	: never;
 
-// Type union automatique de tous les types d'actions
-export type ActionType = ExtractActionType<typeof ALL_ACTION_CLASSES>;
+type ExtractParams<T> = T extends Action<infer P> ? P : never;
 
-// Registry simplifié - génération automatique du Map type -> Constructor
+type ActionInstances = ExtractActionType<typeof ALL_ACTION_CLASSES[number]>;
+
+export type ActionLike = Action | {
+	[K in ActionInstances as K["type"]]: ExtractParams<K> & {
+		type: K["type"];
+	};
+}[ActionInstances["type"]];
+
+export type ActionValue = string | number | boolean | IdentifierObject | unknown;
+
 const ACTION_REGISTRY = new Map<string, new (params: any) => Action>(
 	ALL_ACTION_CLASSES.map((ActionClass) => {
-		const instance = new ActionClass({} as any); // Juste pour récupérer le type
+		const instance = new ActionClass({} as any);
 		return [instance.type, ActionClass];
 	})
 );
 
 /**
- * Execution universelle des actions
+ * Utility function to create an action like object
+ * Help TS to know the type of the action
+ */
+export function action<T extends ActionInstances["type"]>(
+	type: T,
+	params: ExtractParams<Extract<ActionInstances, { type: T }>>
+): Extract<ActionLike, { type: T }> {
+	return { type, ...params } as Extract<ActionLike, { type: T }>;
+}
+
+/**
+ * Execute an action on an element
  */
 export function executeAction(
 	actionLike: ActionLike,
@@ -45,7 +64,6 @@ export function executeAction(
 		return actionLike.apply(element, version);
 	}
 
-	// Reconstruction depuis JSON pour replay logs
 	const { type, ...params } = actionLike;
 	const ActionClass = ACTION_REGISTRY.get(type);
 	if (!ActionClass) {

@@ -108,7 +108,7 @@ export class SetExclusionZoneAction extends Action<{ otherSet: string; chunkCoun
 	}
 }
 
-export class RemoveExclusionZoneAction extends Action<Record<string, never>> {
+export class RemoveExclusionZoneAction extends Action<{}> {
 	readonly type = "structure_set.remove_exclusion_zone" as const;
 
 	apply(element: Record<string, unknown>): Record<string, unknown> {
