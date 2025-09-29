@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { Datapack } from "@/core/Datapack";
 import { Logger } from "@/core/engine/migrations/logger";
 import { updateData } from "@/core/engine/actions";
+import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 import { parseDatapack } from "@/core/engine/Parser";
 import { lootTableFile, enchantmentFile } from "@test/mock/datapack";
 import { createZipFile, prepareFiles } from "@test/mock/utils";
@@ -24,11 +25,11 @@ describe("E2E Logs System", () => {
 
 			// Apply some actions with logging
 			logger.trackChanges(element, (el) => {
-				return updateData({ type: "core.set_value", path: "name", value: "Modified Name" }, el, 123);
+				return updateData(CoreAction.setValue("name", "Modified Name"), el, 123);
 			});
 
 			logger.trackChanges(element, (el) => {
-				return updateData({ type: "core.set_value", path: "value", value: 999 }, el, 123);
+				return updateData(CoreAction.setValue("value", 999), el, 123);
 			});
 
 			// Verify changes were tracked
@@ -71,7 +72,7 @@ describe("E2E Logs System", () => {
 			if (!element) throw new Error("Element not found");
 
 			logger.trackChanges(element, (el) => {
-				return updateData({ type: "core.set_value", path: "pools.0.bonus_rolls", value: 2 }, el, 123);
+				return updateData(CoreAction.setValue("pools.0.bonus_rolls", 2), el, 123);
 			});
 
 			// Verify combined history
@@ -412,7 +413,7 @@ describe("E2E Logs Replay System", () => {
 			for (const change of changes) {
 				for (const difference of change.differences) {
 					currentElement = updateData(
-						{ type: "core.set_value", path: difference.path, value: difference.value },
+						CoreAction.setValue(difference.path, difference.value),
 						currentElement,
 						123
 					);

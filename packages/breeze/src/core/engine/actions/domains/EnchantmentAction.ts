@@ -2,82 +2,81 @@ import { getManager } from "@/core/engine/Manager";
 import { isArraySlotRegistryType, isSlotRegistryType, type SlotRegistryType } from "@/core/engine/managers/SlotManager";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
 import { getFieldValue, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
-import { Action } from "@/core/engine/actions/Action";
+import { Action } from "@/core/engine/actions/index";
 
-export class SetComputedSlotAction extends Action<{ path: string; slot: SlotRegistryType | unknown }> {
-	readonly type = "enchantment.set_computed_slot" as const;
+export class EnchantmentAction<P = any> extends Action<P> {
+	constructor(
+		params: P,
+		private applyFn: (element: Record<string, unknown>, params: P, version?: number) => Record<string, unknown>
+	) {
+		super(params);
+	}
 
 	apply(element: Record<string, unknown>, version?: number): Record<string, unknown> {
-		if (!version) {
-			throw new Error("Version is required for computed slot actions");
-		}
-
-		const slotManager = getManager("slot", version);
-		if (!slotManager) {
-			throw new Error(`SlotManager is not available for version ${version}`);
-		}
-
-		const computedValue = getFieldValue(this.params.slot);
-		if (typeof computedValue !== "string" || !isSlotRegistryType(computedValue)) {
-			throw new Error(`Invalid SlotRegistryType: ${String(computedValue)}`);
-		}
-
-		const currentRaw = getValueAtPath(element, this.params.path);
-		if (
-			!Array.isArray(currentRaw) ||
-			!currentRaw.every((value) => typeof value === "string") ||
-			!isArraySlotRegistryType(currentRaw as string[])
-		) {
-			throw new Error(`Invalid SlotRegistryType array: ${JSON.stringify(currentRaw)}`);
-		}
-
-		const nextSlots = slotManager.apply(currentRaw as SlotRegistryType[], computedValue);
-		return setValueAtPath(element, this.params.path, nextSlots);
+		return this.applyFn(element, this.params, version);
 	}
-}
 
-export class ToggleEnchantmentToExclusiveSetAction extends Action<{ enchantment: string }> {
-	readonly type = "enchantment.toggle_enchantment_to_exclusive_set" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const props = structuredClone(element) as EnchantmentProps;
-		const enchantment = this.params.enchantment;
-
-		if (typeof props.exclusiveSet === "string") {
-			if (props.exclusiveSet.startsWith("#")) {
-				props.exclusiveSet = [enchantment];
-			} else if (props.exclusiveSet === enchantment) {
-				props.exclusiveSet = undefined;
-			} else {
-				props.exclusiveSet = [props.exclusiveSet, enchantment];
+	static setComputedSlot(path: string, slot: SlotRegistryType | unknown) {
+		return new EnchantmentAction({ path, slot }, (el, p: { path: string; slot: SlotRegistryType | unknown }, version) => {
+			if (!version) {
+				throw new Error("Version is required for computed slot actions");
 			}
-		}
 
-		const current = Array.isArray(props.exclusiveSet) ? props.exclusiveSet : [];
-		const exists = current.includes(enchantment);
-		props.exclusiveSet = exists ? current.filter((value) => value !== enchantment) : [...current, enchantment];
-		return props;
+			const slotManager = getManager("slot", version);
+			if (!slotManager) {
+				throw new Error(`SlotManager is not available for version ${version}`);
+			}
+
+			const computedValue = getFieldValue(p.slot);
+			if (typeof computedValue !== "string" || !isSlotRegistryType(computedValue)) {
+				throw new Error(`Invalid SlotRegistryType: ${String(computedValue)}`);
+			}
+
+			const currentRaw = getValueAtPath(el, p.path);
+			if (
+				!Array.isArray(currentRaw) ||
+				!currentRaw.every((value) => typeof value === "string") ||
+				!isArraySlotRegistryType(currentRaw as string[])
+			) {
+				throw new Error(`Invalid SlotRegistryType array: ${JSON.stringify(currentRaw)}`);
+			}
+
+			const nextSlots = slotManager.apply(currentRaw as SlotRegistryType[], computedValue);
+			return setValueAtPath(el, p.path, nextSlots);
+		});
 	}
-}
 
-export class SetExclusiveSetWithTagsAction extends Action<{ value: string }> {
-	readonly type = "enchantment.set_exclusive_set_with_tags" as const;
+	static toggleEnchantmentToExclusiveSet(enchantment: string) {
+		return new EnchantmentAction({ enchantment }, (el, p: { enchantment: string }) => {
+			const props = structuredClone(el) as EnchantmentProps;
 
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const props = structuredClone(element) as EnchantmentProps;
-		if (props.exclusiveSet === this.params.value) {
-			props.exclusiveSet = undefined;
+			if (typeof props.exclusiveSet === "string") {
+				if (props.exclusiveSet.startsWith("#")) {
+					props.exclusiveSet = [p.enchantment];
+				} else if (props.exclusiveSet === p.enchantment) {
+					props.exclusiveSet = undefined;
+				} else {
+					props.exclusiveSet = [props.exclusiveSet, p.enchantment];
+				}
+			}
+
+			const current = Array.isArray(props.exclusiveSet) ? props.exclusiveSet : [];
+			const exists = current.includes(p.enchantment);
+			props.exclusiveSet = exists ? current.filter((value) => value !== p.enchantment) : [...current, p.enchantment];
 			return props;
-		}
+		});
+	}
 
-		props.exclusiveSet = this.params.value;
-		return props;
+	static setExclusiveSetWithTags(value: string) {
+		return new EnchantmentAction({ value }, (el, p: { value: string }) => {
+			const props = structuredClone(el) as EnchantmentProps;
+			if (props.exclusiveSet === p.value) {
+				props.exclusiveSet = undefined;
+				return props;
+			}
+
+			props.exclusiveSet = p.value;
+			return props;
+		});
 	}
 }
-
-// Liste des classes d'actions Enchantment - ajouter ici pour créer une nouvelle action
-export const ENCHANTMENT_ACTION_CLASSES = [
-	SetComputedSlotAction,
-	ToggleEnchantmentToExclusiveSetAction,
-	SetExclusiveSetWithTagsAction
-] as const;

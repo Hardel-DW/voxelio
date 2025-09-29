@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { updateData } from "@/core/engine/actions";
+import { StructureSetAction } from "@/core/engine/actions/domains/StructureSetAction";
 import type { StructureSetProps } from "@/core/schema/structure_set/types";
 
 describe("StructureSet Actions", () => {
@@ -21,11 +22,7 @@ describe("StructureSet Actions", () => {
 	describe("structure_set.add_structure", () => {
 		it("should add structure at the end by default", () => {
 			const result = updateData(
-				{
-					type: "structure_set.add_structure",
-					structure: "minecraft:village_desert",
-					weight: 5
-				},
+				StructureSetAction.addStructure("minecraft:village_desert", 5),
 				baseStructureSet
 			);
 
@@ -38,12 +35,7 @@ describe("StructureSet Actions", () => {
 
 		it("should add structure at specific position", () => {
 			const result = updateData(
-				{
-					type: "structure_set.add_structure",
-					structure: "minecraft:village_desert",
-					weight: 5,
-					position: 0
-				},
+				StructureSetAction.addStructure("minecraft:village_desert", 5, 0),
 				baseStructureSet
 			);
 
@@ -67,10 +59,7 @@ describe("StructureSet Actions", () => {
 			};
 
 			const result = updateData(
-				{
-					type: "structure_set.remove_structure",
-					structureId: "structure_1"
-				},
+				StructureSetAction.removeStructure("structure_1"),
 				extendedStructureSet
 			);
 
@@ -85,12 +74,7 @@ describe("StructureSet Actions", () => {
 	describe("structure_set.modify_structure", () => {
 		it("should modify structure weight", () => {
 			const result = updateData(
-				{
-					type: "structure_set.modify_structure",
-					structureId: "structure_0",
-					property: "weight",
-					value: 15
-				},
+				StructureSetAction.modifyStructure("structure_0", "weight", 15),
 				baseStructureSet
 			);
 
@@ -102,12 +86,7 @@ describe("StructureSet Actions", () => {
 
 		it("should modify structure ID", () => {
 			const result = updateData(
-				{
-					type: "structure_set.modify_structure",
-					structureId: "structure_0",
-					property: "structure",
-					value: "minecraft:village_desert"
-				},
+				StructureSetAction.modifyStructure("structure_0", "structure", "minecraft:village_desert"),
 				baseStructureSet
 			);
 
@@ -121,10 +100,7 @@ describe("StructureSet Actions", () => {
 	describe("structure_set.set_placement_type", () => {
 		it("should change placement type", () => {
 			const result = updateData(
-				{
-					type: "structure_set.set_placement_type",
-					placementType: "minecraft:concentric_rings"
-				},
+				StructureSetAction.setPlacementType("minecraft:concentric_rings"),
 				baseStructureSet
 			);
 
@@ -135,13 +111,12 @@ describe("StructureSet Actions", () => {
 	describe("structure_set.configure_placement", () => {
 		it("should configure placement properties", () => {
 			const result = updateData(
-				{
-					type: "structure_set.configure_placement",
+				StructureSetAction.configurePlacement({
 					salt: 54321,
 					frequencyReductionMethod: "legacy_type_1",
 					frequency: 0.5,
 					locateOffset: [1, 2, 3]
-				},
+				}),
 				baseStructureSet
 			);
 
@@ -155,11 +130,7 @@ describe("StructureSet Actions", () => {
 	describe("structure_set.set_exclusion_zone", () => {
 		it("should set exclusion zone", () => {
 			const result = updateData(
-				{
-					type: "structure_set.set_exclusion_zone",
-					otherSet: "minecraft:strongholds",
-					chunkCount: 10
-				},
+				StructureSetAction.setExclusionZone("minecraft:strongholds", 10),
 				baseStructureSet
 			);
 
@@ -181,9 +152,7 @@ describe("StructureSet Actions", () => {
 			};
 
 			const result = updateData(
-				{
-					type: "structure_set.remove_exclusion_zone",
-				},
+				StructureSetAction.removeExclusionZone(),
 				structureSetWithExclusion
 			);
 
@@ -194,13 +163,12 @@ describe("StructureSet Actions", () => {
 	describe("structure_set.configure_concentric_rings", () => {
 		it("should configure concentric rings properties", () => {
 			const result = updateData(
-				{
-					type: "structure_set.configure_concentric_rings",
+				StructureSetAction.configureConcentricRings({
 					distance: 32,
 					spread: 3,
 					count: 128,
 					preferredBiomes: ["#minecraft:stronghold_biased_to"]
-				},
+				}),
 				baseStructureSet
 			);
 
@@ -214,12 +182,11 @@ describe("StructureSet Actions", () => {
 	describe("structure_set.configure_random_spread", () => {
 		it("should configure random spread properties", () => {
 			const result = updateData(
-				{
-					type: "structure_set.configure_random_spread",
+				StructureSetAction.configureRandomSpread({
 					spacing: 40,
 					separation: 15,
 					spreadType: "linear"
-				},
+				}),
 				baseStructureSet
 			);
 
@@ -241,10 +208,7 @@ describe("StructureSet Actions", () => {
 			};
 
 			const result = updateData(
-				{
-					type: "structure_set.reorder_structures",
-					structureIds: ["structure_2", "structure_0", "structure_1"]
-				},
+				StructureSetAction.reorderStructures(["structure_2", "structure_0", "structure_1"]),
 				extendedStructureSet
 			);
 

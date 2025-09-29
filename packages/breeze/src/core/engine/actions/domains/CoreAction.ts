@@ -1,114 +1,86 @@
 import { deleteValueAtPath, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
-import { Action } from "@/core/engine/actions/Action";
+import { Action } from "@/core/engine/actions/index";
 
-function ensureArray<T>(value: unknown): T[] {
-	return Array.isArray(value) ? (value as T[]) : [];
-}
+const ensureArray = <T>(value: unknown): T[] => (Array.isArray(value) ? (value as T[]) : []);
 
-export class SetValueAction extends Action<{ path: string; value: unknown }> {
-	readonly type = "core.set_value" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		return setValueAtPath(element, this.params.path, this.params.value);
+export class CoreAction<P = any> extends Action<P> {
+	constructor(
+		params: P,
+		private applyFn: (element: Record<string, unknown>, params: P) => Record<string, unknown>
+	) {
+		super(params);
 	}
-}
 
-export class ToggleValueAction extends Action<{ path: string; value: unknown }> {
-	readonly type = "core.toggle_value" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const currentValue = getValueAtPath(element, this.params.path);
-		const nextValue = currentValue === this.params.value ? undefined : this.params.value;
-		return setValueAtPath(element, this.params.path, nextValue);
+	apply(element: Record<string, unknown>, _version?: number): Record<string, unknown> {
+		return this.applyFn(element, this.params);
 	}
-}
 
-export class ToggleValueInListAction extends Action<{ path: string; value: unknown }> {
-	readonly type = "core.toggle_value_in_list" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const currentArray = ensureArray<unknown>(getValueAtPath(element, this.params.path));
-		const exists = currentArray.includes(this.params.value);
-		const nextArray = exists ? currentArray.filter((item) => item !== this.params.value) : [...currentArray, this.params.value];
-
-		return setValueAtPath(element, this.params.path, nextArray);
+	static setValue(path: string, value: unknown) {
+		return new CoreAction({ path, value }, (el, p: { path: string; value: unknown }) => setValueAtPath(el, p.path, p.value));
 	}
-}
 
-export class ToggleAllValuesInListAction extends Action<{ path: string; values: unknown[] }> {
-	readonly type = "core.toggle_all_values_in_list" as const;
+	static toggleValue(path: string, value: unknown) {
+		return new CoreAction({ path, value }, (el, p: { path: string; value: unknown }) => {
+			const current = getValueAtPath(el, p.path);
+			return setValueAtPath(el, p.path, current === p.value ? undefined : p.value);
+		});
+	}
 
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const currentArray = ensureArray<unknown>(getValueAtPath(element, this.params.path));
-		const hasAnyValue = this.params.values.some((value) => currentArray.includes(value));
+	static toggleValueInList(path: string, value: unknown) {
+		return new CoreAction({ path, value }, (el, p: { path: string; value: unknown }) => {
+			const arr = ensureArray<unknown>(getValueAtPath(el, p.path));
+			const exists = arr.includes(p.value);
+			return setValueAtPath(el, p.path, exists ? arr.filter((i) => i !== p.value) : [...arr, p.value]);
+		});
+	}
 
-		if (hasAnyValue) {
-			const filtered = currentArray.filter((item) => !this.params.values.includes(item));
-			return setValueAtPath(element, this.params.path, filtered);
-		}
-
-		const nextArray = [...currentArray];
-		for (const value of this.params.values) {
-			if (!nextArray.includes(value)) {
-				nextArray.push(value);
+	static toggleAllValuesInList(path: string, values: unknown[]) {
+		return new CoreAction({ path, values }, (el, p: { path: string; values: unknown[] }) => {
+			const arr = ensureArray<unknown>(getValueAtPath(el, p.path));
+			const hasAny = p.values.some((v) => arr.includes(v));
+			if (hasAny) {
+				return setValueAtPath(
+					el,
+					p.path,
+					arr.filter((i) => !p.values.includes(i))
+				);
 			}
-		}
-		return setValueAtPath(element, this.params.path, nextArray);
+			const next = [...arr];
+			for (const v of p.values) {
+				if (!next.includes(v)) next.push(v);
+			}
+			return setValueAtPath(el, p.path, next);
+		});
+	}
+
+	static setUndefined(path: string) {
+		return new CoreAction({ path }, (el, p: { path: string }) => deleteValueAtPath(el, p.path));
+	}
+
+	static invertBoolean(path: string) {
+		return new CoreAction({ path }, (el, p: { path: string }) => {
+			const bool = getValueAtPath(el, p.path);
+			return typeof bool === "boolean" ? setValueAtPath(el, p.path, !bool) : el;
+		});
+	}
+
+	static addTags(tags: string[]) {
+		return new CoreAction({ tags }, (el, p: { tags: string[] }) => {
+			const clone = structuredClone(el);
+			if (Array.isArray(clone.tags)) {
+				clone.tags = [...clone.tags, ...p.tags];
+			}
+			return clone;
+		});
+	}
+
+	static removeTags(tags: string[]) {
+		return new CoreAction({ tags }, (el, p: { tags: string[] }) => {
+			const clone = structuredClone(el);
+			if (Array.isArray(clone.tags)) {
+				clone.tags = clone.tags.filter((tag) => !p.tags.includes(tag));
+			}
+			return clone;
+		});
 	}
 }
-
-export class SetUndefinedAction extends Action<{ path: string }> {
-	readonly type = "core.set_undefined" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		return deleteValueAtPath(element, this.params.path);
-	}
-}
-
-export class InvertBooleanAction extends Action<{ path: string }> {
-	readonly type = "core.invert_boolean" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const currentValue = getValueAtPath(element, this.params.path);
-		if (typeof currentValue !== "boolean") {
-			return element;
-		}
-		return setValueAtPath(element, this.params.path, !currentValue);
-	}
-}
-
-export class AddTagsAction extends Action<{ tags: string[] }> {
-	readonly type = "core.add_tags" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const cloned = structuredClone(element);
-		if (Array.isArray(cloned.tags)) {
-			cloned.tags = [...cloned.tags, ...this.params.tags];
-		}
-		return cloned;
-	}
-}
-
-export class RemoveTagsAction extends Action<{ tags: string[] }> {
-	readonly type = "core.remove_tags" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const cloned = structuredClone(element);
-		if (Array.isArray(cloned.tags)) {
-			cloned.tags = cloned.tags.filter((tag) => !this.params.tags.includes(tag));
-		}
-		return cloned;
-	}
-}
-
-// Liste des classes d'actions Core - ajouter ici pour créer une nouvelle action
-export const CORE_ACTION_CLASSES = [
-	SetValueAction,
-	ToggleValueAction,
-	ToggleValueInListAction,
-	ToggleAllValuesInListAction,
-	SetUndefinedAction,
-	InvertBooleanAction,
-	AddTagsAction,
-	RemoveTagsAction
-] as const;

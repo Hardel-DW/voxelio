@@ -1,8 +1,8 @@
 import { updateData } from "@/core/engine/actions";
-import { SetValueAction } from "@/core/engine/actions/domains/CoreAction";
-import { AddIngredientAction } from "@/core/engine/actions/domains/RecipeAction";
-import { AddLootItemAction } from "@/core/engine/actions/domains/LootTableAction";
-import { SetJigsawConfigAction } from "@/core/engine/actions/domains/StructureAction";
+import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
+import { RecipeAction } from "@/core/engine/actions/domains/RecipeAction";
+import { LootTableAction } from "@/core/engine/actions/domains/LootTableAction";
+import { StructureAction } from "@/core/engine/actions/domains/StructureAction";
 import type { LootTableProps } from "@/core/schema/loot/types";
 import type { RecipeProps } from "@/core/schema/recipe/types";
 import type { StructureProps } from "@/core/schema/structure/types";
@@ -11,7 +11,7 @@ import { describe, expect, it } from "vitest";
 describe("Core Actions", () => {
     it("creates and executes a setValue action", () => {
         const element = { foo: 1 };
-        const action = new SetValueAction({ path: "foo", value: 42 });
+        const action = CoreAction.setValue("foo", 42);
         const result = updateData(action, element, 48);
         expect(result?.foo).toBe(42);
     });
@@ -26,7 +26,7 @@ describe("Structure Actions", () => {
     } as StructureProps;
 
     it("updates jigsaw config without wrapping structure", () => {
-        const action = new SetJigsawConfigAction({
+        const action = StructureAction.setJigsawConfig({
             startPool: "minecraft:village/plains",
             size: 2
         });
@@ -45,7 +45,7 @@ describe("Recipe Actions", () => {
     } as RecipeProps;
 
     it("adds an ingredient", () => {
-        const action = new AddIngredientAction({ slot: "0", items: ["minecraft:stone"], replace: true });
+        const action = RecipeAction.addIngredient("0", ["minecraft:stone"], true);
         const result = updateData(action, baseRecipe, 48);
         expect(result?.slots?.["0"]).toEqual(["minecraft:stone"]);
     });
@@ -63,10 +63,7 @@ describe("Loot Table Actions", () => {
     } as LootTableProps;
 
     it("adds a loot item", () => {
-        const action = new AddLootItemAction({
-            poolIndex: 0,
-            item: { name: "minecraft:apple" }
-        });
+        const action = LootTableAction.addLootItem(0, { name: "minecraft:apple" });
         const result = updateData(action, baseLoot, 48);
         expect(result?.items).toHaveLength(1);
         expect(result?.items?.[0].name).toBe("minecraft:apple");

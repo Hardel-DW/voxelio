@@ -1,5 +1,5 @@
 import { updateData } from "@/core/engine/actions";
-import { action } from "@/core/engine/actions/registry";
+import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 import { describe, expect, it, beforeEach } from "vitest";
 import { createComplexMockElement, createMockEnchantmentElement } from "@test/mock/enchant/VoxelDriven";
 
@@ -16,10 +16,7 @@ describe("Action System", () => {
 		it("should set a value", () => {
 			expect(mockElement.data.minCostBase).toBe(1);
 
-			const actions = action("core.set_value", {
-				path: "minCostBase",
-				value: 20
-			});
+			const actions = CoreAction.setValue("minCostBase", 20);
 
 			const result = updateData(actions, mockElement.data, 48);
 			expect(result).toBeDefined();
@@ -32,10 +29,7 @@ describe("Action System", () => {
 			const element = createMockEnchantmentElement({ minCostBase: 5 });
 			expect(element.data.minCostBase).toBe(5);
 
-			const response = action("core.toggle_value", {
-				path: "minCostBase",
-				value: 5
-			});
+			const response = CoreAction.toggleValue("minCostBase", 5);
 
 			const result = updateData(response, element.data, 48);
 			expect(result).toBeDefined();
@@ -49,9 +43,7 @@ describe("Action System", () => {
 			expect(element.data.minCostBase).toBe(5);
 			expect(element.data).toHaveProperty("minCostBase");
 
-			const response = action("core.set_undefined", {
-				path: "minCostBase"
-			});
+			const response = CoreAction.setUndefined("minCostBase");
 
 			const result = updateData(response, element.data, 48);
 			expect(result).toBeDefined();
@@ -75,9 +67,7 @@ describe("Action System", () => {
 			expect(element.data.isActive).toBe(true);
 			expect(element.data.isDisabled).toBe(false);
 
-			const response = action("core.invert_boolean", {
-				path: "isActive"
-			});
+			const response = CoreAction.invertBoolean("isActive");
 
 			const result = updateData(response, element.data, 48);
 			expect(result).toBeDefined();
@@ -96,9 +86,7 @@ describe("Action System", () => {
 				description: "test"
 			});
 
-			const response = action("core.invert_boolean", {
-				path: "minCostBase"
-			});
+			const response = CoreAction.invertBoolean("minCostBase");
 
 			const result = updateData(response, element.data, 48);
 			expect(result).toBeDefined();
@@ -109,10 +97,7 @@ describe("Action System", () => {
 
 	describe("Identifier Preservation", () => {
 		it("should maintain Identifier instance through set_value", () => {
-			const response = action("core.set_value", {
-				path: "minCostBase",
-				value: 5
-			});
+			const response = CoreAction.setValue("minCostBase", 5);
 
 			const result = updateData(response, mockElement.data, 48);
 			expect(result?.identifier).toBeDefined();
@@ -126,10 +111,7 @@ describe("Action System", () => {
 			expect(complexElement.data.identifier.namespace).toBe("enchantplus");
 			expect(complexElement.data.identifier.resource).toBe("bow/accuracy_shot");
 
-			const response = action("core.set_value", {
-				path: "identifier.namespace",
-				value: "modpack"
-			});
+			const response = CoreAction.setValue("identifier.namespace", "modpack");
 
 			const result = updateData(response, complexElement.data, 48);
 			expect(result).toBeDefined();
@@ -150,10 +132,7 @@ describe("Action System", () => {
 			expect(projectileSpawned[0].effect.type).toBe("minecraft:run_function");
 			expect(projectileSpawned[0].effect.function).toBe("enchantplus:actions/accuracy_shot/on_shoot");
 
-			const response = action("core.set_value", {
-				path: "effects.minecraft:projectile_spawned.0.effect.function",
-				value: "modpack:new_function"
-			});
+			const response = CoreAction.setValue("effects.minecraft:projectile_spawned.0.effect.function", "modpack:new_function");
 
 			const result = updateData(response, complexElement.data, 48);
 			expect(result).toBeDefined();
@@ -178,10 +157,7 @@ describe("Action System", () => {
 			expect(description.translate).toBe("enchantment.test.foo");
 			expect(description.fallback).toBe("Enchantment Test");
 
-			const response = action("core.set_value", {
-				path: "description.fallback",
-				value: "New Test Description"
-			});
+			const response = CoreAction.setValue("description.fallback", "New Test Description");
 
 			const result = updateData(response, complexElement.data, 48);
 			expect(result).toBeDefined();
@@ -208,10 +184,7 @@ describe("Action System", () => {
 			expect(exclusiveSet[0]).toBe("minecraft:efficiency");
 			expect(exclusiveSet[1]).toBe("minecraft:unbreaking");
 
-			const response = action("core.set_value", {
-				path: "exclusiveSet.1",
-				value: "minecraft:mending"
-			});
+			const response = CoreAction.setValue("exclusiveSet.1", "minecraft:mending");
 
 			const result = updateData(response, complexElement.data, 48);
 			expect(result).toBeDefined();

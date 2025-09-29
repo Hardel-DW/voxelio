@@ -1,138 +1,134 @@
 import type { StructureProps, SpawnOverride, DecorationStep } from "@/core/schema/structure/types";
-import { Action } from "@/core/engine/actions/Action";
+import { Action } from "@/core/engine/actions/index";
 
-export class SetBiomesAction extends Action<{ biomes: string[]; replace?: boolean }> {
-	readonly type = "structure.set_biomes" as const;
+export class StructureAction<P = any> extends Action<P> {
+	constructor(
+		params: P,
+		private applyFn: (element: Record<string, unknown>, params: P) => Record<string, unknown>
+	) {
+		super(params);
+	}
 
 	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structure = structuredClone(element) as StructureProps;
-		if (this.params.replace) {
-			structure.biomes = [...this.params.biomes];
-		} else {
-			const currentBiomes = Array.isArray(structure.biomes) ? structure.biomes : [];
-			const existing = new Set(currentBiomes);
-			structure.biomes = [...currentBiomes, ...this.params.biomes.filter((biome) => !existing.has(biome))];
-		}
-		return structure;
+		return this.applyFn(element, this.params);
+	}
+
+	static setBiomes(biomes: string[], replace?: boolean) {
+		return new StructureAction({ biomes, replace }, (el, p: { biomes: string[]; replace?: boolean }) => {
+			const structure = structuredClone(el) as StructureProps;
+			if (p.replace) {
+				structure.biomes = [...p.biomes];
+			} else {
+				const currentBiomes = Array.isArray(structure.biomes) ? structure.biomes : [];
+				const existing = new Set(currentBiomes);
+				structure.biomes = [...currentBiomes, ...p.biomes.filter((biome) => !existing.has(biome))];
+			}
+			return structure;
+		});
+	}
+
+	static addSpawnOverride(
+		mobCategory: string,
+		boundingBox: "piece" | "full",
+		spawns: Array<{ type: string; weight: number; minCount: number; maxCount: number }>
+	) {
+		return new StructureAction(
+			{ mobCategory, boundingBox, spawns },
+			(
+				el,
+				p: {
+					mobCategory: string;
+					boundingBox: "piece" | "full";
+					spawns: Array<{ type: string; weight: number; minCount: number; maxCount: number }>;
+				}
+			) => {
+				const structure = structuredClone(el) as StructureProps;
+				const override: SpawnOverride = {
+					mobCategory: p.mobCategory as SpawnOverride["mobCategory"],
+					boundingBox: p.boundingBox,
+					spawns: p.spawns
+				};
+
+				const current = Array.isArray(structure.spawnOverrides) ? structure.spawnOverrides : [];
+				const filtered = current.filter((item) => item.mobCategory !== p.mobCategory);
+				structure.spawnOverrides = [...filtered, override];
+				return structure;
+			}
+		);
+	}
+
+	static removeSpawnOverride(mobCategory: string) {
+		return new StructureAction({ mobCategory }, (el, p: { mobCategory: string }) => {
+			const structure = structuredClone(el) as StructureProps;
+			const currentOverrides = Array.isArray(structure.spawnOverrides) ? structure.spawnOverrides : [];
+			structure.spawnOverrides = currentOverrides.filter((override) => override.mobCategory !== p.mobCategory);
+			return structure;
+		});
+	}
+
+	static setJigsawConfig(config: {
+		startPool?: string;
+		size?: number;
+		startHeight?: unknown;
+		startJigsawName?: string;
+		maxDistanceFromCenter?: number;
+		useExpansionHack?: boolean;
+	}) {
+		return new StructureAction(config, (el, p: typeof config) => {
+			const structure = structuredClone(el) as StructureProps;
+			if (p.startPool !== undefined) structure.startPool = p.startPool;
+			if (p.size !== undefined) structure.size = p.size;
+			if (p.startHeight !== undefined) structure.startHeight = p.startHeight;
+			if (p.startJigsawName !== undefined) structure.startJigsawName = p.startJigsawName;
+			if (p.maxDistanceFromCenter !== undefined) structure.maxDistanceFromCenter = p.maxDistanceFromCenter;
+			if (p.useExpansionHack !== undefined) structure.useExpansionHack = p.useExpansionHack;
+			return structure;
+		});
+	}
+
+	static addPoolAlias(aliasType: string, alias?: string, target?: string, targets?: Array<{ weight: number; data: string }>) {
+		return new StructureAction(
+			{ aliasType, alias, target, targets },
+			(el, p: { aliasType: string; alias?: string; target?: string; targets?: Array<{ weight: number; data: string }> }) => {
+				const structure = structuredClone(el) as StructureProps;
+				const aliasObj: Record<string, unknown> = { type: p.aliasType };
+				if (p.alias !== undefined) aliasObj.alias = p.alias;
+				if (p.target !== undefined) aliasObj.target = p.target;
+				if (p.targets !== undefined) aliasObj.targets = p.targets;
+
+				const poolAliases = Array.isArray(structure.poolAliases) ? [...structure.poolAliases] : [];
+				poolAliases.push(aliasObj as any);
+				structure.poolAliases = poolAliases as StructureProps["poolAliases"];
+				return structure;
+			}
+		);
+	}
+
+	static removePoolAlias(alias: string) {
+		return new StructureAction({ alias }, (el, p: { alias: string }) => {
+			const structure = structuredClone(el) as StructureProps;
+			const poolAliases = Array.isArray(structure.poolAliases) ? structure.poolAliases : [];
+			structure.poolAliases = poolAliases.filter((a) => a.alias !== p.alias) as StructureProps["poolAliases"];
+			return structure;
+		});
+	}
+
+	static setTerrainAdaptation(adaptation: "none" | "beard_thin" | "beard_box" | "bury" | "encapsulate") {
+		return new StructureAction(
+			{ adaptation },
+			(el, p: { adaptation: "none" | "beard_thin" | "beard_box" | "bury" | "encapsulate" }) => {
+				const structure = structuredClone(el) as StructureProps;
+				structure.terrainAdaptation = p.adaptation;
+				return structure;
+			}
+		);
+	}
+
+	static setDecorationStep(step: string) {
+		return new StructureAction({ step }, (el, p: { step: string }) => {
+			const structure = structuredClone(el) as StructureProps;
+			structure.step = p.step as DecorationStep;
+			return structure;
+		});
 	}
 }
-
-export class AddSpawnOverrideAction extends Action<{
-	mobCategory: string;
-	boundingBox: "piece" | "full";
-	spawns: Array<{ type: string; weight: number; minCount: number; maxCount: number }>;
-}> {
-	readonly type = "structure.add_spawn_override" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structure = structuredClone(element) as StructureProps;
-		const override: SpawnOverride = {
-			mobCategory: this.params.mobCategory as SpawnOverride["mobCategory"],
-			boundingBox: this.params.boundingBox,
-			spawns: this.params.spawns
-		};
-
-		const current = Array.isArray(structure.spawnOverrides) ? structure.spawnOverrides : [];
-		const filtered = current.filter((item) => item.mobCategory !== this.params.mobCategory);
-		structure.spawnOverrides = [...filtered, override];
-		return structure;
-	}
-}
-
-export class RemoveSpawnOverrideAction extends Action<{ mobCategory: string }> {
-	readonly type = "structure.remove_spawn_override" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structure = structuredClone(element) as StructureProps;
-		const currentOverrides = Array.isArray(structure.spawnOverrides) ? structure.spawnOverrides : [];
-		structure.spawnOverrides = currentOverrides.filter((override) => override.mobCategory !== this.params.mobCategory);
-		return structure;
-	}
-}
-
-export class SetJigsawConfigAction extends Action<{
-	startPool?: string;
-	size?: number;
-	startHeight?: unknown;
-	startJigsawName?: string;
-	maxDistanceFromCenter?: number;
-	useExpansionHack?: boolean;
-}> {
-	readonly type = "structure.set_jigsaw_config" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structure = structuredClone(element) as StructureProps;
-		if (this.params.startPool !== undefined) structure.startPool = this.params.startPool;
-		if (this.params.size !== undefined) structure.size = this.params.size;
-		if (this.params.startHeight !== undefined) structure.startHeight = this.params.startHeight;
-		if (this.params.startJigsawName !== undefined) structure.startJigsawName = this.params.startJigsawName;
-		if (this.params.maxDistanceFromCenter !== undefined) structure.maxDistanceFromCenter = this.params.maxDistanceFromCenter;
-		if (this.params.useExpansionHack !== undefined) structure.useExpansionHack = this.params.useExpansionHack;
-		return structure;
-	}
-}
-
-export class AddPoolAliasAction extends Action<{
-	aliasType: string;
-	alias?: string;
-	target?: string;
-	targets?: Array<{ weight: number; data: string }>;
-}> {
-	readonly type = "structure.add_pool_alias" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structure = structuredClone(element) as StructureProps;
-		const alias: Record<string, unknown> = { type: this.params.aliasType };
-		if (this.params.alias !== undefined) alias.alias = this.params.alias;
-		if (this.params.target !== undefined) alias.target = this.params.target;
-		if (this.params.targets !== undefined) alias.targets = this.params.targets;
-
-		const poolAliases = Array.isArray(structure.poolAliases) ? [...structure.poolAliases] : [];
-		poolAliases.push(alias as any);
-		structure.poolAliases = poolAliases as StructureProps["poolAliases"];
-		return structure;
-	}
-}
-
-export class RemovePoolAliasAction extends Action<{ alias: string }> {
-	readonly type = "structure.remove_pool_alias" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structure = structuredClone(element) as StructureProps;
-		const poolAliases = Array.isArray(structure.poolAliases) ? structure.poolAliases : [];
-		structure.poolAliases = poolAliases.filter((alias) => alias.alias !== this.params.alias) as StructureProps["poolAliases"];
-		return structure;
-	}
-}
-
-export class SetTerrainAdaptationAction extends Action<{ adaptation: "none" | "beard_thin" | "beard_box" | "bury" | "encapsulate" }> {
-	readonly type = "structure.set_terrain_adaptation" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structure = structuredClone(element) as StructureProps;
-		structure.terrainAdaptation = this.params.adaptation;
-		return structure;
-	}
-}
-
-export class SetDecorationStepAction extends Action<{ step: string }> {
-	readonly type = "structure.set_decoration_step" as const;
-
-	apply(element: Record<string, unknown>): Record<string, unknown> {
-		const structure = structuredClone(element) as StructureProps;
-		structure.step = this.params.step as DecorationStep;
-		return structure;
-	}
-}
-
-// Liste des classes d'actions Structure - ajouter ici pour créer une nouvelle action
-export const STRUCTURE_ACTION_CLASSES = [
-	SetBiomesAction,
-	AddSpawnOverrideAction,
-	RemoveSpawnOverrideAction,
-	SetJigsawConfigAction,
-	AddPoolAliasAction,
-	RemovePoolAliasAction,
-	SetTerrainAdaptationAction,
-	SetDecorationStepAction
-] as const;

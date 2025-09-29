@@ -1,6 +1,12 @@
-import { executeAction } from "@/core/engine/actions/registry";
-import type { ActionLike } from "@/core/engine/actions/registry";
+import type { IdentifierObject } from "@/core/Identifier";
 
-export function updateData<T extends Record<string, unknown>>(action: ActionLike, element: T, version?: number): Partial<T> | undefined {
-	return executeAction(action, element, version) as Partial<T> | undefined;
+export function updateData<T extends Record<string, unknown>>(action: Action, element: T, version?: number): Partial<T> | undefined {
+	return action.apply(element, version) as Partial<T> | undefined;
 }
+
+export abstract class Action<P = any> {
+	constructor(public readonly params: P) {}
+	abstract apply(element: Record<string, unknown>, version?: number): Record<string, unknown>;
+}
+
+export type ActionValue = string | number | boolean | IdentifierObject | unknown;

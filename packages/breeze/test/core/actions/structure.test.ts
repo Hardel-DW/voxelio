@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { updateData } from "@/core/engine/actions";
+import { StructureAction } from "@/core/engine/actions/domains/StructureAction";
 import type { StructureProps } from "@/core/schema/structure/types";
 
 describe("Structure Actions", () => {
@@ -14,11 +15,7 @@ describe("Structure Actions", () => {
 	describe("structure.set_biomes", () => {
 		it("should replace biomes when replace is true", () => {
 			const result = updateData(
-				{
-					type: "structure.set_biomes",
-					biomes: ["minecraft:desert", "minecraft:savanna"],
-					replace: true
-				},
+				StructureAction.setBiomes(["minecraft:desert", "minecraft:savanna"], true),
 				baseStructure
 			);
 
@@ -27,11 +24,7 @@ describe("Structure Actions", () => {
 
 		it("should add biomes when replace is false", () => {
 			const result = updateData(
-				{
-					type: "structure.set_biomes",
-					biomes: ["minecraft:desert", "minecraft:savanna"],
-					replace: false
-				},
+				StructureAction.setBiomes(["minecraft:desert", "minecraft:savanna"], false),
 				baseStructure
 			);
 
@@ -42,19 +35,14 @@ describe("Structure Actions", () => {
 	describe("structure.add_spawn_override", () => {
 		it("should add new spawn override", () => {
 			const result = updateData(
-				{
-					type: "structure.add_spawn_override",
-					mobCategory: "monster",
-					boundingBox: "piece",
-					spawns: [
-						{
-							type: "minecraft:zombie",
-							weight: 1,
-							minCount: 1,
-							maxCount: 3
-						}
-					]
-				},
+				StructureAction.addSpawnOverride("monster", "piece", [
+					{
+						type: "minecraft:zombie",
+						weight: 1,
+						minCount: 1,
+						maxCount: 3
+					}
+				]),
 				baseStructure
 			);
 
@@ -66,13 +54,12 @@ describe("Structure Actions", () => {
 	describe("structure.set_jigsaw_config", () => {
 		it("should set jigsaw configuration properties", () => {
 			const result = updateData(
-				{
-					type: "structure.set_jigsaw_config",
+				StructureAction.setJigsawConfig({
 					startPool: "minecraft:village/common",
 					size: 6,
 					maxDistanceFromCenter: 80,
 					useExpansionHack: false
-				},
+				}),
 				baseStructure
 			);
 

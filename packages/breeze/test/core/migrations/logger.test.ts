@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { updateData } from "@/core/engine/actions";
+import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 import { Logger } from "@/core/engine/migrations/logger";
 
 describe("Logger System", () => {
@@ -289,7 +290,7 @@ describe("Logger System", () => {
 			};
 
 			const result = testLogger.trackChanges(element, (el) => {
-				return updateData({ type: "core.set_value", path: "value", value: 100 }, el, 48);
+				return updateData(CoreAction.setValue("value", 100), el, 48);
 			});
 
 			expect(result).toBeDefined();
