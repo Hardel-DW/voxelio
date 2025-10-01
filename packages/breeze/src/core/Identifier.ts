@@ -154,22 +154,13 @@ export class Identifier {
 	static normalize(identifier: string, registry: string): string {
 		return Identifier.of(identifier, registry).toString();
 	}
-}
 
-/**
- * Checks if a value is an identifier object
- * @param value - The value to check
- * @returns Whether the value is an identifier object
- */
-export function isIdentifier(value: any): value is IdentifierObject {
-	if (!value || typeof value !== "object") return false;
+	static isIdentifier(value: any): value is IdentifierObject {
+		if (!value || typeof value !== "object") return false;
 
-	return (
-		"registry" in value &&
-		"namespace" in value &&
-		"resource" in value &&
-		typeof value.registry === "string" &&
-		typeof value.namespace === "string" &&
-		typeof value.resource === "string"
-	);
-}
+		return (
+			"registry" in value && "namespace" in value && "resource" in value &&
+			typeof value.registry === "string" && typeof value.namespace === "string" && typeof value.resource === "string"
+		);
+	}
+} 

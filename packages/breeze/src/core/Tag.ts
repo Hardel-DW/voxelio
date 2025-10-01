@@ -1,6 +1,7 @@
 import type { DataDrivenElement, DataDrivenRegistryElement } from "@/core/Element";
 import { Identifier } from "@/core/Identifier";
 import type { IdentifierObject } from "@/core/Identifier";
+
 import type { Compiler } from "@/core/engine/Compiler";
 
 /**
@@ -72,8 +73,6 @@ export class Tags {
 	}
 }
 
-export type TagRegistry = Record<string, TagType>;
-
 export interface TagType extends DataDrivenElement {
 	replace?: boolean;
 	values: (string | OptionalTag)[];
@@ -89,21 +88,13 @@ export function isTag(tag: any): tag is TagType {
 }
 
 /**
- * Check if an element is a tag.
- * @param element - The element to check.
- * @returns Whether the element is a tag.
- */
-export const isRegistryTag = (element: DataDrivenRegistryElement<any>): element is DataDrivenRegistryElement<TagType> => {
-	return element?.identifier?.registry?.startsWith("tags/") ?? false;
-};
-
-/**
  * Converts a list of tags to identifiers.
  * @param tags - The list of tags to convert.
  * @param registry - The registry to use.
  * @returns The list of identifiers.
  */
 export const tagsToIdentifiers = (tags: string[], registry: string): IdentifierObject[] => tags.map((tag) => Identifier.of(tag, registry));
+
 
 /**
  * Merge two tags.

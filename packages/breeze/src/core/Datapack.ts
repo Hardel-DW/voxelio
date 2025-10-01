@@ -1,6 +1,6 @@
 import { DatapackError } from "@/core/DatapackError";
-import type { DataDrivenElement, DataDrivenRegistryElement, LabeledElement } from "@/core/Element";
-import { Identifier, type IdentifierObject } from "@/core/Identifier";
+import type { DataDrivenElement, DataDrivenRegistryElement } from "@/core/Element";
+import { Identifier, IdentifierObject } from "@/core/Identifier";
 import { Tags, createTagFromElement, mergeDataDrivenRegistryElement } from "@/core/Tag";
 import { getMinecraftVersion } from "@/core/Version";
 import type { Analysers } from "@/core/engine/Analyser";
@@ -8,8 +8,8 @@ import type { Compiler } from "@/core/engine/Compiler";
 import type { Logger } from "@/core/engine/migrations/logger";
 import type { ChangeSet } from "@/core/engine/migrations/types";
 import type { TagType } from "@/core/Tag";
-import { downloadZip, extractZip } from "@voxelio/zip";
-import type { InputWithoutMeta } from "@voxelio/zip";
+import { extractZip } from "@voxelio/zip";
+import { DatapackDownloader } from "@/core/DatapackDownloader";
 
 export interface RegistryCache {
 	[registry: string]: Map<string, DataDrivenRegistryElement<any>>;
@@ -23,20 +23,13 @@ export interface PackMcmeta {
 }
 
 export class Datapack {
-	private fileName: string;
 	private pack: PackMcmeta;
 	private files: Record<string, Uint8Array<ArrayBufferLike>>;
-	private fileVersion: number;
 	private registryCache = new Map<string, DataDrivenRegistryElement<any>[]>();
 	private indexCache = new Map<string, Map<string, DataDrivenRegistryElement<any>>>();
 
-	constructor(files: Record<string, Uint8Array<ArrayBufferLike>>, fileName?: string) {
+	constructor(files: Record<string, Uint8Array<ArrayBufferLike>>) {
 		this.files = files;
-		this.fileName = fileName ?? "Datapack";
-
-		const nameWithoutExtension = this.fileName.replace(/\.(zip|jar)$/, "");
-		const versionMatch = nameWithoutExtension.match(/^V(\d+)-/);
-		this.fileVersion = versionMatch?.[1] ? +versionMatch[1] + 1 : 0;
 
 		const packMcmeta = files["pack.mcmeta"];
 		if (!packMcmeta) throw new DatapackError("tools.error.failed_to_get_pack_mcmeta");
@@ -47,7 +40,7 @@ export class Datapack {
 	}
 
 	static async parse(file: File) {
-		return new Datapack(await extractZip(new Uint8Array(await file.arrayBuffer())), file.name);
+		return new Datapack(await extractZip(new Uint8Array(await file.arrayBuffer())));
 	}
 
 	/**
@@ -61,13 +54,6 @@ export class Datapack {
 			.filter((namespace, index, self) => namespace && self.indexOf(namespace) === index);
 	}
 
-	/**
-	 * Check if the datapack is modded.
-	 * @returns Whether the datapack is modded.
-	 */
-	isModded() {
-		return this.fileName.endsWith(".jar");
-	}
 
 	/**
 	 * Get the pack format of the datapack. Or throw an error if it's not found.
@@ -98,28 +84,6 @@ export class Datapack {
 		return this.pack.pack.description || fallback;
 	}
 
-	/**
-	 * Processes a datapack name by handling versioning and file extensions
-	 * @example
-	 * datapackName("test.zip") // Returns "V0-test"
-	 * datapackName("V1-test") // Returns "V2-test"
-	 */
-	getFileName(): string {
-		const nameWithoutExtension = this.fileName.replace(/\.(zip|jar)$/, "");
-		if (nameWithoutExtension.startsWith("V")) {
-			return nameWithoutExtension.replace(/^V\d+-/, `V${this.fileVersion}-`);
-		}
-
-		return `V0-${nameWithoutExtension}`;
-	}
-
-	/**
-	 * Get the voxel logs of the current version
-	 */
-	getVoxelLogs(version?: number) {
-		const versionToGet = version ?? this.fileVersion;
-		return this.files?.[`voxel/v${versionToGet}.json`];
-	}
 
 	/**
 	 * Get all changes from all log versions combined
@@ -165,19 +129,6 @@ export class Datapack {
 			this.indexCache.set(registry, map);
 		}
 		return this.indexCache.get(registry) ?? new Map();
-	}
-
-	/**
-	 * For an element, get all the tags where the identifier appears.
-	 * @param registry - The registry of the tags.
-	 * @param identifier - The identifier of the tags.
-	 * @returns The related tags of the identifier.
-	 */
-	getRelatedTags(registry: string | undefined, identifier: IdentifierObject): string[] {
-		if (!registry) return [];
-		return this.getRegistry<TagType>(registry)
-			.filter((tag) => new Tags(tag.data).isPresentInTag(new Identifier(identifier).toString()))
-			.map((tag) => new Identifier(tag.identifier).toString());
 	}
 
 	/**
@@ -229,6 +180,21 @@ export class Datapack {
 		return registries;
 	}
 
+
+	/**
+	 * For an element, get all the tags where the identifier appears.
+	 * @param registry - The registry of the tags.
+	 * @param identifier - The identifier of the tags.
+	 * @returns The related tags of the identifier.
+	 */
+	getRelatedTags(registry: string | undefined, identifier: string): string[] {
+		if (!registry) return [];
+		return this.getRegistry<TagType>(registry)
+			.filter((tag) => new Tags(tag.data).isPresentInTag(Identifier.fromUniqueKey(identifier).toString()))
+			.map((tag) => Identifier.fromUniqueKey(tag.identifier).toString());
+	}
+
+
 	/**
 	 * Get the values of the tags of an element.
 	 * @param identifier - The identifier of the Tags element.
@@ -279,22 +245,8 @@ export class Datapack {
 		return JSON.parse(new TextDecoder().decode(this.files[file]));
 	}
 
-	with(elements: LabeledElement[]): this {
-		for (const element of elements) {
-			if (element.type === "deleted") {
-				const filePath = new Identifier(element.identifier).toFilePath();
-				delete this.files[filePath];
-			} else if (element.type === "new" || element.type === "updated") {
-				const filePath = new Identifier(element.element.identifier).toFilePath();
-				const content = JSON.stringify(element.element.data);
-				this.files[filePath] = new TextEncoder().encode(content);
-			}
-		}
-
-		this.registryCache.clear();
-		this.indexCache.clear();
-
-		return this;
+	generate(logger: Logger, filename: string, isModded: boolean) {
+		return new DatapackDownloader(this.files, isModded, filename).download(logger);
 	}
 
 	/**
@@ -308,7 +260,7 @@ export class Datapack {
 		registry: K,
 		elements: DataDrivenRegistryElement<DataDrivenElement>[],
 		logger?: Logger
-	): LabeledElement[] {
+	) {
 		const originalIndex = this.getIndex(registry);
 		const compiledSet = new Set(elements.map((el) => new Identifier(el.identifier).toUniqueKey()));
 		const modified = new Set<string>();
@@ -337,109 +289,5 @@ export class Datapack {
 		}
 
 		return results;
-	}
-
-	/**
-	 * Generate a new datapack.
-	 * @param content - The content of the datapack.
-	 * @param params - The parameters of the datapack.
-	 * @returns The new datapack.
-	 */
-	generate(
-		content: LabeledElement[],
-		params: { isMinified: boolean; logger?: Logger; include?: DataDrivenRegistryElement<DataDrivenElement>[] }
-	) {
-		const { isMinified, logger, include = [] } = params;
-
-		const files: InputWithoutMeta[] = [];
-		this.prepareExistingFiles(files, content);
-		this.prepareIncludedFiles(files, include, isMinified);
-		this.prepareContentFiles(files, content, isMinified);
-		this.prepareLogger(files, logger, isMinified);
-
-		return downloadZip(files);
-	}
-
-	/**
-	 * Prepare a JSON file structure for adding to the zip
-	 * @param path - The path of the file.
-	 * @param data - The data of the file.
-	 * @param isMinified - Whether the file is minified.
-	 */
-	private prepareFile(path: string, data: object | string | Uint8Array<ArrayBufferLike>, isMinified: boolean): InputWithoutMeta {
-		const input =
-			data instanceof Uint8Array
-				? data
-				: new TextEncoder().encode(typeof data === "string" ? data : JSON.stringify(data, null, isMinified ? 0 : 4));
-
-		return {
-			name: path,
-			input: new ReadableStream({
-				start(controller) {
-					controller.enqueue(input);
-					controller.close();
-				}
-			})
-		};
-	}
-
-	/**
-	 * Prepare the existing files for the zip. Files marked as deleted will be skipped.
-	 * @param files - The array to add files to
-	 * @param content - The content of the datapack.
-	 */
-	private prepareExistingFiles(files: InputWithoutMeta[], content: LabeledElement[]) {
-		const filesToDelete = new Set(
-			content.filter((file) => file.type === "deleted").map((file) => new Identifier(file.identifier).toFilePath())
-		);
-
-		for (const [path, data] of Object.entries(this.files)) {
-			if (!filesToDelete.has(path)) {
-				files.push(this.prepareFile(path, data, false));
-			}
-		}
-	}
-
-	/**
-	 * Prepare the included files for the zip. E.G Voxel Datapacks. No operation is made on the files.
-	 * @param files - The array to add files to
-	 * @param include - The included files.
-	 * @param isMinified - Whether the file is minified.
-	 */
-	private prepareIncludedFiles(files: InputWithoutMeta[], include: DataDrivenRegistryElement<DataDrivenElement>[], isMinified: boolean) {
-		for (const file of include) {
-			files.push(this.prepareFile(new Identifier(file.identifier).toFilePath(), file.data, isMinified));
-		}
-	}
-
-	/**
-	 * Process files, deleted tags will continue to exist but will be empty, and other files will be deleted, the rest will be added as is.
-	 * @param files - The array to add files to
-	 * @param content - The content of the datapack.
-	 * @param isMinified - Whether the file is minified.
-	 */
-	private prepareContentFiles(files: InputWithoutMeta[], content: LabeledElement[], isMinified: boolean) {
-		for (const file of content) {
-			if (file.type === "deleted" && file.identifier.registry.startsWith("tags")) {
-				files.push(this.prepareFile(new Identifier(file.identifier).toFilePath(), { values: [] }, isMinified));
-				continue;
-			}
-
-			if (file.type === "deleted") continue;
-			files.push(this.prepareFile(new Identifier(file.element.identifier).toFilePath(), file.element.data, isMinified));
-		}
-	}
-
-	/**
-	 * Prepare the logs files for the zip.
-	 * @param files - The array to add files to
-	 * @param logger - The logger.
-	 * @param isMinified - Whether the file is minified.
-	 */
-	private prepareLogger(files: InputWithoutMeta[], logger: Logger | undefined, isMinified: boolean) {
-		if (logger) {
-			const logData = logger.exportJson();
-			files.push(this.prepareFile(`voxel/v${this.fileVersion}.json`, logData, isMinified));
-		}
 	}
 }

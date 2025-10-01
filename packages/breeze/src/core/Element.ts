@@ -1,5 +1,5 @@
-import type { IdentifierObject } from "@/core/Identifier";
 import type { Analysers, GetAnalyserVoxel } from "@/core/engine/Analyser";
+import type { IdentifierObject } from "@/core/Identifier";
 
 export type DataDrivenElement = Record<string, unknown>;
 export interface VoxelElement extends Record<string, unknown> {
@@ -32,25 +32,4 @@ export function isRegistryVoxelElement<T extends keyof Analysers>(element: any):
 
 export function isVoxelElement<T extends keyof Analysers>(element: any): element is GetAnalyserVoxel<T> {
 	return "identifier" in element;
-}
-
-/**
- * Get the identifier from a labeled element
- * @param comp - The labeled element
- * @returns The identifier
- */
-export function getLabeledIdentifier(comp: LabeledElement): IdentifierObject {
-	return comp.type === "deleted" ? comp.identifier : comp.element.identifier;
-}
-
-export type LabeledElement = NewOrUpdated | Deleted;
-
-interface NewOrUpdated {
-	type: "new" | "updated";
-	element: DataDrivenRegistryElement<DataDrivenElement>;
-}
-
-interface Deleted {
-	type: "deleted";
-	identifier: IdentifierObject;
 }

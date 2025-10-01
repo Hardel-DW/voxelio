@@ -6,6 +6,7 @@ import { Identifier } from "@/core/Identifier";
 import type { Analysers, GetAnalyserMinecraft, GetAnalyserVoxel } from "@/core/engine/Analyser";
 import { analyserCollection } from "@/core/engine/Analyser";
 import { Logger } from "@/core/engine/migrations/logger";
+import { extractZip } from "@voxelio/zip";
 
 export interface ParserParams<K extends DataDrivenElement> {
 	element: DataDrivenRegistryElement<K>;
@@ -28,12 +29,11 @@ export interface ParseDatapackResult<T extends VoxelElement> {
  * Parses a datapack and returns the elements.
  */
 export async function parseDatapack<T extends keyof Analysers>(file: File): Promise<ParseDatapackResult<GetAnalyserVoxel<T>>> {
-	const datapack = await Datapack.parse(file);
+	const zip = await extractZip(new Uint8Array(await file.arrayBuffer()));
+	const datapack = new Datapack(zip);
 	const namespaces = datapack.getNamespaces();
 	const version = datapack.getPackFormat();
-	const description = datapack.getDescription();
-	const isModded = datapack.isModded();
-	const name = datapack.getFileName();
+	const isModded = file.name.endsWith(".jar");
 	const files = datapack.getFiles();
 
 	const elements = new Map<string, GetAnalyserVoxel<T>>();
@@ -61,6 +61,6 @@ export async function parseDatapack<T extends keyof Analysers>(file: File): Prom
 	const logger = new Logger();
 
 	// Set datapack information for the logger
-	logger.setDatapackInfo({ name, description, namespaces, version, isModded, isMinified: false });
-	return { name, files, elements, version, isModded, logger };
+	logger.setDatapackInfo({ namespaces, version, isModded });
+	return { name: file.name, files, elements, version, isModded, logger };
 }

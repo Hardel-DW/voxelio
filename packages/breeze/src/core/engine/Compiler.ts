@@ -1,5 +1,5 @@
 import { Datapack } from "@/core/Datapack";
-import type { DataDrivenElement, DataDrivenRegistryElement, LabeledElement, VoxelElement } from "@/core/Element";
+import type { DataDrivenElement, DataDrivenRegistryElement, VoxelElement } from "@/core/Element";
 import type { IdentifierObject } from "@/core/Identifier";
 import { type Analysers, type GetAnalyserVoxel, analyserCollection } from "@/core/engine/Analyser";
 import type { Analyser } from "@/core/engine/Analyser";
@@ -14,20 +14,16 @@ export type Compiler<T extends VoxelElement = VoxelElement, K extends DataDriven
 	tags: IdentifierObject[];
 };
 
-export function compileDatapack({
-	elements,
-	files,
-	logger
-}: {
+export function compileDatapack(props: {
 	elements: GetAnalyserVoxel<keyof Analysers>[];
 	files: Record<string, Uint8Array>;
 	logger?: Logger;
-}): Array<LabeledElement> {
-	const datapack = new Datapack(files);
+}) {
+	const datapack = new Datapack(props.files);
 	const results: LabeledElement[] = [];
 	const registryGroups = new Map<keyof Analysers, GetAnalyserVoxel<keyof Analysers>[]>();
 
-	for (const element of elements) {
+	for (const element of props.elements) {
 		const registry = element.identifier.registry as keyof Analysers;
 		if (!registryGroups.has(registry)) registryGroups.set(registry, []);
 		registryGroups.get(registry)?.push(element);
@@ -38,8 +34,30 @@ export function compileDatapack({
 		const compiled = registryElements.map((element) => compiler(element, registry, datapack.readFile(element.identifier)));
 		const compiledElements = compiled.map((r) => r.element);
 		const compiledTags = hasTag ? [...compiledElements, ...datapack.getCompiledTags(compiled, registry)] : compiledElements;
-		results.push(...datapack.labelElements(registry, compiledTags, logger));
+		results.push(...datapack.labelElements(registry, compiledTags, props.logger));
 	}
 
 	return results;
+}
+
+
+/**
+ * Get the identifier from a labeled element
+ * @param comp - The labeled element
+ * @returns The identifier
+ */
+export function getLabeledIdentifier(comp: LabeledElement): IdentifierObject {
+	return comp.type === "deleted" ? comp.identifier : comp.element.identifier;
+}
+
+export type LabeledElement = NewOrUpdated | Deleted;
+
+interface NewOrUpdated {
+	type: "new" | "updated";
+	element: DataDrivenRegistryElement<DataDrivenElement>;
+}
+
+interface Deleted {
+	type: "deleted";
+	identifier: IdentifierObject;
 }

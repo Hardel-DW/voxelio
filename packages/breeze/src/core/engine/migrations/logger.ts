@@ -1,27 +1,19 @@
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 import { deepDiff, normalizeValue } from "@/core/engine/migrations/differ";
-import type { ChangeSet, DatapackInfo, LogsStructure } from "@/core/engine/migrations/types";
+import type { ChangeSet, LogsStructure } from "@/core/engine/migrations/types";
 
 export class Logger {
 	private changes: ChangeSet[] = [];
 	private id: string | undefined;
-	private datapackInfo?: DatapackInfo;
+	private namespaces?: string[];
 	private version?: number;
 	private isModded?: boolean;
-	private _isMinified?: boolean;
 
 	constructor(jsonData?: string | Uint8Array) {
 		if (jsonData) {
 			const jsonString = typeof jsonData === "string" ? jsonData : new TextDecoder().decode(jsonData);
 			this.importJson(jsonString);
 		}
-	}
-
-	/**
-	 * Getter for isMinified
-	 */
-	get isMinified(): boolean {
-		return this._isMinified ?? false;
 	}
 
 	/**
@@ -60,21 +52,13 @@ export class Logger {
 	 * Set datapack information for export
 	 */
 	setDatapackInfo(info: {
-		name: string;
-		description?: string;
 		namespaces: string[];
 		version: number;
 		isModded: boolean;
-		isMinified?: boolean;
 	}): void {
-		this.datapackInfo = {
-			name: info.name,
-			description: info.description,
-			namespaces: info.namespaces
-		};
+		this.namespaces = info.namespaces;
 		this.version = info.version;
 		this.isModded = info.isModded;
-		this._isMinified = info.isMinified ?? false;
 	}
 
 	/**
@@ -111,11 +95,7 @@ export class Logger {
 			version: this.version ?? 0,
 			isModded: this.isModded ?? false,
 			engine: 2,
-			isMinified: this.isMinified,
-			datapack: this.datapackInfo ?? {
-				name: "unknown",
-				namespaces: []
-			},
+			namespaces: this.namespaces ?? [],
 			logs: this.changes
 		};
 
@@ -205,10 +185,9 @@ export class Logger {
 			if (data.logs && Array.isArray(data.logs)) {
 				this.changes = data.logs;
 				this.id = data.id;
-				this.datapackInfo = data.datapack;
+				this.namespaces = data.namespaces;
 				this.version = data.version;
 				this.isModded = data.isModded;
-				this._isMinified = data.isMinified;
 			}
 		} catch (error) {
 			throw new Error(`Failed to import changes: ${error}`);

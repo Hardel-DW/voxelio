@@ -14,19 +14,12 @@ export interface ChangeSet {
 	timestamp: string;
 }
 
-export interface DatapackInfo {
-	name: string;
-	description?: string;
-	namespaces: string[];
-}
-
 export interface LogsStructure {
 	id: string;
 	generated_at: string;
 	version: number;
 	isModded: boolean;
 	engine: number;
-	isMinified: boolean;
-	datapack: DatapackInfo;
+	namespaces: string[];
 	logs: ChangeSet[];
 }

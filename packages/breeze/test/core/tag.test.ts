@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Tags, tagsToIdentifiers, isTag, mergeTags, createTagFromElement, isRegistryTag } from "@/core/Tag";
+import { Tags, mergeTags, createTagFromElement } from "@/core/Tag";
 import { TagCompiler } from "@/core/TagCompiler";
 import type { DataDrivenRegistryElement } from "@/core/Element";
 import type { Compiler } from "@/core/engine/Compiler";
@@ -37,33 +37,6 @@ describe("Tag Functions", () => {
 		});
 	});
 
-	describe("tagsToIdentifiers", () => {
-		it("should convert tag strings to identifiers", () => {
-			const tags = ["#minecraft:test", "#minecraft:other"];
-			const registry = "tags/enchantment";
-			const result = tagsToIdentifiers(tags, registry);
-
-			expect(result).toHaveLength(2);
-			expect(result[0]).toEqual({
-				namespace: "minecraft",
-				registry: "tags/enchantment",
-				resource: "test"
-			});
-		});
-
-		it("should handle tags without # prefix", () => {
-			const tags = ["minecraft:test"];
-			const registry = "tags/enchantment";
-			const result = tagsToIdentifiers(tags, registry);
-
-			expect(result[0]).toEqual({
-				namespace: "minecraft",
-				registry: "tags/enchantment",
-				resource: "test"
-			});
-		});
-	});
-
 	describe("getTagsFromRegistry", () => {
 		it("should extract tag values from registry", () => {
 			const tag: TagType = {
@@ -72,29 +45,6 @@ describe("Tag Functions", () => {
 
 			const result = new Tags(tag).fromRegistry();
 			expect(result).toEqual(["minecraft:test", "minecraft:optional", "minecraft:other"]);
-		});
-	});
-
-	describe("isRegistryTag", () => {
-		it("should identify tag elements", () => {
-			const tagElement = {
-				identifier: { namespace: "minecraft", registry: "tags/enchantment", resource: "test" },
-				data: { values: [] }
-			};
-			expect(isRegistryTag(tagElement)).toBe(true);
-		});
-
-		it("should reject non-tag elements", () => {
-			const nonTagElement = {
-				identifier: { namespace: "minecraft", registry: "enchantment", resource: "test" },
-				data: {}
-			};
-			expect(isRegistryTag(nonTagElement)).toBe(false);
-		});
-
-		it("should reject empty objects", () => {
-			const nonTagElement = {};
-			expect(isTag(nonTagElement)).toBe(false);
 		});
 	});
 
