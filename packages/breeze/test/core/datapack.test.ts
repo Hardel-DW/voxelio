@@ -75,18 +75,6 @@ describe("Datapack", () => {
 		});
 	});
 
-	describe("getFileName", () => {
-		it("should handle versioning for new files", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles, "test.zip");
-			expect(datapack.getFileName()).toBe("V0-test");
-		});
-
-		it("should increment version for versioned files", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles, "V1-test.zip");
-			expect(datapack.getFileName()).toBe("V2-test");
-		});
-	});
-
 	describe("getRelatedTags", () => {
 		it("should find tags containing an identifier", () => {
 			const datapack = new Datapack(enchantmentWithTagFiles);
@@ -169,48 +157,6 @@ describe("Datapack", () => {
 			const blacklist = ["enchantplus:sword/poison_aspect"];
 			const tag = datapack.getTag(identifier, blacklist);
 			expect(tag.values).not.toContain("enchantplus:sword/poison_aspect");
-		});
-	});
-
-	describe("generate", () => {
-		it("should generate a new datapack with updated content", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
-			const content: LabeledElement[] = [
-				{
-					type: "updated",
-					element: {
-						identifier: {
-							namespace: "enchantplus",
-							registry: "enchantment",
-							resource: "sword/poison_aspect"
-						},
-						data: {
-							description: "Updated enchantment",
-							effects: {}
-						}
-					}
-				}
-			];
-
-			const result = datapack.generate(content, { isMinified: false });
-			expect(result).toBeInstanceOf(Response);
-		});
-
-		it("should handle deleted elements by keeping empty tags", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
-			const content: LabeledElement[] = [
-				{
-					type: "deleted",
-					identifier: {
-						namespace: "enchantplus",
-						registry: "tags/enchantment",
-						resource: "exclusive_set/aspect"
-					}
-				}
-			];
-
-			const result = datapack.generate(content, { isMinified: true });
-			expect(result).toBeInstanceOf(Response);
 		});
 	});
 

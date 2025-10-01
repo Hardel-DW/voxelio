@@ -10,12 +10,9 @@ describe("Logger System", () => {
 		testLogger = new Logger();
 		// Set datapack info for proper export structure
 		testLogger.setDatapackInfo({
-			name: "test-datapack",
-			description: "Test datapack",
 			namespaces: ["test"],
 			version: 48,
 			isModded: false,
-			isMinified: false
 		});
 	});
 
@@ -41,7 +38,6 @@ describe("Logger System", () => {
 
 			const logger = new Logger(JSON.stringify(existingLogs));
 			expect(logger.getChanges()).toHaveLength(1);
-			expect(logger.isMinified).toBe(true);
 		});
 
 		it("should accept Uint8Array data", () => {
@@ -66,42 +62,6 @@ describe("Logger System", () => {
 			const uint8Array = new TextEncoder().encode(JSON.stringify(existingLogs));
 			const logger = new Logger(uint8Array);
 			expect(logger.getChanges()).toHaveLength(1);
-			expect(logger.isMinified).toBe(false);
-		});
-	});
-
-	describe("isMinified getter", () => {
-		it("should return false by default", () => {
-			const logger = new Logger();
-			expect(logger.isMinified).toBe(false);
-		});
-
-		it("should return correct value from imported logs", () => {
-			const logs = {
-				id: "test",
-				generated_at: "2024-01-01T00:00:00.000Z",
-				version: 48,
-				isModded: false,
-				engine: 2,
-				isMinified: true,
-				datapack: { name: "test", namespaces: ["test"] },
-				logs: []
-			};
-
-			const logger = new Logger(JSON.stringify(logs));
-			expect(logger.isMinified).toBe(true);
-		});
-
-		it("should return correct value from setDatapackInfo", () => {
-			const logger = new Logger();
-			logger.setDatapackInfo({
-				name: "test",
-				namespaces: ["test"],
-				version: 48,
-				isModded: false,
-				isMinified: true
-			});
-			expect(logger.isMinified).toBe(true);
 		});
 	});
 
@@ -110,11 +70,9 @@ describe("Logger System", () => {
 			// Create source logger with changes
 			const sourceLogger = new Logger();
 			sourceLogger.setDatapackInfo({
-				name: "source",
 				namespaces: ["test"],
 				version: 48,
-				isModded: false,
-				isMinified: false
+				isModded: false
 			});
 
 			const element = {
@@ -353,12 +311,7 @@ describe("Logger System", () => {
 			expect(parsed.version).toBe(48);
 			expect(parsed.isModded).toBe(false);
 			expect(parsed.engine).toBe(2);
-			expect(parsed.isMinified).toBe(false);
-			expect(parsed.datapack).toEqual({
-				name: "test-datapack",
-				description: "Test datapack",
-				namespaces: ["test"]
-			});
+			expect(parsed.namespaces).toEqual(["test"]);
 			expect(parsed.logs).toHaveLength(1);
 		});
 
@@ -369,11 +322,7 @@ describe("Logger System", () => {
 				version: 48,
 				isModded: true,
 				engine: 2,
-				isMinified: false,
-				datapack: {
-					name: "imported-datapack",
-					namespaces: ["imported"]
-				},
+				namespaces: ["imported"],
 				logs: [
 					{
 						identifier: "test:item",
@@ -395,7 +344,7 @@ describe("Logger System", () => {
 			expect(parsed.id).toBe("existing-id-123");
 			expect(parsed.version).toBe(48);
 			expect(parsed.isModded).toBe(true);
-			expect(parsed.datapack.name).toBe("imported-datapack");
+			expect(parsed.namespaces).toEqual(["imported"]);
 		});
 
 		it("should generate new ID when no logs provided", () => {
@@ -417,12 +366,9 @@ describe("Logger System", () => {
 	describe("datapack info", () => {
 		it("should store and export datapack information", () => {
 			const datapackInfo = {
-				name: "my-datapack",
-				description: "My custom datapack",
 				namespaces: ["custom", "mod"],
 				version: 71,
 				isModded: true,
-				isMinified: true
 			};
 
 			testLogger.setDatapackInfo(datapackInfo);
@@ -432,12 +378,7 @@ describe("Logger System", () => {
 
 			expect(parsed.version).toBe(71);
 			expect(parsed.isModded).toBe(true);
-			expect(parsed.isMinified).toBe(true);
-			expect(parsed.datapack).toEqual({
-				name: "my-datapack",
-				description: "My custom datapack",
-				namespaces: ["custom", "mod"]
-			});
+			expect(parsed.namespaces).toEqual(["custom", "mod"]);
 		});
 	});
 

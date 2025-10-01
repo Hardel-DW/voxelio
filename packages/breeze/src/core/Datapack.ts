@@ -147,7 +147,7 @@ export class Datapack {
 		excludeNamespaces?: string[]
 	): DataDrivenRegistryElement<T>[] {
 		if (!registry) return [];
-		const cacheKey = `${registry}|${path || ""}|${excludeNamespaces?.join(",") || ""}`;
+		const cacheKey = registry + path + excludeNamespaces?.join(",");
 		if (this.registryCache.has(cacheKey)) {
 			return this.registryCache.get(cacheKey) as DataDrivenRegistryElement<T>[];
 		}
@@ -180,6 +180,21 @@ export class Datapack {
 		return registries;
 	}
 
+	/**
+	 * Read a file from the datapack.
+	 * @param identifier - The identifier of the file.
+	 * @param basePath - The base path of the file.
+	 * @returns The file.
+	 */
+	readFile<T>(identifier: IdentifierObject, basePath = "data"): T | undefined {
+		const file = new Identifier(identifier).toFilePath(basePath);
+		if (!(file in this.files)) return undefined;
+		return JSON.parse(new TextDecoder().decode(this.files[file]));
+	}
+
+	generate(logger: Logger, filename: string, isModded: boolean) {
+		return new DatapackDownloader(this.files, isModded, filename).download(logger);
+	}
 
 	/**
 	 * For an element, get all the tags where the identifier appears.
@@ -187,11 +202,11 @@ export class Datapack {
 	 * @param identifier - The identifier of the tags.
 	 * @returns The related tags of the identifier.
 	 */
-	getRelatedTags(registry: string | undefined, identifier: string): string[] {
+	getRelatedTags(registry: string | undefined, identifier: IdentifierObject): string[] {
 		if (!registry) return [];
 		return this.getRegistry<TagType>(registry)
-			.filter((tag) => new Tags(tag.data).isPresentInTag(Identifier.fromUniqueKey(identifier).toString()))
-			.map((tag) => Identifier.fromUniqueKey(tag.identifier).toString());
+			.filter((tag) => new Tags(tag.data).isPresentInTag(new Identifier(identifier).toString()))
+			.map((tag) => new Identifier(tag.identifier).toString());
 	}
 
 
@@ -231,22 +246,6 @@ export class Datapack {
 		const ogTags = this.getRegistry<TagType>(`tags/${concept}`).map((e) => e.identifier);
 		const originalTags = this.getTags(ogTags, blacklist);
 		return mergeDataDrivenRegistryElement(originalTags, registryElements);
-	}
-
-	/**
-	 * Read a file from the datapack.
-	 * @param identifier - The identifier of the file.
-	 * @param basePath - The base path of the file.
-	 * @returns The file.
-	 */
-	readFile<T>(identifier: IdentifierObject, basePath = "data"): T | undefined {
-		const file = new Identifier(identifier).toFilePath(basePath);
-		if (!(file in this.files)) return undefined;
-		return JSON.parse(new TextDecoder().decode(this.files[file]));
-	}
-
-	generate(logger: Logger, filename: string, isModded: boolean) {
-		return new DatapackDownloader(this.files, isModded, filename).download(logger);
 	}
 
 	/**

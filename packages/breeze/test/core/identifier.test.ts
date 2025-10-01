@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Identifier, isIdentifier } from "@/core/Identifier";
+import { Identifier } from "@/core/Identifier";
 
 describe("Identifier", () => {
 	describe("Identifier.of", () => {
@@ -181,19 +181,19 @@ describe("Identifier", () => {
 	describe("isIdentifier", () => {
 		it("should validate correct identifier", () => {
 			const identifier = { namespace: "minecraft", registry: "block", resource: "stone" };
-			expect(isIdentifier(identifier)).toBe(true);
+			expect(Identifier.isIdentifier(identifier)).toBe(true);
 		});
 
 		it("should reject invalid identifiers", () => {
-			expect(isIdentifier({ namespace: "minecraft" })).toBe(false);
-			expect(isIdentifier(null)).toBe(false);
-			expect(isIdentifier(undefined)).toBe(false);
-			expect(isIdentifier(42)).toBe(false);
-			expect(isIdentifier("not an identifier")).toBe(false);
-			expect(isIdentifier([])).toBe(false);
-			expect(isIdentifier({ namespace: "minecraft", registry: 123, resource: "stone" })).toBe(false);
-			expect(isIdentifier({ namespace: 123, registry: "block", resource: "stone" })).toBe(false);
-			expect(isIdentifier({ namespace: "minecraft", registry: "block", resource: 123 })).toBe(false);
+			expect(Identifier.isIdentifier({ namespace: "minecraft" })).toBe(false);
+			expect(Identifier.isIdentifier(null)).toBe(false);
+			expect(Identifier.isIdentifier(undefined)).toBe(false);
+			expect(Identifier.isIdentifier(42)).toBe(false);
+			expect(Identifier.isIdentifier("not an identifier")).toBe(false);
+			expect(Identifier.isIdentifier([])).toBe(false);
+			expect(Identifier.isIdentifier({ namespace: "minecraft", registry: 123, resource: "stone" })).toBe(false);
+			expect(Identifier.isIdentifier({ namespace: 123, registry: "block", resource: "stone" })).toBe(false);
+			expect(Identifier.isIdentifier({ namespace: "minecraft", registry: "block", resource: 123 })).toBe(false);
 		});
 	});
 });

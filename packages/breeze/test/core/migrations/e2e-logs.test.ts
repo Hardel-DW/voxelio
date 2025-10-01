@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Datapack } from "@/core/Datapack";
+import { Identifier } from "@/core/Identifier";
 import { Logger } from "@/core/engine/migrations/logger";
 import { updateData } from "@/core/engine/actions";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
@@ -42,15 +43,12 @@ describe("E2E Logs System", () => {
 			const logsJson = logger.exportJson();
 			expect(logsJson).toContain("logs");
 			expect(logsJson).toContain("Modified Name");
-			expect(logsJson).toContain("datapack");
-
 			// Parse logs and verify structure
 			const parsedLogs = JSON.parse(logsJson);
 			expect(parsedLogs.id).toBeDefined();
 			expect(parsedLogs.generated_at).toBeDefined();
 			expect(parsedLogs.engine).toBe(2);
 			expect(parsedLogs.logs).toHaveLength(2);
-			expect(parsedLogs.datapack).toBeDefined();
 		});
 	});
 
@@ -96,11 +94,7 @@ describe("E2E Logs System", () => {
 				version: 48,
 				isModded: true,
 				engine: 2,
-				isMinified: false,
-				datapack: {
-					name: "replay-datapack",
-					namespaces: ["test", "enchantplus"]
-				},
+				namespaces: ["test", "enchantplus"],
 				logs: [
 					{
 						identifier: "test:test",
@@ -147,16 +141,14 @@ describe("E2E Logs System", () => {
 		it("should parse datapack, apply logged changes, and generate modified datapack", async () => {
 			// Prepare original datapack
 			const files = prepareFiles(lootTableFile);
-			const originalDatapack = new Datapack(files, "test-datapack");
+			const originalDatapack = new Datapack(files);
 
 			// Create logger and apply changes
 			const logger = new Logger();
 			logger.setDatapackInfo({
-				name: "test-datapack",
 				namespaces: ["test"],
 				version: 48,
-				isModded: false,
-				isMinified: false
+				isModded: false
 			});
 
 			// Get original loot table
@@ -165,7 +157,7 @@ describe("E2E Logs System", () => {
 
 			// Simulate tracked changes on an element
 			const testElement = {
-				identifier: { namespace: "test", registry: "loot_table", resource: "test" },
+				identifier: "test:test$loot_table",
 				pools: [{ rolls: 1, entries: [] }],
 				type: "minecraft:entity"
 			};
@@ -179,24 +171,6 @@ describe("E2E Logs System", () => {
 			expect(changes).toHaveLength(1);
 			expect(changes[0].differences[0].path).toBe("pools.0.rolls");
 			expect(changes[0].differences[0].value).toBe(5);
-
-			// Generate datapack with logs
-			const modifiedElements = [
-				{
-					type: "updated" as const,
-					element: {
-						identifier: { namespace: "test", registry: "loot_table", resource: "test" },
-						data: testElement
-					}
-				}
-			];
-
-			const generatedZip = originalDatapack.generate(modifiedElements, {
-				isMinified: false,
-				logger
-			});
-
-			expect(generatedZip).toBeDefined();
 
 			// Export logs to verify they contain our changes
 			const logsJson = logger.exportJson();
@@ -213,22 +187,20 @@ describe("E2E Logs Replay System", () => {
 		const sourceFiles = prepareFiles({ ...lootTableFile, ...enchantmentFile });
 		const sourceLogger = new Logger();
 		sourceLogger.setDatapackInfo({
-			name: "source-datapack",
 			namespaces: ["test", "enchantplus"],
 			version: 48,
-			isModded: true,
-			isMinified: false
+			isModded: true
 		});
 
 		// Simulate some changes being tracked using realistic elements
 		const element1 = {
-			identifier: { namespace: "test", resource: "test" },
+			identifier: "test:test$loot_table",
 			pools: [{ rolls: 1, entries: [] }],
 			type: "minecraft:entity"
 		};
 
 		const element2 = {
-			identifier: { namespace: "enchantplus", resource: "sword/attack_speed" },
+			identifier: "enchantplus:sword/attack_speed$enchantment",
 			max_level: 5,
 			min_cost: { base: 10, per_level: 5 }
 		};
@@ -296,7 +268,6 @@ describe("E2E Logs Replay System", () => {
 		expect(originalEnchantment.max_level).not.toBe(15); // Should be original value
 
 		// Verify logger properties
-		expect(logger.isMinified).toBe(false);
 		expect(logger.getChanges()).toHaveLength(2);
 	});
 
@@ -307,11 +278,7 @@ describe("E2E Logs Replay System", () => {
 			version: 48,
 			isModded: true,
 			engine: 2,
-			isMinified: false,
-			datapack: {
-				name: "E2E Test Datapack",
-				namespaces: ["test", "enchantplus"]
-			},
+			namespaces: ["test", "enchantplus"],
 			logs: [
 				{
 					identifier: "test:test",
@@ -355,11 +322,7 @@ describe("E2E Logs Replay System", () => {
 			version: 48,
 			isModded: true,
 			engine: 2,
-			isMinified: false,
-			datapack: {
-				name: "E2E Test Datapack",
-				namespaces: ["test", "enchantplus"]
-			},
+			namespaces: ["test", "enchantplus"],
 			logs: [
 				{
 					identifier: "test:test",
@@ -383,7 +346,8 @@ describe("E2E Logs Replay System", () => {
 		// Transform logs to actions and apply them
 		const elementsMap = new Map<string, any>();
 		for (const element of result.elements.values()) {
-			const id = `${element.identifier.namespace}:${element.identifier.resource}`;
+			const identifier = new Identifier(element.identifier);
+			const id = `${identifier.namespace}:${identifier.resource}`;
 			elementsMap.set(id, element);
 		}
 

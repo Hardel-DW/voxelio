@@ -150,7 +150,6 @@ export class Logger {
 	 */
 	private extractElementId(element: Record<string, unknown>): string | undefined {
 		if (typeof element.id === "string") return element.id;
-		if (typeof element._id === "string") return element._id;
 
 		const elementIdentifier = element.identifier as Record<string, unknown> | undefined;
 		if (elementIdentifier?.namespace && elementIdentifier?.resource) {
@@ -165,7 +164,6 @@ export class Logger {
 	 */
 	private extractElementType(element: Record<string, unknown>): string | undefined {
 		if (typeof element.type === "string") return element.type;
-		if (typeof element._type === "string") return element._type;
 
 		const elementIdentifier = element.identifier as Record<string, unknown> | undefined;
 		if (typeof elementIdentifier?.registry === "string") {
