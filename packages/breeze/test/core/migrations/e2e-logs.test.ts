@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { Datapack } from "@/core/Datapack";
-import { Identifier } from "@/core/Identifier";
 import { Logger } from "@/core/engine/migrations/logger";
 import { updateData } from "@/core/engine/actions";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
@@ -194,13 +193,13 @@ describe("E2E Logs Replay System", () => {
 
 		// Simulate some changes being tracked using realistic elements
 		const element1 = {
-			identifier: "test:test$loot_table",
+			identifier: { namespace: "test", registry: "loot_table", resource: "test" },
 			pools: [{ rolls: 1, entries: [] }],
 			type: "minecraft:entity"
 		};
 
 		const element2 = {
-			identifier: "enchantplus:sword/attack_speed$enchantment",
+			identifier: { namespace: "enchantplus", registry: "enchantment", resource: "sword/attack_speed" },
 			max_level: 5,
 			min_cost: { base: 10, per_level: 5 }
 		};
@@ -346,8 +345,7 @@ describe("E2E Logs Replay System", () => {
 		// Transform logs to actions and apply them
 		const elementsMap = new Map<string, any>();
 		for (const element of result.elements.values()) {
-			const identifier = new Identifier(element.identifier);
-			const id = `${identifier.namespace}:${identifier.resource}`;
+			const id = `${element.identifier.namespace}:${element.identifier.resource}`;
 			elementsMap.set(id, element);
 		}
 

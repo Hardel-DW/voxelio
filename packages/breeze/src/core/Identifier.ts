@@ -159,8 +159,12 @@ export class Identifier {
 		if (!value || typeof value !== "object") return false;
 
 		return (
-			"registry" in value && "namespace" in value && "resource" in value &&
-			typeof value.registry === "string" && typeof value.namespace === "string" && typeof value.resource === "string"
+			"registry" in value &&
+			"namespace" in value &&
+			"resource" in value &&
+			typeof value.registry === "string" &&
+			typeof value.namespace === "string" &&
+			typeof value.resource === "string"
 		);
 	}
-} 
+}

@@ -20,10 +20,7 @@ function writeElement(files: Record<string, Uint8Array>, element: DataDrivenRegi
 	files[path] = new TextEncoder().encode(JSON.stringify(element.data, null, 2));
 }
 
-export function compileDatapack(props: {
-	elements: GetAnalyserVoxel<keyof Analysers>[];
-	files: Record<string, Uint8Array>;
-}): Datapack {
+export function compileDatapack(props: { elements: GetAnalyserVoxel<keyof Analysers>[]; files: Record<string, Uint8Array> }): Datapack {
 	const newFiles = structuredClone(props.files);
 	const datapack = new Datapack(props.files);
 	const registryGroups = Map.groupBy(props.elements, (e) => e.identifier.registry as keyof Analysers);

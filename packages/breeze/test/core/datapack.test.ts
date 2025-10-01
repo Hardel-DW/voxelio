@@ -2,13 +2,8 @@ import { describe, expect, it } from "vitest";
 import { Datapack } from "@/core/Datapack";
 import type { TagType } from "@/core/Tag";
 import { DatapackError } from "@/core/DatapackError";
-import type { Compiler } from "@/core/engine/Compiler";
-import { attack_speed_element } from "@test/mock/enchant/VoxelDriven";
-import type { DataDrivenRegistryElement } from "@/core/Element";
-import { mergeDataDrivenRegistryElement } from "@/core/Tag";
-import { analyserCollection } from "@/core/engine/Analyser";
-import { createZipFile, prepareFiles } from "@test/mock/utils";
-import { enchantmentFile, enchantmentWithTagFiles, nonValidMcmetaZip, testMcMetaNotExists } from "@test/mock/datapack";
+import { createZipFile } from "@test/mock/utils";
+import { enchantmentWithTagFiles, nonValidMcmetaZip, testMcMetaNotExists } from "@test/mock/datapack";
 
 describe("Datapack", () => {
 	it("should create a datapack instance from files", () => {

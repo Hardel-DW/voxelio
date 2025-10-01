@@ -52,7 +52,6 @@ export class Datapack {
 			.filter((namespace, index, self) => namespace && self.indexOf(namespace) === index);
 	}
 
-
 	/**
 	 * Get the pack format of the datapack. Or throw an error if it's not found.
 	 * @returns The pack format of the datapack.
@@ -81,7 +80,6 @@ export class Datapack {
 		if (!fallback && !this.pack.pack.description) throw new DatapackError("tools.error.failed_to_get_datapack_description");
 		return this.pack.pack.description || fallback;
 	}
-
 
 	/**
 	 * Get all changes from all log versions combined

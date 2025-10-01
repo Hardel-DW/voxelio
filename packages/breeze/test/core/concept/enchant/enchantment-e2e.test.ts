@@ -6,6 +6,7 @@ import { parseDatapack } from "@/core/engine/Parser";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
 import { createFilesFromElements, createZipFile } from "@test/mock/utils";
 import { simpleEnchantment } from "@test/mock/enchant/DataDriven";
+import type { DataDrivenRegistryElement, TagType } from "@/index";
 
 describe("Enchantment Tags E2E", () => {
     it("should remove enchantment from tag when removing tag from enchantment.tags", async () => {
@@ -16,13 +17,14 @@ describe("Enchantment Tags E2E", () => {
             },
             {
                 identifier: { namespace: "enchantplus", registry: "tags/enchantment", resource: "exclusive_set/sword_attribute" },
-                data: { values: ["enchantplus:sword/attack_speed"] }
+                data: { values: ["enchantplus:sword/attack_speed", "enchantplus:foo", "#enchantplus:hello_world", { id: "super:ultra", required: false }] }
             },
             {
                 identifier: { namespace: "enchantplus", registry: "tags/enchantment", resource: "foo" },
-                data: { values: ["enchantplus:sword/attack_speed"] }
+                data: { values: ["enchantplus:sword/attack_speed", "enchantplus:bar"] }
             }
-        ]);
+        ] as DataDrivenRegistryElement<TagType>[]);
+
         const zipFile = await createZipFile(files);
         const parsed = await parseDatapack(zipFile);
         const parsedEnchantment = Array.from(parsed.elements.values()).find(
@@ -30,9 +32,10 @@ describe("Enchantment Tags E2E", () => {
         ) as EnchantmentProps | undefined;
 
         expect(parsedEnchantment).toBeDefined();
+        expect(parsedEnchantment?.tags).toContain("#enchantplus:foo");
+        expect(parsedEnchantment?.tags).toContain("#enchantplus:exclusive_set/sword_attribute");
 
         if (!parsedEnchantment) throw new Error("Enchantment not found");
-
         const action = CoreAction.removeTags(["#enchantplus:exclusive_set/sword_attribute"]);
         const updated = parsed.logger.trackChanges(parsedEnchantment, (el) => updateData<EnchantmentProps>(action, el));
         expect(updated?.tags).not.toContain("#enchantplus:exclusive_set/sword_attribute");
@@ -43,17 +46,13 @@ describe("Enchantment Tags E2E", () => {
             files: parsed.files
         });
 
-        console.log("[COMPILED] Compiled:", compiled);
         expect(compiled).toBeDefined();
-
-        // Read the tag from compiled datapack
         const tagData = compiled.readFile<{ values: string[] }>({
             namespace: "enchantplus",
             registry: "tags/enchantment",
             resource: "exclusive_set/sword_attribute"
         });
 
-        console.log("[TAG COMPILED] Tag data:", tagData);
         expect(tagData).toBeDefined();
         expect(tagData?.values).toBeDefined();
         expect(tagData?.values).not.toContain("enchantplus:sword/attack_speed");

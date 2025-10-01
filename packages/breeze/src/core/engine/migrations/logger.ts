@@ -51,11 +51,7 @@ export class Logger {
 	/**
 	 * Set datapack information for export
 	 */
-	setDatapackInfo(info: {
-		namespaces: string[];
-		version: number;
-		isModded: boolean;
-	}): void {
+	setDatapackInfo(info: { namespaces: string[]; version: number; isModded: boolean }): void {
 		this.namespaces = info.namespaces;
 		this.version = info.version;
 		this.isModded = info.isModded;

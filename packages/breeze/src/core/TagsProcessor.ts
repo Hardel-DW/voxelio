@@ -182,7 +182,9 @@ export class TagsProcessor {
 	 * @param datapackTags Array of datapacks with their tags (ordered by priority)
 	 * @returns Merged tags
 	 */
-	public static merge(datapackTags: Array<{ id: string; tags: DataDrivenRegistryElement<TagType>[] }>): DataDrivenRegistryElement<TagType>[] {
+	public static merge(
+		datapackTags: Array<{ id: string; tags: DataDrivenRegistryElement<TagType>[] }>
+	): DataDrivenRegistryElement<TagType>[] {
 		const tagMap = new Map<string, DataDrivenRegistryElement<TagType>>();
 
 		for (const datapack of datapackTags) {
