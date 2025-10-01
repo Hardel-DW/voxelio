@@ -1,6 +1,6 @@
 import type { DataDrivenRegistryElement } from "@/core/Element";
 import { Identifier, type IdentifierObject } from "@/core/Identifier";
-import { TagsComparator } from "@/core/TagComparator";
+import { TagsProcessor } from "@/core/TagsProcessor";
 import type { LootGroup, LootItem, LootTableProps } from "@/core/schema/loot/types";
 import type { TagType } from "@/core/Tag";
 
@@ -47,11 +47,11 @@ interface FlattenContext {
 
 export class LootTableFlattener {
 	private readonly tables = new Map<string, TableIndex>();
-	private readonly comparator?: TagsComparator;
+	private readonly comparator?: TagsProcessor;
 
 	constructor(lootTables: LootTableProps[], itemTags: DataDrivenRegistryElement<TagType>[] = []) {
 		for (const table of lootTables) this.tables.set(this.tableKey(table), this.createIndex(table));
-		if (itemTags.length) this.comparator = new TagsComparator(itemTags);
+		if (itemTags.length) this.comparator = new TagsProcessor(itemTags);
 	}
 
 	flatten(target: IdentifierObject | string, options: FlattenOptions = {}): FlattenedLootItem[] {

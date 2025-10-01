@@ -1,8 +1,4 @@
-import type { DataDrivenElement, DataDrivenRegistryElement } from "@/core/Element";
-import { Identifier } from "@/core/Identifier";
-import type { IdentifierObject } from "@/core/Identifier";
-
-import type { Compiler } from "@/core/engine/Compiler";
+import type { DataDrivenElement } from "@/core/Element";
 
 /**
  * Represents a Minecraft tag system that can contain multiple values.
@@ -33,7 +29,7 @@ export class Tags {
 
 	/**
 	 * Checks if a specific value exists in the tag
-	 * @param name The value to check for
+	 * @param name The value to check for (string or OptionalTag)
 	 * @returns True if the value exists in the tag
 	 * @example
 	 * const tag = new Tags({
@@ -41,8 +37,9 @@ export class Tags {
 	 * });
 	 * tag.hasValue("minecraft:diamond_sword"); // Returns true
 	 */
-	hasValue(name: string) {
-		return this.tags.values.includes(name);
+	hasValue(name: string | OptionalTag) {
+		const searchId = typeof name === "string" ? name : name.id;
+		return this.tags.values.some((v) => (typeof v === "string" ? v : v.id) === searchId);
 	}
 
 	getFirstValue(): string | null {
@@ -71,6 +68,10 @@ export class Tags {
 	isPresentInTag(value: string): boolean {
 		return this.tags.values.some((tagValue) => (typeof tagValue === "string" ? tagValue === value : tagValue.id === value));
 	}
+
+	static isTag(tag: any): tag is TagType {
+		return tag && typeof tag === "object" && "values" in tag;
+	}
 }
 
 export interface TagType extends DataDrivenElement {
@@ -81,62 +82,4 @@ export interface TagType extends DataDrivenElement {
 export type OptionalTag = {
 	required: boolean;
 	id: string;
-};
-
-export function isTag(tag: any): tag is TagType {
-	return tag && typeof tag === "object" && "values" in tag;
-}
-
-/**
- * Converts a list of tags to identifiers.
- * @param tags - The list of tags to convert.
- * @param registry - The registry to use.
- * @returns The list of identifiers.
- */
-export const tagsToIdentifiers = (tags: string[], registry: string): IdentifierObject[] => tags.map((tag) => Identifier.of(tag, registry));
-
-
-/**
- * Merge two tags.
- * @param a - The first tag.
- * @param b - The second tag.
- * @returns The merged tag.
- */
-export const mergeTags = (a: TagType, b: TagType): TagType => ({
-	values: Array.from(new Set([...a.values, ...b.values]))
-});
-
-export const mergeDataDrivenRegistryElement = (
-	a: DataDrivenRegistryElement<TagType>[],
-	b: DataDrivenRegistryElement<TagType>[]
-): DataDrivenRegistryElement<TagType>[] => {
-	const tagMap = new Map<string, DataDrivenRegistryElement<TagType>>();
-
-	for (const tag of [...a, ...b]) {
-		const key = new Identifier(tag.identifier).toFilePath();
-		const existing = tagMap.get(key);
-
-		tagMap.set(key, existing ? { identifier: existing.identifier, data: mergeTags(existing.data, tag.data) } : tag);
-	}
-
-	return Array.from(tagMap.values());
-};
-
-/**
- * Create a tag from a list of main elements like "enchantment".
- */
-export const createTagFromElement = (elements: ReturnType<Compiler>[]) => {
-	const tagMap: Record<string, DataDrivenRegistryElement<TagType>> = {};
-
-	for (const { element, tags } of elements) {
-		for (const tag of tags) {
-			const key = new Identifier(tag).toFilePath();
-			const elementId = new Identifier(element.identifier).toString();
-
-			tagMap[key] ??= { identifier: tag, data: { values: [] } };
-			tagMap[key].data.values.push(elementId);
-		}
-	}
-
-	return Object.values(tagMap);
 };

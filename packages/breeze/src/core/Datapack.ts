@@ -1,10 +1,8 @@
 import { DatapackError } from "@/core/DatapackError";
 import type { DataDrivenElement, DataDrivenRegistryElement } from "@/core/Element";
-import { Identifier, IdentifierObject } from "@/core/Identifier";
-import { Tags, createTagFromElement, mergeDataDrivenRegistryElement } from "@/core/Tag";
+import { Identifier, type IdentifierObject } from "@/core/Identifier";
+import { Tags } from "@/core/Tag";
 import { getMinecraftVersion } from "@/core/Version";
-import type { Analysers } from "@/core/engine/Analyser";
-import type { Compiler } from "@/core/engine/Compiler";
 import type { Logger } from "@/core/engine/migrations/logger";
 import type { ChangeSet } from "@/core/engine/migrations/types";
 import type { TagType } from "@/core/Tag";
@@ -207,86 +205,5 @@ export class Datapack {
 		return this.getRegistry<TagType>(registry)
 			.filter((tag) => new Tags(tag.data).isPresentInTag(new Identifier(identifier).toString()))
 			.map((tag) => new Identifier(tag.identifier).toString());
-	}
-
-
-	/**
-	 * Get the values of the tags of an element.
-	 * @param identifier - The identifier of the Tags element.
-	 * @param blacklist - The blacklist of values to exclude.
-	 * @returns The values of the tags of the element.
-	 */
-	getTag(identifier: IdentifierObject, blacklist: string[] = []): TagType {
-		const tags = this.readFile<TagType>(identifier);
-		if (!tags) return { values: [] };
-
-		return {
-			values: tags.values.filter((value) => !blacklist.includes(typeof value === "string" ? value : value.id))
-		};
-	}
-
-	/**
-	 * Find for each identifier all corresponding tags in the datapack, (excluding the blacklist).
-	 * @param identifier - The identifier of the Tags element.
-	 * @param blacklist - The blacklist of values to exclude.
-	 * @returns The values of the tags of the element.
-	 */
-	getTags(identifier: IdentifierObject[], blacklist: string[] = []): DataDrivenRegistryElement<TagType>[] {
-		return identifier.map((id) => ({ identifier: id, data: this.getTag(id, blacklist) }));
-	}
-
-	/**
-	 * Get the compiled tags of the elements.
-	 * @param elements - The elements to compile.
-	 * @returns The compiled tags.
-	 */
-	getCompiledTags(elements: ReturnType<Compiler>[], concept: keyof Analysers): DataDrivenRegistryElement<TagType>[] {
-		const registryElements: DataDrivenRegistryElement<TagType>[] = createTagFromElement(elements);
-		const blacklist = elements.map((e) => new Identifier(e.element.identifier).toString());
-		const ogTags = this.getRegistry<TagType>(`tags/${concept}`).map((e) => e.identifier);
-		const originalTags = this.getTags(ogTags, blacklist);
-		return mergeDataDrivenRegistryElement(originalTags, registryElements);
-	}
-
-	/**
-	 * Label the elements.
-	 * @param registry - The registry of the elements.
-	 * @param elements - The elements to label.
-	 * @param logger - The logger.
-	 * @returns The labeled elements.
-	 */
-	labelElements<K extends keyof Analysers>(
-		registry: K,
-		elements: DataDrivenRegistryElement<DataDrivenElement>[],
-		logger?: Logger
-	) {
-		const originalIndex = this.getIndex(registry);
-		const compiledSet = new Set(elements.map((el) => new Identifier(el.identifier).toUniqueKey()));
-		const modified = new Set<string>();
-		if (logger) {
-			for (const change of logger.getChanges()) {
-				if (change.identifier && change.registry) {
-					modified.add(`${change.identifier}$${change.registry}`);
-				}
-			}
-		}
-
-		const results: LabeledElement[] = [];
-		for (const el of elements) {
-			const key = new Identifier(el.identifier).toUniqueKey();
-			if (!originalIndex.has(key)) {
-				results.push({ type: "new", element: el });
-			} else if (modified.has(key)) {
-				results.push({ type: "updated", element: el });
-			}
-		}
-
-		for (const [id, originalEl] of originalIndex) {
-			if (!compiledSet.has(id)) {
-				results.push({ type: "deleted", identifier: originalEl.identifier });
-			}
-		}
-
-		return results;
 	}
 }

@@ -8,9 +8,9 @@ export { EnchantmentSorter } from "@/core/schema/enchant/Sorter";
 export { LootTableFlattener } from "@/core/calculation/LootTableFlattener";
 export { EnchantmentSimulator } from "@/core/calculation/EnchantmentSimulation";
 export { Logger } from "@/core/engine/migrations/logger";
-export { TagsComparator } from "@/core/TagComparator";
+export { TagsProcessor as TagsComparator } from "@/core/TagsProcessor";
+export { TagsProcessor } from "@/core/TagsProcessor";
 export { DatapackError } from "@/core/DatapackError";
-export { TagCompiler } from "@/core/TagCompiler";
 export { LootTableAppearanceProbability } from "@/core/calculation/LootTableAppearanceProbability";
 
 export { CoreAction } from "@/core/engine/actions/domains/CoreAction";

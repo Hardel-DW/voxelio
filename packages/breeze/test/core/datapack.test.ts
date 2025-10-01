@@ -4,7 +4,7 @@ import type { TagType } from "@/core/Tag";
 import { DatapackError } from "@/core/DatapackError";
 import type { Compiler } from "@/core/engine/Compiler";
 import { attack_speed_element } from "@test/mock/enchant/VoxelDriven";
-import type { DataDrivenRegistryElement, LabeledElement } from "@/core/Element";
+import type { DataDrivenRegistryElement } from "@/core/Element";
 import { mergeDataDrivenRegistryElement } from "@/core/Tag";
 import { analyserCollection } from "@/core/engine/Analyser";
 import { createZipFile, prepareFiles } from "@test/mock/utils";
@@ -124,7 +124,7 @@ describe("Datapack", () => {
 		});
 	});
 
-	describe("getTag", () => {
+	describe("readFile for tags", () => {
 		it("should return tag values for valid identifier", () => {
 			const datapack = new Datapack(enchantmentWithTagFiles);
 			const identifier = {
@@ -132,52 +132,20 @@ describe("Datapack", () => {
 				registry: "tags/enchantment",
 				resource: "exclusive_set/aspect"
 			};
-			const tag = datapack.getTag(identifier);
+			const tag = datapack.readFile<TagType>(identifier);
+			expect(tag).toBeDefined();
 			expect(tag).toHaveProperty("values");
-			expect(tag.values).toBeInstanceOf(Array);
+			expect(tag?.values).toBeInstanceOf(Array);
 		});
 
-		it("should return empty tag for non-existent identifier", () => {
+		it("should return undefined for non-existent identifier", () => {
 			const datapack = new Datapack(enchantmentWithTagFiles);
 			const identifier = {
 				namespace: "test",
 				registry: "tags/test",
 				resource: "non-existent"
 			};
-			expect(datapack.getTag(identifier)).toEqual({ values: [] });
-		});
-
-		it("should filter blacklisted values", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
-			const identifier = {
-				namespace: "enchantplus",
-				registry: "tags/enchantment",
-				resource: "exclusive_set/aspect"
-			};
-			const blacklist = ["enchantplus:sword/poison_aspect"];
-			const tag = datapack.getTag(identifier, blacklist);
-			expect(tag.values).not.toContain("enchantplus:sword/poison_aspect");
-		});
-	});
-
-	describe("labelElements", () => {
-		it("should correctly label new, updated and deleted elements", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
-			const newElements = [
-				{
-					identifier: {
-						namespace: "enchantplus",
-						registry: "enchantment",
-						resource: "new_enchant"
-					},
-					data: { description: "New enchantment" }
-				}
-			];
-
-			const result = datapack.labelElements("enchantment", newElements, undefined);
-
-			expect(result.some((r) => r.type === "new")).toBe(true);
-			expect(result.some((r) => r.type === "deleted")).toBe(true);
+			expect(datapack.readFile(identifier)).toBeUndefined();
 		});
 	});
 
@@ -203,202 +171,6 @@ describe("Datapack", () => {
 			});
 
 			expect(content).toBeUndefined();
-		});
-	});
-
-	describe("getCompiledTags", () => {
-		it("should merge original and new tag values", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
-			const elements: ReturnType<Compiler>[] = [
-				{
-					element: {
-						identifier: { namespace: "enchantplus", registry: "enchantment", resource: "bow/accuracy_shot" },
-						data: {}
-					},
-					tags: [
-						{ namespace: "enchantplus", registry: "tags/enchantment", resource: "non_treasure" },
-						{ namespace: "enchantplus", registry: "tags/enchantment", resource: "exclusive_set/aspect" }
-					]
-				},
-
-				{
-					element: {
-						identifier: { namespace: "enchantplus", registry: "enchantment", resource: "sword/poison_aspect" },
-						data: {}
-					},
-					tags: [{ namespace: "enchantplus", registry: "tags/enchantment", resource: "non_treasure" }]
-				},
-				{
-					element: {
-						identifier: { namespace: "enchantplus", registry: "enchantment", resource: "boots/agility" },
-						data: {}
-					},
-					tags: [{ namespace: "enchantplus", registry: "tags/enchantment", resource: "exclusive_set/boots" }]
-				}
-			];
-
-			const result = datapack.getCompiledTags(elements, "enchantment");
-			expect(result).toBeInstanceOf(Array);
-			expect(result.length).toBe(12);
-		});
-	});
-
-	describe("getTags", () => {
-		it("should get multiple tags", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
-			const identifiers = [
-				{
-					namespace: "enchantplus",
-					registry: "tags/enchantment",
-					resource: "exclusive_set/aspect"
-				},
-				{
-					namespace: "minecraft",
-					registry: "tags/enchantment",
-					resource: "curse"
-				}
-			];
-
-			const tags = datapack.getTags(identifiers, []);
-			expect(tags.length).toBe(2);
-			expect(tags[0].identifier.resource).toBe("exclusive_set/aspect");
-			expect(tags[0].data.values).toContain("enchantplus:sword/poison_aspect");
-
-			expect(tags[1].identifier.resource).toBe("curse");
-			expect(tags[1].data.values).toContain("enchantplus:sword/poison_aspect");
-
-			expect(tags).toBeInstanceOf(Array);
-		});
-
-		it("should get multiple tags and handle blacklist", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
-			const identifiers = [
-				{
-					namespace: "enchantplus",
-					registry: "tags/enchantment",
-					resource: "exclusive_set/aspect"
-				},
-				{
-					namespace: "minecraft",
-					registry: "tags/enchantment",
-					resource: "curse"
-				}
-			];
-
-			const blacklist = ["enchantplus:sword/poison_aspect"];
-			const tags = datapack.getTags(identifiers, blacklist);
-			expect(tags.length).toBe(2);
-			expect(tags[0].identifier.resource).toBe("exclusive_set/aspect");
-			expect(tags[0].data.values.length).toBe(2);
-			expect(tags[0].data.values).toContain("enchantplus:sword/attack_speed");
-			expect(tags[0].data.values).toContain("enchantplus:sword/death_touch");
-
-			expect(tags[1].identifier.resource).toBe("curse");
-			expect(tags[1].data.values).toEqual([]);
-		});
-	});
-
-	describe("getTag with complex values", () => {
-		it("should handle optional tag values", () => {
-			const datapack = new Datapack({
-				...enchantmentWithTagFiles,
-				"data/enchantplus/tags/enchantment/test.json": new TextEncoder().encode(
-					JSON.stringify({
-						values: [{ id: "minecraft:test", required: false }, "minecraft:simple"]
-					})
-				)
-			});
-
-			const tag = datapack.getTag({
-				namespace: "enchantplus",
-				registry: "tags/enchantment",
-				resource: "test"
-			});
-
-			expect(tag.values).toHaveLength(2);
-			expect(tag.values).toContainEqual({ id: "minecraft:test", required: false });
-			expect(tag.values).toContainEqual("minecraft:simple");
-		});
-	});
-
-	describe("Should Remove Attack Speed from Tags", () => {
-		it("Shoud merge two DataDrivenRegistryElement<TagType>", () => {
-			const a: DataDrivenRegistryElement<TagType>[] = [
-				{
-					identifier: { namespace: "minecraft", registry: "tags/enchantment", resource: "non_treasure" },
-					data: { values: ["enchantplus:sword/attack_speed"] }
-				},
-				{
-					identifier: { namespace: "yggdrasil", registry: "tags/enchantment", resource: "equipment/item/sword" },
-					data: { values: ["enchantplus:sword/attack_speed"] }
-				},
-				{
-					identifier: { namespace: "yggdrasil", registry: "tags/enchantment", resource: "structure/alfheim_tree/random_loot" },
-					data: { values: ["enchantplus:sword/attack_speed"] }
-				}
-			];
-			const b: DataDrivenRegistryElement<TagType>[] = [
-				{
-					identifier: { namespace: "enchantplus", registry: "tags/enchantment", resource: "exclusive_set/sword_attribute" },
-					data: { values: ["enchantplus:sword/reach", "enchantplus:sword/runic_despair", "enchantplus:sword/dimensional_hit"] }
-				},
-				{
-					identifier: { namespace: "minecraft", registry: "tags/enchantment", resource: "non_treasure" },
-					data: { values: ["minecraft:fire_aspect"] }
-				},
-				{
-					identifier: { namespace: "yggdrasil", registry: "tags/enchantment", resource: "equipment/item/sword" },
-					data: { values: ["minecraft:fire_aspect"] }
-				}
-			];
-
-			const merge = mergeDataDrivenRegistryElement(a, b);
-			expect(merge.length).toBe(4);
-
-			const non_treasure = merge.find((t) => t.identifier.resource === "non_treasure");
-			expect(non_treasure?.data.values).toContain("enchantplus:sword/attack_speed");
-			expect(non_treasure?.data.values).toContain("minecraft:fire_aspect");
-
-			const sword_attribute = merge.find((t) => t.identifier.resource === "exclusive_set/sword_attribute");
-			expect(sword_attribute?.data.values).toContain("enchantplus:sword/reach");
-			expect(sword_attribute?.data.values).toContain("enchantplus:sword/runic_despair");
-			expect(sword_attribute?.data.values).toContain("enchantplus:sword/dimensional_hit");
-
-			const equipment_item_sword = merge.find((t) => t.identifier.resource === "equipment/item/sword");
-			expect(equipment_item_sword?.data.values).toContain("enchantplus:sword/attack_speed");
-			expect(equipment_item_sword?.data.values).toContain("minecraft:fire_aspect");
-
-			const structure_alfheim_tree_random_loot = merge.find((t) => t.identifier.resource === "structure/alfheim_tree/random_loot");
-			expect(structure_alfheim_tree_random_loot?.data.values).toContain("enchantplus:sword/attack_speed");
-		});
-
-		it("Should Remove Attack Speed from Tags", () => {
-			const files = prepareFiles(enchantmentFile);
-			const datapack = new Datapack(files);
-			const { compiler } = analyserCollection.enchantment;
-			const compiledElements = attack_speed_element.map((element) =>
-				compiler(element, "enchantment", datapack.readFile(element.identifier))
-			);
-			const compiledTags = datapack.getCompiledTags(compiledElements, "enchantment");
-
-			expect(compiledTags.length).toBe(4);
-			const non_treasure = compiledTags.find((t) => t.identifier.resource === "non_treasure");
-			expect(non_treasure?.data.values).toContain("enchantplus:sword/attack_speed");
-			expect(non_treasure?.data.values).toContain("minecraft:fire_aspect");
-
-			const equipment_item_sword = compiledTags.find((t) => t.identifier.resource === "equipment/item/sword");
-			expect(equipment_item_sword?.data.values).toContain("enchantplus:sword/attack_speed");
-			expect(equipment_item_sword?.data.values).toContain("minecraft:fire_aspect");
-
-			const structure_alfheim_tree_random_loot = compiledTags.find(
-				(t) => t.identifier.resource === "structure/alfheim_tree/random_loot"
-			);
-			expect(structure_alfheim_tree_random_loot?.data.values).toContain("enchantplus:sword/attack_speed");
-
-			const exclusive_set_sword_attribute = compiledTags.find((t) => t.identifier.resource === "exclusive_set/sword_attribute");
-			expect(exclusive_set_sword_attribute?.data.values).toContain("enchantplus:sword/reach");
-			expect(exclusive_set_sword_attribute?.data.values).toContain("enchantplus:sword/runic_despair");
-			expect(exclusive_set_sword_attribute?.data.values).toContain("enchantplus:sword/dimensional_hit");
 		});
 	});
 });

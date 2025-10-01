@@ -1,6 +1,6 @@
 import type { DataDrivenRegistryElement } from "@/core/Element";
 import { Identifier } from "@/core/Identifier";
-import { TagsComparator } from "@/core/TagComparator";
+import { TagsProcessor } from "@/core/TagsProcessor";
 import type { Enchantment } from "@/core/schema/enchant/types";
 import type { TagType } from "@/core/Tag";
 
@@ -49,7 +49,7 @@ export interface SlotLevelRange {
  */
 export class EnchantmentSimulator {
 	private enchantments: Map<string, Enchantment>;
-	private tagsComparator?: TagsComparator;
+	private tagsComparator?: TagsProcessor;
 	private inEnchantingTableValues: Set<string> = new Set();
 	private itemTagToEnchantmentsMap: Map<string, string[]> = new Map();
 
@@ -57,7 +57,7 @@ export class EnchantmentSimulator {
 		this.enchantments = enchantments;
 
 		if (tags && tags.length > 0) {
-			this.tagsComparator = new TagsComparator(tags);
+			this.tagsComparator = new TagsProcessor(tags);
 			this.initializeInEnchantingTableValues(tags);
 		}
 		this.buildItemTagToEnchantmentsMap();
@@ -385,7 +385,7 @@ export class EnchantmentSimulator {
 					continue;
 				}
 
-				const resolvedItems = new TagsComparator(itemTags).getRecursiveValues(Identifier.of(item, "tags/item").get());
+				const resolvedItems = new TagsProcessor(itemTags).getRecursiveValues(Identifier.of(item, "tags/item").get());
 				for (const resolvedItem of resolvedItems) {
 					items.add(resolvedItem);
 				}

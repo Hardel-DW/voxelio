@@ -1,5 +1,4 @@
-import type { IdentifierObject } from "@/core/Identifier";
-import { tagsToIdentifiers } from "@/core/Tag";
+import { Identifier, type IdentifierObject } from "@/core/Identifier";
 import type { Analysers } from "@/core/engine/Analyser";
 
 /**
@@ -25,7 +24,7 @@ export function extractUnknownFields(obj: Record<string, any>, knownFields: Set<
 export function processElementTags(tags: string[], config: keyof Analysers): IdentifierObject[] {
 	if (tags.length === 0) return [];
 	const tagRegistry = `tags/${config}`;
-	return tagsToIdentifiers(tags, tagRegistry);
+	return tags.map((tag) => Identifier.of(tag, tagRegistry));
 }
 /**
  * Utility to merge multiple sets of known fields

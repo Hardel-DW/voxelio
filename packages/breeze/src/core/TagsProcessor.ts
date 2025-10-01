@@ -1,12 +1,12 @@
 import type { DataDrivenRegistryElement } from "@/core/Element";
 import { Identifier, type IdentifierObject } from "@/core/Identifier";
-import type { OptionalTag, TagType } from "@/core/Tag";
+import { Tags, type OptionalTag, type TagType } from "@/core/Tag";
 
 /**
  * A utility class for comparing and processing Minecraft tags.
  * Used to handle tag references and resolve recursive tag values.
  */
-export class TagsComparator {
+export class TagsProcessor {
 	private readonly registry: string;
 	private readonly tagMap: Map<string, DataDrivenRegistryElement<TagType>>;
 
@@ -129,5 +129,89 @@ export class TagsComparator {
 		return this.tags
 			.filter((tag) => this.getRecursiveValues(tag.identifier).includes(itemId))
 			.map((tag) => new Identifier(tag.identifier));
+	}
+
+	/**
+	 * Remove IDs from all tags (removes both string and OptionalTag if ID matches)
+	 * @param idsToRemove Set of IDs to remove (e.g., "minecraft:sharpness")
+	 * @returns New tags without the removed IDs
+	 */
+	public removeIds(idsToRemove: Set<string>): DataDrivenRegistryElement<TagType>[] {
+		return this.tags.map((tag) => ({
+			identifier: tag.identifier,
+			data: {
+				...tag.data,
+				values: tag.data.values.filter((v) => {
+					const id = typeof v === "string" ? v : v.id;
+					return !idsToRemove.has(id);
+				})
+			}
+		}));
+	}
+
+	/**
+	 * Inject IDs into specific tags (with duplicate check)
+	 * @param elementToTags Map of element ID to tag identifiers
+	 *   Example: "minecraft:sharpness" -> [tagId1, tagId2]
+	 * @returns New tags with injected IDs
+	 */
+	public injectIds(elementToTags: Map<string, IdentifierObject[]>): DataDrivenRegistryElement<TagType>[] {
+		return this.tags.map((tag) => {
+			const values = [...tag.data.values];
+			const tags = new Tags({ values });
+
+			for (const [elementId, tagIdentifiers] of elementToTags) {
+				for (const tagId of tagIdentifiers) {
+					if (new Identifier(tagId).equalsObject(tag.identifier)) {
+						if (!tags.hasValue(elementId)) {
+							values.push(elementId);
+						}
+					}
+				}
+			}
+
+			return {
+				identifier: tag.identifier,
+				data: { ...tag.data, values }
+			};
+		});
+	}
+
+	/**
+	 * Merge multiple datapacks tags (respects replace flag and priority order)
+	 * @param datapackTags Array of datapacks with their tags (ordered by priority)
+	 * @returns Merged tags
+	 */
+	public static merge(datapackTags: Array<{ id: string; tags: DataDrivenRegistryElement<TagType>[] }>): DataDrivenRegistryElement<TagType>[] {
+		const tagMap = new Map<string, DataDrivenRegistryElement<TagType>>();
+
+		for (const datapack of datapackTags) {
+			for (const tag of datapack.tags) {
+				const key = new Identifier(tag.identifier).toUniqueKey();
+				const existing = tagMap.get(key);
+
+				if (tag.data.replace || !existing) {
+					tagMap.set(key, { identifier: tag.identifier, data: { values: [...tag.data.values] } });
+				} else {
+					tagMap.set(key, {
+						identifier: tag.identifier,
+						data: { values: Array.from(new Set([...existing.data.values, ...tag.data.values])) }
+					});
+				}
+			}
+		}
+
+		return Array.from(tagMap.values());
+	}
+
+	/**
+	 * Flatten all tags (resolve all #tag references)
+	 * @returns Tags with all recursive values resolved
+	 */
+	public flatten(): DataDrivenRegistryElement<TagType>[] {
+		return this.tags.map((tag) => ({
+			identifier: tag.identifier,
+			data: { values: this.getRecursiveValues(tag.identifier) }
+		}));
 	}
 }

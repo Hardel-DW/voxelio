@@ -1,4 +1,5 @@
 import { compileDatapack } from "@/core/engine/Compiler";
+import { Datapack } from "@/core/Datapack";
 import { VOXEL_ELEMENTS } from "@test/mock/enchant/VoxelDriven";
 import { enchantmentFile } from "@test/mock/datapack";
 import { prepareFiles } from "@test/mock/utils";
@@ -12,7 +13,8 @@ describe("Compiler", () => {
 				files: prepareFiles(enchantmentFile)
 			});
 
-			expect(Array.isArray(result)).toBe(true);
+			expect(result).toBeInstanceOf(Datapack);
+			expect(result.getFiles()).toBeDefined();
 		});
 	});
 });

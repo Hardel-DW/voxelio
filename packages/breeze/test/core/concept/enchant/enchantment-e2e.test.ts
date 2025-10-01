@@ -40,29 +40,22 @@ describe("Enchantment Tags E2E", () => {
         if (!updated) throw new Error("Updated enchantment not found");
         const compiled = compileDatapack({
             elements: [updated as EnchantmentProps],
-            files: parsed.files,
-            logger: parsed.logger
+            files: parsed.files
         });
 
         console.log("[COMPILED] Compiled:", compiled);
         expect(compiled).toBeDefined();
-        expect(compiled.length).toBeGreaterThan(0);
-        const tagCompiled = compiled.find(
-            (el) =>
-                el.type !== "deleted" &&
-                el.element.identifier.namespace === "enchantplus" &&
-                el.element.identifier.registry === "tags/enchantment" &&
-                el.element.identifier.resource === "exclusive_set/sword_attribute"
-        );
 
-        console.log("[TAG COMPILED] Tag compiled:", tagCompiled);
-        expect(tagCompiled).toBeDefined();
-        expect(tagCompiled?.type).not.toBe("deleted");
+        // Read the tag from compiled datapack
+        const tagData = compiled.readFile<{ values: string[] }>({
+            namespace: "enchantplus",
+            registry: "tags/enchantment",
+            resource: "exclusive_set/sword_attribute"
+        });
 
-        if (tagCompiled && tagCompiled.type !== "deleted") {
-            const tagData = tagCompiled.element.data;
-            expect(tagData.values).toBeDefined();
-            expect(tagData.values).not.toContain("enchantplus:sword/attack_speed");
-        }
+        console.log("[TAG COMPILED] Tag data:", tagData);
+        expect(tagData).toBeDefined();
+        expect(tagData?.values).toBeDefined();
+        expect(tagData?.values).not.toContain("enchantplus:sword/attack_speed");
     });
 });
