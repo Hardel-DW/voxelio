@@ -21,11 +21,7 @@ export interface ItemReference {
  * getItemFromMultipleOrOne(["#minecraft:swords", "minecraft:stick"]) // { isTag: true, id: "#minecraft:swords" }
  */
 export function getItemFromMultipleOrOne(element: SingleOrMultiple<string>): ItemReference {
-	const getItem = (id: string): ItemReference => ({
-		isTag: id.startsWith("#"),
-		id
-	});
-
+	const getItem = (id: string): ItemReference => ({ isTag: id.startsWith("#"), id });
 	return Array.isArray(element) ? getItem(element[0]) : getItem(element);
 }
 

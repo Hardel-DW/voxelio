@@ -5,6 +5,7 @@ import type { TagType } from "@/core/Tag";
 import { TagsProcessor } from "@/core/TagsProcessor";
 import { type Analysers, type GetAnalyserVoxel, analyserCollection } from "@/core/engine/Analyser";
 import type { Analyser } from "@/core/engine/Analyser";
+import { VOXEL_TAGS } from "@/Voxel";
 
 export type Compiler<T extends VoxelElement = VoxelElement, K extends DataDrivenElement = DataDrivenElement> = (
 	element: T,
@@ -20,19 +21,28 @@ function writeElement(files: Record<string, Uint8Array>, element: DataDrivenRegi
 	files[path] = new TextEncoder().encode(JSON.stringify(element.data, null, 2));
 }
 
+/**
+ * Compile a datapack from a list of elements and original files.
+ * 1. Added Voxel Datapack to the new files.
+ * 2. For each element, compile it.
+ * 3. If the element has tags, process them.
+ * 3.1 Get all id from compiled elements.
+ * 3.2 Get all tags from the original datapack.
+ * 3.3 Remove all id from the tags.
+ * 3.4 Inject all id from the compiled elements into the tags.
+ */
 export function compileDatapack(props: { elements: GetAnalyserVoxel<keyof Analysers>[]; files: Record<string, Uint8Array> }): Datapack {
 	const newFiles = structuredClone(props.files);
 	const datapack = new Datapack(props.files);
 	const registryGroups = Map.groupBy(props.elements, (e) => e.identifier.registry as keyof Analysers);
 
+	for (const element of VOXEL_TAGS) writeElement(newFiles, element);
+
 	for (const [registry, registryElements] of registryGroups) {
 		const { compiler, hasTag } = analyserCollection[registry] as Analyser<typeof registry>;
-
-		// Compile Voxel → DataDriven
 		const compiled = registryElements.map((el) => compiler(el, registry, datapack.readFile(el.identifier)));
 		for (const { element } of compiled) writeElement(newFiles, element);
 
-		// Process tags if needed
 		if (hasTag) {
 			const idMap = new Set(compiled.map((c) => new Identifier(c.element.identifier).toString()));
 			const originalTags = datapack.getRegistry<TagType>(`tags/${registry}`);
