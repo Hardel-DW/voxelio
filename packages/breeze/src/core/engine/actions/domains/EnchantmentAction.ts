@@ -1,5 +1,5 @@
 import { getManager } from "@/core/engine/Manager";
-import { isArraySlotRegistryType, isSlotRegistryType, type SlotRegistryType } from "@/core/engine/managers/SlotManager";
+import { SlotManager, type SlotRegistryType } from "@/core/engine/managers/SlotManager";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
 import { getFieldValue, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
 import { Action } from "@/core/engine/actions/index";
@@ -28,7 +28,7 @@ export class EnchantmentAction<P = any> extends Action<P> {
 			}
 
 			const computedValue = getFieldValue(p.slot);
-			if (typeof computedValue !== "string" || !isSlotRegistryType(computedValue)) {
+			if (typeof computedValue !== "string" || !SlotManager.isSlotRegistryType(computedValue)) {
 				throw new Error(`Invalid SlotRegistryType: ${String(computedValue)}`);
 			}
 
@@ -36,7 +36,7 @@ export class EnchantmentAction<P = any> extends Action<P> {
 			if (
 				!Array.isArray(currentRaw) ||
 				!currentRaw.every((value) => typeof value === "string") ||
-				!isArraySlotRegistryType(currentRaw as string[])
+				!SlotManager.isArraySlotRegistryType(currentRaw as string[])
 			) {
 				throw new Error(`Invalid SlotRegistryType array: ${JSON.stringify(currentRaw)}`);
 			}

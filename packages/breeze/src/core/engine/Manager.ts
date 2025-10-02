@@ -1,4 +1,4 @@
-import { type SlotRegistryType, toggleSlot } from "@/core/engine/managers/SlotManager";
+import { type SlotRegistryType, SlotManager } from "@/core/engine/managers/SlotManager";
 
 type ManagerTypes = {
 	slot: {
@@ -13,7 +13,7 @@ const managers: {
 		func: ManagerTypes[K]["apply"];
 	}[];
 } = {
-	slot: [{ min: 48, max: Number.POSITIVE_INFINITY, func: toggleSlot }]
+	slot: [{ min: 48, max: Number.POSITIVE_INFINITY, func: (slots, slot) => new SlotManager(slots).toggle(slot).toArray() }]
 };
 
 type ManagerKeys = keyof ManagerTypes;

@@ -1,8 +1,4 @@
-export type SlotRegistryType = (typeof SlotManager)[number];
-
-const SlotManager = ["any", "mainhand", "offhand", "hand", "head", "chest", "legs", "feet", "armor", "body", "saddle"] as const;
-
-export const SLOT_MAPPINGS = {
+const SLOT_MAPPINGS = {
 	any: ["mainhand", "offhand", "head", "chest", "legs", "feet", "body", "saddle"],
 	armor: ["head", "chest", "legs", "feet"],
 	hand: ["mainhand", "offhand"],
@@ -14,94 +10,94 @@ export const SLOT_MAPPINGS = {
 	feet: ["feet"],
 	body: ["body"],
 	saddle: ["saddle"]
-};
+} as const;
 
-export function isSlotRegistryType(value: string): value is SlotRegistryType {
-	return SlotManager.includes(value as SlotRegistryType);
-}
+export type SlotRegistryType = keyof typeof SLOT_MAPPINGS;
+export { SLOT_MAPPINGS };
 
-export function isArraySlotRegistryType(value: string[]): value is SlotRegistryType[] {
-	return value.every(isSlotRegistryType);
-}
+export class SlotManager {
+	private slots: Set<SlotRegistryType>;
+	private static readonly allSlots = Object.keys(SLOT_MAPPINGS) as SlotRegistryType[];
+	private static readonly compositeSlots = Object.entries(SLOT_MAPPINGS)
+		.filter(([, children]) => children.length > 1)
+		.toSorted(([, a], [, b]) => b.length - a.length) as [SlotRegistryType, readonly SlotRegistryType[]][];
 
-export function normalizeSlots(slots: SlotRegistryType[]): SlotRegistryType[] {
-	if (slots.includes("any")) return ["any"];
-	let normalizedSlots = [...new Set(slots)];
-
-	const armorSlots = SLOT_MAPPINGS.armor as SlotRegistryType[];
-	if (armorSlots.every((slot) => normalizedSlots.includes(slot))) {
-		normalizedSlots = normalizedSlots.filter((slot) => !armorSlots.includes(slot));
-		normalizedSlots.push("armor");
+	constructor(slots: SlotRegistryType[]) {
+		this.slots = new Set(slots);
 	}
 
-	const handSlots = SLOT_MAPPINGS.hand as SlotRegistryType[];
-	if (handSlots.every((slot) => normalizedSlots.includes(slot))) {
-		normalizedSlots = normalizedSlots.filter((slot) => !handSlots.includes(slot));
-		normalizedSlots.push("hand");
+	static isSlotRegistryType(value: string): value is SlotRegistryType {
+		return SlotManager.allSlots.includes(value as SlotRegistryType);
 	}
 
-	const allIndividualSlots = ["mainhand", "offhand", "head", "chest", "legs", "feet", "body", "saddle"] as SlotRegistryType[];
-	if (allIndividualSlots.every((slot) => normalizedSlots.includes(slot))) return ["any"];
-
-	const everyGroupSlot = ["hand", "armor", "body", "saddle"] as SlotRegistryType[];
-	if (everyGroupSlot.every((slot) => normalizedSlots.includes(slot))) return ["any"];
-
-	return normalizedSlots;
-}
-
-export function addSlot(existingSlots: SlotRegistryType[], newSlot: SlotRegistryType): SlotRegistryType[] {
-	if (newSlot === "any") return ["any"];
-	const updatedSlots = [...existingSlots, newSlot];
-	return normalizeSlots(updatedSlots);
-}
-
-export function removeSlot(existingSlots: SlotRegistryType[], slotToRemove: SlotRegistryType): SlotRegistryType[] {
-	if (existingSlots.length === 0) {
-		return [];
+	static isArraySlotRegistryType(value: string[]): value is SlotRegistryType[] {
+		return value.every(SlotManager.isSlotRegistryType);
 	}
 
-	const result: Set<SlotRegistryType> = new Set();
+	add(slot: SlotRegistryType): this {
+		this.slots.add(slot);
+		this.normalize();
+		return this;
+	}
 
-	for (const slot of existingSlots) {
-		if (slot === "any") {
-			if (slotToRemove === "mainhand" || slotToRemove === "offhand") {
-				result.add("armor");
-				result.add(slotToRemove === "mainhand" ? "offhand" : "mainhand");
-			} else if (SLOT_MAPPINGS.armor.includes(slotToRemove as SlotRegistryType)) {
-				result.add("hand");
-				for (const s of SLOT_MAPPINGS.armor) {
-					if (s !== slotToRemove) result.add(s as SlotRegistryType);
+	remove(slot: SlotRegistryType): this {
+		const expanded = new Set<SlotRegistryType>();
+
+		for (const s of this.slots) {
+			const children = SLOT_MAPPINGS[s];
+			if (children.includes(slot as never)) {
+				for (const child of children) {
+					child !== slot && expanded.add(child);
 				}
 			} else {
-				result.add("hand");
-				result.add("armor");
+				expanded.add(s);
 			}
-		} else if (slot === "armor" && SLOT_MAPPINGS.armor.includes(slotToRemove as SlotRegistryType)) {
-			for (const s of SLOT_MAPPINGS.armor) {
-				if (s !== slotToRemove) result.add(s as SlotRegistryType);
-			}
-		} else if (slot === "hand" && SLOT_MAPPINGS.hand.includes(slotToRemove as SlotRegistryType)) {
-			for (const s of SLOT_MAPPINGS.hand) {
-				if (s !== slotToRemove) result.add(s as SlotRegistryType);
-			}
-		} else if (slot !== slotToRemove) {
-			result.add(slot);
 		}
+
+		this.slots = expanded;
+		this.normalize();
+		return this;
 	}
 
-	return Array.from(result);
+	toggle(slot: SlotRegistryType): this {
+		return this.has(slot) ? this.remove(slot) : this.add(slot);
+	}
+
+	normalize(): this {
+		const currentSlots = new Set(this.slots);
+		const flattened = new Set(Array.from(currentSlots).flatMap((slot) => SLOT_MAPPINGS[slot]));
+
+		for (const [composite, children] of SlotManager.compositeSlots) {
+			const childrenSet = new Set(children);
+			if (flattened.size === childrenSet.size && Array.from(flattened).every((s) => childrenSet.has(s))) {
+				this.slots = new Set([composite]);
+				return this;
+			}
+		}
+
+		// Group individual slots into composites
+		for (const [composite, children] of SlotManager.compositeSlots) {
+			if (children.every((child) => currentSlots.has(child))) {
+				for (const child of children) {
+					currentSlots.delete(child);
+				}
+				currentSlots.add(composite);
+			}
+		}
+
+		this.slots = currentSlots;
+		return this;
+	}
+
+	has(slot: SlotRegistryType): boolean {
+		return this.slots.has(slot) || Array.from(this.slots).some((s) => SLOT_MAPPINGS[s].includes(slot as never));
+	}
+
+	flatten(): SlotRegistryType[] {
+		return Array.from(new Set(Array.from(this.slots).flatMap((slot) => SLOT_MAPPINGS[slot])));
+	}
+
+	toArray(): SlotRegistryType[] {
+		return Array.from(this.slots);
+	}
 }
-
-export function toggleSlot(existingSlots: SlotRegistryType[], slotToToggle: SlotRegistryType): SlotRegistryType[] {
-	const keyExistInParams = existingSlots.includes(slotToToggle);
-	const keyExistInHand = existingSlots.includes("hand") && SLOT_MAPPINGS.hand.includes(slotToToggle);
-	const keyExistInArmor = existingSlots.includes("armor") && SLOT_MAPPINGS.armor.includes(slotToToggle);
-	const keyExistInAny = existingSlots.includes("any") && SLOT_MAPPINGS.any.includes(slotToToggle);
-
-	return keyExistInParams || keyExistInHand || keyExistInArmor || keyExistInAny
-		? removeSlot(existingSlots, slotToToggle)
-		: addSlot(existingSlots, slotToToggle);
-}
-
-export const flattenSlots = (slots: SlotRegistryType[]): SlotRegistryType[] =>
-	Array.from(new Set(slots.flatMap((slot) => SLOT_MAPPINGS[slot] as SlotRegistryType[])));

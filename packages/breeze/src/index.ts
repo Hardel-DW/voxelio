@@ -27,7 +27,7 @@ export { getItemFromMultipleOrOne, getAllItems, separateItemsAndTags } from "@/c
 export { updateData } from "@/core/engine/actions/index";
 export { calculateItemCountRange } from "@/core/calculation/LootCountProbability";
 export { toRoman } from "@/Roman";
-export { flattenSlots } from "@/core/engine/managers/SlotManager";
+export { SlotManager } from "@/core/engine/managers/SlotManager";
 export { compileDatapack } from "@/core/engine/Compiler";
 export { parseDatapack } from "@/core/engine/Parser";
 
