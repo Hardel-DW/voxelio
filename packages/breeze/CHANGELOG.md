@@ -1,5 +1,14 @@
 # @voxelio/breeze
 
+## 1.10.0
+
+### Minor Changes
+
+- 8ad203a: - Greatly refactor of Compiling
+  - Refactor of SlotManager.
+  - Refactor of Tag
+  - Added DatapackDownloader.
+
 ## 1.9.2
 
 ### Patch Changes
