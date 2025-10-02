@@ -1,6 +1,6 @@
 import type { DataDrivenElement, VoxelElement } from "@/core/Element";
 import { Identifier } from "@/core/Identifier";
-import type { SlotRegistryType } from "@/core/engine/managers/SlotManager";
+import type { SlotRegistryType } from "@/core/SlotManager";
 import type { SingleOrMultiple } from "@/index";
 import type { TextComponentType } from "@/core/schema/TextComponentType";
 

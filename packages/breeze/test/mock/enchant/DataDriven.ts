@@ -1,5 +1,5 @@
 import type { DataDrivenRegistryElement } from "@/core/Element";
-import type { SlotRegistryType } from "@/core/engine/managers/SlotManager";
+import type { SlotRegistryType } from "@/core/SlotManager";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
 import type { Enchantment } from "@/core/schema/enchant/types";
 

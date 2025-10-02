@@ -1,5 +1,5 @@
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
-import { SlotManager } from "../../engine/managers/SlotManager";
+import { SlotManager } from "../../SlotManager";
 import { getAllItems } from "../../ItemList";
 
 /**

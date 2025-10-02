@@ -1,5 +1,8 @@
-J---
+---
 "@voxelio/breeze": minor
 ---
 
-Total refactor of compiling, Tag, Datapack and Download.
+- Greatly refactor of Compiling
+- Refactor of SlotManager.
+- Refactor of Tag
+- Added DatapackDownloader.

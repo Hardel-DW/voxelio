@@ -1,5 +1,4 @@
-import { getManager } from "@/core/engine/Manager";
-import { SlotManager, type SlotRegistryType } from "@/core/engine/managers/SlotManager";
+import { SlotManager, type SlotRegistryType } from "@/core/SlotManager";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
 import { getFieldValue, getValueAtPath, setValueAtPath } from "@/core/engine/actions/utils";
 import { Action } from "@/core/engine/actions/index";
@@ -22,11 +21,6 @@ export class EnchantmentAction<P = any> extends Action<P> {
 				throw new Error("Version is required for computed slot actions");
 			}
 
-			const slotManager = getManager("slot", version);
-			if (!slotManager) {
-				throw new Error(`SlotManager is not available for version ${version}`);
-			}
-
 			const computedValue = getFieldValue(p.slot);
 			if (typeof computedValue !== "string" || !SlotManager.isSlotRegistryType(computedValue)) {
 				throw new Error(`Invalid SlotRegistryType: ${String(computedValue)}`);
@@ -41,7 +35,9 @@ export class EnchantmentAction<P = any> extends Action<P> {
 				throw new Error(`Invalid SlotRegistryType array: ${JSON.stringify(currentRaw)}`);
 			}
 
-			const nextSlots = slotManager.apply(currentRaw as SlotRegistryType[], computedValue);
+			const nextSlots = SlotManager.fromVersion(version, currentRaw as SlotRegistryType[])
+				.toggle(computedValue)
+				.toArray();
 			return setValueAtPath(el, p.path, nextSlots);
 		});
 	}

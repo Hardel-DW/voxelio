@@ -1,4 +1,4 @@
-import { type SlotRegistryType, SlotManager } from "@/core/engine/managers/SlotManager";
+import { type SlotRegistryType, SlotManager } from "@/core/SlotManager";
 import { describe, expect, test } from "vitest";
 
 const singleItemTests = ["head", "chest", "legs", "feet", "mainhand", "offhand"] as SlotRegistryType[];

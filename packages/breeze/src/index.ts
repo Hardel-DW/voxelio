@@ -12,6 +12,7 @@ export { TagsProcessor as TagsComparator } from "@/core/TagsProcessor";
 export { TagsProcessor } from "@/core/TagsProcessor";
 export { DatapackError } from "@/core/DatapackError";
 export { LootTableAppearanceProbability } from "@/core/calculation/LootTableAppearanceProbability";
+export { SlotManager } from "@/core/SlotManager";
 
 export { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 export { RecipeAction } from "@/core/engine/actions/domains/RecipeAction";
@@ -27,7 +28,6 @@ export { getItemFromMultipleOrOne, getAllItems, separateItemsAndTags } from "@/c
 export { updateData } from "@/core/engine/actions/index";
 export { calculateItemCountRange } from "@/core/calculation/LootCountProbability";
 export { toRoman } from "@/Roman";
-export { SlotManager } from "@/core/engine/managers/SlotManager";
 export { compileDatapack } from "@/core/engine/Compiler";
 export { parseDatapack } from "@/core/engine/Parser";
 
@@ -39,7 +39,7 @@ export type { Parser, ParseDatapackResult } from "@/core/engine/Parser";
 export type { DataDrivenElement, DataDrivenRegistryElement, VoxelElement } from "@/core/Element";
 export type { Analysers, Analyser, GetAnalyserVoxel } from "@/core/engine/Analyser";
 export type { ActionValue } from "@/core/engine/actions/index";
-export type { SlotRegistryType } from "@/core/engine/managers/SlotManager";
+export type { SlotRegistryType } from "@/core/SlotManager";
 export type { TextComponentType } from "@/core/schema/TextComponentType";
 export type { TagType, OptionalTag } from "@/core/Tag";
 export type { StructureProps } from "@/core/schema/structure/types";

@@ -1,4 +1,4 @@
-import { SlotManager } from "@/core/engine/managers/SlotManager";
+import { SlotManager } from "@/core/SlotManager";
 import { describe, expect, test } from "vitest";
 
 describe("Toggle Slot with key", () => {
