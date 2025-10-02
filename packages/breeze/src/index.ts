@@ -14,6 +14,7 @@ export { DatapackError } from "@/core/DatapackError";
 export { LootTableAppearanceProbability } from "@/core/calculation/LootTableAppearanceProbability";
 export { SlotManager } from "@/core/SlotManager";
 
+export { Action } from "@/core/engine/actions/index";
 export { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 export { RecipeAction } from "@/core/engine/actions/domains/RecipeAction";
 export { LootTableAction } from "@/core/engine/actions/domains/LootTableAction";
@@ -31,6 +32,7 @@ export { toRoman } from "@/Roman";
 export { compileDatapack } from "@/core/engine/Compiler";
 export { parseDatapack } from "@/core/engine/Parser";
 
+export type { IdentifierObject } from "@/core/Identifier";
 export type { EnchantmentSortCriteria } from "@/core/schema/enchant/Sorter";
 export type { FlattenedLootItem } from "@/core/calculation/LootTableFlattener";
 export type { EnchantmentOption, EnchantmentStats, SlotLevelRange } from "@/core/calculation/EnchantmentSimulation";

@@ -10,5 +10,6 @@ export function toRoman(num: number) {
 			currentNum -= values[i];
 		}
 	}
+
 	return result;
 }
