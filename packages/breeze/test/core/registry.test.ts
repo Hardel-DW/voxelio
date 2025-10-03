@@ -1,7 +1,14 @@
 import { describe, expect, it, beforeEach } from "vitest";
 import { Datapack } from "@/core/Datapack";
-import { registryFile } from "@test/mock/datapack";
 import { prepareFiles } from "@test/mock/utils";
+
+const registryFile = {
+	"data/enchantplus/enchantment/armor/fury.json": { foo: "bar" },
+	"data/minecraft/enchantment/attack_speed.json": { foo: "bar" },
+	"data/minecraft/enchantment_provider/villager.json": { foo: "bar" },
+	"data/enchantplus/tags/enchantment/armor.json": { values: ["enchantplus:fury"] },
+	"data/minecraft/tags/enchantment/weapon.json": { values: ["minecraft:attack_speed"] }
+};
 
 describe("Registry System", () => {
 	let datapack: Datapack;

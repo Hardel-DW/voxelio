@@ -156,11 +156,13 @@ export class Datapack {
 			if (fileParts[0] !== "data") continue;
 
 			const namespace = fileParts[1];
-			const compressedPath = file.split("/").slice(2).join("/").replace(".json", "");
+			const firstFolder = fileParts[2];
+			const depth = Datapack.getRegistryDepth(firstFolder);
+			const detectedRegistry = fileParts.slice(2, 2 + depth).join("/");
 
-			if (!compressedPath.startsWith(`${registry}/`) && compressedPath !== registry) continue;
+			if (detectedRegistry !== registry) continue;
 
-			const resource = compressedPath.slice(registry.length + 1);
+			const resource = fileParts.slice(2 + depth).join("/").replace(".json", "");
 			if (!resource || !namespace || !registry) continue;
 
 			if (path && !resource.startsWith(path)) continue;
@@ -203,5 +205,36 @@ export class Datapack {
 		return this.getRegistry<TagType>(registry)
 			.filter((tag) => new Tags(tag.data).isPresentInTag(new Identifier(identifier).toString()))
 			.map((tag) => new Identifier(tag.identifier).toString());
+	}
+
+	/**
+	 * Get all registries present in the datapack
+	 * @returns Set of all registry names found in data/ paths
+	 */
+	getRegistries(basePath: string = "data"): Set<string> {
+		const registries = new Set<string>();
+
+		for (const file of Object.keys(this.files)) {
+			if (!file.startsWith(`${basePath}/`)) continue;
+			const parts = file.split("/");
+			if (parts.length < 3) continue;
+
+			const firstFolder = parts[2];
+			const depth = Datapack.getRegistryDepth(firstFolder);
+			const registry = parts.slice(2, 2 + depth).join("/");
+			if (registry) registries.add(registry);
+		}
+
+		return registries;
+	}
+
+	/**
+	 * Determine the registry depth based on the first folder after namespace
+	 * @param firstFolder - First folder after namespace (e.g., "enchantment", "worldgen", "tags")
+	 * @returns 2 if the folder requires two levels (worldgen/*, tags/*), 1 otherwise
+	 */
+	static getRegistryDepth(firstFolder: string): number {
+		const twoLevelRegistries = ["worldgen", "tags"];
+		return twoLevelRegistries.includes(firstFolder) ? 2 : 1;
 	}
 }

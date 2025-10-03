@@ -17,15 +17,11 @@ export class TagsProcessor {
 	constructor(private readonly tags: DataDrivenRegistryElement<TagType>[]) {
 		const registries = new Set(tags.map((tag) => tag.identifier.registry));
 
-		if (registries.size === 0) {
-			throw new Error("No tags provided");
-		}
-
 		if (registries.size > 1) {
 			throw new Error(`Multiple registries found: ${Array.from(registries).join(", ")}. All tags must have the same registry.`);
 		}
 
-		this.registry = Array.from(registries)[0];
+		this.registry = registries.size > 0 ? Array.from(registries)[0] : "";
 		this.tagMap = new Map(tags.map((tag) => [new Identifier(tag.identifier).toString(), tag]));
 	}
 

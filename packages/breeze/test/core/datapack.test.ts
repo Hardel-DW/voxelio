@@ -73,11 +73,7 @@ describe("Datapack", () => {
 	describe("getRelatedTags", () => {
 		it("should find tags containing an identifier", () => {
 			const datapack = new Datapack(enchantmentWithTagFiles);
-			const identifier = {
-				namespace: "enchantplus",
-				registry: "enchantment",
-				resource: "sword/poison_aspect"
-			};
+			const identifier = { namespace: "enchantplus", registry: "enchantment", resource: "sword/poison_aspect" };
 			const tags = datapack.getRelatedTags("tags/enchantment", identifier);
 			expect(tags).toContain("#enchantplus:exclusive_set/aspect");
 			expect(tags).toContain("#minecraft:curse");
@@ -85,11 +81,7 @@ describe("Datapack", () => {
 
 		it("should return empty array for non-existent registry", () => {
 			const datapack = new Datapack(enchantmentWithTagFiles);
-			const identifier = {
-				namespace: "test",
-				registry: "none",
-				resource: "test"
-			};
+			const identifier = { namespace: "test", registry: "none", resource: "test" };
 			expect(datapack.getRelatedTags(undefined, identifier)).toEqual([]);
 		});
 	});
@@ -166,6 +158,74 @@ describe("Datapack", () => {
 			});
 
 			expect(content).toBeUndefined();
+		});
+	});
+
+	describe("getRegistryDepth", () => {
+		it("should return 1 for single-level registries", () => {
+			expect(Datapack.getRegistryDepth("enchantment")).toBe(1);
+			expect(Datapack.getRegistryDepth("advancement")).toBe(1);
+			expect(Datapack.getRegistryDepth("recipe")).toBe(1);
+		});
+
+		it("should return 2 for worldgen registries", () => {
+			expect(Datapack.getRegistryDepth("worldgen")).toBe(2);
+		});
+
+		it("should return 2 for tag/tags registries", () => {
+			expect(Datapack.getRegistryDepth("tags")).toBe(2);
+		});
+	});
+
+	describe("getRegistry with multi-level registries", () => {
+		it("should correctly parse single-level registry path (enchantment)", () => {
+			const files = {
+				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({ pack: { pack_format: 61, description: "test" } })),
+				"data/namespace/enchantment/sword/fury.json": new TextEncoder().encode(JSON.stringify({ type: "test" }))
+			};
+			const datapack = new Datapack(files);
+			const registry = datapack.getRegistry("enchantment");
+
+			expect(registry).toHaveLength(1);
+			expect(registry[0].identifier).toEqual({
+				namespace: "namespace",
+				registry: "enchantment",
+				resource: "sword/fury"
+			});
+		});
+
+		it("should correctly parse two-level registry path (worldgen/noise)", () => {
+			const files = {
+				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({ pack: { pack_format: 61, description: "test" } })),
+				"data/namespace/worldgen/noise/overworld.json": new TextEncoder().encode(JSON.stringify({ type: "test" }))
+			};
+			const datapack = new Datapack(files);
+			const registry = datapack.getRegistry("worldgen/noise");
+
+			expect(registry).toHaveLength(1);
+			expect(registry[0].identifier).toEqual({
+				namespace: "namespace",
+				registry: "worldgen/noise",
+				resource: "overworld"
+			});
+		});
+	});
+
+	describe("getRegistries with multi-level registries", () => {
+		it("should correctly detect both single and two-level registries", () => {
+			const files = {
+				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({ pack: { pack_format: 61, description: "test" } })),
+				"data/namespace/enchantment/sword/fury.json": new TextEncoder().encode(JSON.stringify({ type: "test" })),
+				"data/namespace/worldgen/noise/overworld.json": new TextEncoder().encode(JSON.stringify({ type: "test" })),
+				"data/namespace/tags/enchantment/aspect.json": new TextEncoder().encode(JSON.stringify({ type: "test" }))
+			};
+			const datapack = new Datapack(files);
+			const registries = datapack.getRegistries();
+
+			expect(registries).toContain("enchantment");
+			expect(registries).toContain("worldgen/noise");
+			expect(registries).toContain("tags/enchantment");
+			expect(registries.size).toBe(3);
 		});
 	});
 });
