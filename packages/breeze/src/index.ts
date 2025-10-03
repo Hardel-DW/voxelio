@@ -4,6 +4,7 @@ export { VOXEL_TAGS } from "@/Voxel";
 export { Datapack } from "@/core/Datapack";
 export { Tags } from "@/core/Tag";
 export { Identifier } from "@/core/Identifier";
+export { FileStatusComparator, FILE_STATUS } from "@/core/FileStatusComparator";
 export { EnchantmentSorter } from "@/core/schema/enchant/Sorter";
 export { LootTableFlattener } from "@/core/calculation/LootTableFlattener";
 export { EnchantmentSimulator } from "@/core/calculation/EnchantmentSimulation";
@@ -33,6 +34,7 @@ export { compileDatapack } from "@/core/engine/Compiler";
 export { parseDatapack } from "@/core/engine/Parser";
 
 export type { IdentifierObject } from "@/core/Identifier";
+export type { FileStatus } from "@/core/FileStatusComparator";
 export type { EnchantmentSortCriteria } from "@/core/schema/enchant/Sorter";
 export type { FlattenedLootItem } from "@/core/calculation/LootTableFlattener";
 export type { EnchantmentOption, EnchantmentStats, SlotLevelRange } from "@/core/calculation/EnchantmentSimulation";
