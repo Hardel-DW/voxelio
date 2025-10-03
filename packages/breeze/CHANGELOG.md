@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.3
+
+### Patch Changes
+
+- d7a1502: Export FileStatusComparator type and function
+
 ## 1.10.2
 
 ### Patch Changes
