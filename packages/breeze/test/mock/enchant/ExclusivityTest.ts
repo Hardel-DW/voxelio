@@ -7,7 +7,6 @@ import type { TagType } from "@/core/Tag";
  * Covers: string, tag, array formats for exclusive_set
  */
 export const EXCLUSIVITY_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantment>[] = [
-	// Test 1: exclusive_set as string (direct enchantment)
 	{
 		identifier: { namespace: "test", registry: "enchantment", resource: "sharpness_v2" },
 		data: {
@@ -18,12 +17,10 @@ export const EXCLUSIVITY_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantmen
 			max_cost: { base: 21, per_level_above_first: 11 },
 			anvil_cost: 1,
 			slots: ["mainhand"],
-			exclusive_set: "minecraft:sharpness", // String direct
+			exclusive_set: "minecraft:sharpness",
 			supported_items: "#minecraft:enchantable/sword"
 		}
 	},
-
-	// Test 2: exclusive_set as tag
 	{
 		identifier: { namespace: "test", registry: "enchantment", resource: "damage_boost" },
 		data: {
@@ -34,12 +31,10 @@ export const EXCLUSIVITY_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantmen
 			max_cost: { base: 25, per_level_above_first: 8 },
 			anvil_cost: 2,
 			slots: ["mainhand"],
-			exclusive_set: "#test:exclusive_set/damage", // Tag reference
+			exclusive_set: "#test:exclusive_set/damage",
 			supported_items: "#minecraft:enchantable/weapon"
 		}
 	},
-
-	// Test 3: exclusive_set as array
 	{
 		identifier: { namespace: "test", registry: "enchantment", resource: "multi_exclusive" },
 		data: {
@@ -50,12 +45,10 @@ export const EXCLUSIVITY_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantmen
 			max_cost: { base: 40, per_level_above_first: 0 },
 			anvil_cost: 3,
 			slots: ["mainhand"],
-			exclusive_set: ["minecraft:sharpness", "minecraft:smite"], // Array direct
+			exclusive_set: ["minecraft:sharpness", "minecraft:smite"],
 			supported_items: "#minecraft:enchantable/sword"
 		}
 	},
-
-	// Test 4: No exclusive_set (should be compatible with all)
 	{
 		identifier: { namespace: "test", registry: "enchantment", resource: "universal" },
 		data: {
@@ -66,7 +59,6 @@ export const EXCLUSIVITY_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantmen
 			max_cost: { base: 50, per_level_above_first: 0 },
 			anvil_cost: 1,
 			slots: ["mainhand"],
-			// No exclusive_set - should be compatible with everything
 			supported_items: "#minecraft:enchantable/weapon"
 		}
 	}
@@ -76,7 +68,6 @@ export const EXCLUSIVITY_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantmen
  * Test enchantments for primary_items vs supported_items testing
  */
 export const PRIMARY_ITEMS_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantment>[] = [
-	// Test 1: Only supported_items (string)
 	{
 		identifier: { namespace: "test", registry: "enchantment", resource: "supported_only_string" },
 		data: {
@@ -87,11 +78,9 @@ export const PRIMARY_ITEMS_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantm
 			max_cost: { base: 50, per_level_above_first: 0 },
 			anvil_cost: 1,
 			slots: ["mainhand"],
-			supported_items: "minecraft:diamond_sword" // String - single item
+			supported_items: "minecraft:diamond_sword"
 		}
 	},
-
-	// Test 2: Only supported_items (tag)
 	{
 		identifier: { namespace: "test", registry: "enchantment", resource: "supported_only_tag" },
 		data: {
@@ -102,11 +91,9 @@ export const PRIMARY_ITEMS_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantm
 			max_cost: { base: 50, per_level_above_first: 0 },
 			anvil_cost: 1,
 			slots: ["mainhand"],
-			supported_items: "#minecraft:enchantable/sword" // Tag
+			supported_items: "#minecraft:enchantable/sword"
 		}
 	},
-
-	// Test 3: Only supported_items (array)
 	{
 		identifier: { namespace: "test", registry: "enchantment", resource: "supported_only_array" },
 		data: {
@@ -117,11 +104,9 @@ export const PRIMARY_ITEMS_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantm
 			max_cost: { base: 50, per_level_above_first: 0 },
 			anvil_cost: 1,
 			slots: ["mainhand"],
-			supported_items: ["minecraft:diamond_sword", "minecraft:iron_sword"] // Array - multiple items
+			supported_items: ["minecraft:diamond_sword", "minecraft:iron_sword"]
 		}
 	},
-
-	// Test 4: Both primary_items and supported_items (primary should win)
 	{
 		identifier: { namespace: "test", registry: "enchantment", resource: "primary_wins" },
 		data: {
@@ -132,12 +117,10 @@ export const PRIMARY_ITEMS_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantm
 			max_cost: { base: 50, per_level_above_first: 0 },
 			anvil_cost: 1,
 			slots: ["mainhand"],
-			primary_items: "minecraft:diamond_sword", // Primary should be used
-			supported_items: "minecraft:stone_sword" // This should be ignored
+			primary_items: "minecraft:diamond_sword",
+			supported_items: "minecraft:stone_sword"
 		}
 	},
-
-	// Test 5: primary_items as tag (primary should override supported)
 	{
 		identifier: { namespace: "test", registry: "enchantment", resource: "primary_tag" },
 		data: {
@@ -148,12 +131,10 @@ export const PRIMARY_ITEMS_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantm
 			max_cost: { base: 50, per_level_above_first: 0 },
 			anvil_cost: 1,
 			slots: ["mainhand"],
-			primary_items: "#minecraft:enchantable/sword", // Tag in primary - should be used
-			supported_items: "#minecraft:enchantable/weapon" // Should be ignored
+			primary_items: "#minecraft:enchantable/sword",
+			supported_items: "#minecraft:enchantable/weapon"
 		}
 	},
-
-	// Test 6: primary_items as array (primary should override supported)
 	{
 		identifier: { namespace: "test", registry: "enchantment", resource: "primary_array" },
 		data: {
@@ -164,8 +145,8 @@ export const PRIMARY_ITEMS_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantm
 			max_cost: { base: 50, per_level_above_first: 0 },
 			anvil_cost: 1,
 			slots: ["mainhand"],
-			primary_items: ["minecraft:diamond_sword", "minecraft:netherite_sword"], // Array in primary - should be used
-			supported_items: "#minecraft:enchantable/weapon" // Should be ignored
+			primary_items: ["minecraft:diamond_sword", "minecraft:netherite_sword"],
+			supported_items: "#minecraft:enchantable/weapon"
 		}
 	}
 ];
@@ -212,7 +193,6 @@ export const VANILLA_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantment>[]
 			max_cost: { base: 55, per_level_above_first: 8 },
 			anvil_cost: 2,
 			slots: ["mainhand", "offhand", "feet", "legs", "chest", "head"],
-			// No exclusive_set - should be compatible
 			supported_items: "#minecraft:enchantable/durability"
 		}
 	}
@@ -222,7 +202,6 @@ export const VANILLA_TEST_ENCHANTMENTS: DataDrivenRegistryElement<Enchantment>[]
  * Test tags for exclusive_set testing
  */
 export const EXCLUSIVITY_TEST_TAGS: DataDrivenRegistryElement<TagType>[] = [
-	// Tag used in exclusive_set testing
 	{
 		identifier: { namespace: "test", registry: "tags/enchantment", resource: "exclusive_set/damage" },
 		data: {
@@ -230,20 +209,16 @@ export const EXCLUSIVITY_TEST_TAGS: DataDrivenRegistryElement<TagType>[] = [
 				"minecraft:sharpness",
 				"minecraft:smite",
 				"minecraft:bane_of_arthropods",
-				"test:damage_boost" // Include our test enchantment
+				"test:damage_boost"
 			]
 		}
 	},
-
-	// Another exclusive set for testing
 	{
 		identifier: { namespace: "test", registry: "tags/enchantment", resource: "exclusive_set/protection" },
 		data: {
 			values: ["minecraft:protection", "minecraft:fire_protection", "minecraft:blast_protection", "minecraft:projectile_protection"]
 		}
 	},
-
-	// Non-treasure tag for testing (should be in enchanting table)
 	{
 		identifier: { namespace: "minecraft", registry: "tags/enchantment", resource: "in_enchanting_table" },
 		data: {
