@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.2
+
+### Patch Changes
+
+- 608fc76: Added FileStatusComparator to know if file is added, deleted, changed or unchanged. And remove a ton of line in vitests. Some mocks deleted
+
 ## 1.10.1
 
 ### Patch Changes
