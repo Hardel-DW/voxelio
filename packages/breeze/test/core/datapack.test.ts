@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { Datapack } from "@/core/Datapack";
 import type { TagType } from "@/core/Tag";
 import { DatapackError } from "@/core/DatapackError";
-import { createZipFile } from "@test/mock/utils";
-import { enchantmentWithTagFiles, nonValidMcmetaZip, testMcMetaNotExists } from "@test/mock/datapack";
+import { createZipFile, prepareFiles } from "@test/mock/utils";
+import { enchantmentWithTagFiles } from "@test/mock/datapack";
 
 describe("Datapack", () => {
 	it("should create a datapack instance from files", () => {
@@ -12,6 +12,11 @@ describe("Datapack", () => {
 	});
 
 	it("should throw error if pack.mcmeta is missing", () => {
+		const nonValidMcmetaZip = prepareFiles({}, -1);
+		const testMcMetaNotExists = {
+			"data/enchantplus/enchantment/test.json": new TextEncoder().encode(JSON.stringify({}, null, 2))
+		};
+
 		expect(() => new Datapack(testMcMetaNotExists)).toThrow(DatapackError);
 		expect(() => new Datapack(nonValidMcmetaZip)).toThrow(DatapackError);
 	});

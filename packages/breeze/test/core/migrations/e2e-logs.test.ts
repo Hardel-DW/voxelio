@@ -10,11 +10,8 @@ import { createZipFile, prepareFiles } from "@test/mock/utils";
 describe("E2E Logs System", () => {
 	describe("Scenario 1: Basic logging flow", () => {
 		it("should track changes, export logs, and generate valid datapack", async () => {
-			// Prepare mock datapack
 			const files = prepareFiles({ ...lootTableFile, ...enchantmentFile });
 			const datapackFile = await createZipFile(files);
-
-			// Parse datapack
 			const result = await parseDatapack(datapackFile);
 			const logger = result.logger;
 
@@ -38,11 +35,10 @@ describe("E2E Logs System", () => {
 			expect(changes[0].differences[0].path).toBe("name");
 			expect(changes[0].differences[0].value).toBe("Modified Name");
 
-			// Export logs
 			const logsJson = logger.exportJson();
 			expect(logsJson).toContain("logs");
 			expect(logsJson).toContain("Modified Name");
-			// Parse logs and verify structure
+
 			const parsedLogs = JSON.parse(logsJson);
 			expect(parsedLogs.id).toBeDefined();
 			expect(parsedLogs.generated_at).toBeDefined();
@@ -55,15 +51,10 @@ describe("E2E Logs System", () => {
 		it("should import existing logs, apply more actions, and export complete history", async () => {
 			const files = prepareFiles({ ...lootTableFile });
 			const datapackFile = await createZipFile(files);
-
-			// Parse datapack (should import logs)
 			const result = await parseDatapack(datapackFile);
 			const logger = result.logger;
 
-			// Verify existing logs were imported
 			expect(logger.getChanges()).toHaveLength(0);
-
-			// Apply new actions
 			const elementKey = Array.from(result.elements.keys())[0];
 			const element = result.elements.get(elementKey);
 			if (!element) throw new Error("Element not found");
@@ -72,12 +63,10 @@ describe("E2E Logs System", () => {
 				return updateData(CoreAction.setValue("pools.0.bonus_rolls", 2), el, 123);
 			});
 
-			// Verify combined history
 			const allChanges = logger.getChanges();
 			expect(allChanges).toHaveLength(1);
 			expect(allChanges[0].differences[0].path).toBe("pools.0.bonus_rolls"); // New change
 
-			// Export complete history and verify ID preservation
 			const fullLogsJson = logger.exportJson();
 			const parsedFullLogs = JSON.parse(fullLogsJson);
 			expect(parsedFullLogs.logs).toHaveLength(1);
@@ -86,7 +75,6 @@ describe("E2E Logs System", () => {
 
 	describe("Scenario 3: Replay changes from logs", () => {
 		it("should parse logs, replay changes, and verify element modifications", async () => {
-			// Create logs with specific changes based on what we actually have
 			const replayLogs = {
 				id: "replay-test-id",
 				generated_at: "2024-01-01T00:00:00.000Z",
@@ -110,13 +98,10 @@ describe("E2E Logs System", () => {
 				]
 			};
 
-			// Import logs into a new logger
 			const replayLogger = new Logger(JSON.stringify(replayLogs));
 			const importedChanges = replayLogger.getChanges();
 
 			expect(importedChanges).toHaveLength(2);
-
-			// Verify log structure is correct
 			expect(importedChanges[0].identifier).toBe("test:test");
 			expect(importedChanges[0].differences[0].path).toBe("pools.0.rolls");
 			expect(importedChanges[0].differences[0].value).toBe(10);
@@ -124,12 +109,9 @@ describe("E2E Logs System", () => {
 			expect(importedChanges[1].identifier).toBe("enchantplus:sword/attack_speed");
 			expect(importedChanges[1].differences[0].path).toBe("max_level");
 			expect(importedChanges[1].differences[0].value).toBe(20);
-
-			// Verify log structure is correct
 			expect(importedChanges[0].registry).toBe("loot_table");
 			expect(importedChanges[1].registry).toBe("enchantment");
 
-			// Verify ID was preserved
 			const exportedJson = replayLogger.exportJson();
 			const parsed = JSON.parse(exportedJson);
 			expect(parsed.id).toBe("replay-test-id");
@@ -138,40 +120,26 @@ describe("E2E Logs System", () => {
 
 	describe("Complete datapack generation workflow", () => {
 		it("should parse datapack, apply logged changes, and generate modified datapack", async () => {
-			// Prepare original datapack
 			const files = prepareFiles(lootTableFile);
 			const originalDatapack = new Datapack(files);
-
-			// Create logger and apply changes
 			const logger = new Logger();
-			logger.setDatapackInfo({
-				namespaces: ["test"],
-				version: 48,
-				isModded: false
-			});
-
-			// Get original loot table
+			logger.setDatapackInfo({ namespaces: ["test"], version: 48, isModded: false });
 			const lootTables = originalDatapack.getRegistry("loot_table");
-			expect(lootTables).toHaveLength(4); // completeLootTable, advancedLootTable, ultimateTestLootTable, finalBossOfLootTable
+			expect(lootTables).toHaveLength(4);
 
-			// Simulate tracked changes on an element
 			const testElement = {
 				identifier: "test:test$loot_table",
 				pools: [{ rolls: 1, entries: [] }],
 				type: "minecraft:entity"
 			};
 
-			logger.trackChanges(testElement, (el) => {
-				return { ...el, pools: [{ rolls: 5, entries: [] }] };
-			});
+			logger.trackChanges(testElement, (el) => ({ ...el, pools: [{ rolls: 5, entries: [] }] }));
 
-			// Verify logging worked
 			const changes = logger.getChanges();
 			expect(changes).toHaveLength(1);
 			expect(changes[0].differences[0].path).toBe("pools.0.rolls");
 			expect(changes[0].differences[0].value).toBe(5);
 
-			// Export logs to verify they contain our changes
 			const logsJson = logger.exportJson();
 			expect(logsJson).toContain("pools.0.rolls");
 			expect(logsJson).toContain('"value": 5');
@@ -182,7 +150,6 @@ describe("E2E Logs System", () => {
 
 describe("E2E Logs Replay System", () => {
 	it("should use new Logger.replay() API for migration", async () => {
-		// Create source datapack with logs
 		const sourceFiles = prepareFiles({ ...lootTableFile, ...enchantmentFile });
 		const sourceLogger = new Logger();
 		sourceLogger.setDatapackInfo({
@@ -191,7 +158,6 @@ describe("E2E Logs Replay System", () => {
 			isModded: true
 		});
 
-		// Simulate some changes being tracked using realistic elements
 		const element1 = {
 			identifier: { namespace: "test", registry: "loot_table", resource: "test" },
 			pools: [{ rolls: 1, entries: [] }],

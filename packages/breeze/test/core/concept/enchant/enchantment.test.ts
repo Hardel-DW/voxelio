@@ -4,14 +4,11 @@ import { Identifier } from "@/core/Identifier";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
 import type { Enchantment } from "@/core/schema/enchant/types";
 import { DATA_DRIVEN_TEMPLATE_ENCHANTMENT, makeAdvancedEnchantment } from "@test/mock/enchant/DataDriven";
-import { VOXEL_TEMPLATE_ENCHANTMENT } from "@test/mock/enchant/VoxelDriven";
+import { simpleVoxelElement, onlyCreativeVoxelElement, softDeleteVoxelElement } from "@test/mock/enchant/VoxelDriven";
 import { describe, it, expect, beforeEach } from "vitest";
 
 describe("Enchantment Schema", () => {
 	describe("Voxel Element to Data Driven", () => {
-		const simpleVoxelElement = VOXEL_TEMPLATE_ENCHANTMENT[0];
-		const onlyCreativeVoxelElement = VOXEL_TEMPLATE_ENCHANTMENT[1];
-		const softDeleteVoxelElement = VOXEL_TEMPLATE_ENCHANTMENT[2];
 		const dataDrivenEnchantment = DATA_DRIVEN_TEMPLATE_ENCHANTMENT[0];
 
 		describe("Should be defined", () => {

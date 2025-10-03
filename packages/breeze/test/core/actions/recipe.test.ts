@@ -2,9 +2,9 @@ import { updateData } from "@/core/engine/actions";
 import { RecipeAction } from "@/core/engine/actions/domains/RecipeAction";
 import type { RecipeProps } from "@/core/schema/recipe/types";
 import { parseDatapack } from "@/core/engine/Parser";
-import { recipeFile } from "@test/mock/datapack";
-import { createZipFile } from "@test/mock/utils";
+import { createFilesFromElements, createZipFile } from "@test/mock/utils";
 import { describe, it, expect, beforeEach } from "vitest";
+import { recipeDataDriven } from "@test/mock/recipe/DataDriven";
 
 // Helper function to update data with proper typing
 function updateRecipe(action: any, recipe: RecipeProps, packVersion = 48): RecipeProps {
@@ -19,6 +19,7 @@ describe("Recipe Actions", () => {
 	let smeltingRecipe: RecipeProps;
 
 	beforeEach(async () => {
+		const recipeFile = createFilesFromElements(recipeDataDriven);
 		const parsedDatapack = await parseDatapack(await createZipFile(recipeFile));
 
 		const recipes = Array.from(parsedDatapack.elements.values()).filter(

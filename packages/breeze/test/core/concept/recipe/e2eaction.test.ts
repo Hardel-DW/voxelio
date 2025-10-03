@@ -3,11 +3,11 @@ import { updateData } from "@/core/engine/actions";
 import { VoxelToRecipeDataDriven } from "@/core/schema/recipe/Compiler";
 import type { RecipeProps } from "@/core/schema/recipe/types";
 import type { Action } from "@/core/engine/actions/index";
-import { recipeFile } from "@test/mock/datapack";
-import { createZipFile } from "@test/mock/utils";
+import { createFilesFromElements, createZipFile } from "@test/mock/utils";
 import { describe, it, expect, beforeEach } from "vitest";
 import { RecipeAction } from "@/core/engine/actions/domains/RecipeAction";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
+import { recipeDataDriven } from "@test/mock/recipe/DataDriven";
 
 
 // Helper function to update recipe data with proper typing
@@ -27,6 +27,7 @@ describe("Recipe E2E Actions Tests", () => {
 		let stonecuttingRecipe: RecipeProps;
 
 		beforeEach(async () => {
+			const recipeFile = createFilesFromElements(recipeDataDriven);
 			parsedDatapack = await parseDatapack(await createZipFile(recipeFile));
 
 			const recipes = Array.from(parsedDatapack.elements.values()).filter(

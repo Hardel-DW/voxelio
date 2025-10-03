@@ -1,18 +1,15 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { parseDatapack } from "@/core/engine/Parser";
-import { recipeFile } from "@test/mock/datapack";
+import { recipeDataDriven } from "@test/mock/recipe/DataDriven";
 import type { RecipeProps } from "@/core/schema/recipe/types";
-import { createZipFile } from "@test/mock/utils";
+import { createFilesFromElements, createZipFile } from "@test/mock/utils";
 
 describe("Recipe Schema", () => {
 	let parsedDatapack: Awaited<ReturnType<typeof parseDatapack>>;
 	let recipes: RecipeProps[];
 
 	beforeEach(async () => {
-		// 1. Parse the datapack from zip file
-		parsedDatapack = await parseDatapack(await createZipFile(recipeFile));
-
-		// Extract the parsed recipes from elements Map
+		parsedDatapack = await parseDatapack(await createZipFile(createFilesFromElements(recipeDataDriven)));
 		recipes = Array.from(parsedDatapack.elements.values()).filter(
 			(element): element is RecipeProps => element.identifier.registry === "recipe"
 		);
@@ -29,13 +26,9 @@ describe("Recipe Schema", () => {
 
 			expect(shapedRecipe.type).toBe("minecraft:crafting_shaped");
 			expect(shapedRecipe.gridSize).toEqual({ width: 3, height: 1 });
-
-			// Should have slots 0, 1, 2 filled with acacia_planks
 			expect(shapedRecipe.slots["0"]).toEqual(["minecraft:acacia_planks"]);
 			expect(shapedRecipe.slots["1"]).toEqual(["minecraft:acacia_planks"]);
 			expect(shapedRecipe.slots["2"]).toEqual(["minecraft:acacia_planks"]);
-
-			// Other slots should be empty
 			expect(shapedRecipe.slots["3"]).toBeUndefined();
 
 			expect(shapedRecipe.result.item).toBe("minecraft:acacia_slab");
@@ -51,14 +44,11 @@ describe("Recipe Schema", () => {
 			expect(shaped2Recipe.gridSize).toEqual({ width: 3, height: 3 });
 
 			// Pattern should be: " # ", "#X#", " # "
-			// Slots: 1=iron, 3=iron, 4=redstone, 5=iron, 7=iron
 			expect(shaped2Recipe.slots["1"]).toBe("#minecraft:iron_ingot"); // top center
 			expect(shaped2Recipe.slots["3"]).toBe("#minecraft:iron_ingot"); // middle left
 			expect(shaped2Recipe.slots["4"]).toEqual(["minecraft:redstone"]); // middle center
 			expect(shaped2Recipe.slots["5"]).toBe("#minecraft:iron_ingot"); // middle right
 			expect(shaped2Recipe.slots["7"]).toBe("#minecraft:iron_ingot"); // bottom center
-
-			// Empty slots should be undefined
 			expect(shaped2Recipe.slots["0"]).toBeUndefined(); // top left
 			expect(shaped2Recipe.slots["2"]).toBeUndefined(); // top right
 			expect(shaped2Recipe.slots["6"]).toBeUndefined(); // bottom left
@@ -75,13 +65,10 @@ describe("Recipe Schema", () => {
 
 			expect(twoByTwoRecipe.type).toBe("minecraft:crafting_shaped");
 			expect(twoByTwoRecipe.gridSize).toEqual({ width: 2, height: 2 });
-
-			// All 4 slots should be filled with chicken
 			expect(twoByTwoRecipe.slots["0"]).toEqual(["minecraft:chicken"]);
 			expect(twoByTwoRecipe.slots["1"]).toEqual(["minecraft:chicken"]);
 			expect(twoByTwoRecipe.slots["3"]).toEqual(["minecraft:chicken"]);
 			expect(twoByTwoRecipe.slots["4"]).toEqual(["minecraft:chicken"]);
-
 			expect(twoByTwoRecipe.result.item).toBe("minecraft:acacia_button");
 			expect(twoByTwoRecipe.result.count).toBe(1);
 		});
@@ -101,8 +88,6 @@ describe("Recipe Schema", () => {
 			expect(emptyLineRecipe.slots["6"]).toEqual(["minecraft:chicken"]);
 			expect(emptyLineRecipe.slots["7"]).toEqual(["minecraft:chicken"]);
 			expect(emptyLineRecipe.slots["8"]).toEqual(["minecraft:chicken"]);
-
-			// Middle row should be empty
 			expect(emptyLineRecipe.slots["3"]).toBeUndefined();
 			expect(emptyLineRecipe.slots["4"]).toBeUndefined();
 			expect(emptyLineRecipe.slots["5"]).toBeUndefined();
@@ -113,17 +98,12 @@ describe("Recipe Schema", () => {
 			expect(noNamespaceRecipe).toBeDefined();
 			if (!noNamespaceRecipe) return;
 
-			// Type should be normalized
 			expect(noNamespaceRecipe.type).toBe("minecraft:crafting_shaped");
-
-			// Ingredients should be normalized
 			expect(noNamespaceRecipe.slots["1"]).toEqual(["minecraft:iron_ingot"]);
 			expect(noNamespaceRecipe.slots["3"]).toEqual(["minecraft:iron_ingot"]);
 			expect(noNamespaceRecipe.slots["4"]).toEqual(["minecraft:redstone"]);
 			expect(noNamespaceRecipe.slots["5"]).toEqual(["minecraft:iron_ingot"]);
 			expect(noNamespaceRecipe.slots["7"]).toEqual(["minecraft:iron_ingot"]);
-
-			// Result should be normalized
 			expect(noNamespaceRecipe.result.item).toBe("minecraft:compass");
 		});
 	});
@@ -135,10 +115,7 @@ describe("Recipe Schema", () => {
 			if (!shapelessRecipe) return;
 
 			expect(shapelessRecipe.type).toBe("minecraft:crafting_shapeless");
-
-			// Should have first slot filled with acacia logs tag
 			expect(shapelessRecipe.slots["0"]).toBe("#minecraft:acacia_logs");
-
 			expect(shapelessRecipe.result.item).toBe("minecraft:acacia_planks");
 			expect(shapelessRecipe.result.count).toBe(4);
 		});
@@ -151,13 +128,8 @@ describe("Recipe Schema", () => {
 			if (!blastingRecipe) return;
 
 			expect(blastingRecipe.type).toBe("minecraft:blasting");
-
 			expect(blastingRecipe.slots["0"]).toEqual(["minecraft:iron_ore"]);
-			expect(blastingRecipe.typeSpecific).toMatchObject({
-				experience: 0.7,
-				cookingTime: 100
-			});
-
+			expect(blastingRecipe.typeSpecific).toMatchObject({ experience: 0.7, cookingTime: 100 });
 			expect(blastingRecipe.result.item).toBe("minecraft:iron_ingot");
 		});
 
@@ -167,7 +139,6 @@ describe("Recipe Schema", () => {
 			if (!campfireRecipe) return;
 
 			expect(campfireRecipe.type).toBe("minecraft:campfire_cooking");
-
 			expect(campfireRecipe.slots["0"]).toEqual(["minecraft:potato"]);
 			expect(campfireRecipe.typeSpecific).toMatchObject({
 				experience: 0.35,
@@ -185,7 +156,6 @@ describe("Recipe Schema", () => {
 			if (!stonecuttingRecipe) return;
 
 			expect(stonecuttingRecipe.type).toBe("minecraft:stonecutting");
-
 			expect(stonecuttingRecipe.slots["0"]).toEqual(["minecraft:andesite"]);
 			expect(stonecuttingRecipe.result.item).toBe("minecraft:andesite_slab");
 			expect(stonecuttingRecipe.result.count).toBe(2);
