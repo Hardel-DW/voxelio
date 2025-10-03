@@ -162,7 +162,10 @@ export class Datapack {
 
 			if (detectedRegistry !== registry) continue;
 
-			const resource = fileParts.slice(2 + depth).join("/").replace(".json", "");
+			const resource = fileParts
+				.slice(2 + depth)
+				.join("/")
+				.replace(".json", "");
 			if (!resource || !namespace || !registry) continue;
 
 			if (path && !resource.startsWith(path)) continue;

@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { EnchantmentSimulator, type EnchantmentStats, type ItemData } from "@/core/calculation/EnchantmentSimulation";
-import { enchantment } from "@test/mock/enchant/EnchantmentSimulation";
-import { tagsEnchantment } from "@test/mock/enchant/TagsEnchantment";
+import { enchantment, tagsEnchantment } from "@test/mock/enchant/EnchantmentSimulation";
 import type { Enchantment } from "@/core/schema/enchant/types";
 import type { DataDrivenRegistryElement } from "@/core/Element";
 import type { TagType } from "@/core/Tag";
