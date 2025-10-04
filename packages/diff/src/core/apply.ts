@@ -22,6 +22,7 @@ const removeOp = (target: unknown, key: string): void => {
 		(target as unknown[]).splice(Number.parseInt(key, 10), 1);
 		return;
 	}
+
 	delete (target as Record<string, unknown>)[key];
 };
 
@@ -30,6 +31,7 @@ const add = (document: unknown, operation: AddOperation): void => {
 	if (endpoint.parent === undefined || endpoint.parent === null) {
 		throw new Error(`Cannot add at path: ${operation.path}`);
 	}
+
 	addOp(endpoint.parent, endpoint.key, clone(operation.value));
 };
 
@@ -38,6 +40,7 @@ const remove = (document: unknown, operation: RemoveOperation): void => {
 	if (endpoint.value === undefined) {
 		throw new Error(`Cannot remove at path: ${operation.path}`);
 	}
+
 	removeOp(endpoint.parent, endpoint.key);
 };
 
@@ -46,9 +49,11 @@ const replace = (document: unknown, operation: ReplaceOperation): void => {
 	if (endpoint.value === undefined) {
 		throw new Error(`Cannot replace at path: ${operation.path}`);
 	}
+
 	if (endpoint.parent === null) {
 		throw new Error("Cannot replace root");
 	}
+
 	(endpoint.parent as Record<string, unknown>)[endpoint.key] = clone(operation.value);
 };
 

@@ -22,7 +22,7 @@ const shareIdentifier = (left: Record<string, unknown>, right: Record<string, un
 const overlapRatio = (
 	left: Record<string, unknown>,
 	right: Record<string, unknown>,
-	predicate: (key: string) => boolean = () => true,
+	predicate: (key: string) => boolean = () => true
 ): number => {
 	const leftKeys = Object.keys(left);
 	const rightKeys = Object.keys(right);
@@ -55,5 +55,4 @@ const arePlainObjectsSimilar = (left: Record<string, unknown>, right: Record<str
 };
 
 export const areArrayItemsMatchable = (left: unknown, right: unknown): boolean =>
-	isEqual(left, right) ||
-		(isPlainObject(left) && isPlainObject(right) && arePlainObjectsSimilar(left, right));
+	isEqual(left, right) || (isPlainObject(left) && isPlainObject(right) && arePlainObjectsSimilar(left, right));

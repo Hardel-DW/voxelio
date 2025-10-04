@@ -6,6 +6,7 @@ import { areArrayItemsMatchable } from "../utils/matchers";
 const getType = (value: unknown): string => (Array.isArray(value) ? "array" : value === null ? "null" : typeof value);
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
 	typeof value === "object" && value !== null && !Array.isArray(value);
+
 const areKeysInSameOrder = (left: Record<string, unknown>, right: Record<string, unknown>): boolean => {
 	const keysLeft = Object.keys(left);
 	const keysRight = Object.keys(right);
@@ -96,8 +97,8 @@ function diffObject(input: Record<string, unknown>, output: Record<string, unkno
 	const pointerFor = (token: string) => pointer.add(token).toString();
 
 	if (!areKeysInSameOrder(input, output)) {
-		const removals = inputKeys.toReversed().map((key) => ({ op: "remove", path: pointerFor(key) }));
-		const additions = outputKeys.map((key) => ({ op: "add", path: pointerFor(key), value: output[key] }));
+		const removals: PatchOperation[] = inputKeys.toReversed().map((key) => ({ op: "remove", path: pointerFor(key) }));
+		const additions: PatchOperation[] = outputKeys.map((key) => ({ op: "add", path: pointerFor(key), value: output[key] }));
 		return [...removals, ...additions];
 	}
 
