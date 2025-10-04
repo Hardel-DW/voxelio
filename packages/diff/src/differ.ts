@@ -89,54 +89,53 @@ export class Differ {
 
 	private formatToDiff(left: DiffResult[], right: DiffResult[]): string {
 		const lines: string[] = [];
-		const chunks: { start: number; end: number }[] = [];
+		const chunks: { start: number; changes: string[] }[] = [];
 
-		// Find chunks of changes
-		let inChunk = false;
-		let chunkStart = 0;
+		let currentChunk: { start: number; changes: string[] } | null = null;
 
 		for (let i = 0; i < left.length; i++) {
-			const hasChange = left[i].type !== "equal" || right[i].type !== "equal";
+			const leftLine = left[i];
+			const rightLine = right[i];
+			let hasChange = false;
+			const chunkLines: string[] = [];
 
-			if (hasChange && !inChunk) {
-				chunkStart = Math.max(0, i - 3);
-				inChunk = true;
-			} else if (!hasChange && inChunk) {
-				chunks.push({ start: chunkStart, end: Math.min(left.length, i + 3) });
-				inChunk = false;
+			if (leftLine.type === "remove" && rightLine.type === "equal") {
+				const indent = "  ".repeat(leftLine.level);
+				chunkLines.push(`-${indent}${leftLine.text}${leftLine.comma ? "," : ""}`);
+				hasChange = true;
+			} else if (leftLine.type === "equal" && rightLine.type === "add") {
+				const indent = "  ".repeat(rightLine.level);
+				chunkLines.push(`+${indent}${rightLine.text}${rightLine.comma ? "," : ""}`);
+				hasChange = true;
+			} else if (leftLine.type === "modify" && rightLine.type === "modify") {
+				const indentL = "  ".repeat(leftLine.level);
+				const indentR = "  ".repeat(rightLine.level);
+				chunkLines.push(`-${indentL}${leftLine.text}${leftLine.comma ? "," : ""}`);
+				chunkLines.push(`+${indentR}${rightLine.text}${rightLine.comma ? "," : ""}`);
+				hasChange = true;
 			}
-		}
 
-		if (inChunk) {
-			chunks.push({ start: chunkStart, end: left.length });
-		}
-
-		// Generate diff output
-		for (const chunk of chunks) {
-			const leftCount = chunk.end - chunk.start;
-			const rightCount = chunk.end - chunk.start;
-			lines.push(`@@ -${chunk.start + 1},${leftCount} +${chunk.start + 1},${rightCount} @@`);
-
-			for (let i = chunk.start; i < chunk.end; i++) {
-				const leftLine = left[i];
-				const rightLine = right[i];
-
-				if (leftLine.type === "remove" && rightLine.type === "equal") {
-					const indent = "  ".repeat(leftLine.level);
-					lines.push(`-${indent}${leftLine.text}${leftLine.comma ? "," : ""}`);
-				} else if (leftLine.type === "equal" && rightLine.type === "add") {
-					const indent = "  ".repeat(rightLine.level);
-					lines.push(`+${indent}${rightLine.text}${rightLine.comma ? "," : ""}`);
-				} else if (leftLine.type === "modify" && rightLine.type === "modify") {
-					const indentL = "  ".repeat(leftLine.level);
-					const indentR = "  ".repeat(rightLine.level);
-					lines.push(`-${indentL}${leftLine.text}${leftLine.comma ? "," : ""}`);
-					lines.push(`+${indentR}${rightLine.text}${rightLine.comma ? "," : ""}`);
-				} else if (leftLine.type === "equal" && rightLine.type === "equal") {
-					const indent = "  ".repeat(leftLine.level);
-					lines.push(` ${indent}${leftLine.text}${leftLine.comma ? "," : ""}`);
+			if (hasChange) {
+				if (!currentChunk) {
+					currentChunk = { start: i + 1, changes: [] };
 				}
+				currentChunk.changes.push(...chunkLines);
+			} else if (currentChunk) {
+				chunks.push(currentChunk);
+				currentChunk = null;
 			}
+		}
+
+		if (currentChunk) {
+			chunks.push(currentChunk);
+		}
+
+		// Generate diff output with hunks
+		for (const chunk of chunks) {
+			const changeCount = chunk.changes.filter((l) => l.startsWith("-")).length;
+			const addCount = chunk.changes.filter((l) => l.startsWith("+")).length;
+			lines.push(`@@ -${chunk.start},${changeCount} +${chunk.start},${addCount} @@`);
+			lines.push(...chunk.changes);
 		}
 
 		return lines.join("\n");

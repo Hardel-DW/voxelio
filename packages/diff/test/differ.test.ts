@@ -1,3 +1,4 @@
+import { writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { Differ } from "../src/differ";
 
@@ -187,6 +188,66 @@ describe("Differ", () => {
 			const result = Differ.apply(obj, patch);
 			expect(result).toEqual({ name: "Alice" });
 			expect(result).toBeDefined();
+		});
+	});
+
+	describe("export diff file", () => {
+		it("should export a complete diff file for complex objects", () => {
+			const differ = new Differ();
+			const before = {
+				version: "1.0.0",
+				config: {
+					server: {
+						port: 3000,
+						host: "localhost",
+						ssl: false
+					},
+					database: {
+						name: "dev_db",
+						user: "admin",
+						connections: 10
+					}
+				},
+				features: ["auth", "api", "websocket"],
+				metadata: {
+					created: "2024-01-01",
+					author: "Alice"
+				}
+			};
+
+			const after = {
+				version: "2.0.0",
+				config: {
+					server: {
+						port: 8080,
+						host: "0.0.0.0",
+						ssl: true
+					},
+					database: {
+						name: "prod_db",
+						user: "admin",
+						connections: 50
+					}
+				},
+				features: ["auth", "api", "graphql"],
+				metadata: {
+					created: "2024-01-01",
+					author: "Bob",
+					updated: "2024-10-04"
+				}
+			};
+
+			const diff = differ.diff(before, after);
+
+			// Export to file
+			writeFileSync("test/output/example.diff", diff, "utf-8");
+
+			// Verify the diff contains expected markers
+			expect(diff).toContain("@@");
+			expect(diff).toContain("1.0.0");
+			expect(diff).toContain("2.0.0");
+			expect(diff).toContain("3000");
+			expect(diff).toContain("8080");
 		});
 	});
 });
