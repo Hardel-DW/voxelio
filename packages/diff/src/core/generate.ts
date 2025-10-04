@@ -15,8 +15,6 @@ function getType(value: unknown): string {
 
 export function generatePatch(input: unknown, output: unknown, ptr = new Pointer()): PatchOperation[] {
 	const operations: PatchOperation[] = [];
-
-	// Same value
 	if (isEqual(input, output)) {
 		return operations;
 	}
@@ -24,13 +22,8 @@ export function generatePatch(input: unknown, output: unknown, ptr = new Pointer
 	const inputType = getType(input);
 	const outputType = getType(output);
 
-	// Different types -> replace
 	if (inputType !== outputType) {
-		operations.push({
-			op: "replace",
-			path: ptr.toString(),
-			value: output
-		});
+		operations.push({ op: "replace", path: ptr.toString(), value: output });
 		return operations;
 	}
 
@@ -38,26 +31,14 @@ export function generatePatch(input: unknown, output: unknown, ptr = new Pointer
 	if (Array.isArray(input) && Array.isArray(output)) {
 		const inputArr = input as unknown[];
 		const outputArr = output as unknown[];
-
-		// Simple approach: compare index by index
 		const maxLen = Math.max(inputArr.length, outputArr.length);
 
 		for (let i = 0; i < maxLen; i++) {
 			if (i >= inputArr.length) {
-				// Add new item
-				operations.push({
-					op: "add",
-					path: ptr.add(String(i)).toString(),
-					value: outputArr[i]
-				});
+				operations.push({ op: "add", path: ptr.add(String(i)).toString(), value: outputArr[i] });
 			} else if (i >= outputArr.length) {
-				// Remove item (from end, to preserve indices)
-				operations.push({
-					op: "remove",
-					path: ptr.add(String(i)).toString()
-				});
+				operations.push({ op: "remove", path: ptr.add(String(i)).toString() });
 			} else if (!isEqual(inputArr[i], outputArr[i])) {
-				// Recurse or replace
 				const nestedOps = generatePatch(inputArr[i], outputArr[i], ptr.add(String(i)));
 				if (nestedOps.length > 0) {
 					operations.push(...nestedOps);
@@ -65,7 +46,6 @@ export function generatePatch(input: unknown, output: unknown, ptr = new Pointer
 			}
 		}
 
-		// Remove operations should be done in reverse order
 		const removes = operations.filter(op => op.op === "remove");
 		const others = operations.filter(op => op.op !== "remove");
 		return [...others, ...removes.reverse()];
@@ -75,47 +55,47 @@ export function generatePatch(input: unknown, output: unknown, ptr = new Pointer
 	if (inputType === "object" && outputType === "object") {
 		const inputObj = input as Record<string, unknown>;
 		const outputObj = output as Record<string, unknown>;
-
-		// Get all keys (preserve order from output)
-		const inputKeys = new Set(Object.keys(inputObj));
+		const inputKeys = Object.keys(inputObj);
 		const outputKeys = Object.keys(outputObj);
+		const commonInputKeys = inputKeys.filter(k => k in outputObj);
+		const commonOutputKeys = outputKeys.filter(k => k in inputObj);
 
-		// Check modified and added keys (in output order)
+		let keyOrderChanged = false;
+		if (commonInputKeys.length > 0 && commonInputKeys.length === commonOutputKeys.length) {
+			for (let i = 0; i < commonInputKeys.length; i++) {
+				if (commonInputKeys[i] !== commonOutputKeys[i]) {
+					keyOrderChanged = true;
+					break;
+				}
+			}
+		}
+
+		if (keyOrderChanged) {
+			operations.push({ op: "replace", path: ptr.toString(), value: output });
+			return operations;
+		}
+
+		const inputKeySet = new Set(inputKeys);
 		for (const key of outputKeys) {
 			if (key in inputObj) {
-				// Key exists in both
 				if (!isEqual(inputObj[key], outputObj[key])) {
 					const nestedOps = generatePatch(inputObj[key], outputObj[key], ptr.add(key));
 					operations.push(...nestedOps);
 				}
-				inputKeys.delete(key);
+				inputKeySet.delete(key);
 			} else {
-				// Key only in output (added)
-				operations.push({
-					op: "add",
-					path: ptr.add(key).toString(),
-					value: outputObj[key]
-				});
+				operations.push({ op: "add", path: ptr.add(key).toString(), value: outputObj[key] });
 			}
 		}
 
 		// Remaining keys only in input (removed)
-		for (const key of inputKeys) {
-			operations.push({
-				op: "remove",
-				path: ptr.add(key).toString()
-			});
+		for (const key of inputKeySet) {
+			operations.push({ op: "remove", path: ptr.add(key).toString() });
 		}
 
 		return operations;
 	}
 
-	// Primitives -> replace
-	operations.push({
-		op: "replace",
-		path: ptr.toString(),
-		value: output
-	});
-
+	operations.push({ op: "replace", path: ptr.toString(), value: output });
 	return operations;
 }

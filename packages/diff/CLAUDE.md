@@ -1,6 +1,6 @@
 # CLAUDE.md
 This file provides guidance to Claude Code when working with this repository, This is a TSDown + TypeScript package built with Rolldown, Biome and Vitest.
-Goal: Handles diff between two JSON objects, and make a patch file, also provides a tool to apply the patch to a JSON object.
+Goal: Handles diff between two JSON objects with RFC 6902 (Modified to preserve key order), and make a patch file, also provides a tool to apply the patch to a JSON object.
 
 Functionalities to implement:
 - Diff between two JSON objects, and make a patch file. -> new Differ().diff(obj1, obj2);
