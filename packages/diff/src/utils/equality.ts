@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Deep equality check for JSON values
  */
 export const isEqual = (a: unknown, b: unknown): boolean => {
@@ -32,10 +32,13 @@ export const isEqual = (a: unknown, b: unknown): boolean => {
 		return false;
 	}
 
-	for (const key of keysA) {
-		if (!keysB.includes(key)) {
+	for (let i = 0; i < keysA.length; i++) {
+		if (keysA[i] !== keysB[i]) {
 			return false;
 		}
+	}
+
+	for (const key of keysA) {
 		if (!isEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) {
 			return false;
 		}
