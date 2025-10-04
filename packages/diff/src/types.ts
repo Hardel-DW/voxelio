@@ -1,7 +1,6 @@
 /**
  * JSON Patch operation types (RFC 6902)
  */
-
 export interface AddOperation {
 	op: "add";
 	path: string;

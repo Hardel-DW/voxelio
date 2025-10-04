@@ -13,13 +13,11 @@ const getType = (value: unknown): string => {
 };
 
 export function generatePatch(input: unknown, output: unknown, ptr = new Pointer()): PatchOperation[] {
-	// Early return: values are equal
 	if (isEqual(input, output)) return [];
 
 	const inputType = getType(input);
 	const outputType = getType(output);
 
-	// Early return: different types
 	if (inputType !== outputType) {
 		return [{ op: "replace", path: ptr.toString(), value: output }];
 	}
@@ -39,7 +37,6 @@ export function generatePatch(input: unknown, output: unknown, ptr = new Pointer
 			}
 		}
 
-		// Reverse remove operations to preserve indices
 		const removes = operations.filter((op) => op.op === "remove").reverse();
 		const others = operations.filter((op) => op.op !== "remove");
 		return [...others, ...removes];
@@ -81,6 +78,5 @@ export function generatePatch(input: unknown, output: unknown, ptr = new Pointer
 		return operations;
 	}
 
-	// Primitives
 	return [{ op: "replace", path: ptr.toString(), value: output }];
 }
