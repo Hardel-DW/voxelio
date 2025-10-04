@@ -171,12 +171,13 @@ describe("Differ", () => {
 
 	describe("apply", () => {
 		it("should apply simple patch", () => {
-			const obj = { name: "Alice", age: 30 };
-			const patch = `@@ -1,2 +1,2 @@
--  "name": "Alice"
-+  "name": "Bob"`;
+			const differ = new Differ();
+			const before = { name: "Alice", age: 30 };
+			const after = { name: "Bob", age: 30 };
+			const patch = differ.diff(before, after);
+			console.log(patch);
 
-			const result = Differ.apply(obj, patch);
+			const result = Differ.apply(before, patch);
 			expect(result).toEqual({ name: "Bob", age: 30 });
 			expect(result).toBeDefined();
 		});

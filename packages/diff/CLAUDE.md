@@ -21,8 +21,7 @@ Keep this options like default for Differ class, we don't want options in this p
 - recursiveEqual: true,
 - preserveKeyOrder: 'before'
 
-Do not implement visual, html, css or anything like that. Removed everything related to the UI and visual.
-
+Do not implement visual, html, css or anything like that.
 Idealy we want .diff files, with hunk like this:
 ```
 @@ -1,2 +1,2 @@

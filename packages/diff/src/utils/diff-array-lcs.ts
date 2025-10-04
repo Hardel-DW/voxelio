@@ -1,4 +1,4 @@
-import type { DiffResult, DifferOptions } from "../types";
+import type { DiffResult } from "../types";
 import { formatValue } from "./format-value";
 import { diffObject } from "./diff-object";
 import { getType } from "./get-type";
@@ -39,8 +39,7 @@ const lcs = (
 	arrRight: unknown[],
 	keyLeft: string,
 	keyRight: string,
-	level: number,
-	options: DifferOptions
+	level: number
 ): [DiffResult[], DiffResult[]] => {
 	const f = Array(arrLeft.length + 1)
 		.fill(0)
@@ -61,22 +60,17 @@ const lcs = (
 			const typeI = getType(arrLeft[i - 1]);
 			const typeJ = getType(arrRight[j - 1]);
 			if (typeI === typeJ && (typeI === "array" || typeI === "object")) {
-				if (options.recursiveEqual) {
-					if (isEqual(arrLeft[i - 1], arrRight[j - 1], options) || shallowSimilarity(arrLeft[i - 1], arrRight[j - 1]) > 0.5) {
-						f[i][j] = f[i - 1][j - 1] + 1;
-						backtrack[i][j] = "diag";
-					} else if (f[i - 1][j] >= f[i][j - 1]) {
-						f[i][j] = f[i - 1][j];
-						backtrack[i][j] = "up";
-					} else {
-						f[i][j] = f[i][j - 1];
-						backtrack[i][j] = "left";
-					}
-				} else {
+				if (isEqual(arrLeft[i - 1], arrRight[j - 1]) || shallowSimilarity(arrLeft[i - 1], arrRight[j - 1]) > 0.5) {
 					f[i][j] = f[i - 1][j - 1] + 1;
 					backtrack[i][j] = "diag";
+				} else if (f[i - 1][j] >= f[i][j - 1]) {
+					f[i][j] = f[i - 1][j];
+					backtrack[i][j] = "up";
+				} else {
+					f[i][j] = f[i][j - 1];
+					backtrack[i][j] = "left";
 				}
-			} else if (isEqual(arrLeft[i - 1], arrRight[j - 1], options)) {
+			} else if (isEqual(arrLeft[i - 1], arrRight[j - 1])) {
 				f[i][j] = f[i - 1][j - 1] + 1;
 				backtrack[i][j] = "diag";
 			} else if (f[i - 1][j] >= f[i][j - 1]) {
@@ -97,10 +91,10 @@ const lcs = (
 	while (i > 0 || j > 0) {
 		if (backtrack[i][j] === "diag") {
 			const type = getType(arrLeft[i - 1]);
-			if (options.recursiveEqual && (type === "array" || type === "object") && isEqual(arrLeft[i - 1], arrRight[j - 1], options)) {
+			if ((type === "array" || type === "object") && isEqual(arrLeft[i - 1], arrRight[j - 1])) {
 				const reversedLeft = [];
 				const reversedRight = [];
-				prettyAppendLines(reversedLeft, reversedRight, "", "", arrLeft[i - 1], arrRight[j - 1], level + 1, options);
+				prettyAppendLines(reversedLeft, reversedRight, "", "", arrLeft[i - 1], arrRight[j - 1], level + 1);
 				tLeft = concat(tLeft, reversedLeft.reverse(), true);
 				tRight = concat(tRight, reversedRight.reverse(), true);
 			} else if (type === "array") {
@@ -109,8 +103,7 @@ const lcs = (
 					arrRight[j - 1] as unknown[],
 					keyLeft,
 					keyRight,
-					level + 1,
-					options
+					level + 1
 				);
 				tLeft = concat(tLeft, l.reverse(), true);
 				tRight = concat(tRight, r.reverse(), true);
@@ -118,9 +111,7 @@ const lcs = (
 				const [l, r] = diffObject(
 					arrLeft[i - 1] as Record<string, unknown>,
 					arrRight[j - 1] as Record<string, unknown>,
-					level + 2,
-					options,
-					diffArrayLCS
+					level + 2
 				);
 				tLeft.unshift({ level: level + 1, type: "equal", text: "}" });
 				tRight.unshift({ level: level + 1, type: "equal", text: "}" });
@@ -131,14 +122,14 @@ const lcs = (
 			} else {
 				const reversedLeft = [];
 				const reversedRight = [];
-				prettyAppendLines(reversedLeft, reversedRight, "", "", arrLeft[i - 1], arrRight[j - 1], level + 1, options);
+				prettyAppendLines(reversedLeft, reversedRight, "", "", arrLeft[i - 1], arrRight[j - 1], level + 1);
 				tLeft = concat(tLeft, reversedLeft.reverse(), true);
 				tRight = concat(tRight, reversedRight.reverse(), true);
 			}
 			i--;
 			j--;
 		} else if (backtrack[i][j] === "up") {
-			if (options.showModifications && i > 1 && backtrack[i - 1][j] === "left") {
+			if (i > 1 && backtrack[i - 1][j] === "left") {
 				const typeLeft = getType(arrLeft[i - 1]);
 				const typeRight = getType(arrRight[j - 1]);
 				if (typeLeft === typeRight) {
@@ -148,8 +139,7 @@ const lcs = (
 							arrRight[j - 1] as unknown[],
 							keyLeft,
 							keyRight,
-							level + 1,
-							options
+							level + 1
 						);
 						tLeft = concat(tLeft, l.reverse(), true);
 						tRight = concat(tRight, r.reverse(), true);
@@ -157,9 +147,7 @@ const lcs = (
 						const [l, r] = diffObject(
 							arrLeft[i - 1] as Record<string, unknown>,
 							arrRight[j - 1] as Record<string, unknown>,
-							level + 2,
-							options,
-							diffArrayLCS
+							level + 2
 						);
 						tLeft.unshift({ level: level + 1, type: "equal", text: "}" });
 						tRight.unshift({ level: level + 1, type: "equal", text: "}" });
@@ -182,7 +170,7 @@ const lcs = (
 				} else {
 					const reversedLeft = [];
 					const reversedRight = [];
-					prettyAppendLines(reversedLeft, reversedRight, "", "", arrLeft[i - 1], arrRight[j - 1], level + 1, options);
+					prettyAppendLines(reversedLeft, reversedRight, "", "", arrLeft[i - 1], arrRight[j - 1], level + 1);
 					tLeft = concat(tLeft, reversedLeft.reverse(), true);
 					tRight = concat(tRight, reversedRight.reverse(), true);
 				}
@@ -223,17 +211,16 @@ export const diffArrayLCS = (
 	keyLeft: string,
 	keyRight: string,
 	level: number,
-	options: DifferOptions,
 	linesLeft: DiffResult[] = [],
 	linesRight: DiffResult[] = []
 ): [DiffResult[], DiffResult[]] => {
 	addArrayOpeningBrackets(linesLeft, linesRight, keyLeft, keyRight, level);
 
-	const maxDepth = options.maxDepth ?? Number.POSITIVE_INFINITY;
+	const maxDepth = Number.POSITIVE_INFINITY;
 	if (level >= maxDepth) {
 		addMaxDepthPlaceholder(linesLeft, linesRight, level);
 	} else {
-		const [tLeftReverse, tRightReverse] = lcs(arrLeft, arrRight, keyLeft, keyRight, level, options);
+		const [tLeftReverse, tRightReverse] = lcs(arrLeft, arrRight, keyLeft, keyRight, level);
 		linesLeft = concat(linesLeft, tLeftReverse);
 		linesRight = concat(linesRight, tRightReverse);
 	}

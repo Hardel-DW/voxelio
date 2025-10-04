@@ -1,2 +1,2 @@
 export { Differ } from "./differ";
-export type { DiffResult, DifferOptions } from "./types";
+export type { DiffResult } from "./types";

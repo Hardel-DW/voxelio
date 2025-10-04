@@ -1,23 +1,62 @@
-@@ -2,1 +2,1 @@
+@@ -1,5 +1,5 @@
+ {
 -  "version": "1.0.0",
 +  "version": "2.0.0",
-@@ -5,3 +5,3 @@
+   "config": {
+     "server": {
+-      "port": 3000,
++      "port": 8080,
+@@ -2,9 +2,9 @@
+-  "version": "1.0.0",
++  "version": "2.0.0",
+   "config": {
+     "server": {
 -      "port": 3000,
 +      "port": 8080,
 -      "host": "localhost",
 +      "host": "0.0.0.0",
 -      "ssl": false
 +      "ssl": true
-@@ -10,1 +10,1 @@
+     },
+     "database": {
 -      "name": "dev_db",
 +      "name": "prod_db",
-@@ -12,1 +12,1 @@
+@@ -7,7 +7,7 @@
+-      "ssl": false
++      "ssl": true
+     },
+     "database": {
+-      "name": "dev_db",
++      "name": "prod_db",
+       "user": "admin",
 -      "connections": 10
 +      "connections": 50
-@@ -18,1 +18,1 @@
+     }
+@@ -9,7 +9,7 @@
+     "database": {
+-      "name": "dev_db",
++      "name": "prod_db",
+       "user": "admin",
+-      "connections": 10
++      "connections": 50
+     }
+   },
+   "features": [
+@@ -15,7 +15,7 @@
+   "features": [
+     "api",
+     "auth",
 -    "websocket"
 +    "graphql"
-@@ -22,1 +22,2 @@
+   ],
+   "metadata": {
+     "created": "2024-01-01",
+@@ -19,7 +19,7 @@
+   ],
+   "metadata": {
+     "created": "2024-01-01",
 -    "author": "Alice"
 +    "author": "Bob",
 +    "updated": "2024-10-04"
+   }
+ }

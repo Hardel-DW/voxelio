@@ -1,23 +1,10 @@
-interface Options {
-	ignoreCase?: boolean;
-	recursiveEqual?: boolean;
-}
-
-const deepEqual = (a: unknown, b: unknown, options: Options): boolean => {
+const deepEqual = (a: unknown, b: unknown): boolean => {
 	if (a === b) {
 		return true;
 	}
 
-	if (options.ignoreCase && typeof a === "string" && typeof b === "string") {
-		return a.toLowerCase() === b.toLowerCase();
-	}
-
 	if (typeof a === "symbol" && typeof b === "symbol") {
 		return a.toString() === b.toString();
-	}
-
-	if (!options.recursiveEqual) {
-		return false;
 	}
 
 	if (a === null || b === null || typeof a !== "object" || typeof b !== "object") {
@@ -33,7 +20,7 @@ const deepEqual = (a: unknown, b: unknown, options: Options): boolean => {
 			return false;
 		}
 		for (let i = 0; i < a.length; i++) {
-			if (!deepEqual(a[i], b[i], options)) {
+			if (!deepEqual(a[i], b[i])) {
 				return false;
 			}
 		}
@@ -50,7 +37,7 @@ const deepEqual = (a: unknown, b: unknown, options: Options): boolean => {
 		if (!keysB.includes(key)) {
 			return false;
 		}
-		if (!deepEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key], options)) {
+		if (!deepEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) {
 			return false;
 		}
 	}
@@ -58,6 +45,6 @@ const deepEqual = (a: unknown, b: unknown, options: Options): boolean => {
 	return true;
 };
 
-export const isEqual = (a: unknown, b: unknown, options: Options): boolean => {
-	return deepEqual(a, b, options);
+export const isEqual = (a: unknown, b: unknown): boolean => {
+	return deepEqual(a, b);
 };

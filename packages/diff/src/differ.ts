@@ -1,4 +1,4 @@
-import type { DiffResult, DifferOptions } from "./types";
+import type { DiffResult } from "./types";
 import { detectCircular } from "./utils/detect-circular";
 import { diffArrayLCS } from "./utils/diff-array-lcs";
 import { diffObject } from "./utils/diff-object";
@@ -12,17 +12,6 @@ const EQUAL_LEFT_BRACKET_LINE: DiffResult = { level: 0, type: "equal", text: "{"
 const EQUAL_RIGHT_BRACKET_LINE: DiffResult = { level: 0, type: "equal", text: "}" };
 
 export class Differ {
-	private readonly options: DifferOptions = {
-		detectCircular: true,
-		maxDepth: null,
-		showModifications: true,
-		arrayDiffMethod: "unorder-lcs",
-		ignoreCase: false,
-		ignoreCaseForKey: false,
-		recursiveEqual: true,
-		preserveKeyOrder: "before",
-		undefinedBehavior: "stringify"
-	};
 
 	private detectCircularReference(source: unknown): void {
 		if (detectCircular(source)) {
@@ -89,53 +78,52 @@ export class Differ {
 
 	private formatToDiff(left: DiffResult[], right: DiffResult[]): string {
 		const lines: string[] = [];
-		const chunks: { start: number; changes: string[] }[] = [];
-
-		let currentChunk: { start: number; changes: string[] } | null = null;
+		const chunks: { start: number; end: number }[] = [];
+		let inChunk = false;
+		let chunkStart = 0;
 
 		for (let i = 0; i < left.length; i++) {
-			const leftLine = left[i];
-			const rightLine = right[i];
-			let hasChange = false;
-			const chunkLines: string[] = [];
+			const hasChange = left[i].type !== "equal" || right[i].type !== "equal";
 
-			if (leftLine.type === "remove" && rightLine.type === "equal") {
-				const indent = "  ".repeat(leftLine.level);
-				chunkLines.push(`-${indent}${leftLine.text}${leftLine.comma ? "," : ""}`);
-				hasChange = true;
-			} else if (leftLine.type === "equal" && rightLine.type === "add") {
-				const indent = "  ".repeat(rightLine.level);
-				chunkLines.push(`+${indent}${rightLine.text}${rightLine.comma ? "," : ""}`);
-				hasChange = true;
-			} else if (leftLine.type === "modify" && rightLine.type === "modify") {
-				const indentL = "  ".repeat(leftLine.level);
-				const indentR = "  ".repeat(rightLine.level);
-				chunkLines.push(`-${indentL}${leftLine.text}${leftLine.comma ? "," : ""}`);
-				chunkLines.push(`+${indentR}${rightLine.text}${rightLine.comma ? "," : ""}`);
-				hasChange = true;
-			}
-
-			if (hasChange) {
-				if (!currentChunk) {
-					currentChunk = { start: i + 1, changes: [] };
-				}
-				currentChunk.changes.push(...chunkLines);
-			} else if (currentChunk) {
-				chunks.push(currentChunk);
-				currentChunk = null;
+			if (hasChange && !inChunk) {
+				chunkStart = Math.max(0, i - 3);
+				inChunk = true;
+			} else if (!hasChange && inChunk) {
+				chunks.push({ start: chunkStart, end: Math.min(left.length, i + 3) });
+				inChunk = false;
 			}
 		}
 
-		if (currentChunk) {
-			chunks.push(currentChunk);
+		if (inChunk) {
+			chunks.push({ start: chunkStart, end: left.length });
 		}
 
-		// Generate diff output with hunks
+		// Generate diff output
 		for (const chunk of chunks) {
-			const changeCount = chunk.changes.filter((l) => l.startsWith("-")).length;
-			const addCount = chunk.changes.filter((l) => l.startsWith("+")).length;
-			lines.push(`@@ -${chunk.start},${changeCount} +${chunk.start},${addCount} @@`);
-			lines.push(...chunk.changes);
+			const leftCount = chunk.end - chunk.start;
+			const rightCount = chunk.end - chunk.start;
+			lines.push(`@@ -${chunk.start + 1},${leftCount} +${chunk.start + 1},${rightCount} @@`);
+
+			for (let i = chunk.start; i < chunk.end; i++) {
+				const leftLine = left[i];
+				const rightLine = right[i];
+
+				if (leftLine.type === "remove" && rightLine.type === "equal") {
+					const indent = "  ".repeat(leftLine.level);
+					lines.push(`-${indent}${leftLine.text}${leftLine.comma ? "," : ""}`);
+				} else if (leftLine.type === "equal" && rightLine.type === "add") {
+					const indent = "  ".repeat(rightLine.level);
+					lines.push(`+${indent}${rightLine.text}${rightLine.comma ? "," : ""}`);
+				} else if (leftLine.type === "modify" && rightLine.type === "modify") {
+					const indentL = "  ".repeat(leftLine.level);
+					const indentR = "  ".repeat(rightLine.level);
+					lines.push(`-${indentL}${leftLine.text}${leftLine.comma ? "," : ""}`);
+					lines.push(`+${indentR}${rightLine.text}${rightLine.comma ? "," : ""}`);
+				} else if (leftLine.type === "equal" && rightLine.type === "equal") {
+					const indent = "  ".repeat(leftLine.level);
+					lines.push(` ${indent}${leftLine.text}${leftLine.comma ? "," : ""}`);
+				}
+			}
 		}
 
 		return lines.join("\n");
@@ -145,8 +133,8 @@ export class Differ {
 		this.detectCircularReference(sourceLeft);
 		this.detectCircularReference(sourceRight);
 
-		let processedLeft = sortInnerArrays(sourceLeft, this.options);
-		let processedRight = sortInnerArrays(sourceRight, this.options);
+		let processedLeft = sortInnerArrays(sourceLeft);
+		let processedRight = sortInnerArrays(sourceRight);
 
 		processedLeft = cleanFields(processedLeft) ?? null;
 		processedRight = cleanFields(processedRight) ?? null;
@@ -190,16 +178,14 @@ export class Differ {
 			[resultLeft, resultRight] = diffObject(
 				processedLeft as Record<string, unknown>,
 				processedRight as Record<string, unknown>,
-				1,
-				this.options,
-				diffArrayLCS
+				1
 			);
 			resultLeft.unshift({ ...EQUAL_LEFT_BRACKET_LINE });
 			resultLeft.push({ ...EQUAL_RIGHT_BRACKET_LINE });
 			resultRight.unshift({ ...EQUAL_LEFT_BRACKET_LINE });
 			resultRight.push({ ...EQUAL_RIGHT_BRACKET_LINE });
 		} else if (typeLeft === "array") {
-			[resultLeft, resultRight] = diffArrayLCS(processedLeft as unknown[], processedRight as unknown[], "", "", 0, this.options);
+			[resultLeft, resultRight] = diffArrayLCS(processedLeft as unknown[], processedRight as unknown[], "", "", 0);
 		} else if (processedLeft !== processedRight) {
 			resultLeft = [
 				{
@@ -241,32 +227,86 @@ export class Differ {
 		return this.formatToDiff(resultLeft, resultRight);
 	}
 
-	static apply(obj: unknown, patch: string): unknown {
-		const lines = patch.split("\n").filter((line) => line.trim());
-		let result = JSON.parse(JSON.stringify(obj));
+	static apply(obj: unknown, patch: string): Record<string, unknown> {
+		// Convert object to JSON lines
+		const originalJson = JSON.stringify(obj, null, 2);
+		const originalLines = originalJson.split("\n");
 
-		for (const line of lines) {
+		// Parse patch to get modifications
+		const patchLines = patch.split("\n");
+		const modifications = new Map<number, { remove: string[]; add: string[] }>();
+
+		let currentLineNum = 0;
+		let i = 0;
+
+		while (i < patchLines.length) {
+			const line = patchLines[i];
+
+			// Parse hunk header @@ -X,Y +A,B @@
 			if (line.startsWith("@@")) {
+				const match = line.match(/@@ -(\d+),\d+ \+(\d+),\d+ @@/);
+				if (match) {
+					currentLineNum = Number.parseInt(match[1], 10) - 1;
+				}
+				i++;
 				continue;
+			}
+
+			if (!modifications.has(currentLineNum)) {
+				modifications.set(currentLineNum, { remove: [], add: [] });
 			}
 
 			if (line.startsWith("-")) {
-				// Line to remove - handled by additions
-				continue;
-			}
-
-			if (line.startsWith("+")) {
-				// Line to add
-				const content = line.slice(1).trim();
-				try {
-					const parsed = JSON.parse(`{${content}}`);
-					result = { ...result, ...parsed };
-				} catch {
-					// Ignore malformed lines
-				}
+				modifications.get(currentLineNum)?.remove.push(line.slice(1));
+				i++;
+			} else if (line.startsWith("+")) {
+				modifications.get(currentLineNum)?.add.push(line.slice(1));
+				i++;
+			} else if (line.startsWith(" ")) {
+				// Context line, skip
+				currentLineNum++;
+				i++;
+			} else {
+				i++;
 			}
 		}
 
-		return result;
+		const resultLines: string[] = [];
+		for (let idx = 0; idx < originalLines.length; idx++) {
+			if (idx < -1) {
+				continue;
+			}
+
+			const mod = modifications.get(idx);
+			if (mod) {
+				if (mod.remove.length > 0) {
+					const originalTrimmed = originalLines[idx].trimStart();
+					const shouldRemove = mod.remove.some((r) => originalTrimmed === r.trimStart());
+
+					if (shouldRemove) {
+						for (const addLine of mod.add) {
+							resultLines.push(addLine);
+						}
+						continue;
+					}
+				}
+
+				if (mod.remove.length === 0 && mod.add.length > 0) {
+					resultLines.push(originalLines[idx]);
+					for (const addLine of mod.add) {
+						resultLines.push(addLine);
+					}
+					continue;
+				}
+			}
+
+			resultLines.push(originalLines[idx]);
+		}
+
+		try {
+			return JSON.parse(resultLines.join("\n"));
+		} catch {
+			return obj as Record<string, unknown>;
+		}
 	}
 }

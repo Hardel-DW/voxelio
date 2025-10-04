@@ -1,19 +1,17 @@
-import type { ArrayDiffFunc, DiffResult, DifferOptions } from "../types";
+import type { DiffResult } from "../types";
+import { diffArrayLCS } from "./diff-array-lcs";
 import { cmp } from "./cmp";
 import { concat } from "./concat";
 import { getType } from "./get-type";
 import { prettyAppendLines } from "./pretty-append-lines";
-import { sortKeys } from "./sort-keys";
 import { stringify } from "./stringify";
 
 export const diffObject = (
 	lhs: Record<string, unknown>,
 	rhs: Record<string, unknown>,
-	level = 1,
-	options: DifferOptions,
-	arrayDiffFunc: ArrayDiffFunc
+	level = 1
 ): [DiffResult[], DiffResult[]] => {
-	const maxDepth = options.maxDepth ?? Number.POSITIVE_INFINITY;
+	const maxDepth = Number.POSITIVE_INFINITY;
 	if (level > maxDepth) {
 		return [[{ level, type: "equal", text: "..." }], [{ level, type: "equal", text: "..." }]];
 	}
@@ -52,34 +50,18 @@ export const diffObject = (
 	const keysLeft = Object.keys(lhs);
 	const keysRight = Object.keys(rhs);
 	const keyOrdersMap = new Map<string, number>();
-
-	if (!options.preserveKeyOrder) {
-		sortKeys(keysLeft, options);
-		sortKeys(keysRight, options);
-	} else if (options.preserveKeyOrder === "before") {
-		for (let i = 0; i < keysLeft.length; i++) {
-			keyOrdersMap.set(keysLeft[i], i);
-		}
-		for (let i = 0; i < keysRight.length; i++) {
-			if (!keyOrdersMap.has(keysRight[i])) {
-				keyOrdersMap.set(keysRight[i], keysLeft.length + i);
-			}
-		}
-		keysRight.sort((a, b) => (keyOrdersMap.get(a) ?? 0) - (keyOrdersMap.get(b) ?? 0));
-	} else if (options.preserveKeyOrder === "after") {
-		for (let i = 0; i < keysRight.length; i++) {
-			keyOrdersMap.set(keysRight[i], i);
-		}
-		for (let i = 0; i < keysLeft.length; i++) {
-			if (!keyOrdersMap.has(keysLeft[i])) {
-				keyOrdersMap.set(keysLeft[i], keysRight.length + i);
-			}
-		}
-		keysLeft.sort((a, b) => (keyOrdersMap.get(a) ?? 0) - (keyOrdersMap.get(b) ?? 0));
+	for (let i = 0; i < keysLeft.length; i++) {
+		keyOrdersMap.set(keysLeft[i], i);
 	}
+	for (let i = 0; i < keysRight.length; i++) {
+		if (!keyOrdersMap.has(keysRight[i])) {
+			keyOrdersMap.set(keysRight[i], keysLeft.length + i);
+		}
+	}
+	keysRight.sort((a, b) => (keyOrdersMap.get(a) ?? 0) - (keyOrdersMap.get(b) ?? 0));
 
 	const keysCmpOptions = {
-		ignoreCase: options.ignoreCaseForKey,
+		ignoreCase: false,
 		keyOrdersMap
 	};
 
@@ -90,11 +72,11 @@ export const diffObject = (
 
 		if (keyCmpResult === 0) {
 			if (getType(lhs[keyLeft]) !== getType(rhs[keyRight])) {
-				prettyAppendLines(linesLeft, linesRight, keyLeft, keyRight, lhs[keyLeft], rhs[keyRight], level, options);
+				prettyAppendLines(linesLeft, linesRight, keyLeft, keyRight, lhs[keyLeft], rhs[keyRight], level);
 			} else if (Array.isArray(lhs[keyLeft])) {
 				const arrLeft = [...(lhs[keyLeft] as unknown[])];
 				const arrRight = [...(rhs[keyRight] as unknown[])];
-				const [resLeft, resRight] = arrayDiffFunc(arrLeft, arrRight, keyLeft, keyRight, level, options, [], []);
+				const [resLeft, resRight] = diffArrayLCS(arrLeft, arrRight, keyLeft, keyRight, level, [], []);
 				linesLeft = concat(linesLeft, resLeft);
 				linesRight = concat(linesRight, resRight);
 			} else if (lhs[keyLeft] === null) {
@@ -104,9 +86,7 @@ export const diffObject = (
 				const result = diffObject(
 					lhs[keyLeft] as Record<string, unknown>,
 					rhs[keyRight] as Record<string, unknown>,
-					level + 1,
-					options,
-					arrayDiffFunc
+					level + 1
 				);
 				linesLeft.push({ level, type: "equal", text: `"${keyLeft}": {` });
 				linesLeft = concat(linesLeft, result[0]);
@@ -115,7 +95,7 @@ export const diffObject = (
 				linesRight = concat(linesRight, result[1]);
 				linesRight.push({ level, type: "equal", text: "}" });
 			} else {
-				prettyAppendLines(linesLeft, linesRight, keyLeft, keyRight, lhs[keyLeft], rhs[keyRight], level, options);
+				prettyAppendLines(linesLeft, linesRight, keyLeft, keyRight, lhs[keyLeft], rhs[keyRight], level);
 			}
 		} else if (keysLeft.length && keysRight.length) {
 			if (keyCmpResult < 0) {
