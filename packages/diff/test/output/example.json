@@ -35,7 +35,20 @@
     "value": "graphql"
   },
   {
-    "op": "replace",
+    "op": "remove",
+    "path": "/metadata/author"
+  },
+  {
+    "op": "remove",
+    "path": "/metadata/created"
+  },
+  {
+    "op": "add",
+    "path": "/metadata/created",
+    "value": "2024-01-01"
+  },
+  {
+    "op": "add",
     "path": "/metadata/author",
     "value": "Bob"
   },
