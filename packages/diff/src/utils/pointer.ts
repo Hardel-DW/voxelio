@@ -17,7 +17,7 @@ export interface PointerEvaluation {
 }
 
 export class Pointer {
-	constructor(public tokens: string[] = [""]) { }
+	constructor(public tokens: string[] = [""]) {}
 
 	static fromJSON(path: string): Pointer {
 		const tokens = path.split("/").map(unescapeToken);

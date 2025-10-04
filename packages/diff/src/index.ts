@@ -1,2 +1,2 @@
 export { Differ } from "./differ";
-export type { DiffResult } from "./types";
+export type { PatchOperation, AddOperation, RemoveOperation, ReplaceOperation } from "./types";

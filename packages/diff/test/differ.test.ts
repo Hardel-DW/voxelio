@@ -275,7 +275,7 @@ describe("Differ", () => {
 			};
 
 			const patch = differ.diff(before, after);
-			writeFileSync("test/output/example.diff", JSON.stringify(patch, null, 2), "utf-8");
+			writeFileSync("test/output/example.json", JSON.stringify(patch, null, 2), "utf-8");
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 

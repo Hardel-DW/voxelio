@@ -1,86 +1,72 @@
 /**
- * Generate JSON Patch operations
- * Simplified for JSON with preserved key order
+ * Generate JSON Patch operations with preserved key order
  */
 
 import type { PatchOperation } from "../types";
 import { Pointer } from "../utils/pointer";
 import { isEqual } from "../utils/equality";
 
-function getType(value: unknown): string {
+const getType = (value: unknown): string => {
 	if (Array.isArray(value)) return "array";
 	if (value === null) return "null";
 	return typeof value;
-}
+};
 
 export function generatePatch(input: unknown, output: unknown, ptr = new Pointer()): PatchOperation[] {
-	const operations: PatchOperation[] = [];
-	if (isEqual(input, output)) {
-		return operations;
-	}
+	// Early return: values are equal
+	if (isEqual(input, output)) return [];
 
 	const inputType = getType(input);
 	const outputType = getType(output);
 
+	// Early return: different types
 	if (inputType !== outputType) {
-		operations.push({ op: "replace", path: ptr.toString(), value: output });
-		return operations;
+		return [{ op: "replace", path: ptr.toString(), value: output }];
 	}
 
 	// Arrays
 	if (Array.isArray(input) && Array.isArray(output)) {
-		const inputArr = input as unknown[];
-		const outputArr = output as unknown[];
-		const maxLen = Math.max(inputArr.length, outputArr.length);
+		const maxLen = Math.max(input.length, output.length);
+		const operations: PatchOperation[] = [];
 
 		for (let i = 0; i < maxLen; i++) {
-			if (i >= inputArr.length) {
-				operations.push({ op: "add", path: ptr.add(String(i)).toString(), value: outputArr[i] });
-			} else if (i >= outputArr.length) {
+			if (i >= input.length) {
+				operations.push({ op: "add", path: ptr.add(String(i)).toString(), value: output[i] });
+			} else if (i >= output.length) {
 				operations.push({ op: "remove", path: ptr.add(String(i)).toString() });
-			} else if (!isEqual(inputArr[i], outputArr[i])) {
-				const nestedOps = generatePatch(inputArr[i], outputArr[i], ptr.add(String(i)));
-				if (nestedOps.length > 0) {
-					operations.push(...nestedOps);
-				}
+			} else if (!isEqual(input[i], output[i])) {
+				operations.push(...generatePatch(input[i], output[i], ptr.add(String(i))));
 			}
 		}
 
-		const removes = operations.filter(op => op.op === "remove");
-		const others = operations.filter(op => op.op !== "remove");
-		return [...others, ...removes.reverse()];
+		// Reverse remove operations to preserve indices
+		const removes = operations.filter((op) => op.op === "remove").reverse();
+		const others = operations.filter((op) => op.op !== "remove");
+		return [...others, ...removes];
 	}
 
 	// Objects
-	if (inputType === "object" && outputType === "object") {
+	if (inputType === "object") {
 		const inputObj = input as Record<string, unknown>;
 		const outputObj = output as Record<string, unknown>;
 		const inputKeys = Object.keys(inputObj);
 		const outputKeys = Object.keys(outputObj);
-		const commonInputKeys = inputKeys.filter(k => k in outputObj);
-		const commonOutputKeys = outputKeys.filter(k => k in inputObj);
-
-		let keyOrderChanged = false;
+		const commonInputKeys = inputKeys.filter((k) => k in outputObj);
+		const commonOutputKeys = outputKeys.filter((k) => k in inputObj);
 		if (commonInputKeys.length > 0 && commonInputKeys.length === commonOutputKeys.length) {
-			for (let i = 0; i < commonInputKeys.length; i++) {
-				if (commonInputKeys[i] !== commonOutputKeys[i]) {
-					keyOrderChanged = true;
-					break;
-				}
+			const keyOrderChanged = commonInputKeys.some((key, i) => key !== commonOutputKeys[i]);
+			if (keyOrderChanged) {
+				return [{ op: "replace", path: ptr.toString(), value: output }];
 			}
 		}
 
-		if (keyOrderChanged) {
-			operations.push({ op: "replace", path: ptr.toString(), value: output });
-			return operations;
-		}
-
+		const operations: PatchOperation[] = [];
 		const inputKeySet = new Set(inputKeys);
+
 		for (const key of outputKeys) {
 			if (key in inputObj) {
 				if (!isEqual(inputObj[key], outputObj[key])) {
-					const nestedOps = generatePatch(inputObj[key], outputObj[key], ptr.add(key));
-					operations.push(...nestedOps);
+					operations.push(...generatePatch(inputObj[key], outputObj[key], ptr.add(key)));
 				}
 				inputKeySet.delete(key);
 			} else {
@@ -88,7 +74,6 @@ export function generatePatch(input: unknown, output: unknown, ptr = new Pointer
 			}
 		}
 
-		// Remaining keys only in input (removed)
 		for (const key of inputKeySet) {
 			operations.push({ op: "remove", path: ptr.add(key).toString() });
 		}
@@ -96,6 +81,6 @@ export function generatePatch(input: unknown, output: unknown, ptr = new Pointer
 		return operations;
 	}
 
-	operations.push({ op: "replace", path: ptr.toString(), value: output });
-	return operations;
+	// Primitives
+	return [{ op: "replace", path: ptr.toString(), value: output }];
 }
