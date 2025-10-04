@@ -6,20 +6,18 @@ Functionalities to implement:
 - Diff between two JSON objects, and make a patch file. -> new Differ().diff(obj1, obj2);
 - Apply the patch to a JSON object. -> Differ.apply(obj, patch);
 
-They are part of an existing repository, and we are going to completely empty it to leave only the utilities we want, We're going to rewrite it in modern TS and Node and test it in Vitest.
-
-This should only compare files and only JSON.
+This should only compare files and only JSON. So create a logic specially designed for this not create something complex.
 There will be no options available, unlike in the libs.
+We want compare JSON not a JS object So we want only number (2, -0.5, 3e6, Infinity), string (Escaped), boolean, list, object and nothing else. No Class, Function, Infinite, BigInt, etc.
 
 Keep this options like default for Differ class, we don't want options in this package so keep it but no peronnalization:
-- detectCircular: true,
-- maxDepth: null,
-- showModifications: true,
-- arrayDiffMethod: 'unorder-lcs',
-- ignoreCase: false,
-- ignoreCaseForKey: false,
-- recursiveEqual: true,
-- preserveKeyOrder: 'before'
+- No depth limit is applied when traversing objects (uses Number.POSITIVE_INFINITY).
+- Both additions and modifications are displayed in the diff output.
+- Arrays are compared using the Longest Common Subsequence (LCS) algorithm for better diff accuracy.
+- String values are compared with case sensitivity.
+- Object keys are compared with case sensitivity.
+- Nested objects and arrays use deep equality comparison.
+- Object keys are preserved according to the source object's order.
 
 Do not implement visual, html, css or anything like that.
 Idealy we want .diff files, with hunk like this:

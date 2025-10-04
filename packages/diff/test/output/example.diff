@@ -1,12 +1,5 @@
-@@ -1,5 +1,5 @@
+@@ -1,10 +1,10 @@
  {
--  "version": "1.0.0",
-+  "version": "2.0.0",
-   "config": {
-     "server": {
--      "port": 3000,
-+      "port": 8080,
-@@ -2,9 +2,9 @@
 -  "version": "1.0.0",
 +  "version": "2.0.0",
    "config": {
@@ -18,21 +11,11 @@
 -      "ssl": false
 +      "ssl": true
      },
-     "database": {
--      "name": "dev_db",
-+      "name": "prod_db",
-@@ -7,7 +7,7 @@
--      "ssl": false
-+      "ssl": true
+     "api": {
+       "foo": "bar",
+@@ -13,20 +13,20 @@
+       "version": "1.0.0"
      },
-     "database": {
--      "name": "dev_db",
-+      "name": "prod_db",
-       "user": "admin",
--      "connections": 10
-+      "connections": 50
-     }
-@@ -9,7 +9,7 @@
      "database": {
 -      "name": "dev_db",
 +      "name": "prod_db",
@@ -42,16 +25,10 @@
      }
    },
    "features": [
-@@ -15,7 +15,7 @@
-   "features": [
-     "api",
      "auth",
+     "api",
 -    "websocket"
 +    "graphql"
-   ],
-   "metadata": {
-     "created": "2024-01-01",
-@@ -19,7 +19,7 @@
    ],
    "metadata": {
      "created": "2024-01-01",

@@ -68,7 +68,6 @@ describe("Differ", () => {
 			const obj2 = { items: [1, 3, 4] };
 
 			const result = differ.diff(obj1, obj2);
-
 			expect(result).toContain("@@");
 		});
 
@@ -90,8 +89,6 @@ describe("Differ", () => {
 			const obj2 = { name: "Alice", age: 30 };
 
 			const result = differ.diff(obj1, obj2);
-
-			// Identical objects return empty string (no diff)
 			expect(result).toBe("");
 		});
 
@@ -123,14 +120,6 @@ describe("Differ", () => {
 			const result = differ.diff(obj1, obj2);
 
 			expect(result).toContain("@@");
-		});
-
-		it("should detect circular references", () => {
-			const differ = new Differ();
-			const obj1: Record<string, unknown> = { name: "Alice" };
-			obj1.self = obj1;
-
-			expect(() => differ.diff(obj1, { name: "Bob" })).toThrow("Circular reference");
 		});
 
 		it("should handle type changes", () => {
@@ -203,6 +192,12 @@ describe("Differ", () => {
 						host: "localhost",
 						ssl: false
 					},
+					api: {
+						foo: "bar",
+						bar: "foo",
+						qux: "qux",
+						version: "1.0.0"
+					},
 					database: {
 						name: "dev_db",
 						user: "admin",
@@ -224,6 +219,12 @@ describe("Differ", () => {
 						host: "0.0.0.0",
 						ssl: true
 					},
+					api: {
+						foo: "bar",
+						bar: "foo",
+						qux: "qux",
+						version: "1.0.0"
+					},
 					database: {
 						name: "prod_db",
 						user: "admin",
@@ -239,11 +240,7 @@ describe("Differ", () => {
 			};
 
 			const diff = differ.diff(before, after);
-
-			// Export to file
 			writeFileSync("test/output/example.diff", diff, "utf-8");
-
-			// Verify the diff contains expected markers
 			expect(diff).toContain("@@");
 			expect(diff).toContain("1.0.0");
 			expect(diff).toContain("2.0.0");
