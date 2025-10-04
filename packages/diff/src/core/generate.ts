@@ -3,24 +3,13 @@ import { Pointer } from "../utils/pointer";
 import { isEqual } from "../utils/equality";
 import { areArrayItemsMatchable } from "../utils/matchers";
 
-const getType = (value: unknown): string => {
-	if (Array.isArray(value)) {
-		return "array";
-	}
-	if (value === null) {
-		return "null";
-	}
-	return typeof value;
-};
-
-const isPlainObject = (value: unknown): value is Record<string, unknown> => {
-	return typeof value === "object" && value !== null && !Array.isArray(value);
-};
-
+const getType = (value: unknown): string => (Array.isArray(value) ? "array" : value === null ? "null" : typeof value);
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+	typeof value === "object" && value !== null && !Array.isArray(value);
 const areKeysInSameOrder = (left: Record<string, unknown>, right: Record<string, unknown>): boolean => {
-	const leftKeys = Object.keys(left);
-	const rightKeys = Object.keys(right);
-	return leftKeys.length === rightKeys.length && leftKeys.every((key, index) => key === rightKeys[index]);
+	const keysLeft = Object.keys(left);
+	const keysRight = Object.keys(right);
+	return keysLeft.length === keysRight.length && keysLeft.every((key, index) => key === keysRight[index]);
 };
 
 interface MatchPair {
@@ -30,22 +19,16 @@ interface MatchPair {
 
 export function generatePatch(input: unknown, output: unknown, pointer = new Pointer()): PatchOperation[] {
 	if (isEqual(input, output)) {
-		if (isPlainObject(input) && isPlainObject(output) && !areKeysInSameOrder(input, output)) {
-			// Identical structure but different key order, continue diffing to reorder keys
-		} else {
-			return [];
-		}
+		return [];
 	}
 
-	const inputType = getType(input);
-	const outputType = getType(output);
-
-	if (inputType !== outputType) {
+	const type = getType(input);
+	if (type !== getType(output)) {
 		return [{ op: "replace", path: pointer.toString(), value: output }];
 	}
 
-	if (Array.isArray(input) && Array.isArray(output)) {
-		return diffArray(input, output, pointer);
+	if (type === "array") {
+		return diffArray(input as unknown[], output as unknown[], pointer);
 	}
 
 	if (isPlainObject(input) && isPlainObject(output)) {
@@ -59,48 +42,46 @@ function diffArray(input: unknown[], output: unknown[], pointer: Pointer): Patch
 	const matches = computeArrayMatches(input, output);
 	const matchedSource = new Set(matches.map((pair) => pair.sourceIndex));
 	const matchedTarget = new Set(matches.map((pair) => pair.targetIndex));
+	const pointerFor = (token: string) => pointer.add(token).toString();
 
 	const operations: PatchOperation[] = [];
-	const removalIndexByPath = new Map<string, number>();
+	const replacements = new Map<string, number>();
 
 	for (let index = input.length - 1; index >= 0; index--) {
 		if (matchedSource.has(index)) {
 			continue;
 		}
-		const path = pointer.add(String(index)).toString();
-		removalIndexByPath.set(path, operations.length);
+		const path = pointerFor(String(index));
+		replacements.set(path, operations.length);
 		operations.push({ op: "remove", path });
 	}
 
 	const currentIndexMap = new Map<number, number>();
-	let removedBefore = 0;
+	let cursor = 0;
 	for (let index = 0; index < input.length; index++) {
 		if (!matchedSource.has(index)) {
-			removedBefore++;
 			continue;
 		}
-		currentIndexMap.set(index, index - removedBefore);
+		currentIndexMap.set(index, cursor++);
 	}
 
-	for (const pair of matches) {
-		const currentIndex = currentIndexMap.get(pair.sourceIndex);
+	for (const { sourceIndex, targetIndex } of matches) {
+		const currentIndex = currentIndexMap.get(sourceIndex);
 		if (currentIndex === undefined) {
 			continue;
 		}
-		const nestedPointer = pointer.add(String(currentIndex));
-		const nestedOperations = generatePatch(input[pair.sourceIndex], output[pair.targetIndex], nestedPointer);
-		operations.push(...nestedOperations);
+		operations.push(...generatePatch(input[sourceIndex], output[targetIndex], pointer.add(String(currentIndex))));
 	}
 
 	for (let index = 0; index < output.length; index++) {
 		if (matchedTarget.has(index)) {
 			continue;
 		}
-		const path = pointer.add(String(index)).toString();
-		const removalIndex = removalIndexByPath.get(path);
-		if (removalIndex !== undefined) {
-			operations[removalIndex] = { op: "replace", path, value: output[index] };
-			removalIndexByPath.delete(path);
+		const path = pointerFor(String(index));
+		const replacementIndex = replacements.get(path);
+		if (replacementIndex !== undefined) {
+			operations[replacementIndex] = { op: "replace", path, value: output[index] };
+			replacements.delete(path);
 			continue;
 		}
 		operations.push({ op: "add", path, value: output[index] });
@@ -112,34 +93,28 @@ function diffArray(input: unknown[], output: unknown[], pointer: Pointer): Patch
 function diffObject(input: Record<string, unknown>, output: Record<string, unknown>, pointer: Pointer): PatchOperation[] {
 	const inputKeys = Object.keys(input);
 	const outputKeys = Object.keys(output);
+	const pointerFor = (token: string) => pointer.add(token).toString();
 
 	if (!areKeysInSameOrder(input, output)) {
-		const operations: PatchOperation[] = [];
-		for (let index = inputKeys.length - 1; index >= 0; index--) {
-			const key = inputKeys[index];
-			operations.push({ op: "remove", path: pointer.add(key).toString() });
-		}
-		for (const key of outputKeys) {
-			operations.push({ op: "add", path: pointer.add(key).toString(), value: output[key] });
-		}
-		return operations;
+		const removals = inputKeys.toReversed().map((key) => ({ op: "remove", path: pointerFor(key) }));
+		const additions = outputKeys.map((key) => ({ op: "add", path: pointerFor(key), value: output[key] }));
+		return [...removals, ...additions];
 	}
 
 	const operations: PatchOperation[] = [];
 
 	for (const key of inputKeys) {
 		if (!Object.hasOwn(output, key)) {
-			operations.push({ op: "remove", path: pointer.add(key).toString() });
+			operations.push({ op: "remove", path: pointerFor(key) });
 		}
 	}
 
 	for (const key of outputKeys) {
 		if (!Object.hasOwn(input, key)) {
-			operations.push({ op: "add", path: pointer.add(key).toString(), value: output[key] });
+			operations.push({ op: "add", path: pointerFor(key), value: output[key] });
 			continue;
 		}
-		const nestedPointer = pointer.add(key);
-		operations.push(...generatePatch(input[key], output[key], nestedPointer));
+		operations.push(...generatePatch(input[key], output[key], pointer.add(key)));
 	}
 
 	return operations;
@@ -152,11 +127,9 @@ function computeArrayMatches(input: unknown[], output: unknown[]): MatchPair[] {
 
 	for (let i = input.length - 1; i >= 0; i--) {
 		for (let j = output.length - 1; j >= 0; j--) {
-			if (areArrayItemsMatchable(input[i], output[j])) {
-				table[i][j] = 1 + table[i + 1][j + 1];
-				continue;
-			}
-			table[i][j] = Math.max(table[i + 1][j], table[i][j + 1]);
+			table[i][j] = areArrayItemsMatchable(input[i], output[j])
+				? 1 + table[i + 1][j + 1]
+				: Math.max(table[i + 1][j], table[i][j + 1]);
 		}
 	}
 
@@ -164,13 +137,10 @@ function computeArrayMatches(input: unknown[], output: unknown[]): MatchPair[] {
 	let i = 0;
 	let j = 0;
 	while (i < input.length && j < output.length) {
-		if (areArrayItemsMatchable(input[i], output[j])) {
-			if (table[i][j] === table[i + 1][j + 1] + 1) {
-				matches.push({ sourceIndex: i, targetIndex: j });
-				i++;
-				j++;
-				continue;
-			}
+		const matchable = areArrayItemsMatchable(input[i], output[j]);
+		if (matchable && table[i][j] === table[i + 1][j + 1] + 1) {
+			matches.push({ sourceIndex: i++, targetIndex: j++ });
+			continue;
 		}
 
 		if (table[i + 1][j] > table[i][j + 1]) {

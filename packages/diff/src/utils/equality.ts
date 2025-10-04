@@ -6,40 +6,36 @@ export const isEqual = (a: unknown, b: unknown): boolean => {
 		return true;
 	}
 
-	if (a === null || b === null || typeof a !== "object" || typeof b !== "object") {
+	if (!a || !b || typeof a !== "object" || typeof b !== "object") {
 		return false;
 	}
 
-	if (Array.isArray(a) !== Array.isArray(b)) {
+	const arrayA = Array.isArray(a);
+	const arrayB = Array.isArray(b);
+	if (arrayA !== arrayB) {
 		return false;
 	}
 
-	if (Array.isArray(a) && Array.isArray(b)) {
-		if (a.length !== b.length) {
+	if (arrayA && arrayB) {
+		const left = a as unknown[];
+		const right = b as unknown[];
+		return left.length === right.length && left.every((value, index) => isEqual(value, right[index]));
+	}
+
+	const left = a as Record<string, unknown>;
+	const right = b as Record<string, unknown>;
+	const keysLeft = Object.keys(left);
+	const keysRight = Object.keys(right);
+	if (keysLeft.length !== keysRight.length) {
+		return false;
+	}
+
+	for (let index = 0; index < keysLeft.length; index++) {
+		const key = keysLeft[index];
+		if (key !== keysRight[index]) {
 			return false;
 		}
-		for (let i = 0; i < a.length; i++) {
-			if (!isEqual(a[i], b[i])) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	const keysA = Object.keys(a as object);
-	const keysB = Object.keys(b as object);
-	if (keysA.length !== keysB.length) {
-		return false;
-	}
-
-	for (let i = 0; i < keysA.length; i++) {
-		if (keysA[i] !== keysB[i]) {
-			return false;
-		}
-	}
-
-	for (const key of keysA) {
-		if (!isEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) {
+		if (!isEqual(left[key], right[key])) {
 			return false;
 		}
 	}

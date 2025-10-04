@@ -5,61 +5,44 @@
 import type { AddOperation, RemoveOperation, ReplaceOperation, PatchOperation } from "../types";
 import { Pointer } from "../utils/pointer";
 
-const clone = <T>(value: T): T => {
-	if (value === null || typeof value !== "object") {
-		return value;
-	}
-	if (Array.isArray(value)) {
-		return value.map(clone) as T;
-	}
+const clone = <T>(value: T): T => structuredClone(value);
 
-	const cloned: Record<string, unknown> = {};
-	for (const key in value) {
-		if (Object.hasOwn(value, key)) {
-			cloned[key] = clone((value as Record<string, unknown>)[key]);
-		}
-	}
-	return cloned as T;
-};
-
-const addOp = (object: unknown, key: string, value: unknown): void => {
-	if (Array.isArray(object)) {
-		if (key === "-") {
-			object.push(value);
-			return;
-		}
-		object.splice(Number.parseInt(key, 10), 0, value);
+const addOp = (target: unknown, key: string, value: unknown): void => {
+	if (Array.isArray(target)) {
+		const array = target as unknown[];
+		const index = key === "-" ? array.length : Number.parseInt(key, 10);
+		array.splice(index, 0, value);
 		return;
 	}
-	(object as Record<string, unknown>)[key] = value;
+	(target as Record<string, unknown>)[key] = value;
 };
 
-const removeOp = (object: unknown, key: string): void => {
-	if (Array.isArray(object)) {
-		object.splice(Number.parseInt(key, 10), 1);
+const removeOp = (target: unknown, key: string): void => {
+	if (Array.isArray(target)) {
+		(target as unknown[]).splice(Number.parseInt(key, 10), 1);
 		return;
 	}
-	delete (object as Record<string, unknown>)[key];
+	delete (target as Record<string, unknown>)[key];
 };
 
-const add = (object: unknown, operation: AddOperation): void => {
-	const endpoint = Pointer.fromJSON(operation.path).evaluate(object);
+const add = (document: unknown, operation: AddOperation): void => {
+	const endpoint = Pointer.fromJSON(operation.path).evaluate(document);
 	if (endpoint.parent === undefined || endpoint.parent === null) {
 		throw new Error(`Cannot add at path: ${operation.path}`);
 	}
 	addOp(endpoint.parent, endpoint.key, clone(operation.value));
 };
 
-const remove = (object: unknown, operation: RemoveOperation): void => {
-	const endpoint = Pointer.fromJSON(operation.path).evaluate(object);
+const remove = (document: unknown, operation: RemoveOperation): void => {
+	const endpoint = Pointer.fromJSON(operation.path).evaluate(document);
 	if (endpoint.value === undefined) {
 		throw new Error(`Cannot remove at path: ${operation.path}`);
 	}
 	removeOp(endpoint.parent, endpoint.key);
 };
 
-const replace = (object: unknown, operation: ReplaceOperation): void => {
-	const endpoint = Pointer.fromJSON(operation.path).evaluate(object);
+const replace = (document: unknown, operation: ReplaceOperation): void => {
+	const endpoint = Pointer.fromJSON(operation.path).evaluate(document);
 	if (endpoint.value === undefined) {
 		throw new Error(`Cannot replace at path: ${operation.path}`);
 	}
@@ -73,19 +56,21 @@ export function applyPatch(object: Record<string, unknown>, patch: PatchOperatio
 	let document: Record<string, unknown> = object;
 
 	for (const operation of patch) {
-		if (operation.op === "add") {
-			add(document, operation);
-			continue;
+		switch (operation.op) {
+			case "add":
+				add(document, operation);
+				break;
+			case "remove":
+				remove(document, operation);
+				break;
+			case "replace":
+				if (operation.path === "") {
+					document = clone(operation.value) as Record<string, unknown>;
+					break;
+				}
+				replace(document, operation);
+				break;
 		}
-		if (operation.op === "remove") {
-			remove(document, operation);
-			continue;
-		}
-		if (operation.path === "") {
-			document = clone(operation.value) as Record<string, unknown>;
-			continue;
-		}
-		replace(document, operation);
 	}
 
 	return document;
