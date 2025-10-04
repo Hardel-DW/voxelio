@@ -8,13 +8,13 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 			const obj1 = { items: [1, 2, 3, 4] };
 			const obj2 = { items: [1, 2, 4] };
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("-");
-			expect(result).toContain("3");
-			expect(result).toContain("1");
-			expect(result).toContain("2");
-			expect(result).toContain("4");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBeGreaterThan(0);
+
+			// Verify apply works
+			const applied = Differ.apply(obj1, patch);
+			expect(applied).toEqual(obj2);
 		});
 
 		it("should detect element added to middle", () => {
@@ -22,10 +22,13 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 			const obj1 = { items: [1, 3, 4] };
 			const obj2 = { items: [1, 2, 3, 4] };
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("+");
-			expect(result).toContain("2");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBeGreaterThan(0);
+
+			// Verify apply works
+			const applied = Differ.apply(obj1, patch);
+			expect(applied).toEqual(obj2);
 		});
 
 		it("should handle multiple changes in array", () => {
@@ -33,11 +36,9 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 			const obj1 = { items: [1, 2, 3, 4, 5] };
 			const obj2 = { items: [1, 3, 4, 6] };
 
-			const result = differ.diff(obj1, obj2);
-
-			expect(result).toContain("@@");
-			expect(result).toContain("-");
-			expect(result).toContain("+");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should handle completely different arrays", () => {
@@ -45,14 +46,9 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 			const obj1 = { items: [1, 2, 3] };
 			const obj2 = { items: [4, 5, 6] };
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("1");
-			expect(result).toContain("2");
-			expect(result).toContain("3");
-			expect(result).toContain("4");
-			expect(result).toContain("5");
-			expect(result).toContain("6");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBeGreaterThan(0);
 		});
 	});
 
@@ -72,8 +68,9 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toBe("");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBe(0);
 		});
 
 		it("should detect when object is removed from array", () => {
@@ -92,10 +89,9 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("-");
-			expect(result).toContain("Bob");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should detect when object is added to array", () => {
@@ -112,10 +108,13 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("+");
-			expect(result).toContain("Bob");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "add",
+				path: "/users/1",
+				value: { id: 2, name: "Bob" }
+			});
 		});
 	});
 
@@ -135,10 +134,13 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("Bob");
-			expect(result).toContain("Charlie");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "replace",
+				path: "/users/1/name",
+				value: "Charlie"
+			});
 		});
 
 		it("should compare objects with >50% common keys", () => {
@@ -154,10 +156,13 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("4");
-			expect(result).toContain("5");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "replace",
+				path: "/items/0/d",
+				value: 5
+			});
 		});
 	});
 
@@ -175,12 +180,9 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("-");
-			expect(result).toContain("+");
-			expect(result).toContain("Alice");
-			expect(result).toContain("Bob");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should handle objects with <50% common keys as different", () => {
@@ -196,8 +198,9 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBeGreaterThan(0);
 		});
 	});
 
@@ -211,12 +214,13 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				items: ["diamond_sword", "bow", "arrow"]
 			};
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("-");
-			expect(result).toContain("iron_sword");
-			expect(result).toContain("diamond_sword");
-			expect(result).toContain("bow");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBeGreaterThan(0);
+
+			// Verify apply works
+			const applied = Differ.apply(obj1, patch);
+			expect(applied).toEqual(obj2);
 		});
 
 		it("should handle enchantments array changes", () => {
@@ -234,10 +238,13 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("3");
-			expect(result).toContain("5");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "replace",
+				path: "/enchantments/0/lvl",
+				value: 5
+			});
 		});
 
 		it("should handle complex nested item with components", () => {
@@ -265,11 +272,18 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("0");
-			expect(result).toContain("10");
-			expect(result).toContain("mending");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "replace",
+				path: "/items/0/components/damage",
+				value: 10
+			});
+			expect(patch).toContainEqual({
+				op: "add",
+				path: "/items/0/components/enchantments/2",
+				value: "mending"
+			});
 		});
 	});
 
@@ -279,9 +293,9 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 			const obj1 = { items: [] };
 			const obj2 = { items: [1, 2, 3] };
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("+");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should handle array to empty array", () => {
@@ -289,9 +303,9 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 			const obj1 = { items: [1, 2, 3] };
 			const obj2 = { items: [] };
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("-");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should handle nested arrays in objects", () => {
@@ -311,8 +325,9 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				}
 			};
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should handle arrays with mixed types", () => {
@@ -320,10 +335,13 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 			const obj1 = { items: [1, "string", true, { key: "value" }] };
 			const obj2 = { items: [1, "string", false, { key: "value" }] };
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
-			expect(result).toContain("true");
-			expect(result).toContain("false");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "replace",
+				path: "/items/2",
+				value: false
+			});
 		});
 	});
 });

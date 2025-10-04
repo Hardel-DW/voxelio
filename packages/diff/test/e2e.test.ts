@@ -377,11 +377,12 @@ const after = {
 }
 
 describe("E2E", () => {
-    it("should diff the two objects", () => {
+    it("should diff the two objects and apply patch correctly", () => {
         const differ = new Differ();
-        const result = differ.diff(before, after);
-        const applied = Differ.apply(before, result);
+        const patch = differ.diff(before, after);
+        const applied = Differ.apply(before, patch);
         expect(applied).toEqual(after);
-        expect(result).toContain("@@");
+        expect(Array.isArray(patch)).toBe(true);
+        expect(patch.length).toBeGreaterThan(0);
     });
 });

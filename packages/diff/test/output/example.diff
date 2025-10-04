@@ -1,39 +1,47 @@
-@@ -1,10 +1,10 @@
- {
--  "version": "1.0.0",
-+  "version": "2.0.0",
-   "config": {
-     "server": {
--      "port": 3000,
-+      "port": 8080,
--      "host": "localhost",
-+      "host": "0.0.0.0",
--      "ssl": false
-+      "ssl": true
-     },
-     "api": {
-       "foo": "bar",
-@@ -13,20 +13,20 @@
-       "version": "1.0.0"
-     },
-     "database": {
--      "name": "dev_db",
-+      "name": "prod_db",
-       "user": "admin",
--      "connections": 10
-+      "connections": 50
-     }
-   },
-   "features": [
-     "auth",
-     "api",
--    "websocket"
-+    "graphql"
-   ],
-   "metadata": {
-     "created": "2024-01-01",
--    "author": "Alice"
-+    "author": "Bob",
-+    "updated": "2024-10-04"
-   }
- }
+[
+  {
+    "op": "replace",
+    "path": "/version",
+    "value": "2.0.0"
+  },
+  {
+    "op": "replace",
+    "path": "/config/server/port",
+    "value": 8080
+  },
+  {
+    "op": "replace",
+    "path": "/config/server/host",
+    "value": "0.0.0.0"
+  },
+  {
+    "op": "replace",
+    "path": "/config/server/ssl",
+    "value": true
+  },
+  {
+    "op": "replace",
+    "path": "/config/database/name",
+    "value": "prod_db"
+  },
+  {
+    "op": "replace",
+    "path": "/config/database/connections",
+    "value": 50
+  },
+  {
+    "op": "replace",
+    "path": "/features/2",
+    "value": "graphql"
+  },
+  {
+    "op": "replace",
+    "path": "/metadata/author",
+    "value": "Bob"
+  },
+  {
+    "op": "add",
+    "path": "/metadata/updated",
+    "value": "2024-10-04"
+  }
+]

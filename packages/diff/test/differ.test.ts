@@ -9,11 +9,14 @@ describe("Differ", () => {
 			const obj1 = { name: "Alice", age: 30 };
 			const obj2 = { name: "Bob", age: 30 };
 
-			const result = differ.diff(obj1, obj2);
+			const patch = differ.diff(obj1, obj2);
 
-			expect(result).toContain("@@");
-			expect(result).toContain("Alice");
-			expect(result).toContain("Bob");
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "replace",
+				path: "/name",
+				value: "Bob"
+			});
 		});
 
 		it("should detect added properties", () => {
@@ -21,11 +24,14 @@ describe("Differ", () => {
 			const obj1 = { name: "Alice" };
 			const obj2 = { name: "Alice", age: 30 };
 
-			const result = differ.diff(obj1, obj2);
+			const patch = differ.diff(obj1, obj2);
 
-			expect(result).toContain("@@");
-			expect(result).toContain("+");
-			expect(result).toContain("age");
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "add",
+				path: "/age",
+				value: 30
+			});
 		});
 
 		it("should detect removed properties", () => {
@@ -33,11 +39,13 @@ describe("Differ", () => {
 			const obj1 = { name: "Alice", age: 30 };
 			const obj2 = { name: "Alice" };
 
-			const result = differ.diff(obj1, obj2);
+			const patch = differ.diff(obj1, obj2);
 
-			expect(result).toContain("@@");
-			expect(result).toContain("-");
-			expect(result).toContain("age");
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "remove",
+				path: "/age"
+			});
 		});
 
 		it("should handle nested objects", () => {
@@ -55,11 +63,14 @@ describe("Differ", () => {
 				}
 			};
 
-			const result = differ.diff(obj1, obj2);
+			const patch = differ.diff(obj1, obj2);
 
-			expect(result).toContain("@@");
-			expect(result).toContain("Developer");
-			expect(result).toContain("Senior Developer");
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "replace",
+				path: "/user/profile/bio",
+				value: "Senior Developer"
+			});
 		});
 
 		it("should handle arrays", () => {
@@ -67,8 +78,9 @@ describe("Differ", () => {
 			const obj1 = { items: [1, 2, 3] };
 			const obj2 = { items: [1, 3, 4] };
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toContain("@@");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should handle empty objects", () => {
@@ -76,11 +88,14 @@ describe("Differ", () => {
 			const obj1 = {};
 			const obj2 = { name: "Alice" };
 
-			const result = differ.diff(obj1, obj2);
+			const patch = differ.diff(obj1, obj2);
 
-			expect(result).toContain("@@");
-			expect(result).toContain("+");
-			expect(result).toContain("name");
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "add",
+				path: "/name",
+				value: "Alice"
+			});
 		});
 
 		it("should handle identical objects", () => {
@@ -88,8 +103,9 @@ describe("Differ", () => {
 			const obj1 = { name: "Alice", age: 30 };
 			const obj2 = { name: "Alice", age: 30 };
 
-			const result = differ.diff(obj1, obj2);
-			expect(result).toBe("");
+			const patch = differ.diff(obj1, obj2);
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBe(0);
 		});
 
 		it("should handle null values", () => {
@@ -97,9 +113,14 @@ describe("Differ", () => {
 			const obj1 = { value: null };
 			const obj2 = { value: "something" };
 
-			const result = differ.diff(obj1, obj2);
+			const patch = differ.diff(obj1, obj2);
 
-			expect(result).toContain("@@");
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "replace",
+				path: "/value",
+				value: "something"
+			});
 		});
 
 		it("should handle array with objects", () => {
@@ -117,9 +138,14 @@ describe("Differ", () => {
 				]
 			};
 
-			const result = differ.diff(obj1, obj2);
+			const patch = differ.diff(obj1, obj2);
 
-			expect(result).toContain("@@");
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "replace",
+				path: "/users/1/name",
+				value: "Charlie"
+			});
 		});
 
 		it("should handle type changes", () => {
@@ -127,11 +153,14 @@ describe("Differ", () => {
 			const obj1 = { value: "string" };
 			const obj2 = { value: 123 };
 
-			const result = differ.diff(obj1, obj2);
+			const patch = differ.diff(obj1, obj2);
 
-			expect(result).toContain("@@");
-			expect(result).toContain("string");
-			expect(result).toContain("123");
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "replace",
+				path: "/value",
+				value: 123
+			});
 		});
 
 		it("should handle complex nested structures", () => {
@@ -149,12 +178,19 @@ describe("Differ", () => {
 				}
 			};
 
-			const result = differ.diff(obj1, obj2);
-			console.log(result);
+			const patch = differ.diff(obj1, obj2);
 
-			expect(result).toContain("@@");
-			expect(result).toContain("3000");
-			expect(result).toContain("8080");
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch).toContainEqual({
+				op: "replace",
+				path: "/config/server/port",
+				value: 8080
+			});
+			expect(patch).toContainEqual({
+				op: "replace",
+				path: "/config/database/name",
+				value: "production"
+			});
 		});
 	});
 
@@ -164,7 +200,6 @@ describe("Differ", () => {
 			const before = { name: "Alice", age: 30 };
 			const after = { name: "Bob", age: 30 };
 			const patch = differ.diff(before, after);
-			console.log(patch);
 
 			const result = Differ.apply(before, patch);
 			expect(result).toEqual({ name: "Bob", age: 30 });
@@ -173,7 +208,7 @@ describe("Differ", () => {
 
 		it("should handle empty patch", () => {
 			const obj = { name: "Alice" };
-			const patch = "";
+			const patch = [];
 
 			const result = Differ.apply(obj, patch);
 			expect(result).toEqual({ name: "Alice" });
@@ -239,13 +274,14 @@ describe("Differ", () => {
 				}
 			};
 
-			const diff = differ.diff(before, after);
-			writeFileSync("test/output/example.diff", diff, "utf-8");
-			expect(diff).toContain("@@");
-			expect(diff).toContain("1.0.0");
-			expect(diff).toContain("2.0.0");
-			expect(diff).toContain("3000");
-			expect(diff).toContain("8080");
+			const patch = differ.diff(before, after);
+			writeFileSync("test/output/example.diff", JSON.stringify(patch, null, 2), "utf-8");
+			expect(Array.isArray(patch)).toBe(true);
+			expect(patch.length).toBeGreaterThan(0);
+
+			// Verify apply works
+			const applied = Differ.apply(before, patch);
+			expect(applied).toEqual(after);
 		});
 	});
 });

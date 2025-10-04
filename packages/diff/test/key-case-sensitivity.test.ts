@@ -13,12 +13,19 @@ describe("Case Sensitivity", () => {
 			age: 30
 		};
 
-		const result = differ.diff(obj1, obj2);
+		const patch = differ.diff(obj1, obj2);
 
 		// Les clés "name" et "Name" sont différentes
-		expect(result).toContain("@@");
-		expect(result).toContain("-");
-		expect(result).toContain("+"); // "Name" est ajouté
+		expect(Array.isArray(patch)).toBe(true);
+		expect(patch).toContainEqual({
+			op: "add",
+			path: "/Name",
+			value: "Alice"
+		});
+		expect(patch).toContainEqual({
+			op: "remove",
+			path: "/name"
+		});
 	});
 
 	it("should treat keys with different case as different keys", () => {
@@ -33,15 +40,14 @@ describe("Case Sensitivity", () => {
 			age: 30
 		};
 
-		const result = differ.diff(obj1, obj2);
+		const patch = differ.diff(obj1, obj2);
 
-		console.log(result);
-		expect(result).toContain("@@");
-		expect(result).not.toContain('- ');
-		expect(result).toContain("name");
-		expect(result).toContain("Name");
-		expect(result).toContain("age");
-		expect(result).toContain("+"); // "Name" est ajouté
+		expect(Array.isArray(patch)).toBe(true);
+		expect(patch).toContainEqual({
+			op: "add",
+			path: "/Name",
+			value: "Alice"
+		});
 	});
 
 	it("should treat string values with different case as different", () => {
@@ -49,10 +55,13 @@ describe("Case Sensitivity", () => {
 		const obj1 = { message: "hello" };
 		const obj2 = { message: "HELLO" };
 
-		const result = differ.diff(obj1, obj2);
-		expect(result).toContain("@@");
-		expect(result).toContain("hello");
-		expect(result).toContain("HELLO");
+		const patch = differ.diff(obj1, obj2);
+		expect(Array.isArray(patch)).toBe(true);
+		expect(patch).toContainEqual({
+			op: "replace",
+			path: "/message",
+			value: "HELLO"
+		});
 	});
 
 	it("should handle multiple case-different keys", () => {
@@ -66,10 +75,25 @@ describe("Case Sensitivity", () => {
 			LastName: "Doe"
 		};
 
-		const result = differ.diff(obj1, obj2);
-		expect(result).toContain("firstName");
-		expect(result).toContain("lastName");
-		expect(result).toContain("FirstName");
-		expect(result).toContain("LastName");
+		const patch = differ.diff(obj1, obj2);
+		expect(Array.isArray(patch)).toBe(true);
+		expect(patch).toContainEqual({
+			op: "add",
+			path: "/FirstName",
+			value: "John"
+		});
+		expect(patch).toContainEqual({
+			op: "add",
+			path: "/LastName",
+			value: "Doe"
+		});
+		expect(patch).toContainEqual({
+			op: "remove",
+			path: "/firstName"
+		});
+		expect(patch).toContainEqual({
+			op: "remove",
+			path: "/lastName"
+		});
 	});
 });

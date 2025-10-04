@@ -59,11 +59,17 @@ const after = {
 describe("Preserver", () => {
     it("should preserve the order of the keys", () => {
         const differ = new Differ();
-        const result = differ.diff(before, after);
-        const apply = Differ.apply(before, result);
-        console.log(apply);
+        const patch = differ.diff(before, after);
+        const applied = Differ.apply(before, patch);
 
-        expect(Object.keys(apply)).toHaveLength(2);
-        expect(result).toBeDefined();
+        // Verify the patch was generated
+        expect(Array.isArray(patch)).toBe(true);
+        expect(patch.length).toBeGreaterThan(0);
+
+        // Verify apply reconstructs exactly the 'after' object
+        expect(applied).toEqual(after);
+
+        // Verify key order is preserved (JSON.stringify preserves insertion order)
+        expect(JSON.stringify(applied)).toBe(JSON.stringify(after));
     });
 });

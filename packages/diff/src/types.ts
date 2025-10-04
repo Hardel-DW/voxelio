@@ -1,7 +1,22 @@
-export interface DiffResult {
-	level: number;
-	type: "modify" | "add" | "remove" | "equal";
-	text: string;
-	comma?: boolean;
-	lineNumber?: number;
+/**
+ * JSON Patch operation types (RFC 6902)
+ */
+
+export interface AddOperation {
+	op: "add";
+	path: string;
+	value: unknown;
 }
+
+export interface RemoveOperation {
+	op: "remove";
+	path: string;
+}
+
+export interface ReplaceOperation {
+	op: "replace";
+	path: string;
+	value: unknown;
+}
+
+export type PatchOperation = AddOperation | RemoveOperation | ReplaceOperation;
