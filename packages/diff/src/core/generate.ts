@@ -45,6 +45,10 @@ function diffArray(input: unknown[], output: unknown[], pointer: Pointer): Patch
 	const matchedTarget = new Set(matches.map((pair) => pair.targetIndex));
 	const pointerFor = (token: string) => pointer.add(token).toString();
 
+	const unmatchedSourceIndices = new Set(Array.from(input.keys()).filter((index) => !matchedSource.has(index)));
+	const unmatchedTargetIndices = new Set(Array.from(output.keys()).filter((index) => !matchedTarget.has(index)));
+	const replacementIndices = new Set<number>(Array.from(unmatchedSourceIndices).filter((index) => unmatchedTargetIndices.has(index)));
+
 	const operations: PatchOperation[] = [];
 	const replacements = new Map<string, number>();
 
@@ -58,12 +62,15 @@ function diffArray(input: unknown[], output: unknown[], pointer: Pointer): Patch
 	}
 
 	const currentIndexMap = new Map<number, number>();
-	let cursor = 0;
+	let removedBefore = 0;
 	for (let index = 0; index < input.length; index++) {
 		if (!matchedSource.has(index)) {
+			if (!replacementIndices.has(index)) {
+				removedBefore++;
+			}
 			continue;
 		}
-		currentIndexMap.set(index, cursor++);
+		currentIndexMap.set(index, index - removedBefore);
 	}
 
 	for (const { sourceIndex, targetIndex } of matches) {
@@ -71,7 +78,8 @@ function diffArray(input: unknown[], output: unknown[], pointer: Pointer): Patch
 		if (currentIndex === undefined) {
 			continue;
 		}
-		operations.push(...generatePatch(input[sourceIndex], output[targetIndex], pointer.add(String(currentIndex))));
+		const nestedPointer = pointer.add(String(currentIndex));
+		operations.push(...generatePatch(input[sourceIndex], output[targetIndex], nestedPointer));
 	}
 
 	for (let index = 0; index < output.length; index++) {
