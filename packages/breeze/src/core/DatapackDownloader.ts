@@ -26,7 +26,11 @@ export class DatapackDownloader {
 
 	async download(logger: Logger): Promise<Response> {
 		const files: InputWithoutMeta[] = Object.entries(this.files).map(([path, data]) => this.prepareFile(path, data));
-		if (logger) files.push(this.prepareFile(`voxel/v${this.fileVersion}.json`, logger.exportJson()));
+		if (logger) {
+			for (const { path, content } of logger.toFileEntries()) {
+				files.push(this.prepareFile(path, content));
+			}
+		}
 		return downloadZip(files);
 	}
 

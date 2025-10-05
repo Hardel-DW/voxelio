@@ -50,3 +50,4 @@ export type { StructureSetProps } from "@/core/schema/structure_set/types";
 export type { RecipeProps } from "@/core/schema/recipe/types";
 export type { EnchantmentProps, Enchantment } from "@/core/schema/enchant/types";
 export type { LootItem, LootGroup, MinecraftLootEntry, LootTableProps, MinecraftLootTable } from "@/core/schema/loot/types";
+export type { ChangeSet, ChangeFile } from "@/core/engine/migrations/types";

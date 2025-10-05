@@ -16,12 +16,17 @@ export type FileStatus = (typeof FILE_STATUS)[keyof typeof FILE_STATUS];
 export class FileStatusComparator {
 	private originalDatapack: Datapack;
 	private compiledDatapack: Datapack;
-	private logger: Logger;
 
-	constructor(files: Record<string, Uint8Array>, elements: Map<string, GetAnalyserVoxel<keyof Analysers>>, logger: Logger) {
+	constructor(
+		files: Record<string, Uint8Array>,
+		elements: Map<string, GetAnalyserVoxel<keyof Analysers>>,
+		private readonly logger: Logger
+	) {
 		this.originalDatapack = new Datapack(files);
-		this.compiledDatapack = compileDatapack({ elements: Array.from(elements.values()), files });
-		this.logger = logger;
+		this.compiledDatapack = compileDatapack({
+			elements: Array.from(elements.values()),
+			files
+		});
 	}
 
 	/**
@@ -29,7 +34,6 @@ export class FileStatusComparator {
 	 */
 	getFileStatus(uniqueKey: string): FileStatus {
 		const identifier = Identifier.fromUniqueKey(uniqueKey);
-		const idString = `${identifier.namespace}:${identifier.resource}`;
 
 		const originalIndex = this.originalDatapack.getIndex(identifier.registry);
 		const compiledIndex = this.compiledDatapack.getIndex(identifier.registry);
@@ -37,25 +41,19 @@ export class FileStatusComparator {
 		const existsInOriginal = originalIndex.has(uniqueKey);
 		const existsInCompiled = compiledIndex.has(uniqueKey);
 
-		// Added: not in original, but in compiled
 		if (!existsInOriginal && existsInCompiled) {
 			return FILE_STATUS.ADDED;
 		}
 
-		// Deleted: in original, but not in compiled
 		if (existsInOriginal && !existsInCompiled) {
 			return FILE_STATUS.DELETED;
 		}
 
-		// Not in either (shouldn't happen normally)
 		if (!existsInOriginal && !existsInCompiled) {
 			return FILE_STATUS.UNCHANGED;
 		}
 
-		// Both exist: check if it was modified using Logger
-		const changes = this.logger.getChanges();
-		const hasChanges = changes.some((change) => change.identifier === idString);
-		return hasChanges ? FILE_STATUS.UPDATED : FILE_STATUS.UNCHANGED;
+		return this.logger.hasChanges(identifier.get()) ? FILE_STATUS.UPDATED : FILE_STATUS.UNCHANGED;
 	}
 
 	/**

@@ -31,11 +31,11 @@ export interface ParseDatapackResult<T extends VoxelElement> {
 export async function parseDatapack<T extends keyof Analysers>(file: File): Promise<ParseDatapackResult<GetAnalyserVoxel<T>>> {
 	const zip = await extractZip(new Uint8Array(await file.arrayBuffer()));
 	const datapack = new Datapack(zip);
-	const namespaces = datapack.getNamespaces();
 	const version = datapack.getPackFormat();
 	const isModded = file.name.endsWith(".jar");
 	const files = datapack.getFiles();
 
+	const logger = new Logger(files);
 	const elements = new Map<string, GetAnalyserVoxel<T>>();
 
 	// Type-safe concept processing
@@ -48,7 +48,11 @@ export async function parseDatapack<T extends keyof Analysers>(file: File): Prom
 			const tags = analyser.hasTag ? datapack.getRelatedTags(`tags/${conceptName}`, element.identifier) : [];
 
 			const parsed = analyser.parser({ element, tags, configurator });
-			elements.set(new Identifier(element.identifier).toUniqueKey(), parsed as GetAnalyserVoxel<T>);
+			logger.register(parsed.identifier, parsed);
+
+			const hydrated = logger.applyExistingChanges(parsed);
+
+			elements.set(new Identifier(element.identifier).toUniqueKey(), hydrated as GetAnalyserVoxel<T>);
 		}
 	}
 
@@ -58,9 +62,6 @@ export async function parseDatapack<T extends keyof Analysers>(file: File): Prom
 	}
 
 	if (elements.size === 0) throw new DatapackError("tools.warning.no_elements");
-	const logger = new Logger();
 
-	// Set datapack information for the logger
-	logger.setDatapackInfo({ namespaces, version, isModded });
 	return { name: file.name, files, elements, version, isModded, logger };
 }

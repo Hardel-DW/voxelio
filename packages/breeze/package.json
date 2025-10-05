@@ -13,7 +13,8 @@
 		"biome:unsafefix": "biome check --write --unsafe  ./src"
 	},
 	"dependencies": {
-		"@voxelio/zip": "workspace:*"
+		"@voxelio/zip": "workspace:*",
+		"@voxelio/diff": "workspace:*"
 	},
 	"exports": {
 		".": {
