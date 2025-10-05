@@ -25,9 +25,6 @@ export interface ParseDatapackResult<T extends VoxelElement> {
 	logger: Logger;
 }
 
-/**
- * Parses a datapack and returns the elements.
- */
 export async function parseDatapack<T extends keyof Analysers>(file: File): Promise<ParseDatapackResult<GetAnalyserVoxel<T>>> {
 	const zip = await extractZip(new Uint8Array(await file.arrayBuffer()));
 	const datapack = new Datapack(zip);
@@ -38,7 +35,6 @@ export async function parseDatapack<T extends keyof Analysers>(file: File): Prom
 	const logger = new Logger(files);
 	const elements = new Map<string, GetAnalyserVoxel<T>>();
 
-	// Type-safe concept processing
 	function processConcept<K extends keyof Analysers>(conceptName: K) {
 		const analyser = analyserCollection[conceptName];
 		const registry = datapack.getRegistry<GetAnalyserMinecraft<K>>(conceptName);
@@ -46,17 +42,12 @@ export async function parseDatapack<T extends keyof Analysers>(file: File): Prom
 		for (const element of registry) {
 			const configurator = datapack.readFile<ConfiguratorConfigFromDatapack>(element.identifier, "voxel");
 			const tags = analyser.hasTag ? datapack.getRelatedTags(`tags/${conceptName}`, element.identifier) : [];
-
 			const parsed = analyser.parser({ element, tags, configurator });
-			logger.register(parsed.identifier, parsed);
 
-			const hydrated = logger.applyExistingChanges(parsed);
-
-			elements.set(new Identifier(element.identifier).toUniqueKey(), hydrated as GetAnalyserVoxel<T>);
+			elements.set(new Identifier(element.identifier).toUniqueKey(), parsed as GetAnalyserVoxel<T>);
 		}
 	}
 
-	// Process all concepts from analyserCollection
 	for (const conceptName of Object.keys(analyserCollection) as Array<keyof Analysers>) {
 		processConcept(conceptName);
 	}

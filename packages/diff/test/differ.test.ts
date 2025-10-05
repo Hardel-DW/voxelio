@@ -1,4 +1,3 @@
-import { writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { Differ } from "../src/differ";
 
@@ -262,7 +261,6 @@ describe("Differ", () => {
 			};
 
 			const patch = new Differ(before, after).diff();
-			writeFileSync("test/output/example.json", JSON.stringify(patch, null, 2), "utf-8");
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 

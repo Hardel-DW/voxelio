@@ -66,8 +66,9 @@ describe("FileStatusComparator", () => {
 
 			const logger = new Logger();
 			const enchantment = createSimpleEnchantment("test", "modified");
-			const action = CoreAction.setValue("maxLevel", 5);
-			logger.trackChanges(enchantment, (el) => updateData<EnchantmentProps>(action, el));
+			logger.trackChanges(enchantment, (el) => updateData<EnchantmentProps>(CoreAction.setValue("maxLevel", 5), el));
+			logger.trackChanges(enchantment, (el) => updateData<EnchantmentProps>(CoreAction.setValue("maxLevel", 3), el));
+			logger.trackChanges(enchantment, (el) => updateData<EnchantmentProps>(CoreAction.setValue("maxLevel", 10), el));
 
 			const elements = new Map().set("test:modified$enchantment", enchantment);
 			const comparator = new FileStatusComparator(originalFiles, elements, logger);

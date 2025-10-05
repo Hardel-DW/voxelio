@@ -182,7 +182,6 @@ describe("LootTable E2E Tests", () => {
 					}
 				});
 
-
 				expect(pool1?.entries).toHaveLength(9);
 
 				const alternativesEntry = pool1?.entries.find((e) => e.type === "minecraft:alternatives");
@@ -359,7 +358,6 @@ describe("LootTable E2E Tests", () => {
 				expect(compiledTypes).toContain("minecraft:loot_table");
 				expect(compiledTypes).toContain("minecraft:sequence");
 				expect(compiledTypes).toContain("minecraft:tag");
-
 
 				const originalAlternatives = originalJson.pools[0].entries.find((e: any) => e.type === "minecraft:alternatives");
 				const compiledAlternatives = compiledData.pools?.[0]?.entries.find((e) => e.type === "minecraft:alternatives");
@@ -624,7 +622,11 @@ describe("LootTable E2E Tests", () => {
 
 				result = updateLootTable(addLegendaryAction, result);
 				expect(result.items).toHaveLength(originalItemCount + 1);
-				const createRareGroupAction = LootTableAction.createLootGroup("alternatives", [result.items[result.items.length - 1].id], 0);
+				const createRareGroupAction = LootTableAction.createLootGroup(
+					"alternatives",
+					[result.items[result.items.length - 1].id],
+					0
+				);
 
 				result = updateLootTable(createRareGroupAction, result);
 				expect(result.groups).toHaveLength(originalGroupCount + 1);

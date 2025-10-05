@@ -37,13 +37,20 @@ describe("Stress Tests - Highest Complexity", () => {
 			c: 3, // Ordre changé (c avant a)
 			a: 1,
 			b: {
-				y: { // Ordre changé (y avant x)
-					n: { // Ordre changé (n avant m)
-						beta: { // Ordre changé (beta avant alpha)
-							two: { // Ordre changé (two avant one)
-								bar: { // Ordre changé (bar avant foo)
-									blue: { // Ordre changé (blue avant red)
-										down: { // Ordre changé (down avant up)
+				y: {
+					// Ordre changé (y avant x)
+					n: {
+						// Ordre changé (n avant m)
+						beta: {
+							// Ordre changé (beta avant alpha)
+							two: {
+								// Ordre changé (two avant one)
+								bar: {
+									// Ordre changé (bar avant foo)
+									blue: {
+										// Ordre changé (blue avant red)
+										down: {
+											// Ordre changé (down avant up)
 											right: 1000000000, // Ordre changé (right avant left)
 											left: 100000000
 										},
@@ -70,7 +77,6 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle array of objects with mixed operations and key reordering", () => {
-
 		const before = {
 			items: [
 				{ id: 1, name: "Alice", age: 30, city: "Paris" },
@@ -99,7 +105,6 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle complex nested arrays with objects at multiple depths", () => {
-
 		const before = {
 			level1: [
 				{
@@ -127,7 +132,7 @@ describe("Stress Tests - Highest Complexity", () => {
 							level3: [
 								{ c: 3, b: 2, a: 1 }, // Ordre changé
 								{ f: 6, e: 5, d: 4 }, // Ordre changé
-								{ g: 7, h: 8, i: 9 }  // Ajouté
+								{ g: 7, h: 8, i: 9 } // Ajouté
 							]
 						},
 						{ id: 3, data: "new" } // Ajouté
@@ -145,26 +150,42 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle massive object with add/remove/reorder all at once", () => {
-
 		const before = {
-			a: 1, b: 2, c: 3, d: 4, e: 5,
-			f: 6, g: 7, h: 8, i: 9, j: 10,
+			a: 1,
+			b: 2,
+			c: 3,
+			d: 4,
+			e: 5,
+			f: 6,
+			g: 7,
+			h: 8,
+			i: 9,
+			j: 10,
 			nested: {
-				x: 100, y: 200, z: 300,
+				x: 100,
+				y: 200,
+				z: 300,
 				deep: {
-					m: 1000, n: 2000, o: 3000
+					m: 1000,
+					n: 2000,
+					o: 3000
 				}
 			}
 		};
 
 		const after = {
 			// Ordre complètement changé
-			j: 10, i: 9, h: 8,
+			j: 10,
+			i: 9,
+			h: 8,
 			// Supprimés: g, f, e
-			d: 4, c: 3,
+			d: 4,
+			c: 3,
 			// Ajoutés
-			k: 11, l: 12,
-			b: 2, a: 1,
+			k: 11,
+			l: 12,
+			b: 2,
+			a: 1,
 			nested: {
 				// Ordre changé + suppressions + ajouts
 				z: 300,
@@ -188,7 +209,6 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle arrays with all elements removed and new ones added", () => {
-
 		const before = {
 			tags: ["one", "two", "three", "four", "five"],
 			numbers: [1, 2, 3, 4, 5]
@@ -207,7 +227,6 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle empty to full and full to empty transitions", () => {
-
 		const test1Before = { data: [], info: {} };
 		const test1After = {
 			data: [1, 2, 3, { nested: true }],
@@ -225,7 +244,6 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle key order change with same values but different nesting", () => {
-
 		const before = {
 			user: {
 				profile: {
@@ -265,17 +283,16 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle special characters in keys with reordering", () => {
-
 		const before = {
 			"key/with/slash": 1,
 			"key~with~tilde": 2,
-			"normal": 3,
+			normal: 3,
 			"key with spaces": 4
 		};
 
 		const after = {
 			"key with spaces": 4,
-			"normal": 3,
+			normal: 3,
 			"key~with~tilde": 2,
 			"key/with/slash": 1
 		};
@@ -288,23 +305,21 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle Minecraft-like ultra complex scenario", () => {
-
 		// Scénario ultra complexe: combinaison de tout
 		const before = {
 			version: "1.0",
 			worldData: {
 				chunks: [
 					{
-						x: 0, z: 0,
+						x: 0,
+						z: 0,
 						blocks: [
 							{ type: "stone", pos: { x: 0, y: 0, z: 0 } },
 							{ type: "dirt", pos: { x: 1, y: 0, z: 0 } }
 						]
 					}
 				],
-				entities: [
-					{ id: 1, type: "player", name: "Steve", inventory: [] }
-				]
+				entities: [{ id: 1, type: "player", name: "Steve", inventory: [] }]
 			},
 			settings: {
 				render: { distance: 10, fog: true },
@@ -314,19 +329,22 @@ describe("Stress Tests - Highest Complexity", () => {
 
 		const after = {
 			version: "2.0", // Changé
-			settings: { // Ordre changé (settings avant worldData)
+			settings: {
+				// Ordre changé (settings avant worldData)
 				audio: { muted: false, volume: 0.9 }, // Ordre changé + volume changé
 				render: { fog: false, distance: 16, quality: "high" }, // Ordre changé + ajout quality
 				gamma: 1.0 // Ajouté
 			},
 			worldData: {
-				entities: [ // Ordre changé (entities avant chunks)
+				entities: [
+					// Ordre changé (entities avant chunks)
 					{ id: 1, type: "player", name: "Steve", inventory: [{ id: "diamond_sword" }] }, // inventory changé
 					{ id: 2, type: "zombie", name: "Zombie" } // Ajouté
 				],
 				chunks: [
 					{
-						z: 0, x: 0, // Ordre changé
+						z: 0,
+						x: 0, // Ordre changé
 						blocks: [
 							{ pos: { z: 0, y: 0, x: 0 }, type: "bedrock" }, // Ordre changé + type changé
 							{ pos: { z: 0, y: 0, x: 2 }, type: "grass" } // Position changée

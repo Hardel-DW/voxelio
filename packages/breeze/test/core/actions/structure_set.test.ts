@@ -21,10 +21,7 @@ describe("StructureSet Actions", () => {
 
 	describe("structure_set.add_structure", () => {
 		it("should add structure at the end by default", () => {
-			const result = updateData(
-				StructureSetAction.addStructure("minecraft:village_desert", 5),
-				baseStructureSet
-			);
+			const result = updateData(StructureSetAction.addStructure("minecraft:village_desert", 5), baseStructureSet);
 
 			expect(result?.structures).toHaveLength(2);
 			expect(result?.structures?.[1]).toEqual({
@@ -34,10 +31,7 @@ describe("StructureSet Actions", () => {
 		});
 
 		it("should add structure at specific position", () => {
-			const result = updateData(
-				StructureSetAction.addStructure("minecraft:village_desert", 5, 0),
-				baseStructureSet
-			);
+			const result = updateData(StructureSetAction.addStructure("minecraft:village_desert", 5, 0), baseStructureSet);
 
 			expect(result?.structures).toHaveLength(2);
 			expect(result?.structures?.[0]).toEqual({
@@ -58,10 +52,7 @@ describe("StructureSet Actions", () => {
 				structures: [...baseStructureSet.structures, { structure: "minecraft:village_desert", weight: 5 }]
 			};
 
-			const result = updateData(
-				StructureSetAction.removeStructure("structure_1"),
-				extendedStructureSet
-			);
+			const result = updateData(StructureSetAction.removeStructure("structure_1"), extendedStructureSet);
 
 			expect(result?.structures).toHaveLength(1);
 			expect(result?.structures?.[0]).toEqual({
@@ -73,10 +64,7 @@ describe("StructureSet Actions", () => {
 
 	describe("structure_set.modify_structure", () => {
 		it("should modify structure weight", () => {
-			const result = updateData(
-				StructureSetAction.modifyStructure("structure_0", "weight", 15),
-				baseStructureSet
-			);
+			const result = updateData(StructureSetAction.modifyStructure("structure_0", "weight", 15), baseStructureSet);
 
 			expect(result?.structures?.[0]).toEqual({
 				structure: "minecraft:village_plains",
@@ -99,10 +87,7 @@ describe("StructureSet Actions", () => {
 
 	describe("structure_set.set_placement_type", () => {
 		it("should change placement type", () => {
-			const result = updateData(
-				StructureSetAction.setPlacementType("minecraft:concentric_rings"),
-				baseStructureSet
-			);
+			const result = updateData(StructureSetAction.setPlacementType("minecraft:concentric_rings"), baseStructureSet);
 
 			expect(result?.placementType).toBe("minecraft:concentric_rings");
 		});
@@ -129,10 +114,7 @@ describe("StructureSet Actions", () => {
 
 	describe("structure_set.set_exclusion_zone", () => {
 		it("should set exclusion zone", () => {
-			const result = updateData(
-				StructureSetAction.setExclusionZone("minecraft:strongholds", 10),
-				baseStructureSet
-			);
+			const result = updateData(StructureSetAction.setExclusionZone("minecraft:strongholds", 10), baseStructureSet);
 
 			expect(result?.exclusionZone).toEqual({
 				otherSet: "minecraft:strongholds",
@@ -151,10 +133,7 @@ describe("StructureSet Actions", () => {
 				}
 			};
 
-			const result = updateData(
-				StructureSetAction.removeExclusionZone(),
-				structureSetWithExclusion
-			);
+			const result = updateData(StructureSetAction.removeExclusionZone(), structureSetWithExclusion);
 
 			expect(result?.exclusionZone).toBeUndefined();
 		});

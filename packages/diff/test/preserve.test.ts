@@ -2,73 +2,69 @@ import { describe, expect, it } from "vitest";
 import { Differ } from "../src/differ";
 
 const before = {
-    "effects": {
-        "minecraft:attributes": [
-            {
-                "id": "minecraft:enchantment.fury",
-                "attribute": "minecraft:attack_damage",
-                "amount": {
-                    "type": "minecraft:linear",
-                    "base": 0.075,
-                    "per_level_above_first": 0.065
-                },
-                "operation": "add_multiplied_total"
-            }
-        ]
-    },
-    "tags": [
-        "#minecraft:non_treasure",
-        "#yggdrasil:equipment/item/chestplate",
-        "#yggdrasil:equipment/item/chestplate",
-        "#yggdrasil:structure/alfheim_tree/random_loot"
-    ],
-}
+	effects: {
+		"minecraft:attributes": [
+			{
+				id: "minecraft:enchantment.fury",
+				attribute: "minecraft:attack_damage",
+				amount: {
+					type: "minecraft:linear",
+					base: 0.075,
+					per_level_above_first: 0.065
+				},
+				operation: "add_multiplied_total"
+			}
+		]
+	},
+	tags: [
+		"#minecraft:non_treasure",
+		"#yggdrasil:equipment/item/chestplate",
+		"#yggdrasil:equipment/item/chestplate",
+		"#yggdrasil:structure/alfheim_tree/random_loot"
+	]
+};
 
 const after = {
-    "effects": {
-        "minecraft:attributes": [
-            {
-                "attribute": "minecraft:attack_damage",
-                "id": "minecraft:enchantment.fury",
-                "amount": {
-                    "type": "minecraft:linear",
-                    "per_level_above_first": 0.065,
-                    "base": 0.085,
-                },
-                "operation": "add_multiplied_total"
-            },
-            {
-                "id": "minecraft:enchantment.fury_descrease",
-                "attribute": "minecraft:attack_damage",
-                "amount": {
-                    "type": "minecraft:linear",
-                    "base": 0.075,
-                    "per_level_above_first": 0.065
-                },
-                "operation": "add_multiplied_total"
-            }
-        ]
-    },
-    "tags": [
-        "#minecraft:non_treasure",
-        "#yggdrasil:structure/alfheim_tree/random_loot",
-        "#yggdrasil:equipment/item/chestplate",
-    ],
-}
+	effects: {
+		"minecraft:attributes": [
+			{
+				attribute: "minecraft:attack_damage",
+				id: "minecraft:enchantment.fury",
+				amount: {
+					type: "minecraft:linear",
+					per_level_above_first: 0.065,
+					base: 0.085
+				},
+				operation: "add_multiplied_total"
+			},
+			{
+				id: "minecraft:enchantment.fury_descrease",
+				attribute: "minecraft:attack_damage",
+				amount: {
+					type: "minecraft:linear",
+					base: 0.075,
+					per_level_above_first: 0.065
+				},
+				operation: "add_multiplied_total"
+			}
+		]
+	},
+	tags: ["#minecraft:non_treasure", "#yggdrasil:structure/alfheim_tree/random_loot", "#yggdrasil:equipment/item/chestplate"]
+};
 
 describe("Preserver", () => {
-    it("should preserve the order of the keys", () => {
-        const patch = new Differ(before, after).diff();
-        const applied = Differ.apply(before, patch);
+	it("should preserve the order of the keys", () => {
+		const patch = new Differ(before, after).diff();
+		const applied = Differ.apply(before, patch);
 
-        // Verify the patch was generated
-        expect(Array.isArray(patch)).toBe(true);
-        expect(patch.length).toBeGreaterThan(0);
+		// Verify the patch was generated
+		expect(Array.isArray(patch)).toBe(true);
+		expect(patch.length).toBeGreaterThan(0);
 
-        // Verify apply reconstructs exactly the 'after' object
-        expect(applied).toEqual(after);
+		// Verify apply reconstructs exactly the 'after' object
+		expect(applied).toEqual(after);
 
-        // Verify key order is preserved (JSON.stringify preserves insertion order)
-        expect(JSON.stringify(applied)).toBe(JSON.stringify(after));
-    });
+		// Verify key order is preserved (JSON.stringify preserves insertion order)
+		expect(JSON.stringify(applied)).toBe(JSON.stringify(after));
+	});
 });

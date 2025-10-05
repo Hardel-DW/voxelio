@@ -63,7 +63,7 @@ describe("Deep Equality Comparison", () => {
 
 	it("should detect differences in arrays", () => {
 		const obj1 = { items: [1, 2, 3] };
-		const obj2 = { items: [1, 2, 4] };  // 3 → 4
+		const obj2 = { items: [1, 2, 4] }; // 3 → 4
 
 		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);

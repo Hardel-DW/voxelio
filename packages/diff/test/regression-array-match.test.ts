@@ -6,30 +6,28 @@ describe("Regression: Mojang loot data reordering", () => {
 		const before = {
 			pools: [
 				{
-					rolls: 3,
+					rolls: 3
 				},
 				{
 					entries: {
 						type: "minecraft:set_nbt",
-						data: { foo: 1 },
-					},
-				},
-			],
+						data: { foo: 1 }
+					}
+				}
+			]
 		};
 		const after = {
 			pools: [
 				{
-					bonus_rolls: { min: 0, max: 1 },
+					bonus_rolls: { min: 0, max: 1 }
 				},
 				{
 					entries: {
 						type: "minecraft:set_components",
-						components: [
-							{ name: "minecraft:custom_model_data", value: 2 },
-						],
-					},
-				},
-			],
+						components: [{ name: "minecraft:custom_model_data", value: 2 }]
+					}
+				}
+			]
 		};
 
 		const patch = new Differ(before, after).diff();

@@ -26,7 +26,7 @@ describe("String Values Case Sensitivity", () => {
 
 	it("should detect partial case changes in strings", () => {
 		const obj1 = { text: "Hello World" };
-		const obj2 = { text: "Hello world" };  // W → w
+		const obj2 = { text: "Hello world" }; // W → w
 
 		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
@@ -44,9 +44,9 @@ describe("String Values Case Sensitivity", () => {
 			country: "France"
 		};
 		const obj2 = {
-			name: "ALICE",  // alice → ALICE
-			city: "paris",  // PARIS → paris
-			country: "France"  // Inchangé
+			name: "ALICE", // alice → ALICE
+			city: "paris", // PARIS → paris
+			country: "France" // Inchangé
 		};
 
 		const patch = new Differ(obj1, obj2).diff();
@@ -73,7 +73,7 @@ describe("String Values Case Sensitivity", () => {
 		const obj2 = {
 			user: {
 				name: "John Doe",
-				email: "JOHN@EXAMPLE.COM"  // Email en majuscules
+				email: "JOHN@EXAMPLE.COM" // Email en majuscules
 			}
 		};
 
@@ -116,9 +116,9 @@ describe("String Values Case Sensitivity", () => {
 			type: "User"
 		};
 		const obj2 = {
-			status: "ACTIVE",  // Changé
-			role: "ADMIN",     // Inchangé
-			type: "user"       // Changé
+			status: "ACTIVE", // Changé
+			role: "ADMIN", // Inchangé
+			type: "user" // Changé
 		};
 
 		const patch = new Differ(obj1, obj2).diff();

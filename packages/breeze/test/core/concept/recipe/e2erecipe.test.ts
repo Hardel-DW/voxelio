@@ -6,7 +6,6 @@ import { shapeless, shaped, shaped2, blasting, stonecutting, shapedtwobytwo } fr
 import { createFilesFromElements, createZipFile } from "@test/mock/utils";
 import { describe, it, expect, beforeEach } from "vitest";
 
-
 describe("Recipe E2E Tests", () => {
 	describe("Complete workflow: Parse → Compile", () => {
 		let parsedDatapack: Awaited<ReturnType<typeof parseDatapack>>;

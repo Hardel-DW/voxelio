@@ -7,32 +7,32 @@ describe("reorderKeysLike", () => {
 			name: "item",
 			components: {
 				foo: 1,
-				bar: 2,
+				bar: 2
 			},
-			tags: ["a"],
+			tags: ["a"]
 		};
 		const target = {
 			tags: ["a"],
 			components: {
 				bar: 2,
 				foo: 1,
-				extra: true,
+				extra: true
 			},
 			name: "item",
-			newField: 42,
+			newField: 42
 		};
 
 		const aligned = new Differ(source, target).reorder() as Record<string, unknown>;
 		expect(Object.keys(aligned)).toEqual(["name", "components", "tags", "newField"]);
-		expect(Object.keys((aligned.components as Record<string, unknown>))).toEqual(["foo", "bar", "extra",]);
+		expect(Object.keys(aligned.components as Record<string, unknown>)).toEqual(["foo", "bar", "extra"]);
 	});
 
 	it("should align arrays of objects index-wise", () => {
 		const source = {
 			pools: [
 				{ name: "old", entries: { type: "minecraft:set_nbt", tag: "{}" } },
-				{ name: "keep", entries: { type: "minecraft:item", name: "minecraft:stick" } },
-			],
+				{ name: "keep", entries: { type: "minecraft:item", name: "minecraft:stick" } }
+			]
 		};
 
 		const target = {
@@ -40,14 +40,14 @@ describe("reorderKeysLike", () => {
 				{
 					entries: [
 						{ type: "minecraft:item", name: "minecraft:stick" },
-						{ type: "minecraft:item", name: "minecraft:emerald" },
+						{ type: "minecraft:item", name: "minecraft:emerald" }
 					],
-					name: "keep",
+					name: "keep"
 				},
 				{
-					bonus_rolls: { min: 0, max: 1 },
-				},
-			],
+					bonus_rolls: { min: 0, max: 1 }
+				}
+			]
 		};
 
 		const aligned = new Differ(source, target).reorder() as { pools: Array<Record<string, unknown>> };
@@ -62,10 +62,10 @@ describe("reorderKeysLike", () => {
 				alpha: { first: 1, second: 2 },
 				beta: [
 					{ id: 1, value: "one" },
-					{ id: 2, value: "two" },
+					{ id: 2, value: "two" }
 				],
-				gamma: true,
-			},
+				gamma: true
+			}
 		};
 
 		const target = {
@@ -74,21 +74,17 @@ describe("reorderKeysLike", () => {
 				beta: [
 					{ value: "ONE", id: 1 },
 					{ value: "TWO", id: 2 },
-					{ value: "THREE", id: 3 },
+					{ value: "THREE", id: 3 }
 				],
-				alpha: { second: 22, first: 11, third: 33 },
-			},
+				alpha: { second: 22, first: 11, third: 33 }
+			}
 		};
 
 		const aligned = new Differ(source, target).reorder() as Record<string, unknown>;
 		const root = aligned.root as Record<string, unknown>;
 
 		expect(Object.keys(root)).toEqual(["alpha", "beta", "gamma"]);
-		expect(Object.keys((root.alpha as Record<string, unknown>))).toEqual([
-			"first",
-			"second",
-			"third",
-		]);
+		expect(Object.keys(root.alpha as Record<string, unknown>)).toEqual(["first", "second", "third"]);
 		const beta = root.beta as Array<Record<string, unknown>>;
 		expect(Object.keys(beta[0])).toEqual(["id", "value"]);
 		expect(Object.keys(beta[2])).toEqual(["id", "value"]);
@@ -99,8 +95,8 @@ describe("reorderKeysLike", () => {
 		const target = {
 			list: [
 				{ foo: 2, id: "A" },
-				{ bar: 10, id: "B" },
-			],
+				{ bar: 10, id: "B" }
+			]
 		};
 
 		const aligned = new Differ(source, target).reorder() as { list: Array<Record<string, unknown>> };

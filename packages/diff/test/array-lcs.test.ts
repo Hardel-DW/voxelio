@@ -89,9 +89,7 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 
 		it("should detect when object is added to array", () => {
 			const obj1 = {
-				users: [
-					{ id: 1, name: "Alice" }
-				]
+				users: [{ id: 1, name: "Alice" }]
 			};
 			const obj2 = {
 				users: [
@@ -136,14 +134,10 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 
 		it("should compare objects with >50% common keys", () => {
 			const obj1 = {
-				items: [
-					{ a: 1, b: 2, c: 3, d: 4 }
-				]
+				items: [{ a: 1, b: 2, c: 3, d: 4 }]
 			};
 			const obj2 = {
-				items: [
-					{ a: 1, b: 2, c: 3, d: 5 }
-				]
+				items: [{ a: 1, b: 2, c: 3, d: 5 }]
 			};
 
 			const patch = new Differ(obj1, obj2).diff();
@@ -159,14 +153,10 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 	describe("Arrays with objects - Different objects (<50% similarity)", () => {
 		it("should treat completely different objects as add/remove", () => {
 			const obj1 = {
-				users: [
-					{ id: 1, name: "Alice" }
-				]
+				users: [{ id: 1, name: "Alice" }]
 			};
 			const obj2 = {
-				users: [
-					{ uid: 2, username: "Bob" }
-				]
+				users: [{ uid: 2, username: "Bob" }]
 			};
 
 			const patch = new Differ(obj1, obj2).diff();
@@ -176,14 +166,10 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 
 		it("should handle objects with <50% common keys as different", () => {
 			const obj1 = {
-				items: [
-					{ a: 1, b: 2 }
-				]
+				items: [{ a: 1, b: 2 }]
 			};
 			const obj2 = {
-				items: [
-					{ a: 1, c: 3, d: 4 }
-				]
+				items: [{ a: 1, c: 3, d: 4 }]
 			};
 
 			const patch = new Differ(obj1, obj2).diff();
@@ -294,9 +280,7 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 		it("should handle nested arrays in objects", () => {
 			const obj1 = {
 				data: {
-					items: [
-						{ values: [1, 2, 3] }
-					]
+					items: [{ values: [1, 2, 3] }]
 				}
 			};
 			const obj2 = {

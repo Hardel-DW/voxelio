@@ -9,7 +9,6 @@ import { RecipeAction } from "@/core/engine/actions/domains/RecipeAction";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 import { recipeDataDriven } from "@test/mock/recipe/DataDriven";
 
-
 // Helper function to update recipe data with proper typing
 function updateRecipe(action: Action, recipe: RecipeProps, packVersion = 48): RecipeProps {
 	const result = updateData(action, recipe, packVersion);

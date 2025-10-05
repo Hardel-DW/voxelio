@@ -2,14 +2,8 @@ import { describe, expect, it } from "vitest";
 import { Tags } from "@/core/Tag";
 import { TagsProcessor } from "@/core/TagsProcessor";
 import type { DataDrivenRegistryElement } from "@/core/Element";
-import type { Compiler } from "@/core/engine/Compiler";
 import type { TagType } from "@/core/Tag";
-import {
-	vanillaDatapackTags,
-	customDatapackTags,
-	replacingDatapackTags,
-	advancedDatapackTags
-} from "@test/mock/tags/Enchantment";
+import { vanillaDatapackTags, customDatapackTags, replacingDatapackTags, advancedDatapackTags } from "@test/mock/tags/Enchantment";
 
 describe("Tag Functions", () => {
 	describe("isPresentInTag", () => {
@@ -88,13 +82,14 @@ describe("Tag Functions", () => {
 			];
 
 			const elementToTags = new Map([
-				["test:first", [
-					{ namespace: "test", registry: "tags/enchantment", resource: "group1" },
-					{ namespace: "test", registry: "tags/enchantment", resource: "group2" }
-				]],
-				["test:second", [
-					{ namespace: "test", registry: "tags/enchantment", resource: "group1" }
-				]]
+				[
+					"test:first",
+					[
+						{ namespace: "test", registry: "tags/enchantment", resource: "group1" },
+						{ namespace: "test", registry: "tags/enchantment", resource: "group2" }
+					]
+				],
+				["test:second", [{ namespace: "test", registry: "tags/enchantment", resource: "group1" }]]
 			]);
 
 			const processor = new TagsProcessor(existingTags);

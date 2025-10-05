@@ -5,10 +5,7 @@ import type { ChangeSet } from "@/core/engine/migrations/types";
 
 const DECODER = new TextDecoder();
 const ENCODER = new TextEncoder();
-
 const CHANGES_PREFIX = "voxel/changeset";
-
-const toKey = (identifier: IdentifierObject): string => new Identifier(identifier).toUniqueKey();
 
 const parseChangePath = (path: string): IdentifierObject | undefined => {
 	const parts = path.split("/");
@@ -33,29 +30,9 @@ export class Logger {
 		}
 	}
 
-	register(identifier: IdentifierObject, element: VoxelElement) {
-		const key = toKey(identifier);
-		if (!this.originals.has(key)) {
-			this.originals.set(key, structuredClone(element));
-		}
-	}
-
-	registerMany(elements: Iterable<VoxelElement>) {
-		for (const element of elements) {
-			if (element?.identifier) {
-				this.register(element.identifier, element);
-			}
-		}
-	}
-
 	hasChanges(identifier: IdentifierObject | string): boolean {
-		const key = typeof identifier === "string" ? identifier : toKey(identifier);
+		const key = typeof identifier === "string" ? identifier : new Identifier(identifier).toUniqueKey();
 		return this.patches.has(key);
-	}
-
-	getPatch(identifier: IdentifierObject | string): PatchOperation[] | undefined {
-		const key = typeof identifier === "string" ? identifier : toKey(identifier);
-		return this.patches.get(key);
 	}
 
 	getChangeSets(): ChangeSet[] {
@@ -71,18 +48,21 @@ export class Logger {
 		return this.getChangeSets().map((change) => change.identifier);
 	}
 
-	trackChanges<T extends VoxelElement>(element: T, updater: (draft: T) => T | undefined): T {
-		const key = toKey(element.identifier);
+	trackChanges<T extends VoxelElement>(element: T, updater: (draft: T) => Partial<T> | undefined): T {
+		const key = new Identifier(element.identifier).toUniqueKey();
 		if (!this.originals.has(key)) {
 			this.originals.set(key, structuredClone(element));
 		}
 
 		const original = this.originals.get(key);
-		const draft = structuredClone(element);
-		const updated = updater(draft) ?? draft;
+		if (!original) {
+			throw new Error(`Original element not registered for ${key}`);
+		}
 
-		const aligned = new Differ(original, updated).reorder() as T;
-		const patch = new Differ(original, aligned).diff();
+		const draft = structuredClone(element);
+		const result = updater(draft);
+		const updated = (result ? Object.assign(draft, result) : draft) as T;
+		const patch = new Differ(original, updated).diff();
 
 		if (patch.length === 0) {
 			this.patches.delete(key);
@@ -92,21 +72,7 @@ export class Logger {
 			this.timestamps.set(key, new Date().toISOString());
 		}
 
-		return aligned;
-	}
-
-	applyExistingChanges<T extends VoxelElement>(element: T): T {
-		const patch = this.getPatch(element.identifier);
-		if (!patch || patch.length === 0) {
-			return element;
-		}
-		return Differ.apply(structuredClone(element), patch) as T;
-	}
-
-	clear(identifier: IdentifierObject) {
-		const key = toKey(identifier);
-		this.patches.delete(key);
-		this.timestamps.delete(key);
+		return updated;
 	}
 
 	toFileEntries(): Array<{ path: string; content: Uint8Array }> {
@@ -115,10 +81,7 @@ export class Logger {
 			if (!change.patch.length) continue;
 			const identifier = new Identifier(change.identifier);
 			const path = identifier.toFilePath(CHANGES_PREFIX);
-			entries.push({
-				path,
-				content: ENCODER.encode(JSON.stringify(change, null, 2))
-			});
+			entries.push({ path, content: ENCODER.encode(JSON.stringify(change, null, 4)) });
 		}
 		return entries;
 	}
@@ -129,12 +92,9 @@ export class Logger {
 
 			try {
 				const json = JSON.parse(DECODER.decode(data)) as ChangeSet;
-				let identifier = json?.identifier;
-				if (!identifier) {
-					identifier = parseChangePath(path);
-				}
+				const identifier = json?.identifier ?? parseChangePath(path);
 				if (!identifier || !Array.isArray(json?.patch)) continue;
-				const key = toKey(identifier);
+				const key = new Identifier(identifier).toUniqueKey();
 				if (json.patch.length === 0) {
 					this.patches.delete(key);
 					this.timestamps.delete(key);
