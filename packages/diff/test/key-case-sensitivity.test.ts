@@ -3,7 +3,6 @@ import { Differ } from "../src/differ";
 
 describe("Case Sensitivity", () => {
 	it("should treat keys with different case as different keys", () => {
-		const differ = new Differ();
 		const obj1 = {
 			name: "Alice", // minuscule
 			age: 30
@@ -13,7 +12,7 @@ describe("Case Sensitivity", () => {
 			age: 30
 		};
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 
 		// Les clés "name" et "Name" sont différentes
 		expect(Array.isArray(patch)).toBe(true);
@@ -29,7 +28,6 @@ describe("Case Sensitivity", () => {
 	});
 
 	it("should treat keys with different case as different keys", () => {
-		const differ = new Differ();
 		const obj1 = {
 			name: "Alice", // minuscule
 			age: 30
@@ -40,7 +38,7 @@ describe("Case Sensitivity", () => {
 			age: 30
 		};
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
@@ -51,11 +49,10 @@ describe("Case Sensitivity", () => {
 	});
 
 	it("should treat string values with different case as different", () => {
-		const differ = new Differ();
 		const obj1 = { message: "hello" };
 		const obj2 = { message: "HELLO" };
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
 			op: "replace",
@@ -65,7 +62,6 @@ describe("Case Sensitivity", () => {
 	});
 
 	it("should handle multiple case-different keys", () => {
-		const differ = new Differ();
 		const obj1 = {
 			firstName: "John",
 			lastName: "Doe"
@@ -75,7 +71,7 @@ describe("Case Sensitivity", () => {
 			LastName: "Doe"
 		};
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
 			op: "add",

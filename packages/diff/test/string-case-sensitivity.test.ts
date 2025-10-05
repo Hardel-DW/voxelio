@@ -3,11 +3,10 @@ import { Differ } from "../src/differ";
 
 describe("String Values Case Sensitivity", () => {
 	it("should treat string values with different case as different", () => {
-		const differ = new Differ();
 		const obj1 = { message: "hello" };
 		const obj2 = { message: "HELLO" };
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
 			op: "replace",
@@ -17,21 +16,19 @@ describe("String Values Case Sensitivity", () => {
 	});
 
 	it("should treat identical string values (same case) as equal", () => {
-		const differ = new Differ();
 		const obj1 = { message: "Hello World" };
 		const obj2 = { message: "Hello World" };
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch.length).toBe(0);
 	});
 
 	it("should detect partial case changes in strings", () => {
-		const differ = new Differ();
 		const obj1 = { text: "Hello World" };
 		const obj2 = { text: "Hello world" };  // W → w
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
 			op: "replace",
@@ -41,7 +38,6 @@ describe("String Values Case Sensitivity", () => {
 	});
 
 	it("should handle multiple string values with different cases", () => {
-		const differ = new Differ();
 		const obj1 = {
 			name: "alice",
 			city: "PARIS",
@@ -53,7 +49,7 @@ describe("String Values Case Sensitivity", () => {
 			country: "France"  // Inchangé
 		};
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
 			op: "replace",
@@ -68,7 +64,6 @@ describe("String Values Case Sensitivity", () => {
 	});
 
 	it("should handle case sensitivity in nested string values", () => {
-		const differ = new Differ();
 		const obj1 = {
 			user: {
 				name: "John Doe",
@@ -82,7 +77,7 @@ describe("String Values Case Sensitivity", () => {
 			}
 		};
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
 			op: "replace",
@@ -92,11 +87,10 @@ describe("String Values Case Sensitivity", () => {
 	});
 
 	it("should handle case sensitivity in array string values", () => {
-		const differ = new Differ();
 		const obj1 = { tags: ["javascript", "typescript", "node"] };
 		const obj2 = { tags: ["JavaScript", "TypeScript", "Node"] };
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
 			op: "replace",
@@ -116,7 +110,6 @@ describe("String Values Case Sensitivity", () => {
 	});
 
 	it("should handle mixed case scenarios", () => {
-		const differ = new Differ();
 		const obj1 = {
 			status: "active",
 			role: "ADMIN",
@@ -128,7 +121,7 @@ describe("String Values Case Sensitivity", () => {
 			type: "user"       // Changé
 		};
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
 			op: "replace",
@@ -143,11 +136,10 @@ describe("String Values Case Sensitivity", () => {
 	});
 
 	it("should handle empty strings and whitespace with case sensitivity", () => {
-		const differ = new Differ();
 		const obj1 = { text: "Hello World" };
 		const obj2 = { text: "hello world" };
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
 			op: "replace",

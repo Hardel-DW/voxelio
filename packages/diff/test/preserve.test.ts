@@ -58,8 +58,7 @@ const after = {
 
 describe("Preserver", () => {
     it("should preserve the order of the keys", () => {
-        const differ = new Differ();
-        const patch = differ.diff(before, after);
+        const patch = new Differ(before, after).diff();
         const applied = Differ.apply(before, patch);
 
         // Verify the patch was generated

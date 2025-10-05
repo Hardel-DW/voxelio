@@ -4,25 +4,22 @@ import { Differ } from "../src/differ";
 describe("Array LCS (Longest Common Subsequence)", () => {
 	describe("Simple arrays", () => {
 		it("should detect element removed from middle", () => {
-			const differ = new Differ();
 			const obj1 = { items: [1, 2, 3, 4] };
 			const obj2 = { items: [1, 2, 4] };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 
-			// Verify apply works
 			const applied = Differ.apply(obj1, patch);
 			expect(applied).toEqual(obj2);
 		});
 
 		it("should detect element added to middle", () => {
-			const differ = new Differ();
 			const obj1 = { items: [1, 3, 4] };
 			const obj2 = { items: [1, 2, 3, 4] };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 
@@ -32,21 +29,19 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 		});
 
 		it("should handle multiple changes in array", () => {
-			const differ = new Differ();
 			const obj1 = { items: [1, 2, 3, 4, 5] };
 			const obj2 = { items: [1, 3, 4, 6] };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should handle completely different arrays", () => {
-			const differ = new Differ();
 			const obj1 = { items: [1, 2, 3] };
 			const obj2 = { items: [4, 5, 6] };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 		});
@@ -54,7 +49,6 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 
 	describe("Arrays with objects - Identical objects", () => {
 		it("should recognize identical objects in arrays", () => {
-			const differ = new Differ();
 			const obj1 = {
 				users: [
 					{ id: 1, name: "Alice" },
@@ -68,13 +62,12 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBe(0);
 		});
 
 		it("should detect when object is removed from array", () => {
-			const differ = new Differ();
 			const obj1 = {
 				users: [
 					{ id: 1, name: "Alice" },
@@ -89,13 +82,12 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should detect when object is added to array", () => {
-			const differ = new Differ();
 			const obj1 = {
 				users: [
 					{ id: 1, name: "Alice" }
@@ -108,7 +100,7 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
 				op: "add",
@@ -120,7 +112,6 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 
 	describe("Arrays with objects - Similar objects (>50% similarity)", () => {
 		it("should detect changes in similar objects (same id, different name)", () => {
-			const differ = new Differ();
 			const obj1 = {
 				users: [
 					{ id: 1, name: "Alice", age: 30 },
@@ -134,7 +125,7 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
 				op: "replace",
@@ -144,7 +135,6 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 		});
 
 		it("should compare objects with >50% common keys", () => {
-			const differ = new Differ();
 			const obj1 = {
 				items: [
 					{ a: 1, b: 2, c: 3, d: 4 }
@@ -156,7 +146,7 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
 				op: "replace",
@@ -168,7 +158,6 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 
 	describe("Arrays with objects - Different objects (<50% similarity)", () => {
 		it("should treat completely different objects as add/remove", () => {
-			const differ = new Differ();
 			const obj1 = {
 				users: [
 					{ id: 1, name: "Alice" }
@@ -180,13 +169,12 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should handle objects with <50% common keys as different", () => {
-			const differ = new Differ();
 			const obj1 = {
 				items: [
 					{ a: 1, b: 2 }
@@ -198,7 +186,7 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 		});
@@ -206,7 +194,6 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 
 	describe("Minecraft-like scenarios", () => {
 		it("should handle item list with removed item in middle", () => {
-			const differ = new Differ();
 			const obj1 = {
 				items: ["diamond_sword", "iron_sword", "bow", "arrow"]
 			};
@@ -214,7 +201,7 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				items: ["diamond_sword", "bow", "arrow"]
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 
@@ -224,7 +211,6 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 		});
 
 		it("should handle enchantments array changes", () => {
-			const differ = new Differ();
 			const obj1 = {
 				enchantments: [
 					{ id: "minecraft:sharpness", lvl: 3 },
@@ -238,7 +224,7 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
 				op: "replace",
@@ -248,7 +234,6 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 		});
 
 		it("should handle complex nested item with components", () => {
-			const differ = new Differ();
 			const obj1 = {
 				items: [
 					{
@@ -272,7 +257,7 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				]
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
 				op: "replace",
@@ -289,27 +274,24 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 
 	describe("Edge cases", () => {
 		it("should handle empty arrays", () => {
-			const differ = new Differ();
 			const obj1 = { items: [] };
 			const obj2 = { items: [1, 2, 3] };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should handle array to empty array", () => {
-			const differ = new Differ();
 			const obj1 = { items: [1, 2, 3] };
 			const obj2 = { items: [] };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should handle nested arrays in objects", () => {
-			const differ = new Differ();
 			const obj1 = {
 				data: {
 					items: [
@@ -325,17 +307,16 @@ describe("Array LCS (Longest Common Subsequence)", () => {
 				}
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should handle arrays with mixed types", () => {
-			const differ = new Differ();
 			const obj1 = { items: [1, "string", true, { key: "value" }] };
 			const obj2 = { items: [1, "string", false, { key: "value" }] };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
 				op: "replace",

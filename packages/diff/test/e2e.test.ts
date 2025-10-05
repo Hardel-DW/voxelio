@@ -378,8 +378,7 @@ const after = {
 
 describe("E2E", () => {
     it("should diff the two objects and apply patch correctly", () => {
-        const differ = new Differ();
-        const patch = differ.diff(before, after);
+        const patch = new Differ(before, after).diff();
         const applied = Differ.apply(before, patch);
         expect(applied).toEqual(after);
         expect(Array.isArray(patch)).toBe(true);

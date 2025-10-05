@@ -3,7 +3,6 @@ import { Differ } from "../src/differ";
 
 describe("Regression: Mojang loot data reordering", () => {
 	it("should apply patch when replacing and reordering pools", () => {
-		const differ = new Differ();
 		const before = {
 			pools: [
 				{
@@ -33,7 +32,7 @@ describe("Regression: Mojang loot data reordering", () => {
 			],
 		};
 
-		const patch = differ.diff(before, after);
+		const patch = new Differ(before, after).diff();
 		const applied = Differ.apply(structuredClone(before), patch);
 
 		expect(() => Differ.apply(structuredClone(before), patch)).not.toThrow();

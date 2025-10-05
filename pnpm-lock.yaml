@@ -39,6 +39,8 @@ importers:
         specifier: workspace:*
         version: link:../zip
 
+  packages/diff: {}
+
   packages/zip: {}
 
 packages:

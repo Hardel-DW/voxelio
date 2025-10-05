@@ -3,7 +3,6 @@ import { Differ } from "../src/differ";
 
 describe("Deep Equality Comparison", () => {
 	it("should detect identical nested objects as equal (no diff)", () => {
-		const differ = new Differ();
 		const obj1 = {
 			user: {
 				profile: {
@@ -21,13 +20,12 @@ describe("Deep Equality Comparison", () => {
 			}
 		};
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch.length).toBe(0);
 	});
 
 	it("should detect differences in deeply nested objects", () => {
-		const differ = new Differ();
 		const obj1 = {
 			user: {
 				profile: {
@@ -45,7 +43,7 @@ describe("Deep Equality Comparison", () => {
 			}
 		};
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
 			op: "replace",
@@ -55,21 +53,19 @@ describe("Deep Equality Comparison", () => {
 	});
 
 	it("should detect identical arrays as equal (no diff)", () => {
-		const differ = new Differ();
 		const obj1 = { items: [1, 2, 3] };
 		const obj2 = { items: [1, 2, 3] };
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch.length).toBe(0);
 	});
 
 	it("should detect differences in arrays", () => {
-		const differ = new Differ();
 		const obj1 = { items: [1, 2, 3] };
 		const obj2 = { items: [1, 2, 4] };  // 3 → 4
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
 			op: "replace",
@@ -79,7 +75,6 @@ describe("Deep Equality Comparison", () => {
 	});
 
 	it("should compare nested arrays with deep equality", () => {
-		const differ = new Differ();
 		const obj1 = {
 			users: [
 				{ id: 1, name: "Alice" },
@@ -93,13 +88,12 @@ describe("Deep Equality Comparison", () => {
 			]
 		};
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch.length).toBe(0);
 	});
 
 	it("should detect changes in nested arrays with objects", () => {
-		const differ = new Differ();
 		const obj1 = {
 			users: [
 				{ id: 1, name: "Alice" },
@@ -113,7 +107,7 @@ describe("Deep Equality Comparison", () => {
 			]
 		};
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
 			op: "replace",
@@ -123,7 +117,6 @@ describe("Deep Equality Comparison", () => {
 	});
 
 	it("should handle deeply nested structures (3+ levels)", () => {
-		const differ = new Differ();
 		const obj1 = {
 			level1: {
 				level2: {
@@ -143,13 +136,12 @@ describe("Deep Equality Comparison", () => {
 			}
 		};
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch.length).toBe(0);
 	});
 
 	it("should detect changes at any depth level", () => {
-		const differ = new Differ();
 		const obj1 = {
 			level1: {
 				level2: {
@@ -169,7 +161,7 @@ describe("Deep Equality Comparison", () => {
 			}
 		};
 
-		const patch = differ.diff(obj1, obj2);
+		const patch = new Differ(obj1, obj2).diff();
 		expect(Array.isArray(patch)).toBe(true);
 		expect(patch).toContainEqual({
 			op: "replace",

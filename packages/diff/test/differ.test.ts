@@ -5,11 +5,10 @@ import { Differ } from "../src/differ";
 describe("Differ", () => {
 	describe("diff", () => {
 		it("should detect simple property changes", () => {
-			const differ = new Differ();
 			const obj1 = { name: "Alice", age: 30 };
 			const obj2 = { name: "Bob", age: 30 };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
@@ -20,11 +19,10 @@ describe("Differ", () => {
 		});
 
 		it("should detect added properties", () => {
-			const differ = new Differ();
 			const obj1 = { name: "Alice" };
 			const obj2 = { name: "Alice", age: 30 };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
@@ -35,11 +33,10 @@ describe("Differ", () => {
 		});
 
 		it("should detect removed properties", () => {
-			const differ = new Differ();
 			const obj1 = { name: "Alice", age: 30 };
 			const obj2 = { name: "Alice" };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
@@ -49,7 +46,6 @@ describe("Differ", () => {
 		});
 
 		it("should handle nested objects", () => {
-			const differ = new Differ();
 			const obj1 = {
 				user: {
 					name: "Alice",
@@ -63,7 +59,7 @@ describe("Differ", () => {
 				}
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
@@ -74,21 +70,19 @@ describe("Differ", () => {
 		});
 
 		it("should handle arrays", () => {
-			const differ = new Differ();
 			const obj1 = { items: [1, 2, 3] };
 			const obj2 = { items: [1, 3, 4] };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);
 		});
 
 		it("should handle empty objects", () => {
-			const differ = new Differ();
 			const obj1 = {};
 			const obj2 = { name: "Alice" };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
@@ -99,21 +93,19 @@ describe("Differ", () => {
 		});
 
 		it("should handle identical objects", () => {
-			const differ = new Differ();
 			const obj1 = { name: "Alice", age: 30 };
 			const obj2 = { name: "Alice", age: 30 };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBe(0);
 		});
 
 		it("should handle null values", () => {
-			const differ = new Differ();
 			const obj1 = { value: null };
 			const obj2 = { value: "something" };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
@@ -124,7 +116,6 @@ describe("Differ", () => {
 		});
 
 		it("should handle array with objects", () => {
-			const differ = new Differ();
 			const obj1 = {
 				users: [
 					{ id: 1, name: "Alice" },
@@ -138,7 +129,7 @@ describe("Differ", () => {
 				]
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
@@ -149,11 +140,10 @@ describe("Differ", () => {
 		});
 
 		it("should handle type changes", () => {
-			const differ = new Differ();
 			const obj1 = { value: "string" };
 			const obj2 = { value: 123 };
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
@@ -164,7 +154,6 @@ describe("Differ", () => {
 		});
 
 		it("should handle complex nested structures", () => {
-			const differ = new Differ();
 			const obj1 = {
 				config: {
 					server: { port: 3000, host: "localhost" },
@@ -178,7 +167,7 @@ describe("Differ", () => {
 				}
 			};
 
-			const patch = differ.diff(obj1, obj2);
+			const patch = new Differ(obj1, obj2).diff();
 
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch).toContainEqual({
@@ -196,10 +185,9 @@ describe("Differ", () => {
 
 	describe("apply", () => {
 		it("should apply simple patch", () => {
-			const differ = new Differ();
 			const before = { name: "Alice", age: 30 };
 			const after = { name: "Bob", age: 30 };
-			const patch = differ.diff(before, after);
+			const patch = new Differ(before, after).diff();
 
 			const result = Differ.apply(before, patch);
 			expect(result).toEqual({ name: "Bob", age: 30 });
@@ -218,7 +206,6 @@ describe("Differ", () => {
 
 	describe("export diff file", () => {
 		it("should export a complete diff file for complex objects", () => {
-			const differ = new Differ();
 			const before = {
 				version: "1.0.0",
 				config: {
@@ -274,7 +261,7 @@ describe("Differ", () => {
 				}
 			};
 
-			const patch = differ.diff(before, after);
+			const patch = new Differ(before, after).diff();
 			writeFileSync("test/output/example.json", JSON.stringify(patch, null, 2), "utf-8");
 			expect(Array.isArray(patch)).toBe(true);
 			expect(patch.length).toBeGreaterThan(0);

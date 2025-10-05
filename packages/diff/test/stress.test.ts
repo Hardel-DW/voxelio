@@ -3,7 +3,6 @@ import { Differ } from "../src/differ";
 
 describe("Stress Tests - Highest Complexity", () => {
 	it("should handle deeply nested objects with key reordering at every level", () => {
-		const differ = new Differ();
 		const before = {
 			a: 1,
 			b: {
@@ -64,14 +63,13 @@ describe("Stress Tests - Highest Complexity", () => {
 			}
 		};
 
-		const patch = differ.diff(before, after);
+		const patch = new Differ(before, after).diff();
 		const applied = Differ.apply(before, patch);
 		expect(applied).toEqual(after);
 		expect(JSON.stringify(applied)).toBe(JSON.stringify(after));
 	});
 
 	it("should handle array of objects with mixed operations and key reordering", () => {
-		const differ = new Differ();
 
 		const before = {
 			items: [
@@ -93,7 +91,7 @@ describe("Stress Tests - Highest Complexity", () => {
 			]
 		};
 
-		const patch = differ.diff(before, after);
+		const patch = new Differ(before, after).diff();
 		const applied = Differ.apply(before, patch);
 
 		expect(applied).toEqual(after);
@@ -101,7 +99,6 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle complex nested arrays with objects at multiple depths", () => {
-		const differ = new Differ();
 
 		const before = {
 			level1: [
@@ -140,7 +137,7 @@ describe("Stress Tests - Highest Complexity", () => {
 			]
 		};
 
-		const patch = differ.diff(before, after);
+		const patch = new Differ(before, after).diff();
 		const applied = Differ.apply(before, patch);
 
 		expect(applied).toEqual(after);
@@ -148,7 +145,6 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle massive object with add/remove/reorder all at once", () => {
-		const differ = new Differ();
 
 		const before = {
 			a: 1, b: 2, c: 3, d: 4, e: 5,
@@ -184,7 +180,7 @@ describe("Stress Tests - Highest Complexity", () => {
 			}
 		};
 
-		const patch = differ.diff(before, after);
+		const patch = new Differ(before, after).diff();
 		const applied = Differ.apply(before, patch);
 
 		expect(applied).toEqual(after);
@@ -192,7 +188,6 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle arrays with all elements removed and new ones added", () => {
-		const differ = new Differ();
 
 		const before = {
 			tags: ["one", "two", "three", "four", "five"],
@@ -204,7 +199,7 @@ describe("Stress Tests - Highest Complexity", () => {
 			numbers: [10, 20, 30, 40, 50, 60]
 		};
 
-		const patch = differ.diff(before, after);
+		const patch = new Differ(before, after).diff();
 		const applied = Differ.apply(before, patch);
 
 		expect(applied).toEqual(after);
@@ -212,7 +207,6 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle empty to full and full to empty transitions", () => {
-		const differ = new Differ();
 
 		const test1Before = { data: [], info: {} };
 		const test1After = {
@@ -220,18 +214,17 @@ describe("Stress Tests - Highest Complexity", () => {
 			info: { a: 1, b: 2, c: { deep: true } }
 		};
 
-		const patch1 = differ.diff(test1Before, test1After);
+		const patch1 = new Differ(test1Before, test1After).diff();
 		const applied1 = Differ.apply(test1Before, patch1);
 		expect(applied1).toEqual(test1After);
 
 		// Inverse: full to empty
-		const patch2 = differ.diff(test1After, test1Before);
+		const patch2 = new Differ(test1After, test1Before).diff();
 		const applied2 = Differ.apply(test1After, patch2);
 		expect(applied2).toEqual(test1Before);
 	});
 
 	it("should handle key order change with same values but different nesting", () => {
-		const differ = new Differ();
 
 		const before = {
 			user: {
@@ -264,7 +257,7 @@ describe("Stress Tests - Highest Complexity", () => {
 			}
 		};
 
-		const patch = differ.diff(before, after);
+		const patch = new Differ(before, after).diff();
 		const applied = Differ.apply(before, patch);
 
 		expect(applied).toEqual(after);
@@ -272,7 +265,6 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle special characters in keys with reordering", () => {
-		const differ = new Differ();
 
 		const before = {
 			"key/with/slash": 1,
@@ -288,7 +280,7 @@ describe("Stress Tests - Highest Complexity", () => {
 			"key/with/slash": 1
 		};
 
-		const patch = differ.diff(before, after);
+		const patch = new Differ(before, after).diff();
 		const applied = Differ.apply(before, patch);
 
 		expect(applied).toEqual(after);
@@ -296,7 +288,6 @@ describe("Stress Tests - Highest Complexity", () => {
 	});
 
 	it("should handle Minecraft-like ultra complex scenario", () => {
-		const differ = new Differ();
 
 		// Scénario ultra complexe: combinaison de tout
 		const before = {
@@ -349,7 +340,7 @@ describe("Stress Tests - Highest Complexity", () => {
 			}
 		};
 
-		const patch = differ.diff(before, after);
+		const patch = new Differ(before, after).diff();
 		const applied = Differ.apply(before, patch);
 
 		expect(applied).toEqual(after);
