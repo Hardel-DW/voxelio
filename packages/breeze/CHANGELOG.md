@@ -1,5 +1,13 @@
 # @voxelio/breeze
 
+## 1.10.4
+
+### Patch Changes
+
+- 5e372b0: Migrated to new @voxelio/diff package
+- Updated dependencies [5e372b0]
+  - @voxelio/diff@1.0.1
+
 ## 1.10.3
 
 ### Patch Changes
