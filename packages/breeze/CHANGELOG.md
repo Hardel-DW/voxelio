@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.5
+
+### Patch Changes
+
+- 05535d9: Added applyChangeSets in logger, refactor download filename, added sortElementsByRegistry function.
+
 ## 1.10.4
 
 ### Patch Changes
