@@ -44,10 +44,6 @@ export class Logger {
 		return changes;
 	}
 
-	listChangedIdentifiers(): IdentifierObject[] {
-		return this.getChangeSets().map((change) => change.identifier);
-	}
-
 	trackChanges<T extends VoxelElement>(element: T, updater: (draft: T) => Partial<T> | undefined): T {
 		const key = new Identifier(element.identifier).toUniqueKey();
 		if (!this.originals.has(key)) {
@@ -84,6 +80,32 @@ export class Logger {
 			entries.push({ path, content: ENCODER.encode(JSON.stringify(change, null, 4)) });
 		}
 		return entries;
+	}
+
+	applyChangeSets<T extends VoxelElement>(changesets: ChangeSet[], elements: Map<string, T>): Map<string, T> {
+		const result = new Map(elements);
+
+		for (const change of changesets) {
+			if (!change.patch.length) continue;
+
+			const key = new Identifier(change.identifier).toUniqueKey();
+			const original = result.get(key);
+			if (!original) continue;
+
+			const updated = Differ.apply(structuredClone(original) as Record<string, unknown>, change.patch) as T;
+
+			const newPatch = new Differ(original, updated).diff();
+
+			if (newPatch.length > 0) {
+				this.originals.set(key, structuredClone(original));
+				this.patches.set(key, newPatch);
+				this.timestamps.set(key, new Date().toISOString());
+			}
+
+			result.set(key, updated);
+		}
+
+		return result;
 	}
 
 	loadFromFiles(files: Record<string, Uint8Array>) {

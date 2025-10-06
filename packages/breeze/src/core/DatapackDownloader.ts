@@ -3,28 +3,21 @@ import type { InputWithoutMeta } from "@voxelio/zip";
 import type { Logger } from "@/core/engine/migrations/logger";
 
 export class DatapackDownloader {
-	private readonly fileVersion: number;
+	constructor(private readonly files: Record<string, Uint8Array<ArrayBufferLike>>) {}
 
-	constructor(
-		private readonly files: Record<string, Uint8Array<ArrayBufferLike>>,
-		private readonly isModded: boolean,
-		private readonly filename: string
-	) {
-		const nameWithoutExtension = this.filename.replace(/\.(zip|jar)$/, "");
+	static getFileName(filename: string, isModded: boolean): string {
+		const nameWithoutExtension = filename.replace(/\.(zip|jar)$/, "");
 		const versionMatch = nameWithoutExtension.match(/^V(\d+)-/);
-		this.fileVersion = versionMatch?.[1] ? +versionMatch[1] + 1 : 0;
-	}
+		const fileVersion = versionMatch?.[1] ? +versionMatch[1] + 1 : 0;
+		const extension = isModded ? ".jar" : ".zip";
 
-	getFileName(): string {
-		const nameWithoutExtension = this.filename.replace(/\.(zip|jar)$/, "");
-		const extension = this.isModded ? ".jar" : ".zip";
 		if (nameWithoutExtension.startsWith("V")) {
-			return nameWithoutExtension.replace(/^V\d+-/, `V${this.fileVersion}-`) + extension;
+			return nameWithoutExtension.replace(/^V\d+-/, `V${fileVersion}-`) + extension;
 		}
 		return `V0-${nameWithoutExtension}${extension}`;
 	}
 
-	async download(logger: Logger): Promise<Response> {
+	async download(logger?: Logger): Promise<Response> {
 		const files: InputWithoutMeta[] = Object.entries(this.files).map(([path, data]) => this.prepareFile(path, data));
 		if (logger) {
 			for (const { path, content } of logger.toFileEntries()) {

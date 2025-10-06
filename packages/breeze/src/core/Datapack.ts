@@ -193,8 +193,8 @@ export class Datapack {
 		return JSON.parse(new TextDecoder().decode(this.files[file]));
 	}
 
-	generate(logger: Logger, filename: string, isModded: boolean) {
-		return new DatapackDownloader(this.files, isModded, filename).download(logger);
+	generate(logger: Logger) {
+		return new DatapackDownloader(this.files).download(logger);
 	}
 
 	/**

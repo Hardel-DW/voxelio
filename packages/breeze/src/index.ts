@@ -1,6 +1,7 @@
 export type SingleOrMultiple<T> = T | T[];
 export { VOXEL_TAGS } from "@/Voxel";
 
+export { DatapackDownloader } from "@/core/DatapackDownloader";
 export { Datapack } from "@/core/Datapack";
 export { Tags } from "@/core/Tag";
 export { Identifier } from "@/core/Identifier";
@@ -24,7 +25,7 @@ export { EnchantmentAction } from "@/core/engine/actions/domains/EnchantmentActi
 
 export { PACK_VERSION, getMinecraftVersion } from "@/core/Version";
 export { analyserCollection, isVoxel } from "@/core/engine/Analyser";
-export { isVoxelElement } from "@/core/Element";
+export { isVoxelElement, sortElementsByRegistry } from "@/core/Element";
 export { getItemFromMultipleOrOne, getAllItems, separateItemsAndTags } from "@/core/ItemList";
 export { updateData } from "@/core/engine/actions/index";
 export { calculateItemCountRange } from "@/core/calculation/LootCountProbability";
