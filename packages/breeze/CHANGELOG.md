@@ -1,5 +1,13 @@
 # @voxelio/breeze
 
+## 1.10.6
+
+### Patch Changes
+
+- 93a4639: Detect Intention from a json files with diff, and use it in breeze
+- Updated dependencies [93a4639]
+  - @voxelio/diff@1.0.2
+
 ## 1.10.5
 
 ### Patch Changes
