@@ -2,10 +2,17 @@ import { parseDatapack } from "@/core/engine/Parser";
 import { updateData } from "@/core/engine/actions";
 import { VoxelToLootDataDriven } from "@/core/schema/loot/Compiler";
 import type { LootTableProps } from "@/core/schema/loot/types";
-import { lootTableFile } from "@test/mock/datapack";
 import { describe, it, expect, beforeEach } from "vitest";
 import { LootTableAction } from "@/core/engine/actions/domains/LootTableAction";
 import { createZipFile, prepareFiles } from "@test/mock/utils";
+import { completeLootTable, advancedLootTable, ultimateTestLootTable, finalBossOfLootTable } from "@test/mock/loot/DataDriven";
+
+const lootFiles = {
+	"data/test/loot_table/test.json": completeLootTable,
+	"data/test/loot_table/advanced.json": advancedLootTable,
+	"data/test/loot_table/ultimate.json": ultimateTestLootTable,
+	"data/test/loot_table/final_boss.json": finalBossOfLootTable
+};
 
 function updateLootTable(action: any, lootTable: LootTableProps, packVersion = 48): LootTableProps {
 	const result = updateData(action, lootTable, packVersion);
@@ -22,7 +29,7 @@ describe("LootTable E2E Tests", () => {
 		let finalBossLootTable: LootTableProps;
 
 		beforeEach(async () => {
-			const lootTableZip = await createZipFile(prepareFiles(lootTableFile));
+			const lootTableZip = await createZipFile(prepareFiles(lootFiles));
 			parsedDatapack = await parseDatapack(lootTableZip);
 
 			const lootTables = Array.from(parsedDatapack.elements.values()).filter(
@@ -262,7 +269,7 @@ describe("LootTable E2E Tests", () => {
 			});
 
 			it("should identify data loss in simple loot table", () => {
-				const originalJson = lootTableFile["data/test/loot_table/test.json"];
+				const originalJson = lootFiles["data/test/loot_table/test.json"];
 				const compiled = VoxelToLootDataDriven(simpleLootTable, "loot_table");
 				const compiledData = compiled.element.data;
 				expect(compiledData.pools).toHaveLength(originalJson.pools.length);
@@ -281,7 +288,7 @@ describe("LootTable E2E Tests", () => {
 			});
 
 			it("should identify data loss in advanced loot table", () => {
-				const originalJson = lootTableFile["data/test/loot_table/advanced.json"];
+				const originalJson = lootFiles["data/test/loot_table/advanced.json"];
 				const compiled = VoxelToLootDataDriven(advancedLootTable, "loot_table");
 				const compiledData = compiled.element.data;
 
@@ -309,7 +316,7 @@ describe("LootTable E2E Tests", () => {
 
 			it("should identify data loss in ultimate loot table", () => {
 				// Get the original JSON from the template
-				const originalJson = lootTableFile["data/test/loot_table/ultimate.json"];
+				const originalJson = lootFiles["data/test/loot_table/ultimate.json"];
 
 				// Compile back to Minecraft format
 				const compiled = VoxelToLootDataDriven(ultimateLootTable, "loot_table");
@@ -333,7 +340,7 @@ describe("LootTable E2E Tests", () => {
 
 			it("should identify data preservation in final boss loot table", () => {
 				// Get the original JSON from the template
-				const originalJson = lootTableFile["data/test/loot_table/final_boss.json"];
+				const originalJson = lootFiles["data/test/loot_table/final_boss.json"];
 
 				// Compile back to Minecraft format
 				const compiled = VoxelToLootDataDriven(finalBossLootTable, "loot_table");

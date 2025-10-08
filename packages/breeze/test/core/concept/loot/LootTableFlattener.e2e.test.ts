@@ -6,7 +6,14 @@ import type { DataDrivenRegistryElement } from "@/core/Element";
 import type { TagType } from "@/core/Tag";
 import { Datapack } from "@/core/Datapack";
 import { createZipFile, prepareFiles } from "@test/mock/utils";
-import { lootTableFile } from "@test/mock/datapack";
+import { completeLootTable, advancedLootTable, ultimateTestLootTable, finalBossOfLootTable } from "@test/mock/loot/DataDriven";
+
+const lootTableFiles = {
+	"data/test/loot_table/test.json": completeLootTable,
+	"data/test/loot_table/advanced.json": advancedLootTable,
+	"data/test/loot_table/ultimate.json": ultimateTestLootTable,
+	"data/test/loot_table/final_boss.json": finalBossOfLootTable
+};
 
 describe("LootTableFlattener – E2E", () => {
 	let lootTables: LootTableProps[];
@@ -14,7 +21,7 @@ describe("LootTableFlattener – E2E", () => {
 	let datapack: Datapack;
 
 	beforeAll(async () => {
-		const lootTableZip = await createZipFile(prepareFiles(lootTableFile));
+		const lootTableZip = await createZipFile(prepareFiles(lootTableFiles));
 		const parsed = await parseDatapack(lootTableZip);
 		lootTables = Array.from(parsed.elements.values()).filter(
 			(element): element is LootTableProps => element.identifier.registry === "loot_table"

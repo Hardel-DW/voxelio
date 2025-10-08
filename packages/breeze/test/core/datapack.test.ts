@@ -2,12 +2,16 @@ import { describe, expect, it } from "vitest";
 import { Datapack } from "@/core/Datapack";
 import type { TagType } from "@/core/Tag";
 import { DatapackError } from "@/core/DatapackError";
-import { createZipFile, prepareFiles } from "@test/mock/utils";
-import { enchantmentWithTagFiles } from "@test/mock/datapack";
+import { createZipFile, prepareFiles, createFilesFromElements } from "@test/mock/utils";
+import { VOXEL_TAGS } from "@/index";
+import { DATA_DRIVEN_TEMPLATE_ENCHANTMENT } from "@test/mock/enchant/DataDriven";
+import { enchantplusTags, vanillaTags } from "@test/mock/enchant/DataDrivenTags";
+
+const enchantmentFiles = createFilesFromElements([...DATA_DRIVEN_TEMPLATE_ENCHANTMENT, ...VOXEL_TAGS, ...enchantplusTags, ...vanillaTags]);
 
 describe("Datapack", () => {
 	it("should create a datapack instance from files", () => {
-		const datapack = new Datapack(enchantmentWithTagFiles);
+		const datapack = new Datapack(enchantmentFiles);
 		expect(datapack).toBeInstanceOf(Datapack);
 	});
 
@@ -22,14 +26,14 @@ describe("Datapack", () => {
 	});
 
 	it("should parse datapack from file", async () => {
-		const file = await createZipFile(enchantmentWithTagFiles);
+		const file = await createZipFile(enchantmentFiles);
 		const datapack = await Datapack.parse(file);
 		expect(datapack).toBeInstanceOf(Datapack);
 	});
 
 	describe("getNamespaces", () => {
 		it("should return unique namespaces from data folder", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
+			const datapack = new Datapack(enchantmentFiles);
 			const namespaces = datapack.getNamespaces();
 			expect(namespaces).toContain("enchantplus");
 			expect(namespaces).toContain("minecraft");
@@ -39,13 +43,13 @@ describe("Datapack", () => {
 
 	describe("getPackFormat", () => {
 		it("should return pack format from pack.mcmeta", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
+			const datapack = new Datapack(enchantmentFiles);
 			expect(datapack.getPackFormat()).toBe(61);
 		});
 
 		it("should throw error if pack format is missing", () => {
 			const invalidMcmeta = {
-				...enchantmentWithTagFiles,
+				...enchantmentFiles,
 				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({ pack: {} }))
 			};
 			expect(() => new Datapack(invalidMcmeta)).toThrow("tools.error.failed_to_get_pack_format");
@@ -54,20 +58,20 @@ describe("Datapack", () => {
 
 	describe("getVersion", () => {
 		it("should return formatted version based on pack format", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
+			const datapack = new Datapack(enchantmentFiles);
 			expect(datapack.getVersion()).toMatch(/^\d+\.\d+(\.\d+)?$/);
 		});
 	});
 
 	describe("getDescription", () => {
 		it("should return description from pack.mcmeta", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
+			const datapack = new Datapack(enchantmentFiles);
 			expect(datapack.getDescription()).toBe("lorem ipsum");
 		});
 
 		it("should return fallback if description is missing", () => {
 			const invalidMcmeta = {
-				...enchantmentWithTagFiles,
+				...enchantmentFiles,
 				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({ pack: { pack_format: 61 } }))
 			};
 			const datapack = new Datapack(invalidMcmeta);
@@ -77,7 +81,7 @@ describe("Datapack", () => {
 
 	describe("getRelatedTags", () => {
 		it("should find tags containing an identifier", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
+			const datapack = new Datapack(enchantmentFiles);
 			const identifier = { namespace: "enchantplus", registry: "enchantment", resource: "sword/poison_aspect" };
 			const tags = datapack.getRelatedTags("tags/enchantment", identifier);
 			expect(tags).toContain("#enchantplus:exclusive_set/aspect");
@@ -85,7 +89,7 @@ describe("Datapack", () => {
 		});
 
 		it("should return empty array for non-existent registry", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
+			const datapack = new Datapack(enchantmentFiles);
 			const identifier = { namespace: "test", registry: "none", resource: "test" };
 			expect(datapack.getRelatedTags(undefined, identifier)).toEqual([]);
 		});
@@ -118,7 +122,7 @@ describe("Datapack", () => {
 
 	describe("readFile for tags", () => {
 		it("should return tag values for valid identifier", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
+			const datapack = new Datapack(enchantmentFiles);
 			const identifier = {
 				namespace: "enchantplus",
 				registry: "tags/enchantment",
@@ -131,7 +135,7 @@ describe("Datapack", () => {
 		});
 
 		it("should return undefined for non-existent identifier", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
+			const datapack = new Datapack(enchantmentFiles);
 			const identifier = {
 				namespace: "test",
 				registry: "tags/test",
@@ -143,7 +147,7 @@ describe("Datapack", () => {
 
 	describe("readFile", () => {
 		it("should read and parse JSON file from datapack", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
+			const datapack = new Datapack(enchantmentFiles);
 			const content = datapack.readFile({
 				namespace: "enchantplus",
 				registry: "enchantment",
@@ -155,7 +159,7 @@ describe("Datapack", () => {
 		});
 
 		it("should return undefined for non-existent file", () => {
-			const datapack = new Datapack(enchantmentWithTagFiles);
+			const datapack = new Datapack(enchantmentFiles);
 			const content = datapack.readFile({
 				namespace: "non_existent",
 				registry: "none",

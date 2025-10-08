@@ -6,6 +6,7 @@ import { TagsProcessor } from "@/core/TagsProcessor";
 import { type Analysers, type GetAnalyserVoxel, analyserCollection } from "@/core/engine/Analyser";
 import type { Analyser } from "@/core/engine/Analyser";
 import { VOXEL_TAGS } from "@/Voxel";
+import { Differ } from "@voxelio/diff";
 
 export type Compiler<T extends VoxelElement = VoxelElement, K extends DataDrivenElement = DataDrivenElement> = (
 	element: T,
@@ -16,9 +17,15 @@ export type Compiler<T extends VoxelElement = VoxelElement, K extends DataDriven
 	tags: IdentifierObject[];
 };
 
-function writeElement(files: Record<string, Uint8Array>, element: DataDrivenRegistryElement<any>) {
+function writeElement(
+	files: Record<string, Uint8Array>,
+	element: DataDrivenRegistryElement<any>,
+	originalFiles: Record<string, Uint8Array>
+) {
 	const path = new Identifier(element.identifier).toFilePath("data");
-	files[path] = new TextEncoder().encode(JSON.stringify(element.data, null, 2));
+	const originalFile = originalFiles[path];
+	const indent = originalFile ? Differ.detectIndentation(new TextDecoder().decode(originalFile)) : 4;
+	files[path] = new TextEncoder().encode(JSON.stringify(element.data, null, indent));
 }
 
 /**
@@ -36,12 +43,12 @@ export function compileDatapack(props: { elements: GetAnalyserVoxel<keyof Analys
 	const datapack = new Datapack(props.files);
 	const registryGroups = Map.groupBy(props.elements, (e) => e.identifier.registry as keyof Analysers);
 
-	for (const element of VOXEL_TAGS) writeElement(newFiles, element);
+	for (const element of VOXEL_TAGS) writeElement(newFiles, element, props.files);
 
 	for (const [registry, registryElements] of registryGroups) {
 		const { compiler, hasTag } = analyserCollection[registry] as Analyser<typeof registry>;
 		const compiled = registryElements.map((el) => compiler(el, registry, datapack.readFile(el.identifier)));
-		for (const { element } of compiled) writeElement(newFiles, element);
+		for (const { element } of compiled) writeElement(newFiles, element, props.files);
 
 		if (hasTag) {
 			const idMap = new Set(compiled.map((c) => new Identifier(c.element.identifier).toString()));
@@ -55,7 +62,7 @@ export function compileDatapack(props: { elements: GetAnalyserVoxel<keyof Analys
 
 			const processorCleaned = new TagsProcessor(cleanedTags);
 			const finalTags = processorCleaned.injectIds(elementToTags);
-			for (const tag of finalTags) writeElement(newFiles, tag);
+			for (const tag of finalTags) writeElement(newFiles, tag, props.files);
 		}
 	}
 

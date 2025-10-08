@@ -1,7 +1,6 @@
 import { downloadZip } from "@voxelio/zip";
 import type { InputWithoutMeta } from "@voxelio/zip";
 import type { Logger } from "@/core/engine/migrations/logger";
-import { Differ } from "@voxelio/diff";
 
 export class DatapackDownloader {
 	constructor(private readonly files: Record<string, Uint8Array<ArrayBufferLike>>) {}
@@ -28,29 +27,15 @@ export class DatapackDownloader {
 		return downloadZip(files);
 	}
 
-	private prepareFile(path: string, data: object | string | Uint8Array<ArrayBufferLike>): InputWithoutMeta {
-		const input =
-			data instanceof Uint8Array
-				? data
-				: new TextEncoder().encode(typeof data === "string" ? data : this.stringifyWithOriginalIndentation(path, data));
-
+	private prepareFile(path: string, data: Uint8Array<ArrayBufferLike>): InputWithoutMeta {
 		return {
 			name: path,
 			input: new ReadableStream({
 				start(controller) {
-					controller.enqueue(input);
+					controller.enqueue(data);
 					controller.close();
 				}
 			})
 		};
-	}
-
-	private stringifyWithOriginalIndentation(path: string, data: object): string {
-		const originalFile = this.files[path];
-		if (!originalFile) return JSON.stringify(data, null, 4);
-
-		const originalJson = new TextDecoder().decode(originalFile);
-		const indent = Differ.detectIndentation(originalJson);
-		return JSON.stringify(data, null, indent);
 	}
 }
