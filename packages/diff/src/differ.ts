@@ -30,4 +30,29 @@ export class Differ {
 		const cloned = structuredClone(obj);
 		return applyPatch(cloned, patch);
 	}
+
+	/**
+	 * Detect indentation from a JSON string
+	 * @param jsonString - The JSON string to analyze
+	 * @returns The indentation (number of spaces or '\t' for tabs)
+	 */
+	static detectIndentation(jsonString: string): string | number {
+		const lines = jsonString.split("\n");
+
+		for (const line of lines) {
+			if (!line.trim() || line.trim() === "{" || line.trim() === "[") continue;
+
+			const spaceMatch = line.match(/^( +)/);
+			if (spaceMatch) {
+				return spaceMatch[1].length;
+			}
+
+			const tabMatch = line.match(/^(\t+)/);
+			if (tabMatch) {
+				return "\t";
+			}
+		}
+
+		return 2;
+	}
 }
