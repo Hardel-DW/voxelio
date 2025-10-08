@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.7
+
+### Patch Changes
+
+- be4eec2: keep the same indentation than the source file.
+
 ## 1.10.6
 
 ### Patch Changes
