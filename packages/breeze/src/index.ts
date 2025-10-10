@@ -31,7 +31,6 @@ export { updateData } from "@/core/engine/actions/index";
 export { calculateItemCountRange } from "@/core/calculation/LootCountProbability";
 export { toRoman } from "@/Roman";
 export { compileDatapack } from "@/core/engine/Compiler";
-export { parseDatapack } from "@/core/engine/Parser";
 
 export type { IdentifierObject } from "@/core/Identifier";
 export type { FileStatus } from "@/core/FileStatusComparator";
@@ -39,7 +38,7 @@ export type { EnchantmentSortCriteria } from "@/core/schema/enchant/Sorter";
 export type { FlattenedLootItem } from "@/core/calculation/LootTableFlattener";
 export type { EnchantmentOption, EnchantmentStats, SlotLevelRange } from "@/core/calculation/EnchantmentSimulation";
 export type { Compiler } from "@/core/engine/Compiler";
-export type { Parser, ParseDatapackResult } from "@/core/engine/Parser";
+export type { ParseDatapackResult } from "@/core/Datapack";
 export type { DataDrivenElement, DataDrivenRegistryElement, VoxelElement } from "@/core/Element";
 export type { Analysers, Analyser, GetAnalyserVoxel } from "@/core/engine/Analyser";
 export type { ActionValue } from "@/core/engine/actions/index";

@@ -1,4 +1,3 @@
-import { parseDatapack } from "@/core/engine/Parser";
 import { updateData } from "@/core/engine/actions";
 import { VoxelToRecipeDataDriven } from "@/core/schema/recipe/Compiler";
 import type { RecipeProps } from "@/core/schema/recipe/types";
@@ -8,6 +7,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { RecipeAction } from "@/core/engine/actions/domains/RecipeAction";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 import { recipeDataDriven } from "@test/mock/recipe/DataDriven";
+import { Datapack } from "@/core/Datapack";
 
 // Helper function to update recipe data with proper typing
 function updateRecipe(action: Action, recipe: RecipeProps, packVersion = 48): RecipeProps {
@@ -18,7 +18,7 @@ function updateRecipe(action: Action, recipe: RecipeProps, packVersion = 48): Re
 
 describe("Recipe E2E Actions Tests", () => {
 	describe("Complete workflow: Parse → Actions → Compile", () => {
-		let parsedDatapack: Awaited<ReturnType<typeof parseDatapack>>;
+		let parsedDatapack: ReturnType<Datapack["parse"]>;
 		let shapelessRecipe: RecipeProps;
 		let shapedRecipe: RecipeProps;
 		let shaped2Recipe: RecipeProps;
@@ -27,7 +27,8 @@ describe("Recipe E2E Actions Tests", () => {
 
 		beforeEach(async () => {
 			const recipeFile = createFilesFromElements(recipeDataDriven);
-			parsedDatapack = await parseDatapack(await createZipFile(recipeFile));
+			const datapack = await Datapack.from(await createZipFile(recipeFile));
+			parsedDatapack = datapack.parse();
 
 			const recipes = Array.from(parsedDatapack.elements.values()).filter(
 				(element): element is RecipeProps => element.identifier.registry === "recipe"

@@ -1,5 +1,4 @@
-import type { ParserParams } from "@/core/engine/Parser";
-import type { Parser } from "@/core/engine/Parser";
+import type { Parser, ParserParams } from "@/core/Datapack";
 import { extractUnknownFields } from "@/core/schema/utils";
 import type { Enchantment } from "@/core/schema/enchant/types";
 import { type EnchantmentProps, FUNCTIONALITY_TAGS_CACHE, KNOWN_ENCHANTMENT_FIELDS } from "./types";

@@ -1,5 +1,5 @@
 import { normalizeResourceLocation } from "@/core/Element";
-import type { Parser, ParserParams } from "@/core/engine/Parser";
+import type { Parser, ParserParams } from "@/core/Datapack";
 import { extractUnknownFields } from "@/core/schema/utils";
 import type {
 	CraftingTransmuteData,

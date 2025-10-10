@@ -1,13 +1,15 @@
 import { DatapackError } from "@/core/DatapackError";
-import type { DataDrivenElement, DataDrivenRegistryElement } from "@/core/Element";
+import type { ConfiguratorConfigFromDatapack, DataDrivenElement, DataDrivenRegistryElement, VoxelElement } from "@/core/Element";
 import { Identifier, type IdentifierObject } from "@/core/Identifier";
 import { Tags } from "@/core/Tag";
 import { getMinecraftVersion } from "@/core/Version";
-import type { Logger } from "@/core/engine/migrations/logger";
+import { Logger } from "@/core/engine/migrations/logger";
 import type { ChangeSet } from "@/core/engine/migrations/types";
 import type { TagType } from "@/core/Tag";
 import { extractZip } from "@voxelio/zip";
 import { DatapackDownloader } from "@/core/DatapackDownloader";
+import { analyserCollection } from "@/core/engine/Analyser";
+import type { Analysers, GetAnalyserVoxel, GetAnalyserMinecraft } from "@/core/engine/Analyser";
 
 export interface RegistryCache {
 	[registry: string]: Map<string, DataDrivenRegistryElement<any>>;
@@ -18,6 +20,21 @@ export interface PackMcmeta {
 		pack_format: number;
 		description: string;
 	};
+}
+
+export interface ParserParams<K extends DataDrivenElement> {
+	element: DataDrivenRegistryElement<K>;
+	tags?: string[];
+	configurator?: ConfiguratorConfigFromDatapack;
+}
+
+export type Parser<T extends VoxelElement, K extends DataDrivenElement> = (params: ParserParams<K>) => T;
+
+export interface ParseDatapackResult<T extends VoxelElement> {
+	files: Record<string, Uint8Array>;
+	elements: Map<string, T>;
+	version: number;
+	logger: Logger;
 }
 
 export class Datapack {
@@ -37,8 +54,37 @@ export class Datapack {
 		this.pack = pack;
 	}
 
-	static async parse(file: File) {
+	static async from(file: File) {
 		return new Datapack(await extractZip(new Uint8Array(await file.arrayBuffer())));
+	}
+
+	/**
+	 * Parse the datapack.
+	 * @returns The parsed datapack.
+	 */
+	parse<T extends keyof Analysers>() {
+		const logger = new Logger(this.files);
+		const elements = new Map<string, GetAnalyserVoxel<T>>();
+
+		const processConcept = <K extends keyof Analysers>(conceptName: K) => {
+			const analyser = analyserCollection[conceptName];
+			const registry = this.getRegistry<GetAnalyserMinecraft<K>>(conceptName);
+
+			for (const element of registry) {
+				const configurator = this.readFile<ConfiguratorConfigFromDatapack>(element.identifier, "voxel");
+				const tags = analyser.hasTag ? this.getRelatedTags(`tags/${conceptName}`, element.identifier) : [];
+				const parsed = analyser.parser({ element, tags, configurator });
+
+				elements.set(new Identifier(element.identifier).toUniqueKey(), parsed as GetAnalyserVoxel<T>);
+			}
+		};
+
+		for (const conceptName of Object.keys(analyserCollection) as Array<keyof Analysers>) {
+			processConcept(conceptName);
+		}
+
+		if (elements.size === 0) throw new DatapackError("tools.warning.no_elements");
+		return { files: this.files, elements, version: this.getPackFormat(), logger };
 	}
 
 	/**

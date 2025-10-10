@@ -1,4 +1,4 @@
-import type { Parser, ParserParams } from "@/core/engine/Parser";
+import type { Parser, ParserParams } from "@/core/Datapack";
 import { extractUnknownFields } from "@/core/schema/utils";
 import type { DimensionPadding, MinecraftStructure, MobCategory, PoolAlias, SpawnOverride, StructureProps } from "./types";
 import { JIGSAW_STRUCTURE_TYPES, KNOWN_STRUCTURE_FIELDS } from "./types";

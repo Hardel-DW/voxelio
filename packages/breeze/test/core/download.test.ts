@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 import { updateData } from "@/core/engine/actions/index";
 import { compileDatapack } from "@/core/engine/Compiler";
-import { parseDatapack } from "@/core/engine/Parser";
+import { Datapack } from "@/core/Datapack";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
 import { createZipFile } from "@test/mock/utils";
 import { simpleEnchantment } from "@test/mock/enchant/DataDriven";
@@ -18,7 +18,8 @@ describe("Indentation Preservation E2E", () => {
 		);
 
 		const zipFile = await createZipFile(files);
-		const parsed = await parseDatapack(zipFile);
+		const datapack = await Datapack.from(zipFile);
+		const parsed = datapack.parse();
 		const parsedEnchantment = Array.from(parsed.elements.values()).find((el) => el.identifier.resource === "sword/attack_speed") as
 			| EnchantmentProps
 			| undefined;
@@ -53,7 +54,8 @@ describe("Indentation Preservation E2E", () => {
 		);
 
 		const zipFile = await createZipFile(files);
-		const parsed = await parseDatapack(zipFile);
+		const datapack = await Datapack.from(zipFile);
+		const parsed = datapack.parse();
 		const parsedEnchantment = Array.from(parsed.elements.values()).find((el) => el.identifier.resource === "sword/attack_speed") as
 			| EnchantmentProps
 			| undefined;
@@ -88,7 +90,8 @@ describe("Indentation Preservation E2E", () => {
 		);
 
 		const zipFile = await createZipFile(files);
-		const parsed = await parseDatapack(zipFile);
+		const datapack = await Datapack.from(zipFile);
+		const parsed = datapack.parse();
 		const parsedEnchantment = Array.from(parsed.elements.values()).find((el) => el.identifier.resource === "sword/attack_speed") as
 			| EnchantmentProps
 			| undefined;

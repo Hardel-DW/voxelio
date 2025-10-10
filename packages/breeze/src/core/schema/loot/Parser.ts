@@ -1,4 +1,4 @@
-import type { Parser, ParserParams } from "@/core/engine/Parser";
+import type { Parser, ParserParams } from "@/core/Datapack";
 import { extractUnknownFields } from "@/core/schema/utils";
 import type { LootGroup, LootItem, LootTableProps, MinecraftLootEntry, MinecraftLootTable, PoolData } from "./types";
 import { KNOWN_ENTRY_FIELDS, KNOWN_POOL_FIELDS, KNOWN_TABLE_FIELDS } from "./types";

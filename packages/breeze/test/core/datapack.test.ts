@@ -27,8 +27,11 @@ describe("Datapack", () => {
 
 	it("should parse datapack from file", async () => {
 		const file = await createZipFile(enchantmentFiles);
-		const datapack = await Datapack.parse(file);
+		const datapack = await Datapack.from(file);
+		const parsed = datapack.parse();
 		expect(datapack).toBeInstanceOf(Datapack);
+		expect(parsed).toBeDefined();
+		expect(parsed.elements).toBeDefined();
 	});
 
 	describe("getNamespaces", () => {

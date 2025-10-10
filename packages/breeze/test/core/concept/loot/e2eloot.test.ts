@@ -1,4 +1,3 @@
-import { parseDatapack } from "@/core/engine/Parser";
 import { updateData } from "@/core/engine/actions";
 import { VoxelToLootDataDriven } from "@/core/schema/loot/Compiler";
 import type { LootTableProps } from "@/core/schema/loot/types";
@@ -6,6 +5,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { LootTableAction } from "@/core/engine/actions/domains/LootTableAction";
 import { createZipFile, prepareFiles } from "@test/mock/utils";
 import { completeLootTable, advancedLootTable, ultimateTestLootTable, finalBossOfLootTable } from "@test/mock/loot/DataDriven";
+import { Datapack } from "@/core/Datapack";
 
 const lootFiles = {
 	"data/test/loot_table/test.json": completeLootTable,
@@ -22,7 +22,7 @@ function updateLootTable(action: any, lootTable: LootTableProps, packVersion = 4
 
 describe("LootTable E2E Tests", () => {
 	describe("Complete workflow: Parse → Actions → Compile", () => {
-		let parsedDatapack: Awaited<ReturnType<typeof parseDatapack>>;
+		let parsedDatapack: ReturnType<Datapack["parse"]>;
 		let simpleLootTable: LootTableProps;
 		let advancedLootTable: LootTableProps;
 		let ultimateLootTable: LootTableProps;
@@ -30,7 +30,8 @@ describe("LootTable E2E Tests", () => {
 
 		beforeEach(async () => {
 			const lootTableZip = await createZipFile(prepareFiles(lootFiles));
-			parsedDatapack = await parseDatapack(lootTableZip);
+			const datapack = await Datapack.from(lootTableZip);
+			parsedDatapack = datapack.parse();
 
 			const lootTables = Array.from(parsedDatapack.elements.values()).filter(
 				(element): element is LootTableProps => element.identifier.registry === "loot_table"

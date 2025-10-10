@@ -1,14 +1,14 @@
-import { parseDatapack } from "@/core/engine/Parser";
 import { VoxelToRecipeDataDriven } from "@/core/schema/recipe/Compiler";
 import type { RecipeProps } from "@/core/schema/recipe/types";
 import { recipeDataDriven } from "@test/mock/recipe/DataDriven";
 import { shapeless, shaped, shaped2, blasting, stonecutting, shapedtwobytwo } from "@test/mock/recipe/DataDriven";
 import { createFilesFromElements, createZipFile } from "@test/mock/utils";
 import { describe, it, expect, beforeEach } from "vitest";
+import { Datapack } from "@/core/Datapack";
 
 describe("Recipe E2E Tests", () => {
 	describe("Complete workflow: Parse → Compile", () => {
-		let parsedDatapack: Awaited<ReturnType<typeof parseDatapack>>;
+		let parsedDatapack: ReturnType<Datapack["parse"]>;
 		let shapelessRecipe: RecipeProps;
 		let shapedRecipe: RecipeProps;
 		let shaped2Recipe: RecipeProps;
@@ -17,7 +17,8 @@ describe("Recipe E2E Tests", () => {
 		let shapedtwobytwoRecipe: RecipeProps;
 
 		beforeEach(async () => {
-			parsedDatapack = await parseDatapack(await createZipFile(createFilesFromElements(recipeDataDriven)));
+			const datapack = await Datapack.from(await createZipFile(createFilesFromElements(recipeDataDriven)));
+			parsedDatapack = datapack.parse();
 			const recipes = Array.from(parsedDatapack.elements.values()).filter(
 				(element): element is RecipeProps => element.identifier.registry === "recipe"
 			);

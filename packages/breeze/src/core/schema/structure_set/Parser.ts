@@ -1,5 +1,4 @@
-import type { ParserParams } from "@/core/engine/Parser";
-import type { Parser } from "@/core/engine/Parser";
+import type { Parser, ParserParams } from "@/core/Datapack";
 import { extractUnknownFields } from "@/core/schema/utils";
 import type { MinecraftStructureSet, PlacementType, StructureSetProps, StructureSetStructure } from "./types";
 import { CONCENTRIC_RINGS_TYPES, KNOWN_PLACEMENT_FIELDS, KNOWN_STRUCTURE_SET_FIELDS, RANDOM_SPREAD_TYPES } from "./types";

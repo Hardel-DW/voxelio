@@ -1,15 +1,16 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { parseDatapack } from "@/core/engine/Parser";
 import { recipeDataDriven } from "@test/mock/recipe/DataDriven";
 import type { RecipeProps } from "@/core/schema/recipe/types";
 import { createFilesFromElements, createZipFile } from "@test/mock/utils";
+import { Datapack } from "@/core/Datapack";
 
 describe("Recipe Schema", () => {
-	let parsedDatapack: Awaited<ReturnType<typeof parseDatapack>>;
+	let parsedDatapack: ReturnType<Datapack["parse"]>;
 	let recipes: RecipeProps[];
 
 	beforeEach(async () => {
-		parsedDatapack = await parseDatapack(await createZipFile(createFilesFromElements(recipeDataDriven)));
+		const datapack = await Datapack.from(await createZipFile(createFilesFromElements(recipeDataDriven)));
+		parsedDatapack = datapack.parse();
 		recipes = Array.from(parsedDatapack.elements.values()).filter(
 			(element): element is RecipeProps => element.identifier.registry === "recipe"
 		);

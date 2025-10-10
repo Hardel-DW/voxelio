@@ -1,5 +1,4 @@
 import { describe, expect, it, beforeAll } from "vitest";
-import { parseDatapack } from "@/core/engine/Parser";
 import { LootTableFlattener } from "@/core/calculation/LootTableFlattener";
 import type { LootTableProps } from "@/core/schema/loot/types";
 import type { DataDrivenRegistryElement } from "@/core/Element";
@@ -22,7 +21,8 @@ describe("LootTableFlattener – E2E", () => {
 
 	beforeAll(async () => {
 		const lootTableZip = await createZipFile(prepareFiles(lootTableFiles));
-		const parsed = await parseDatapack(lootTableZip);
+		const datapackInstance = await Datapack.from(lootTableZip);
+		const parsed = datapackInstance.parse();
 		lootTables = Array.from(parsed.elements.values()).filter(
 			(element): element is LootTableProps => element.identifier.registry === "loot_table"
 		);

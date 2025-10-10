@@ -1,5 +1,5 @@
 import type { Compiler } from "@/core/engine/Compiler";
-import type { Parser } from "@/core/engine/Parser";
+import type { Parser } from "@/core/Datapack";
 import { VoxelToEnchantmentDataDriven } from "@/core/schema/enchant/Compiler";
 import { EnchantmentDataDrivenToVoxelFormat } from "@/core/schema/enchant/Parser";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
