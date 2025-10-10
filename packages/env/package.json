@@ -1,0 +1,37 @@
+{
+	"name": "@voxelio/env",
+	"version": "1.0.0",
+	"type": "module",
+	"description": "Handles environment variables in a secure way, using own modern package and lightweight package.",
+	"scripts": {
+		"build": "tsdown",
+		"build:watch": "tsdown --watch",
+		"test": "vitest",
+		"check": "tsc --noEmit",
+		"biome:format": "biome format --write ./src",
+		"biome:check": "biome check ./src",
+		"biome:unsafefix": "biome check --write --unsafe  ./src"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./config": {
+			"import": "./dist/config.js",
+			"types": "./dist/config.d.ts"
+		}
+	},
+	"files": [
+		"dist/**/*.js",
+		"dist/**/*.d.ts"
+	],
+	"author": {
+		"name": "Hardel",
+		"email": "teams.voxel@gmail.com",
+		"url": "https://voxel.hardel.io"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}
