@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.8
+
+### Patch Changes
+
+- 6a1efec: Parser is now in datapack, removed isModded and Filenmae from parser output
+
 ## 1.10.7
 
 ### Patch Changes
