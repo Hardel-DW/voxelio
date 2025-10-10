@@ -44,6 +44,8 @@ importers:
 
   packages/diff: {}
 
+  packages/env: {}
+
   packages/zip: {}
 
 packages:
