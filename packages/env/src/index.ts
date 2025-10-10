@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const MAX_FILE_SIZE = 1024 * 1024; // 1MB - protection against huge files
+const MAX_FILE_SIZE = 1024 * 1024;
 const LINE_REGEX = /^\s*(?:export\s+)?([\w.-]+)\s*=\s*(.*)?\s*$/;
 
 export interface ParsedEnv {
@@ -45,18 +45,11 @@ function unquote(value: string): string {
 
 /**
  * Parse a .env file content into an object.
- *
  * @param src - The content of a .env file as string or Buffer
  * @returns Parsed environment variables as key-value pairs
  * @throws {Error} If file content exceeds MAX_FILE_SIZE
- *
- * @example
- * ```ts
- * const parsed = parse('KEY=value\nOTHER="quoted"');
- * console.log(parsed.KEY); // 'value'
- * ```
  */
-export function parse(src: string | Buffer): ParsedEnv {
+function parse(src: string | Buffer): ParsedEnv {
 	const content = typeof src === "string" ? src : src.toString("utf-8");
 	if (content.length > MAX_FILE_SIZE) {
 		throw new Error(`File too large: ${content.length} bytes (max: ${MAX_FILE_SIZE})`);
@@ -84,21 +77,9 @@ export function parse(src: string | Buffer): ParsedEnv {
 
 /**
  * Load environment variables from a .env file into process.env.
- *
  * @param options - Configuration options
  * @returns Parsed environment variables
  * @throws {Error} If file cannot be read or parsed
- *
- * @example
- * ```ts
- * // Load from default .env file
- * config();
- *
- * // Load from custom path
- * config({ path: '.env.production' });
- *
- * // Override existing variables
- * config({ override: true });
  * ```
  */
 export function config(options: ConfigOptions = {}): ParsedEnv {
