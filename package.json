@@ -12,10 +12,10 @@
         "changeset": "changeset"
     },
     "devDependencies": {
-        "@biomejs/biome": "^2.2.3",
-        "@changesets/cli": "^2.29.6",
-        "tsdown": "^0.15.4",
-        "typescript": "^5.9.2",
+        "@biomejs/biome": "^2.2.5",
+        "@changesets/cli": "^2.29.7",
+        "tsdown": "^0.15.6",
+        "typescript": "^5.9.3",
         "vitest": "^3.2.4"
     }
 }
