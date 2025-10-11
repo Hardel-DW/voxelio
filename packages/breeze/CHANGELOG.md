@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.11
+
+### Patch Changes
+
+- 617de65: Fixes reorder in compiling
+
 ## 1.10.10
 
 ### Patch Changes
