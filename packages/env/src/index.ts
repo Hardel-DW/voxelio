@@ -49,7 +49,7 @@ function unquote(value: string): string {
  * @returns Parsed environment variables as key-value pairs
  * @throws {Error} If file content exceeds MAX_FILE_SIZE
  */
-function parse(src: string | Buffer): ParsedEnv {
+export function parse(src: string | Buffer): ParsedEnv {
 	const content = typeof src === "string" ? src : src.toString("utf-8");
 	if (content.length > MAX_FILE_SIZE) {
 		throw new Error(`File too large: ${content.length} bytes (max: ${MAX_FILE_SIZE})`);

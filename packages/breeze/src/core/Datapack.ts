@@ -47,10 +47,10 @@ export class Datapack {
 		this.files = files;
 
 		const packMcmeta = files["pack.mcmeta"];
-		if (!packMcmeta) throw new DatapackError("tools.error.failed_to_get_pack_mcmeta");
+		if (!packMcmeta) throw new DatapackError("failed_to_get_pack_mcmeta");
 
 		const pack = JSON.parse(new TextDecoder().decode(packMcmeta));
-		if (!pack.pack.pack_format) throw new DatapackError("tools.error.failed_to_get_pack_format");
+		if (!pack.pack.pack_format) throw new DatapackError("failed_to_get_pack_format");
 		this.pack = pack;
 	}
 
@@ -83,7 +83,7 @@ export class Datapack {
 			processConcept(conceptName);
 		}
 
-		if (elements.size === 0) throw new DatapackError("tools.warning.no_elements");
+		if (elements.size === 0) throw new DatapackError("no_elements");
 		return { files: this.files, elements, version: this.getPackFormat(), logger };
 	}
 
@@ -103,7 +103,7 @@ export class Datapack {
 	 * @returns The pack format of the datapack.
 	 */
 	getPackFormat() {
-		if (!this.pack.pack.pack_format) throw new DatapackError("tools.error.failed_to_get_pack_format");
+		if (!this.pack.pack.pack_format) throw new DatapackError("failed_to_get_pack_format");
 		return this.pack.pack.pack_format;
 	}
 
@@ -123,7 +123,7 @@ export class Datapack {
 	 * @returns The description of the datapack.
 	 */
 	getDescription(fallback = "Unknown") {
-		if (!fallback && !this.pack.pack.description) throw new DatapackError("tools.error.failed_to_get_datapack_description");
+		if (!fallback && !this.pack.pack.description) throw new DatapackError("failed_to_get_datapack_description");
 		return this.pack.pack.description || fallback;
 	}
 
@@ -239,7 +239,7 @@ export class Datapack {
 		return JSON.parse(new TextDecoder().decode(this.files[file]));
 	}
 
-	generate(logger: Logger) {
+	generate(logger?: Logger) {
 		return new DatapackDownloader(this.files).download(logger);
 	}
 

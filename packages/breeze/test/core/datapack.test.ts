@@ -55,7 +55,7 @@ describe("Datapack", () => {
 				...enchantmentFiles,
 				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({ pack: {} }))
 			};
-			expect(() => new Datapack(invalidMcmeta)).toThrow("tools.error.failed_to_get_pack_format");
+			expect(() => new Datapack(invalidMcmeta)).toThrow("failed_to_get_pack_format");
 		});
 	});
 

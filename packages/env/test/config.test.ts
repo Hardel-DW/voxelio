@@ -79,9 +79,7 @@ describe("config()", () => {
 	});
 
 	it("should throw error when file does not exist", () => {
-		expect(() => config({ path: "nonexistent.env" })).toThrow(
-			"Failed to load .env file",
-		);
+		expect(() => config({ path: "nonexistent.env" })).toThrow("Failed to load .env file");
 	});
 
 	it("should use default .env path when no path provided", () => {

@@ -22,7 +22,7 @@ export async function convertDatapack(datapackZip: File, platforms: ModPlatformT
 		...Object.fromEntries(Object.entries(modFiles).map(([path, content]) => [path, new TextEncoder().encode(content)]))
 	};
 
-	return new Datapack(allFiles).generate([], { isMinified: true });
+	return new Datapack(allFiles).generate();
 }
 
 /**
@@ -36,7 +36,7 @@ export async function extractMetadata(files: File, modName: string): Promise<Mod
 	let metadata: Partial<ModMetadata> = {};
 
 	try {
-		const datapack = await Datapack.parse(files);
+		const datapack = await Datapack.from(files);
 		metadata = {
 			description: datapack.getDescription(DEFAULT_MOD_METADATA.description),
 			version: datapack.getVersion()
