@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.9
+
+### Patch Changes
+
+- 01134fd: Update Datapack Error keys.
+
 ## 1.10.8
 
 ### Patch Changes

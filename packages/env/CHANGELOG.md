@@ -1,5 +1,11 @@
 # @voxelio/env
 
+## 1.0.3
+
+### Patch Changes
+
+- 01134fd: Fixes vitest test import
+
 ## 1.0.2
 
 ### Patch Changes
