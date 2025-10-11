@@ -1,5 +1,13 @@
 # @voxelio/breeze
 
+## 1.10.10
+
+### Patch Changes
+
+- 4c378f0: Added a new method to get the list of files, added, deleted, update between two UInt8Array
+- Updated dependencies [4c378f0]
+  - @voxelio/diff@1.0.3
+
 ## 1.10.9
 
 ### Patch Changes

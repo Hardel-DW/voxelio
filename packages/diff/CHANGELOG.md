@@ -1,5 +1,11 @@
 # @voxelio/diff
 
+## 1.0.3
+
+### Patch Changes
+
+- 4c378f0: Added a new method to get the list of files, added, deleted, update between two UInt8Array
+
 ## 1.0.2
 
 ### Patch Changes
