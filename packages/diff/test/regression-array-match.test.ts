@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Differ } from "../src/differ";
+import { Differ } from "../src/Differ";
 
 describe("Regression: Mojang loot data reordering", () => {
 	it("should apply patch when replacing and reordering pools", () => {

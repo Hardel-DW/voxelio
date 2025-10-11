@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Differ } from "../src/differ";
+import { Differ } from "../src/Differ";
 
 describe("String Values Case Sensitivity", () => {
 	it("should treat string values with different case as different", () => {

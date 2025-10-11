@@ -1,6 +1,7 @@
 import { downloadZip } from "@voxelio/zip";
 import type { InputWithoutMeta } from "@voxelio/zip";
 import type { Logger } from "@/core/engine/migrations/logger";
+import { UIntDiff } from "@voxelio/diff";
 
 export class DatapackDownloader {
 	constructor(private readonly files: Record<string, Uint8Array<ArrayBufferLike>>) {}
@@ -25,6 +26,10 @@ export class DatapackDownloader {
 			}
 		}
 		return downloadZip(files);
+	}
+
+	getDiff(originalFiles: Record<string, Uint8Array>): UIntDiff {
+		return new UIntDiff(originalFiles, this.files);
 	}
 
 	private prepareFile(path: string, data: Uint8Array<ArrayBufferLike>): InputWithoutMeta {

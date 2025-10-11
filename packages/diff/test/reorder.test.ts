@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Differ } from "../src/differ";
+import { Differ } from "../src/Differ";
 
 describe("reorderKeysLike", () => {
 	it("should align top-level keys", () => {

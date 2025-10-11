@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Differ } from "../src/differ";
+import { Differ } from "../src/Differ";
 
 describe("Stress Tests - Highest Complexity", () => {
 	it("should handle deeply nested objects with key reordering at every level", () => {

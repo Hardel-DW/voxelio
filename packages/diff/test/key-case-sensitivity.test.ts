@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Differ } from "../src/differ";
+import { Differ } from "../src/Differ";
 
 describe("Case Sensitivity", () => {
 	it("should treat keys with different case as different keys", () => {

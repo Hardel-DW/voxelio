@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Differ } from "../src/differ";
+import { Differ } from "../src/Differ";
 
 describe("Array LCS (Longest Common Subsequence)", () => {
 	describe("Simple arrays", () => {
