@@ -24,8 +24,12 @@ function writeElement(
 ) {
 	const path = new Identifier(element.identifier).toFilePath("data");
 	const originalFile = originalFiles[path];
-	const indent = originalFile ? Differ.detectIndentation(new TextDecoder().decode(originalFile)) : 4;
-	files[path] = new TextEncoder().encode(JSON.stringify(element.data, null, indent));
+	const originalText = originalFile ? new TextDecoder().decode(originalFile) : undefined;
+	const indent = originalText ? Differ.detectIndentation(originalText) : 4;
+	const originalJson = originalText ? JSON.parse(originalText) : undefined;
+	const dataToWrite = originalJson ? new Differ(originalJson, element.data).reorder({ cleanNewEmptyCollections: true }) : element.data;
+
+	files[path] = new TextEncoder().encode(JSON.stringify(dataToWrite, null, indent));
 }
 
 /**
