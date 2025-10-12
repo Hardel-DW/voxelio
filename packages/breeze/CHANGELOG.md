@@ -1,5 +1,13 @@
 # @voxelio/breeze
 
+## 1.10.14
+
+### Patch Changes
+
+- acfdd8e: Compiling now reorder objets, and use the new diff options to remove empty collection
+- Updated dependencies [acfdd8e]
+  - @voxelio/diff@1.0.5
+
 ## 1.10.13
 
 ### Patch Changes

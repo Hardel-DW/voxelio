@@ -1,5 +1,11 @@
 # @voxelio/diff
 
+## 1.0.5
+
+### Patch Changes
+
+- acfdd8e: Re-order now has an option to clear empty collection, array or object if not present in original.
+
 ## 1.0.4
 
 ### Patch Changes
