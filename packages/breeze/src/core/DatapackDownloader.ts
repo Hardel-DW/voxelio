@@ -2,8 +2,7 @@ import { downloadZip } from "@voxelio/zip";
 import type { InputWithoutMeta } from "@voxelio/zip";
 import type { Logger } from "@/core/engine/migrations/logger";
 import { Differ } from "@voxelio/diff";
-
-type FileStatus = "added" | "modified" | "deleted";
+import type { FileStatus } from "./FileStatusComparator";
 
 export class DatapackDownloader {
 	constructor(private readonly files: Record<string, Uint8Array<ArrayBufferLike>>) {}
@@ -58,7 +57,7 @@ export class DatapackDownloader {
 				const original = originalFiles[path];
 				const current = this.files[path];
 				if (original.length !== current.length || !original.every((byte, i) => byte === current[i])) {
-					result.set(path, "modified");
+					result.set(path, "updated");
 				}
 				continue;
 			}
@@ -67,7 +66,7 @@ export class DatapackDownloader {
 			const currentJson = JSON.parse(decoder.decode(this.files[path]));
 			const patch = new Differ(originalJson, currentJson).diff();
 			if (patch.length > 0) {
-				result.set(path, "modified");
+				result.set(path, "updated");
 			}
 		}
 
