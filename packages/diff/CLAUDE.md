@@ -5,6 +5,10 @@ Goal: Handles diff between two JSON objects with RFC 6902 (Modified to preserve 
 Functionalities to implement:
 - Diff between two JSON objects, and make a patch file. -> new Differ().diff(obj1, obj2);
 - Apply the patch to a JSON object. -> Differ.apply(obj, patch);
+- Reorder the keys of a JSON object. -> new Differ(obj1, obj2).reorder();
+
+Reorder options:
+- cleanNewEmptyCollections: boolean -> If true, it will remove empty collections {} and [] from the target objects, if the key does not exist in the original object.
 
 This should only compare files and only JSON. do not implement visual, html, css or anything like that.
 --- 

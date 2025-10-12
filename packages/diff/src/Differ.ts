@@ -1,7 +1,7 @@
 import type { PatchOperation } from "./types";
 import { generatePatch } from "./core/generate";
 import { applyPatch } from "./core/apply";
-import { reorderKeysLike } from "./utils/ordering";
+import { reorderKeysLike, type ReorderOptions } from "./utils/ordering";
 
 export class Differ {
 	constructor(
@@ -17,10 +17,11 @@ export class Differ {
 	}
 
 	/**
-	 * Reorder keys of an object to match the target object
+	 * Reorder keys of an object to match the target object.
+	 * @param options - Configure reorder behaviour like cleaning new empty collections.
 	 */
-	reorder(): unknown {
-		return reorderKeysLike(this.source, this.target);
+	reorder(options?: ReorderOptions): unknown {
+		return reorderKeysLike(this.source, this.target, options);
 	}
 
 	/**

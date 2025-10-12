@@ -108,7 +108,7 @@ describe("reorderKeysLike", () => {
 	it("should leave unmatched structures untouched", () => {
 		const source = { a: 1 };
 		const target = { b: { c: 2 } };
-		const aligned = new Differ(source, target).reorder() as Record<string, unknown>;
+		const aligned = new Differ(source, target).reorder();
 		expect(aligned).toEqual(target);
 	});
 });
