@@ -1,5 +1,11 @@
 # @voxelio/diff
 
+## 1.0.4
+
+### Patch Changes
+
+- f04b94f: Revert Diff UInt8Array, and implement new method to get the list of file path status.
+
 ## 1.0.3
 
 ### Patch Changes
