@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.15
+
+### Patch Changes
+
+- 4b0050d: Compiling now take additional files in paramters, removed hardcoded voxel tags
+
 ## 1.10.14
 
 ### Patch Changes
