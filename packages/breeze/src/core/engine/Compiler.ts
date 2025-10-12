@@ -5,7 +5,6 @@ import type { TagType } from "@/core/Tag";
 import { TagsProcessor } from "@/core/TagsProcessor";
 import { type Analysers, type GetAnalyserVoxel, analyserCollection } from "@/core/engine/Analyser";
 import type { Analyser } from "@/core/engine/Analyser";
-import { VOXEL_TAGS } from "@/Voxel";
 import { Differ } from "@voxelio/diff";
 
 export type Compiler<T extends VoxelElement = VoxelElement, K extends DataDrivenElement = DataDrivenElement> = (
@@ -42,12 +41,14 @@ function writeElement(
  * 3.3 Remove all id from the tags.
  * 3.4 Inject all id from the compiled elements into the tags.
  */
-export function compileDatapack(props: { elements: GetAnalyserVoxel<keyof Analysers>[]; files: Record<string, Uint8Array> }): Datapack {
+export function compileDatapack(props: {
+	elements: GetAnalyserVoxel<keyof Analysers>[];
+	files: Record<string, Uint8Array>;
+	additionnal?: Record<string, Uint8Array>;
+}): Datapack {
 	const newFiles = structuredClone(props.files);
 	const datapack = new Datapack(props.files);
 	const registryGroups = Map.groupBy(props.elements, (e) => e.identifier.registry as keyof Analysers);
-
-	for (const element of VOXEL_TAGS) writeElement(newFiles, element, props.files);
 
 	for (const [registry, registryElements] of registryGroups) {
 		const { compiler, hasTag } = analyserCollection[registry] as Analyser<typeof registry>;
@@ -67,6 +68,12 @@ export function compileDatapack(props: { elements: GetAnalyserVoxel<keyof Analys
 			const processorCleaned = new TagsProcessor(cleanedTags);
 			const finalTags = processorCleaned.injectIds(elementToTags);
 			for (const tag of finalTags) writeElement(newFiles, tag, props.files);
+		}
+	}
+
+	if (props.additionnal) {
+		for (const [path, data] of Object.entries(props.additionnal)) {
+			if (!(path in newFiles)) newFiles[path] = data;
 		}
 	}
 

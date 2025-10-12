@@ -201,11 +201,9 @@ export class Datapack {
 			if (fileParts.length < 3) continue;
 			if (fileParts[0] !== "data") continue;
 
-			const namespace = fileParts[1];
-			const firstFolder = fileParts[2];
+			const [namespace, firstFolder] = [fileParts[1], fileParts[2]];
 			const depth = Datapack.getRegistryDepth(firstFolder);
 			const detectedRegistry = fileParts.slice(2, 2 + depth).join("/");
-
 			if (detectedRegistry !== registry) continue;
 
 			const resource = fileParts
@@ -213,7 +211,6 @@ export class Datapack {
 				.join("/")
 				.replace(".json", "");
 			if (!resource || !namespace || !registry) continue;
-
 			if (path && !resource.startsWith(path)) continue;
 			if (excludeNamespaces && excludeNamespaces.length > 0 && excludeNamespaces.includes(namespace)) continue;
 

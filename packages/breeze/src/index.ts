@@ -1,5 +1,4 @@
 export type SingleOrMultiple<T> = T | T[];
-export { VOXEL_TAGS } from "@/Voxel";
 
 export { DatapackDownloader } from "@/core/DatapackDownloader";
 export { Datapack } from "@/core/Datapack";
