@@ -11,6 +11,60 @@ const isEmptyCollection = (value: unknown): boolean => {
 	return false;
 };
 
+const isPrimitive = (value: unknown): value is string | number | boolean | null =>
+	value === null || ["string", "number", "boolean"].includes(typeof value);
+
+const primitiveKey = (value: string | number | boolean | null): string => {
+	if (value === null) return "null:null";
+	return `${typeof value}:${String(value)}`;
+};
+
+const reorderPrimitiveArray = (source: unknown[], target: unknown[]): unknown[] => {
+	const sourcePositions = new Map<string, number[]>();
+
+	for (let index = 0; index < source.length; index++) {
+		const value = source[index];
+		if (!isPrimitive(value)) continue;
+		const key = primitiveKey(value);
+		const positions = sourcePositions.get(key);
+		if (positions) {
+			positions.push(index);
+		} else {
+			sourcePositions.set(key, [index]);
+		}
+	}
+
+	const usedPositions = new Map<string, number>();
+	const matched: Array<{ index: number; value: unknown }> = [];
+	const unmatched: unknown[] = [];
+
+	for (const value of target) {
+		if (!isPrimitive(value)) {
+			unmatched.push(value);
+			continue;
+		}
+
+		const key = primitiveKey(value);
+		const positions = sourcePositions.get(key);
+		if (!positions || positions.length === 0) {
+			unmatched.push(value);
+			continue;
+		}
+
+		const used = usedPositions.get(key) ?? 0;
+		if (used >= positions.length) {
+			unmatched.push(value);
+			continue;
+		}
+
+		matched.push({ index: positions[used], value });
+		usedPositions.set(key, used + 1);
+	}
+
+	matched.sort((a, b) => a.index - b.index);
+	return matched.map((entry) => entry.value).concat(unmatched);
+};
+
 export interface ReorderOptions {
 	cleanNewEmptyCollections?: boolean;
 }
@@ -20,8 +74,14 @@ export const reorderKeysLike = (source: unknown, target: unknown, options?: Reor
 		if (!Array.isArray(source) || source.length === 0) {
 			return target.map((item) => reorderKeysLike(undefined, item, options));
 		}
+
+		const sourceArray = source as unknown[];
+		if (sourceArray.every(isPrimitive) && target.every(isPrimitive)) {
+			return reorderPrimitiveArray(sourceArray, target);
+		}
+
 		return target.map((item, index) => {
-			const template = index < source.length ? source[index] : source[source.length - 1];
+			const template = index < sourceArray.length ? sourceArray[index] : sourceArray[sourceArray.length - 1];
 			return reorderKeysLike(template, item, options);
 		});
 	}

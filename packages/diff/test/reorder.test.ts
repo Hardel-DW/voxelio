@@ -90,6 +90,18 @@ describe("reorderKeysLike", () => {
 		expect(Object.keys(beta[2])).toEqual(["id", "value"]);
 	});
 
+
+	it("should align arrays of primitives", () => {
+		const source = {
+			values: ["#minecraft:non_treasure", "enchantplus:pickaxe/bedrock_breaker", "enchantplus:tools/auto_smelt"]
+		};
+		const target = {
+			values: ["enchantplus:tools/auto_smelt", "#minecraft:non_treasure", "enchantplus:bow/eternal_frost", "enchantplus:pickaxe/bedrock_breaker"]
+		};
+
+		const aligned = new Differ(source, target).reorder() as { values: string[] };
+		expect(aligned.values).toEqual(["#minecraft:non_treasure", "enchantplus:pickaxe/bedrock_breaker", "enchantplus:tools/auto_smelt", "enchantplus:bow/eternal_frost"]);
+	});
 	it("should handle arrays longer than source by appending order", () => {
 		const source = { list: [{ id: "A", foo: 1 }] };
 		const target = {
