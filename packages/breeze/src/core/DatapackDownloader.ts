@@ -1,7 +1,9 @@
 import { downloadZip } from "@voxelio/zip";
 import type { InputWithoutMeta } from "@voxelio/zip";
 import type { Logger } from "@/core/engine/migrations/logger";
-import { UIntDiff } from "@voxelio/diff";
+import { Differ } from "@voxelio/diff";
+
+type FileStatus = "added" | "modified" | "deleted";
 
 export class DatapackDownloader {
 	constructor(private readonly files: Record<string, Uint8Array<ArrayBufferLike>>) {}
@@ -28,8 +30,48 @@ export class DatapackDownloader {
 		return downloadZip(files);
 	}
 
-	getDiff(originalFiles: Record<string, Uint8Array>): UIntDiff {
-		return new UIntDiff(originalFiles, this.files);
+	/**
+	 * Compare the original files to the current files and return the map of the paths and the status.
+	 */
+	getDiff(originalFiles: Record<string, Uint8Array>): Map<string, FileStatus> {
+		const result = new Map<string, FileStatus>();
+		const decoder = new TextDecoder();
+		const originalPaths = new Set(Object.keys(originalFiles));
+		const currentPaths = new Set(Object.keys(this.files));
+		const allPaths = new Set([...originalPaths, ...currentPaths]);
+
+		for (const path of allPaths) {
+			const existsInOriginal = originalPaths.has(path);
+			const existsInCurrent = currentPaths.has(path);
+
+			if (!existsInOriginal && existsInCurrent) {
+				result.set(path, "added");
+				continue;
+			}
+
+			if (existsInOriginal && !existsInCurrent) {
+				result.set(path, "deleted");
+				continue;
+			}
+
+			if (!path.endsWith(".json")) {
+				const original = originalFiles[path];
+				const current = this.files[path];
+				if (original.length !== current.length || !original.every((byte, i) => byte === current[i])) {
+					result.set(path, "modified");
+				}
+				continue;
+			}
+
+			const originalJson = JSON.parse(decoder.decode(originalFiles[path]));
+			const currentJson = JSON.parse(decoder.decode(this.files[path]));
+			const patch = new Differ(originalJson, currentJson).diff();
+			if (patch.length > 0) {
+				result.set(path, "modified");
+			}
+		}
+
+		return result;
 	}
 
 	private prepareFile(path: string, data: Uint8Array<ArrayBufferLike>): InputWithoutMeta {
