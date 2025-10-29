@@ -1,7 +1,7 @@
 import type { Analysers } from "@/core/engine/Analyser";
 import type { Compiler } from "@/core/engine/Compiler";
-import type { MinecraftPoolAlias, MinecraftSpawnOverride, MinecraftStructure, MobCategory, StructureProps } from "./types";
-import { JIGSAW_STRUCTURE_TYPES } from "./types";
+import type { MinecraftPoolAlias, MinecraftSpawnOverride, MinecraftStructure, MobCategory, StructureProps } from "@/core/schema/structure/types";
+import { JIGSAW_STRUCTURE_TYPES } from "@/core/schema/structure/types";
 
 /**
  * Compile Voxel format back to Minecraft Structure
@@ -49,17 +49,7 @@ export const VoxelToStructureDataDriven: Compiler<StructureProps, MinecraftStruc
 		}
 	}
 
-	if (element.unknownFields) {
-		Object.assign(structure, element.unknownFields);
-	}
-
-	return {
-		element: {
-			data: structure,
-			identifier: element.identifier
-		},
-		tags: []
-	};
+	return { element: { data: structure, identifier: element.identifier }, tags: [] };
 };
 
 /**

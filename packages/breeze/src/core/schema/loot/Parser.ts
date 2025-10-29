@@ -1,7 +1,5 @@
 import type { Parser, ParserParams } from "@/core/Datapack";
-import { extractUnknownFields } from "@/core/schema/utils";
-import type { LootGroup, LootItem, LootTableProps, MinecraftLootEntry, MinecraftLootTable, PoolData } from "./types";
-import { KNOWN_ENTRY_FIELDS, KNOWN_POOL_FIELDS, KNOWN_TABLE_FIELDS } from "./types";
+import type { LootGroup, LootItem, LootTableProps, MinecraftLootEntry, MinecraftLootTable, PoolData } from "@/core/schema/loot/types";
 
 /**
  * Parse Minecraft LootTable to simplified Voxel format.
@@ -29,7 +27,6 @@ export const LootDataDrivenToVoxelFormat: Parser<LootTableProps, MinecraftLootTa
 			...(pool.bonus_rolls !== undefined && { bonus_rolls: pool.bonus_rolls }),
 			...(pool.functions?.length && { functions: pool.functions }),
 			...(pool.conditions?.length && { conditions: pool.conditions }),
-			...(extractUnknownFields(pool, KNOWN_POOL_FIELDS) && { unknownFields: extractUnknownFields(pool, KNOWN_POOL_FIELDS) })
 		})) || [];
 
 	// Determine if loot table should be disabled
@@ -44,7 +41,6 @@ export const LootDataDrivenToVoxelFormat: Parser<LootTableProps, MinecraftLootTa
 		...(data.random_sequence && { randomSequence: data.random_sequence }),
 		...(data.functions?.length && { functions: data.functions }),
 		...(pools.length && { pools }),
-		...(extractUnknownFields(data, KNOWN_TABLE_FIELDS) && { unknownFields: extractUnknownFields(data, KNOWN_TABLE_FIELDS) }),
 		override: configurator
 	};
 
@@ -68,7 +64,6 @@ export const LootDataDrivenToVoxelFormat: Parser<LootTableProps, MinecraftLootTa
 				entryIndex,
 				...(entry.conditions?.length && { conditions: entry.conditions }),
 				...(entry.functions?.length && { functions: entry.functions }),
-				...(extractUnknownFields(entry, KNOWN_ENTRY_FIELDS) && { unknownFields: extractUnknownFields(entry, KNOWN_ENTRY_FIELDS) })
 			});
 
 			return groupId;
@@ -107,7 +102,6 @@ export const LootDataDrivenToVoxelFormat: Parser<LootTableProps, MinecraftLootTa
 			...(entry.conditions?.length && { conditions: entry.conditions }),
 			...(entry.functions?.length && { functions: entry.functions }),
 			...(entry.expand !== undefined && { expand: entry.expand }),
-			...(extractUnknownFields(entry, KNOWN_ENTRY_FIELDS) && { unknownFields: extractUnknownFields(entry, KNOWN_ENTRY_FIELDS) })
 		});
 
 		return itemId;

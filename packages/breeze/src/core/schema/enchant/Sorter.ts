@@ -1,6 +1,6 @@
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
-import { SlotManager } from "../../SlotManager";
-import { getAllItems } from "../../ItemList";
+import { SlotManager } from "@/core/SlotManager";
+import { getAllItems } from "@/core/ItemList";
 
 /**
  * Available sorting criteria for enchantments

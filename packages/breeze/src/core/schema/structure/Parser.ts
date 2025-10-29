@@ -1,7 +1,6 @@
 import type { Parser, ParserParams } from "@/core/Datapack";
-import { extractUnknownFields } from "@/core/schema/utils";
 import type { DimensionPadding, MinecraftStructure, MobCategory, PoolAlias, SpawnOverride, StructureProps } from "./types";
-import { JIGSAW_STRUCTURE_TYPES, KNOWN_STRUCTURE_FIELDS } from "./types";
+import { JIGSAW_STRUCTURE_TYPES } from "@/core/schema/structure/types";
 
 /**
  * Parse Minecraft Structure to simplified Voxel format.
@@ -18,10 +17,10 @@ export const StructureDataDrivenToVoxelFormat: Parser<StructureProps, MinecraftS
 	const spawnOverrides: SpawnOverride[] | undefined =
 		spawnOverridesEntries.length > 0
 			? spawnOverridesEntries.map(([category, override]) => ({
-					mobCategory: category as MobCategory,
-					boundingBox: override.bounding_box,
-					spawns: override.spawns || []
-				}))
+				mobCategory: category as MobCategory,
+				boundingBox: override.bounding_box,
+				spawns: override.spawns || []
+			}))
 			: undefined;
 
 	const structure: StructureProps = {
@@ -74,11 +73,6 @@ export const StructureDataDrivenToVoxelFormat: Parser<StructureProps, MinecraftS
 		if (Object.keys(typeSpecific).length > 0) {
 			structure.typeSpecific = typeSpecific;
 		}
-	}
-
-	const unknownFields = extractUnknownFields(data, KNOWN_STRUCTURE_FIELDS);
-	if (unknownFields) {
-		structure.unknownFields = unknownFields;
 	}
 
 	return structure;

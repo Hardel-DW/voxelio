@@ -1,15 +1,15 @@
 import type { IdentifierObject } from "@/core/Identifier";
 import type { Analysers } from "@/core/engine/Analyser";
 import type { Compiler } from "@/core/engine/Compiler";
-import { processElementTags } from "@/core/schema/utils";
+import { Tags } from "@/core/Tag";
 import type {
 	MinecraftExclusionZone,
 	MinecraftStructurePlacement,
 	MinecraftStructureSet,
 	MinecraftStructureSetElement,
 	StructureSetProps
-} from "./types";
-import { CONCENTRIC_RINGS_TYPES, RANDOM_SPREAD_TYPES } from "./types";
+} from "@/core/schema/structure_set/types";
+import { CONCENTRIC_RINGS_TYPES, RANDOM_SPREAD_TYPES } from "@/core/schema/structure_set/types";
 
 /**
  * Compile Voxel format back to Minecraft Structure Set
@@ -21,7 +21,7 @@ export const VoxelToStructureSetDataDriven: Compiler<StructureSetProps, Minecraf
 ) => {
 	const element = structuredClone(originalElement);
 	const structureSet = original ? structuredClone(original) : ({} as MinecraftStructureSet);
-	const tags: IdentifierObject[] = processElementTags(element.tags, config);
+	const tags: IdentifierObject[] = Tags.process(element.tags, config);
 
 	const structures: MinecraftStructureSetElement[] = element.structures.map((struct) => ({
 		structure: struct.structure,
@@ -69,25 +69,8 @@ export const VoxelToStructureSetDataDriven: Compiler<StructureSetProps, Minecraf
 		if (element.spreadType) placement.spread_type = element.spreadType;
 	}
 
-	if (element.unknownFields) {
-		if (element.unknownFields.placement) {
-			Object.assign(placement, element.unknownFields.placement);
-		}
-
-		const rootFields = { ...element.unknownFields };
-		rootFields.placement = undefined;
-
-		Object.assign(structureSet, rootFields);
-	}
-
 	structureSet.structures = structures;
 	structureSet.placement = placement;
 
-	return {
-		element: {
-			data: structureSet,
-			identifier: element.identifier
-		},
-		tags
-	};
+	return { element: { data: structureSet, identifier: element.identifier }, tags };
 };

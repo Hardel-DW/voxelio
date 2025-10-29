@@ -1,7 +1,6 @@
 import type { Analysers } from "@/core/engine/Analyser";
 import type { Compiler } from "@/core/engine/Compiler";
 import type { LootGroup, LootItem, LootTableProps, MinecraftLootEntry, MinecraftLootTable } from "./types";
-import { KNOWN_POOL_FIELDS } from "./types";
 
 /**
  * Compile Voxel format back to Minecraft LootTable - Ultra-simplified version
@@ -14,7 +13,6 @@ export const VoxelToLootDataDriven: Compiler<LootTableProps, MinecraftLootTable>
 	const element = structuredClone(originalElement);
 	const lootTable = original ? structuredClone(original) : {};
 
-	// Handle disabled loot tables
 	if (element.disabled) {
 		return { element: { data: {}, identifier: element.identifier }, tags: [] };
 	}
@@ -43,10 +41,9 @@ export const VoxelToLootDataDriven: Compiler<LootTableProps, MinecraftLootTable>
 			entries: []
 		};
 
-		if (poolData?.unknownFields) Object.assign(pool, poolData.unknownFields);
-		else if (originalPool) {
+		if (originalPool) {
 			for (const key in originalPool) {
-				if (!KNOWN_POOL_FIELDS.has(key)) pool[key] = (originalPool as any)[key];
+				pool[key] = (originalPool)[key];
 			}
 		}
 
@@ -76,8 +73,7 @@ export const VoxelToLootDataDriven: Compiler<LootTableProps, MinecraftLootTable>
 				type: element.type,
 				pools,
 				random_sequence: element.randomSequence,
-				...(element.functions?.length && { functions: element.functions }),
-				...(element.unknownFields && element.unknownFields)
+				...(element.functions?.length && { functions: element.functions })
 			},
 			identifier: element.identifier
 		},
@@ -98,7 +94,6 @@ function buildEntry(item: LootItem): MinecraftLootEntry {
 		...(item.conditions?.length && { conditions: item.conditions }),
 		...(item.functions?.length && { functions: item.functions }),
 		...(item.expand !== undefined && { expand: item.expand }),
-		...item.unknownFields
 	};
 
 	if (entryType === "minecraft:loot_table") entry.value = item.value ?? item.name;
@@ -125,6 +120,5 @@ function buildGroupEntry(group: LootGroup, itemMap: Map<string, LootItem>, group
 			.filter((entry): entry is MinecraftLootEntry => entry !== null),
 		...(group.conditions?.length && { conditions: group.conditions }),
 		functions: group.functions || [],
-		...group.unknownFields
 	};
 }

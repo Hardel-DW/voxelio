@@ -1,4 +1,6 @@
 import type { DataDrivenElement } from "@/core/Element";
+import { Identifier, type IdentifierObject } from "@/core/Identifier";
+import type { Analysers } from "@/core/engine/Analyser";
 
 /**
  * Represents a Minecraft tag system that can contain multiple values.
@@ -71,6 +73,13 @@ export class Tags {
 
 	static isTag(tag: any): tag is TagType {
 		return tag && typeof tag === "object" && "values" in tag;
+	}
+
+	/**
+	 * Common utility to process tags for compilation
+	 */
+	static process(tags: string[], config: keyof Analysers): IdentifierObject[] {
+		return tags.map((tag) => Identifier.of(tag, `tags/${config}`));
 	}
 }
 

@@ -2,9 +2,9 @@ import type { DataDrivenRegistryElement } from "@/core/Element";
 import type { IdentifierObject } from "@/core/Identifier";
 import type { Analysers } from "@/core/engine/Analyser";
 import type { Compiler } from "@/core/engine/Compiler";
-import { processElementTags } from "@/core/schema/utils";
+import { Tags } from "@/core/Tag";
 import type { Enchantment } from "@/core/schema/enchant/types";
-import { type EnchantmentProps, FUNCTIONALITY_TAGS_CACHE } from "./types";
+import { type EnchantmentProps, FUNCTIONALITY_TAGS_CACHE } from "@/core/schema/enchant/types";
 
 /**
  * Transform only one enchantment from Voxel Format into a Minecraft JSON Data Driven Enchantment.
@@ -21,7 +21,7 @@ export const VoxelToEnchantmentDataDriven: Compiler<EnchantmentProps, Enchantmen
 } => {
 	const element = structuredClone(originalElement);
 	const enchantment = original ? structuredClone(original) : ({} as Enchantment);
-	let tags: IdentifierObject[] = processElementTags(element.tags, config);
+	let tags: IdentifierObject[] = Tags.process(element.tags, config);
 
 	enchantment.max_level = element.maxLevel;
 	enchantment.weight = element.weight;
@@ -71,15 +71,5 @@ export const VoxelToEnchantmentDataDriven: Compiler<EnchantmentProps, Enchantmen
 		tags = [];
 	}
 
-	if (element.unknownFields) {
-		Object.assign(enchantment, element.unknownFields);
-	}
-
-	return {
-		element: {
-			data: enchantment,
-			identifier: element.identifier
-		},
-		tags
-	};
+	return { element: { data: enchantment, identifier: element.identifier }, tags };
 };

@@ -1,7 +1,6 @@
 import type { Parser, ParserParams } from "@/core/Datapack";
-import { extractUnknownFields } from "@/core/schema/utils";
-import type { MinecraftStructureSet, PlacementType, StructureSetProps, StructureSetStructure } from "./types";
-import { CONCENTRIC_RINGS_TYPES, KNOWN_PLACEMENT_FIELDS, KNOWN_STRUCTURE_SET_FIELDS, RANDOM_SPREAD_TYPES } from "./types";
+import type { MinecraftStructureSet, PlacementType, StructureSetProps, StructureSetStructure } from "@/core/schema/structure_set/types";
+import { CONCENTRIC_RINGS_TYPES, RANDOM_SPREAD_TYPES } from "@/core/schema/structure_set/types";
 
 /**
  * Parse Minecraft Structure Set to simplified Voxel format
@@ -61,25 +60,6 @@ export const StructureSetDataDrivenToVoxelFormat: Parser<StructureSetProps, Mine
 		if (placement.spacing !== undefined) structureSet.spacing = placement.spacing;
 		if (placement.separation !== undefined) structureSet.separation = placement.separation;
 		if (placement.spread_type) structureSet.spreadType = placement.spread_type;
-	}
-
-	const placementUnknownFields = extractUnknownFields(placement, KNOWN_PLACEMENT_FIELDS);
-	const rootUnknownFields = extractUnknownFields(data, KNOWN_STRUCTURE_SET_FIELDS);
-
-	const combinedUnknownFields: Record<string, any> = {};
-	let hasUnknownFields = false;
-
-	if (placementUnknownFields) {
-		Object.assign(combinedUnknownFields, { placement: placementUnknownFields });
-		hasUnknownFields = true;
-	}
-	if (rootUnknownFields) {
-		Object.assign(combinedUnknownFields, rootUnknownFields);
-		hasUnknownFields = true;
-	}
-
-	if (hasUnknownFields) {
-		structureSet.unknownFields = combinedUnknownFields;
 	}
 
 	return structureSet;

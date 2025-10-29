@@ -269,19 +269,14 @@ describe("LootTable Schema", () => {
 			const parsed = LootDataDrivenToVoxelFormat({ element: modLootTable });
 
 			// Verify unknown fields are preserved
-			expect(parsed.unknownFields).toBeDefined();
-			expect(parsed.unknownFields?.mod_custom_field).toBe("some_mod_value");
-
 			expect(parsed.pools).toHaveLength(1);
-			expect(parsed.pools?.[0].unknownFields).toBeDefined();
-			expect(parsed.pools?.[0].unknownFields?.mod_pool_setting).toBe(true);
+			expect(parsed.pools?.[0].mod_pool_setting).toBe(true);
 
 			expect(parsed.items).toHaveLength(1);
 			const item = parsed.items[0];
 			expect(item.entryType).toBe("modname:custom_entry");
-			expect(item.unknownFields).toBeDefined();
-			expect(item.unknownFields?.mod_special_property).toBe(42);
-			expect(item.unknownFields?.mod_config).toEqual({ enabled: true, level: 5 });
+			expect(item.mod_special_property).toBe(42);
+			expect(item.mod_config).toEqual({ enabled: true, level: 5 });
 
 			// Compile back to Minecraft format
 			const compiled = VoxelToLootDataDriven(parsed, "loot_table", modLootTable.data);

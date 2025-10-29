@@ -5,7 +5,6 @@ export interface StructureProps extends VoxelElement {
 	step: DecorationStep;
 	terrainAdaptation?: TerrainAdaptation;
 	spawnOverrides?: SpawnOverride[];
-
 	startPool?: string;
 	size?: number;
 	startHeight?: any;
@@ -16,10 +15,7 @@ export interface StructureProps extends VoxelElement {
 	poolAliases?: PoolAlias[];
 	dimensionPadding?: DimensionPadding;
 	liquidSettings?: LiquidSettings;
-
 	typeSpecific?: Record<string, any>;
-
-	unknownFields?: Record<string, any>;
 }
 
 export interface SpawnOverride {
@@ -83,9 +79,6 @@ export interface MinecraftStructure extends DataDrivenElement {
 	cluster_probability?: number;
 	setups?: RuinedPortalSetup[];
 	is_beached?: boolean;
-
-	// Allow any additional fields for mod compatibility
-	[key: string]: any;
 }
 
 export interface MinecraftSpawnOverride {
@@ -160,34 +153,6 @@ export type MineshaftType = "normal" | "mesa";
 export type BiomeTemperature = "cold" | "warm";
 
 export type RuinedPortalPlacement = "on_land_surface" | "partly_buried" | "on_ocean_floor" | "in_mountain" | "underground" | "in_nether";
-
-// Known fields constants for reuse
-export const KNOWN_STRUCTURE_FIELDS = new Set([
-	"type",
-	"biomes",
-	"step",
-	"terrain_adaptation",
-	"spawn_overrides",
-	"start_pool",
-	"size",
-	"start_height",
-	"start_jigsaw_name",
-	"project_start_to_heightmap",
-	"max_distance_from_center",
-	"use_expansion_hack",
-	"pool_aliases",
-	"dimension_padding",
-	"liquid_settings",
-	// Legacy fields
-	"probability",
-	"mineshaft_type",
-	"height",
-	"biome_temp",
-	"large_probability",
-	"cluster_probability",
-	"setups",
-	"is_beached"
-]);
 
 // Structure types that use Jigsaw config
 export const JIGSAW_STRUCTURE_TYPES = new Set([
