@@ -1,4 +1,3 @@
-import { normalizeResourceLocation } from "@/core/Element";
 import type { Analysers } from "@/core/engine/Analyser";
 import type { Compiler } from "@/core/engine/Compiler";
 import type { CraftingTransmuteData, MinecraftRecipe, RecipeProps, SmeltingData, SmithingTransformData, SmithingTrimData } from "./types";
@@ -14,11 +13,10 @@ export const VoxelToRecipeDataDriven: Compiler<RecipeProps, MinecraftRecipe> = (
 ) => {
 	const element = structuredClone(originalElement);
 	const recipe = original ? structuredClone(original) : ({} as MinecraftRecipe);
-
 	recipe.type = element.type;
-	if (element.group) recipe.group = element.group;
-	if (element.category) recipe.category = element.category;
-	if (element.showNotification !== undefined) recipe.show_notification = element.showNotification;
+	recipe.group = element.group;
+	recipe.category = element.category;
+	recipe.show_notification = element.showNotification;
 
 	switch (element.type) {
 		case "minecraft:crafting_shaped":
@@ -54,66 +52,31 @@ export const VoxelToRecipeDataDriven: Compiler<RecipeProps, MinecraftRecipe> = (
 		recipe.result = compileResult();
 	}
 
-	if (element.unknownFields) {
-		Object.assign(recipe, element.unknownFields);
-	}
-
-	return {
-		element: {
-			data: recipe,
-			identifier: element.identifier
-		},
-		tags: []
-	};
+	return { element: { data: recipe, identifier: element.identifier }, tags: [] };
 
 	function compileShapedCrafting() {
 		const gridSize = element.gridSize || { width: 3, height: 3 };
-
-		if (original?.pattern && original?.key) {
-			const originalPattern = Array.isArray(original.pattern) ? original.pattern : [original.pattern];
-			const canReuseOriginal = checkCanReuseOriginalPattern(originalPattern, original.key, gridSize);
-
-			if (canReuseOriginal) {
-				recipe.pattern = originalPattern;
-				recipe.key = {};
-				for (const [symbol, ingredient] of Object.entries(original.key)) {
-					if (typeof ingredient === "string" && ingredient.startsWith("#")) {
-						recipe.key[symbol] = normalizeResourceLocation(ingredient);
-					} else if (typeof ingredient === "string") {
-						recipe.key[symbol] = normalizeResourceLocation(ingredient);
-					} else {
-						recipe.key[symbol] = ingredient;
-					}
-				}
-				return;
-			}
-		}
-
-		const pattern: string[] = [];
-		const key: Record<string, any> = {};
+		const key: Record<string, string | string[]> = {};
+		const ingredientToSymbol = new Map<string, string>();
 		let symbolCounter = 65;
 
-		for (let row = 0; row < gridSize.height; row++) {
-			let patternRow = "";
-			for (let col = 0; col < gridSize.width; col++) {
-				const slotIndex = (row * 3 + col).toString();
-				const items = element.slots[slotIndex];
+		const getSymbolForIngredient = (ingredient: string | string[]): string => {
+			const normalized = JSON.stringify(ingredient);
+			if (ingredientToSymbol.has(normalized)) return ingredientToSymbol.get(normalized) as string;
+			const exist = original?.key && Object.entries(original.key).find(([, ing]) => compareIngredients(ingredient, ing))?.[0];
+			const symbol = exist || String.fromCharCode(symbolCounter++);
+			ingredientToSymbol.set(normalized, symbol);
+			key[symbol] = ingredient;
+			return symbol;
+		};
 
-				if (items && hasSlotContent(items)) {
-					let symbol = findExistingSymbol(items, key);
-					if (!symbol) {
-						symbol = String.fromCharCode(symbolCounter++);
-						// Use preserveTagFormat=true when there's no original to maintain string format
-						const shouldPreserveTagFormat = !original?.key;
-						key[symbol] = denormalizeIngredient(items, shouldPreserveTagFormat);
-					}
-					patternRow += symbol;
-				} else {
-					patternRow += " ";
-				}
-			}
-			pattern.push(patternRow);
-		}
+		const pattern = Array.from({ length: gridSize.height }, (_, row) => {
+			return Array.from({ length: gridSize.width }, (_, col) => {
+				const items = element.slots[(row * 3 + col).toString()];
+				if (!items || !hasSlotContent(items)) return " ";
+				return getSymbolForIngredient(denormalizeIngredient(items));
+			}).join("");
+		});
 
 		recipe.pattern = pattern;
 		recipe.key = key;
@@ -121,15 +84,9 @@ export const VoxelToRecipeDataDriven: Compiler<RecipeProps, MinecraftRecipe> = (
 
 	function compileShapelessCrafting() {
 		const occupiedSlots = getOccupiedSlots(element.slots);
-
-		if (original?.ingredients) {
-			recipe.ingredients = original.ingredients;
-		} else {
-			recipe.ingredients = occupiedSlots
-				.map((slot) => element.slots[slot])
-				.map((items) => denormalizeIngredient(items, true))
-				.filter((ing) => ing !== undefined);
-		}
+		recipe.ingredients = occupiedSlots
+			.map((slot) => denormalizeIngredient(element.slots[slot]))
+			.filter((ing) => ing !== undefined);
 	}
 
 	function compileCraftingTransmute() {
@@ -139,39 +96,23 @@ export const VoxelToRecipeDataDriven: Compiler<RecipeProps, MinecraftRecipe> = (
 		const inputItems = element.slots[transmuteData.inputSlot];
 		const materialItems = element.slots[transmuteData.materialSlot];
 
-		if (inputItems) {
-			recipe.input = original?.input || denormalizeIngredient(inputItems, true);
-		}
-		if (materialItems) {
-			recipe.material = original?.material || denormalizeIngredient(materialItems, true);
-		}
+		if (inputItems) recipe.input = denormalizeIngredient(inputItems);
+		if (materialItems) recipe.material = denormalizeIngredient(materialItems);
 	}
 
 	function compileSmelting() {
 		const smeltingData = element.typeSpecific as SmeltingData;
-
 		const ingredientItems = element.slots["0"];
-		if (ingredientItems) {
-			recipe.ingredient = original?.ingredient || denormalizeIngredient(ingredientItems, true);
-		}
 
-		if (smeltingData?.experience !== undefined) {
-			recipe.experience = smeltingData.experience;
-		}
-		if (smeltingData?.cookingTime !== undefined) {
-			recipe.cookingtime = smeltingData.cookingTime;
-		}
+		if (ingredientItems) recipe.ingredient = denormalizeIngredient(ingredientItems);
+		if (smeltingData?.experience !== undefined) recipe.experience = smeltingData.experience;
+		if (smeltingData?.cookingTime !== undefined) recipe.cookingtime = smeltingData.cookingTime;
 	}
 
 	function compileStonecutting() {
 		const ingredientItems = element.slots["0"];
-		if (ingredientItems) {
-			recipe.ingredient = original?.ingredient || denormalizeIngredient(ingredientItems, true);
-		}
-
-		if (element.result.count && element.result.count > 1) {
-			recipe.count = element.result.count;
-		}
+		if (ingredientItems) recipe.ingredient = denormalizeIngredient(ingredientItems);
+		if (element.result.count && element.result.count > 1) recipe.count = element.result.count;
 	}
 
 	function compileSmithingTransform() {
@@ -182,15 +123,9 @@ export const VoxelToRecipeDataDriven: Compiler<RecipeProps, MinecraftRecipe> = (
 		const baseItems = element.slots[smithingData.baseSlot];
 		const additionItems = element.slots[smithingData.additionSlot];
 
-		if (templateItems) {
-			recipe.template = original?.template || denormalizeIngredient(templateItems, true);
-		}
-		if (baseItems) {
-			recipe.base = original?.base || denormalizeIngredient(baseItems, true);
-		}
-		if (additionItems) {
-			recipe.addition = original?.addition || denormalizeIngredient(additionItems, true);
-		}
+		if (templateItems) recipe.template = denormalizeIngredient(templateItems);
+		if (baseItems) recipe.base = denormalizeIngredient(baseItems);
+		if (additionItems) recipe.addition = denormalizeIngredient(additionItems);
 	}
 
 	function compileSmithingTrim() {
@@ -201,103 +136,38 @@ export const VoxelToRecipeDataDriven: Compiler<RecipeProps, MinecraftRecipe> = (
 		const baseItems = element.slots[trimData.baseSlot];
 		const additionItems = element.slots[trimData.additionSlot];
 
-		if (templateItems) {
-			recipe.template = original?.template || denormalizeIngredient(templateItems, true);
-		}
-		if (baseItems) {
-			recipe.base = original?.base || denormalizeIngredient(baseItems, true);
-		}
-		if (additionItems) {
-			recipe.addition = original?.addition || denormalizeIngredient(additionItems, true);
-		}
-		if (trimData.pattern) {
-			recipe.pattern_trim = trimData.pattern;
-		}
+		if (templateItems) recipe.template = denormalizeIngredient(templateItems);
+		if (baseItems) recipe.base = denormalizeIngredient(baseItems);
+		if (additionItems) recipe.addition = denormalizeIngredient(additionItems);
+		if (trimData.pattern) recipe.pattern_trim = trimData.pattern;
 	}
 
 	function compileGenericRecipe() {
 		const occupiedSlots = getOccupiedSlots(element.slots);
+		if (occupiedSlots.length === 0) return;
 
-		if (occupiedSlots.length > 0) {
-			if (occupiedSlots.length === 1) {
-				const items = element.slots[occupiedSlots[0]];
-				recipe.ingredient = denormalizeIngredient(items, true);
-			} else {
-				recipe.ingredients = occupiedSlots
-					.map((slot) => element.slots[slot])
-					.map((items) => denormalizeIngredient(items, true))
-					.filter((ing) => ing !== undefined);
-			}
+		if (occupiedSlots.length === 1) {
+			recipe.ingredient = denormalizeIngredient(element.slots[occupiedSlots[0]]);
+			return;
 		}
+
+		recipe.ingredients = occupiedSlots
+			.map((slot) => denormalizeIngredient(element.slots[slot]))
+			.filter((ing) => ing !== undefined);
 	}
 
-	function compileResult(): any {
-		const result = element.result;
+	function compileResult() {
+		const { id, count, components } = element.result;
+		const originalIsObject = original?.result && typeof original.result === "object";
+		const hasExplicitCountInOriginal = originalIsObject && "count" in original.result;
+		const shouldIncludeCount = count && (count > 1 || hasExplicitCountInOriginal);
+		if (!components && !shouldIncludeCount && !originalIsObject) return id;
 
-		if (original?.result) {
-			return original.result;
-		}
-
-		if (element.type === "minecraft:stonecutting" && !result.components) {
-			return result.item;
-		}
-
-		if (result.components) {
-			return {
-				id: result.item,
-				...(result.count && result.count > 1 && { count: result.count }),
-				components: result.components,
-				...result.unknownFields
-			};
-		}
-
-		if (result.count && result.count > 1) {
-			return {
-				id: result.item,
-				count: result.count,
-				...result.unknownFields
-			};
-		}
-
-		return result.item;
+		return {
+			id,
+			...(shouldIncludeCount && { count }),
+			...(components && { components })
+		};
 	}
 
-	function checkCanReuseOriginalPattern(
-		originalPattern: string[],
-		originalKey: Record<string, any>,
-		gridSize: { width: number; height: number }
-	): boolean {
-		if (originalPattern.length !== gridSize.height) return false;
-		if (originalPattern.some((row) => row.length !== gridSize.width)) return false;
-
-		for (let row = 0; row < gridSize.height; row++) {
-			for (let col = 0; col < gridSize.width; col++) {
-				const slotIndex = (row * 3 + col).toString();
-				const items = element.slots[slotIndex];
-				const symbol = originalPattern[row][col];
-
-				if (symbol === " ") {
-					if (items && hasSlotContent(items)) return false;
-				} else {
-					if (!items || !hasSlotContent(items)) return false;
-					const expectedIngredient = originalKey[symbol];
-					const actualIngredient = denormalizeIngredient(items, true);
-					if (!compareIngredients(expectedIngredient, actualIngredient)) {
-						return false;
-					}
-				}
-			}
-		}
-
-		return true;
-	}
-
-	function findExistingSymbol(items: string[] | string, key: Record<string, any>): string | null {
-		for (const [symbol, ingredient] of Object.entries(key)) {
-			if (compareIngredients(denormalizeIngredient(items, true), ingredient)) {
-				return symbol;
-			}
-		}
-		return null;
-	}
 };

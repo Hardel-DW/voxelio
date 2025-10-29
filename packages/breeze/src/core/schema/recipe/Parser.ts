@@ -1,6 +1,5 @@
 import { normalizeResourceLocation } from "@/core/Element";
 import type { Parser, ParserParams } from "@/core/Datapack";
-import { extractUnknownFields } from "@/core/schema/utils";
 import type {
 	CraftingTransmuteData,
 	MinecraftRecipe,
@@ -11,7 +10,7 @@ import type {
 	SmithingTransformData,
 	SmithingTrimData
 } from "./types";
-import { KNOWN_RECIPE_FIELDS, normalizeIngredient, positionToSlot } from "./types";
+import { normalizeIngredient, positionToSlot } from "./types";
 
 export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe> = ({
 	element,
@@ -55,17 +54,11 @@ export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe>
 
 	let result: RecipeResult;
 	if (normalizedType === "minecraft:smithing_trim") {
-		result = {
-			item: "minecraft:air",
-			count: 1
-		};
+		result = { id: "minecraft:air", count: 1 };
 	} else if (data.result) {
 		result = parseResult(data.result, data.count);
 	} else {
-		result = {
-			item: "minecraft:air",
-			count: 1
-		};
+		result = { id: "minecraft:air", count: 1 };
 	}
 
 	return {
@@ -78,7 +71,6 @@ export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe>
 		gridSize,
 		result,
 		typeSpecific,
-		unknownFields: extractUnknownFields(data, KNOWN_RECIPE_FIELDS),
 		override: configurator
 	};
 
@@ -91,8 +83,6 @@ export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe>
 		const height = pattern.length;
 		const width = Math.max(...pattern.map((row) => row.length));
 		gridSize = { width, height };
-
-		// Always use 3x3 grid for slot calculation to match UI
 		const UIGridWidth = 3;
 
 		for (let row = 0; row < height; row++) {
@@ -109,7 +99,6 @@ export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe>
 
 	function parseShapelessCrafting() {
 		if (!data.ingredients) return;
-
 		let slotIndex = 0;
 		for (const ingredient of data.ingredients) {
 			slots[slotIndex.toString()] = normalizeIngredient(ingredient);
@@ -118,12 +107,8 @@ export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe>
 	}
 
 	function parseCraftingTransmute() {
-		if (data.input) {
-			slots["0"] = normalizeIngredient(data.input);
-		}
-		if (data.material) {
-			slots["1"] = normalizeIngredient(data.material);
-		}
+		if (data.input) slots["0"] = normalizeIngredient(data.input);
+		if (data.material) slots["1"] = normalizeIngredient(data.material);
 
 		typeSpecific = {
 			inputSlot: "0",
@@ -132,9 +117,7 @@ export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe>
 	}
 
 	function parseSmelting() {
-		if (data.ingredient) {
-			slots["0"] = normalizeIngredient(data.ingredient);
-		}
+		if (data.ingredient) slots["0"] = normalizeIngredient(data.ingredient);
 
 		typeSpecific = {
 			experience: data.experience,
@@ -143,21 +126,13 @@ export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe>
 	}
 
 	function parseStonecutting() {
-		if (data.ingredient) {
-			slots["0"] = normalizeIngredient(data.ingredient);
-		}
+		if (data.ingredient) slots["0"] = normalizeIngredient(data.ingredient);
 	}
 
 	function parseSmithingTransform() {
-		if (data.template) {
-			slots["0"] = normalizeIngredient(data.template);
-		}
-		if (data.base) {
-			slots["1"] = normalizeIngredient(data.base);
-		}
-		if (data.addition) {
-			slots["2"] = normalizeIngredient(data.addition);
-		}
+		if (data.template) slots["0"] = normalizeIngredient(data.template);
+		if (data.base) slots["1"] = normalizeIngredient(data.base);
+		if (data.addition) slots["2"] = normalizeIngredient(data.addition);
 
 		typeSpecific = {
 			templateSlot: "0",
@@ -167,15 +142,9 @@ export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe>
 	}
 
 	function parseSmithingTrim() {
-		if (data.template) {
-			slots["0"] = normalizeIngredient(data.template);
-		}
-		if (data.base) {
-			slots["1"] = normalizeIngredient(data.base);
-		}
-		if (data.addition) {
-			slots["2"] = normalizeIngredient(data.addition);
-		}
+		if (data.template) slots["0"] = normalizeIngredient(data.template);
+		if (data.base) slots["1"] = normalizeIngredient(data.base);
+		if (data.addition) slots["2"] = normalizeIngredient(data.addition);
 
 		typeSpecific = {
 			templateSlot: "0",
@@ -203,24 +172,15 @@ export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe>
 	function parseResult(result: any, legacyCount?: number): RecipeResult {
 		if (typeof result === "string") {
 			return {
-				item: normalizeResourceLocation(result),
+				id: normalizeResourceLocation(result),
 				count: legacyCount || 1
 			};
 		}
 
-		if (result?.item) {
-			return {
-				item: normalizeResourceLocation(result.item),
-				count: result.count || legacyCount || 1,
-				components: result.components
-			};
-		}
+		const id = result?.id || result?.item || "minecraft:air";
+		const count = result?.count || legacyCount || 1;
+		const components = result?.components;
 
-		return {
-			item: normalizeResourceLocation(result?.id || "minecraft:air"),
-			count: result?.count || legacyCount || 1,
-			components: result?.components,
-			unknownFields: result ? extractUnknownFields(result, new Set(["item", "id", "count", "components"])) : undefined
-		};
+		return { id: normalizeResourceLocation(id), count, ...(components && { components }) };
 	}
 };

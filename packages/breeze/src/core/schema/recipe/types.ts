@@ -10,14 +10,12 @@ export interface RecipeProps extends VoxelElement {
 	disabled?: boolean;
 	result: RecipeResult;
 	typeSpecific?: RecipeTypeSpecific;
-	unknownFields?: Record<string, any>;
 }
 
 export interface RecipeResult {
-	item: string;
+	id: string;
 	count?: number;
 	components?: any;
-	unknownFields?: Record<string, any>;
 }
 
 export type RecipeTypeSpecific = SmeltingData | SmithingTransformData | SmithingTrimData | CraftingTransmuteData;
@@ -119,40 +117,30 @@ export const KNOWN_RECIPE_FIELDS = new Set([
 
 export function normalizeIngredient(ingredient: any): string[] | string {
 	if (!ingredient) return [];
-	if (ingredient.tag) return normalizeResourceLocation(ingredient.tag);
+	if (ingredient.tag) return normalizeResourceLocation(`#${ingredient.tag}`);
 
-	if (typeof ingredient === "string" && ingredient.startsWith("#")) {
-		return normalizeResourceLocation(ingredient);
+	if (typeof ingredient === "string") {
+		return ingredient.startsWith("#")
+			? normalizeResourceLocation(ingredient)
+			: [normalizeResourceLocation(ingredient)];
 	}
 
-	if (Array.isArray(ingredient) && ingredient.length === 1 && ingredient[0].startsWith?.("#")) {
-		return normalizeResourceLocation(ingredient[0]);
+	if (!Array.isArray(ingredient)) {
+		return ingredient.item ? [normalizeResourceLocation(ingredient.item)] : [];
 	}
 
-	const items = Array.isArray(ingredient) ? ingredient : [ingredient];
-	return items.map((item) => normalizeResourceLocation(typeof item === "string" ? item : item.item));
+	if (ingredient.length === 1) {
+		const first = ingredient[0];
+		if (typeof first === "string" && first.startsWith("#")) return normalizeResourceLocation(first);
+		if (first?.tag) return normalizeResourceLocation(`#${first.tag}`);
+	}
+
+	return ingredient.map((item) => normalizeResourceLocation(typeof item === "string" ? item : item.item));
 }
 
-export function denormalizeIngredient(items: string[] | string, preserveTagFormat = false): any {
-	if (!items) return undefined;
-
-	if (typeof items === "string") {
-		return preserveTagFormat ? items : { tag: items.slice(1) };
-	}
-
-	if (items.length === 1) {
-		const item = items[0];
-		if (item.startsWith("#")) {
-			return preserveTagFormat ? item : { tag: item.slice(1) };
-		}
-		return item;
-	}
-
-	if (preserveTagFormat) {
-		return items;
-	}
-
-	return items.map((item) => ({ item }));
+export function denormalizeIngredient(items: string[] | string): string | string[] {
+	if (typeof items === "string") return items;
+	return items.length === 1 ? items[0] : items;
 }
 
 /**

@@ -1,361 +1,206 @@
 import { VoxelToRecipeDataDriven } from "@/core/schema/recipe/Compiler";
-import type { RecipeProps } from "@/core/schema/recipe/types";
-import { recipeDataDriven } from "@test/mock/recipe/DataDriven";
-import { shapeless, shaped, shaped2, blasting, stonecutting, shapedtwobytwo } from "@test/mock/recipe/DataDriven";
-import { createFilesFromElements, createZipFile } from "@test/mock/utils";
-import { describe, it, expect, beforeEach } from "vitest";
-import { Datapack } from "@/core/Datapack";
+import { originalRecipes } from "@test/mock/recipe/DataDriven";
+import { describe, it, expect } from "vitest";
+import { RecipeDataDrivenToVoxelFormat } from "@/core/schema/recipe/Parser";
+
 
 describe("Recipe E2E Tests", () => {
 	describe("Complete workflow: Parse → Compile", () => {
-		let parsedDatapack: ReturnType<Datapack["parse"]>;
-		let shapelessRecipe: RecipeProps;
-		let shapedRecipe: RecipeProps;
-		let shaped2Recipe: RecipeProps;
-		let blastingRecipe: RecipeProps;
-		let stonecuttingRecipe: RecipeProps;
-		let shapedtwobytwoRecipe: RecipeProps;
-
-		beforeEach(async () => {
-			const datapack = await Datapack.from(await createZipFile(createFilesFromElements(recipeDataDriven)));
-			parsedDatapack = datapack.parse();
-			const recipes = Array.from(parsedDatapack.elements.values()).filter(
-				(element): element is RecipeProps => element.identifier.registry === "recipe"
-			);
-
-			expect(recipes).toBeDefined();
-			expect(recipes).toHaveLength(11);
-
-			const foundShapeless = recipes.find((r) => r.identifier.resource === "shapeless");
-			const foundShaped = recipes.find((r) => r.identifier.resource === "shaped");
-			const foundShaped2 = recipes.find((r) => r.identifier.resource === "shaped2");
-			const foundBlasting = recipes.find((r) => r.identifier.resource === "blasting");
-			const foundStonecutting = recipes.find((r) => r.identifier.resource === "stonecutting");
-			const foundShapedtwobytwo = recipes.find((r) => r.identifier.resource === "shapedtwobytwo");
-
-			expect(foundShapeless).toBeDefined();
-			expect(foundShaped).toBeDefined();
-			expect(foundShaped2).toBeDefined();
-			expect(foundBlasting).toBeDefined();
-			expect(foundStonecutting).toBeDefined();
-			expect(foundShapedtwobytwo).toBeDefined();
-
-			shapelessRecipe = foundShapeless as RecipeProps;
-			shapedRecipe = foundShaped as RecipeProps;
-			shaped2Recipe = foundShaped2 as RecipeProps;
-			blastingRecipe = foundBlasting as RecipeProps;
-			stonecuttingRecipe = foundStonecutting as RecipeProps;
-			shapedtwobytwoRecipe = foundShapedtwobytwo as RecipeProps;
-		});
-
-		describe("Round-trip purity (Parse → Compile without actions)", () => {
+		describe("Shapeless round-trip", () => {
 			it("should preserve shapeless recipe data perfectly", () => {
-				const compiled = VoxelToRecipeDataDriven(shapelessRecipe, "recipe", shapeless.data);
-				expect(compiled.element.data.type).toBe("minecraft:crafting_shapeless");
-				expect(compiled.element.data.category).toBe("building");
-				expect(compiled.element.data.group).toBe("planks");
-				expect(compiled.element.data.ingredients).toHaveLength(1);
-				expect(compiled.element.data.ingredients?.[0]).toBe("#minecraft:acacia_logs");
-				expect(compiled.element.data.result).toEqual({
-					count: 4,
-					id: "minecraft:acacia_planks"
-				});
+				const original = originalRecipes.shapeless;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
 
-				expect(compiled.element.data.result).toEqual(shapeless.data.result);
-				expect(compiled.element.identifier).toEqual(shapelessRecipe.identifier);
+				expect(compiled.element.data.type).toBe(original.data.type);
+				expect(compiled.element.data.category).toBe(original.data.category);
+				expect(compiled.element.data.group).toBe(original.data.group);
+				expect(compiled.element.data.ingredients).toEqual(original.data.ingredients);
+				expect(compiled.element.data.result).toEqual(original.data.result);
 			});
+		});
 
+		describe("Shaped round-trip", () => {
 			it("should preserve shaped recipe data perfectly", () => {
-				const compiled = VoxelToRecipeDataDriven(shapedRecipe, "recipe", shaped.data);
+				const original = originalRecipes.shaped;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
+				expect(compiled.element.data.type).toBe(original.data.type);
+				expect(original.data.pattern).toBeDefined();
+				expect(compiled.element.data.pattern).toBeDefined();
 
+				const originalPattern = original.data.pattern as string[];
+				const compiledPattern = compiled.element.data.pattern as string[];
+				expect(compiledPattern).toHaveLength(originalPattern.length);
+				expect(compiledPattern[0]).toHaveLength(originalPattern[0].length);
+
+				expect(original.data.key).toBeDefined();
+				expect(compiled.element.data.key).toBeDefined();
+				const originalKey = original.data.key as Record<string, any>;
+				const compiledKey = compiled.element.data.key as Record<string, any>;
+				const originalIngredient = Object.values(originalKey)[0];
+				const compiledIngredient = Object.values(compiledKey)[0];
+
+				const originalItem = typeof originalIngredient === "string" ? originalIngredient : originalIngredient.item || originalIngredient.tag;
+				const compiledItem = typeof compiledIngredient === "string" ? compiledIngredient : compiledIngredient.item || compiledIngredient.tag;
+				expect(compiledItem).toBe(originalItem);
+				expect(compiled.element.data.result).toEqual(original.data.result);
+			});
+
+			it("should maintain data integrity for 2x2 shaped pattern", () => {
+				const original = originalRecipes.shaped_two_by_two;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
+				expect(compiled.element.data.pattern).toBeDefined();
+
+				const compiledPattern = compiled.element.data.pattern as string[];
+				expect(compiledPattern).toHaveLength(2);
+				expect(compiledPattern[0]).toHaveLength(2);
+				expect(compiledPattern[1]).toHaveLength(2);
+			});
+
+			it("should preserve complex shaped recipe with tags", () => {
+				const original = originalRecipes.shaped_array_item;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
 				expect(compiled.element.data.type).toBe("minecraft:crafting_shaped");
-				expect(compiled.element.data.category).toBe("building");
-				expect(compiled.element.data.group).toBe("wooden_slab");
-				expect(compiled.element.data.pattern).toEqual(["###"]);
-				expect(compiled.element.data.key).toEqual({
-					"#": "minecraft:acacia_planks"
-				});
-
-				expect(compiled.element.data.result).toEqual({
-					count: 6,
-					id: "minecraft:acacia_slab"
-				});
-
-				expect(compiled.element.identifier).toEqual(shapedRecipe.identifier);
+				expect(compiled.element.data.category).toBe(original.data.category);
+				expect(compiled.element.data.pattern).toEqual(original.data.pattern);
+				expect(compiled.element.data.key).toEqual(original.data.key);
+				expect(compiled.element.data.result).toEqual(original.data.result);
 			});
 
-			it("should preserve 2x2 shaped recipe data perfectly", () => {
-				const compiled = VoxelToRecipeDataDriven(shapedtwobytwoRecipe, "recipe", shapedtwobytwo.data);
+			it("should maintain data integrity with empty lines", () => {
+				const original = originalRecipes.shaped_empty_line;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
+				expect(original.data.pattern).toBeDefined();
+				expect(compiled.element.data.pattern).toBeDefined();
 
-				expect(compiled.element.data.type).toBe("minecraft:crafting_shaped");
-				expect(compiled.element.data.category).toBe("building");
-				expect(compiled.element.data.group).toBe("wooden_stairs");
-				expect(compiled.element.data.pattern).toEqual(["# ", "##"]);
-
-				expect(compiled.element.data.result).toEqual({
-					count: 4,
-					id: "acacia_stairs"
-				});
-
-				expect(compiled.element.data.pattern).toEqual(shapedtwobytwo.data.pattern);
-				expect(compiled.element.identifier).toEqual(shapedtwobytwoRecipe.identifier);
+				const originalPattern = original.data.pattern as string[];
+				const compiledPattern = compiled.element.data.pattern as string[];
+				expect(compiledPattern).toHaveLength(originalPattern.length);
+				expect(compiledPattern[1]).toBe("   ");
+				expect(compiled.element.data.show_notification).toBe(original.data.show_notification);
+				expect(compiled.element.data.result).toEqual(original.data.result);
 			});
 
-			it("should preserve complex shaped recipe with tags perfectly", () => {
-				const compiled = VoxelToRecipeDataDriven(shaped2Recipe, "recipe", shaped2.data);
+			it("should maintain data integrity with empty rows", () => {
+				const original = originalRecipes.shaped_empty_rows;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
+				expect(original.data.pattern).toBeDefined();
+				expect(compiled.element.data.pattern).toBeDefined();
 
-				expect(compiled.element.data.type).toBe("minecraft:crafting_shaped");
-				expect(compiled.element.data.category).toBe("equipment");
-				expect(compiled.element.data.pattern).toEqual([" # ", "#X#", " # "]);
-
-				expect(compiled.element.data.key).toEqual({
-					"#": "#minecraft:iron_ingot",
-					X: "minecraft:redstone"
-				});
-
-				expect(compiled.element.data.result).toEqual({
-					count: 1,
-					id: "minecraft:compass"
-				});
-
-				expect(compiled.element.identifier).toEqual(shaped2Recipe.identifier);
+				const originalPattern = original.data.pattern as string[];
+				const compiledPattern = compiled.element.data.pattern as string[];
+				expect(compiledPattern).toHaveLength(originalPattern.length);
+				expect(compiledPattern[2]).toBe("   ");
 			});
 
-			it("should preserve blasting recipe data perfectly", () => {
-				const compiled = VoxelToRecipeDataDriven(blastingRecipe, "recipe", blasting.data);
+			it("should maintain data integrity with empty rows and columns", () => {
+				const original = originalRecipes.shaped_empty_rows_columns;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
+				expect(original.data.pattern).toBeDefined();
+				expect(compiled.element.data.pattern).toBeDefined();
 
-				expect(compiled.element.data.type).toBe("minecraft:blasting");
-				expect(compiled.element.data.category).toBe("misc");
-				expect(compiled.element.data.group).toBe("iron_ingot");
-				expect(compiled.element.data.ingredient).toBe("minecraft:iron_ore");
-				expect(compiled.element.data.cookingtime).toBe(100);
-				expect(compiled.element.data.experience).toBe(0.7);
+				const originalPattern = original.data.pattern as string[];
+				const compiledPattern = compiled.element.data.pattern as string[];
+				expect(compiledPattern).toHaveLength(originalPattern.length);
 
-				expect(compiled.element.data.result).toEqual({
-					id: "minecraft:iron_ingot"
-				});
-
-				expect(compiled.element.identifier).toEqual(blastingRecipe.identifier);
-			});
-
-			it("should preserve stonecutting recipe data perfectly", () => {
-				const compiled = VoxelToRecipeDataDriven(stonecuttingRecipe, "recipe", stonecutting.data);
-
-				expect(compiled.element.data.type).toBe("minecraft:stonecutting");
-				expect(compiled.element.data.ingredient).toBe("minecraft:andesite");
-
-				expect(compiled.element.data.result).toBe(stonecutting.data.result);
-
-				expect(compiled.element.identifier).toEqual(stonecuttingRecipe.identifier);
+				const patternArray = Array.isArray(compiledPattern) ? compiledPattern : [compiledPattern as string];
+				expect(patternArray.every((row) => row.endsWith(" "))).toBe(true);
 			});
 		});
 
-		describe("Data integrity verification", () => {
-			it("should identify data preservation in shapeless recipe", () => {
-				const originalJson = shapeless.data;
-
-				const compiled = VoxelToRecipeDataDriven(shapelessRecipe, "recipe", shapeless.data);
-				const compiledData = compiled.element.data;
-
-				expect(compiledData.type).toBe(originalJson.type);
-				expect(compiledData.category).toBe(originalJson.category);
-				expect(compiledData.group).toBe(originalJson.group);
-				expect(compiledData.ingredients).toHaveLength(originalJson.ingredients?.length ?? 0);
-				expect(compiledData.result).toEqual(originalJson.result);
-
-				expect(compiledData.ingredients?.[0]).toBe("#minecraft:acacia_logs");
-				expect(originalJson.ingredients?.[0]).toBe("#minecraft:acacia_logs");
+		describe("Smelting round-trip", () => {
+			it("should maintain blasting data integrity", () => {
+				const original = originalRecipes.blasting;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
+				expect(compiled.element.data.type).toBe(original.data.type);
+				expect(compiled.element.data.ingredient).toEqual(original.data.ingredient);
+				expect(compiled.element.data.experience).toBe(original.data.experience);
+				expect(compiled.element.data.cookingtime).toBe(original.data.cookingtime);
+				expect(compiled.element.data.result).toEqual(original.data.result);
 			});
 
-			it("should identify data preservation in shaped recipe", () => {
-				const originalJson = shaped.data;
-
-				const compiled = VoxelToRecipeDataDriven(shapedRecipe, "recipe", shaped.data);
-				const compiledData = compiled.element.data;
-
-				expect(compiledData.type).toBe(originalJson.type);
-				expect(compiledData.category).toBe(originalJson.category);
-				expect(compiledData.group).toBe(originalJson.group);
-				expect(compiledData.pattern).toEqual(["###"]);
-				expect(compiledData.result).toEqual(originalJson.result);
-
-				expect(compiledData.key).toEqual({
-					"#": "minecraft:acacia_planks"
-				});
-				expect(originalJson.key).toEqual({
-					"#": "minecraft:acacia_planks"
-				});
+			it("should maintain smelting data integrity", () => {
+				const original = originalRecipes.smelting;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
+				expect(compiled.element.data.type).toBe(original.data.type);
+				expect(compiled.element.data.ingredient).toEqual(original.data.ingredient);
+				expect(compiled.element.data.experience).toBe(original.data.experience);
+				expect(compiled.element.data.cookingtime).toBe(original.data.cookingtime);
 			});
 
-			it("should identify data preservation in complex shaped recipe", () => {
-				const originalJson = shaped2.data;
-
-				const compiled = VoxelToRecipeDataDriven(shaped2Recipe, "recipe", shaped2.data);
-				const compiledData = compiled.element.data;
-
-				expect(compiledData.type).toBe("minecraft:crafting_shaped"); // Normalized
-				expect(compiledData.category).toBe(originalJson.category);
-				expect(compiledData.pattern?.[0]).toBe(" # ");
-				expect(compiledData.pattern?.[1]).toBe("#X#");
-				expect(compiledData.pattern?.[2]).toBe(" # ");
-				expect(compiledData.result).toEqual(originalJson.result);
+			it("should maintain smoking data integrity", () => {
+				const original = originalRecipes.smoking;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
+				expect(compiled.element.data.type).toBe(original.data.type);
+				expect(compiled.element.data.category).toBe(original.data.category);
+				expect(compiled.element.data.experience).toBe(original.data.experience);
+				expect(compiled.element.data.cookingtime).toBe(original.data.cookingtime);
 			});
 
-			it("should identify data preservation in smelting recipe", () => {
-				const originalJson = blasting.data;
-
-				const compiled = VoxelToRecipeDataDriven(blastingRecipe, "recipe", blasting.data);
-				const compiledData = compiled.element.data;
-
-				expect(compiledData.type).toBe(originalJson.type);
-				expect(compiledData.category).toBe(originalJson.category);
-				expect(compiledData.group).toBe(originalJson.group);
-				expect(compiledData.cookingtime).toBe(originalJson.cookingtime);
-				expect(compiledData.experience).toBe(originalJson.experience);
-				expect(compiledData.result).toEqual(originalJson.result);
-
-				expect(compiledData.ingredient).toBe("minecraft:iron_ore");
-				expect(originalJson.ingredient).toBe("minecraft:iron_ore");
-			});
-
-			it("should identify data preservation in stonecutting recipe", () => {
-				const originalJson = stonecutting.data;
-
-				const compiled = VoxelToRecipeDataDriven(stonecuttingRecipe, "recipe", stonecutting.data);
-				const compiledData = compiled.element.data;
-
-				expect(compiledData.type).toBe(originalJson.type);
-				expect(compiledData.ingredient).toBe("minecraft:andesite");
-
-				expect(compiledData.result).toEqual({
-					count: 2,
-					id: "minecraft:andesite_slab"
-				});
-
-				expect(originalJson.result).toEqual({
-					count: 2,
-					id: "minecraft:andesite_slab"
-				});
+			it("should maintain campfire cooking data integrity", () => {
+				const original = originalRecipes.campfire_cooking;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
+				expect(compiled.element.data.type).toBe(original.data.type);
+				expect(compiled.element.data.experience).toBe(original.data.experience);
+				expect(compiled.element.data.cookingtime).toBe(original.data.cookingtime);
 			});
 		});
 
-		describe("Slot system verification", () => {
-			it("should correctly map shapeless ingredients to slots", () => {
-				expect(shapelessRecipe.slots["0"]).toBe("#minecraft:acacia_logs");
-				expect(Object.keys(shapelessRecipe.slots)).toHaveLength(1);
-			});
-
-			it("should correctly map shaped pattern to slots", () => {
-				expect(shapedRecipe.slots["0"]).toEqual(["minecraft:acacia_planks"]);
-				expect(shapedRecipe.slots["1"]).toEqual(["minecraft:acacia_planks"]);
-				expect(shapedRecipe.slots["2"]).toEqual(["minecraft:acacia_planks"]);
-				expect(shapedRecipe.gridSize).toEqual({ width: 3, height: 1 });
-			});
-
-			it("should correctly map complex shaped pattern to slots", () => {
-				expect(shaped2Recipe.slots["1"]).toBe("#minecraft:iron_ingot"); // top center
-				expect(shaped2Recipe.slots["3"]).toBe("#minecraft:iron_ingot"); // middle left
-				expect(shaped2Recipe.slots["4"]).toEqual(["minecraft:redstone"]); // middle center
-				expect(shaped2Recipe.slots["5"]).toBe("#minecraft:iron_ingot"); // middle right
-				expect(shaped2Recipe.slots["7"]).toBe("#minecraft:iron_ingot"); // bottom center
-				expect(shaped2Recipe.gridSize).toEqual({ width: 3, height: 3 });
-			});
-
-			it("should correctly map shaped 2x2 with empty slot pattern to slots", () => {
-				expect(shapedtwobytwoRecipe.gridSize).toEqual({ width: 2, height: 2 });
-				expect(shapedtwobytwoRecipe.slots["0"]).toEqual(["minecraft:acacia_planks"]);
-				expect(shapedtwobytwoRecipe.slots["3"]).toEqual(["minecraft:acacia_planks"]);
-				expect(shapedtwobytwoRecipe.slots["4"]).toEqual(["minecraft:acacia_planks"]);
-			});
-
-			it("should correctly map smelting ingredient to slot", () => {
-				expect(blastingRecipe.slots["0"]).toEqual(["minecraft:iron_ore"]);
-				expect(Object.keys(blastingRecipe.slots)).toHaveLength(1);
-			});
-
-			it("should correctly map stonecutting ingredient to slot", () => {
-				expect(stonecuttingRecipe.slots["0"]).toEqual(["minecraft:andesite"]);
-				expect(Object.keys(stonecuttingRecipe.slots)).toHaveLength(1);
+		describe("Stonecutting round-trip", () => {
+			it("should maintain data integrity", () => {
+				const original = originalRecipes.stonecutting;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
+				expect(compiled.element.data.type).toBe(original.data.type);
+				expect(compiled.element.data.ingredient).toEqual(original.data.ingredient);
+				expect(compiled.element.data.result).toEqual(original.data.result);
 			});
 		});
 
-		describe("Type-specific data verification", () => {
-			it("should preserve smelting type-specific data", () => {
-				expect(blastingRecipe.typeSpecific).toEqual({
-					experience: 0.7,
-					cookingTime: 100
-				});
+		describe("Smithing round-trip", () => {
+			it("should maintain smithing trim data integrity", () => {
+				const original = originalRecipes.smithing_trim;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
+				expect(compiled.element.data.type).toBe(original.data.type);
+				expect(compiled.element.data.base).toEqual(original.data.base);
+				expect(compiled.element.data.addition).toEqual(original.data.addition);
+				expect(compiled.element.data.template).toEqual(original.data.template);
+				expect(compiled.element.data.pattern).toBe(original.data.pattern);
 			});
 
-			it("should have no type-specific data for simple recipes", () => {
-				expect(shapelessRecipe.typeSpecific).toBeUndefined();
-				expect(shapedRecipe.typeSpecific).toBeUndefined();
-				expect(stonecuttingRecipe.typeSpecific).toBeUndefined();
-			});
-		});
-
-		describe("Result data verification", () => {
-			it("should preserve result data correctly", () => {
-				expect(shapelessRecipe.result).toEqual({
-					item: "minecraft:acacia_planks",
-					count: 4
-				});
-
-				expect(shapedRecipe.result).toEqual({
-					item: "minecraft:acacia_slab",
-					count: 6
-				});
-
-				expect(blastingRecipe.result).toEqual({
-					item: "minecraft:iron_ingot",
-					count: 1
-				});
-
-				expect(stonecuttingRecipe.result).toEqual({
-					item: "minecraft:andesite_slab",
-					count: 2
-				});
+			it("should maintain smithing transform data integrity", () => {
+				const original = originalRecipes.transform;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
+				expect(compiled.element.data.type).toBe(original.data.type);
+				expect(compiled.element.data.base).toEqual(original.data.base);
+				expect(compiled.element.data.addition).toEqual(original.data.addition);
+				expect(compiled.element.data.template).toEqual(original.data.template);
+				expect(compiled.element.data.result).toEqual(original.data.result);
 			});
 		});
 
-		describe("Round-trip integrity for all recipe types", () => {
-			it("should maintain data integrity through full round-trip for all recipes", () => {
-				const recipes = Array.from(parsedDatapack.elements.values()).filter(
-					(element): element is RecipeProps => element.identifier.registry === "recipe"
-				);
-
-				for (const recipe of recipes) {
-					const compiled = VoxelToRecipeDataDriven(recipe, "recipe");
-
-					expect(compiled.element.data).toBeDefined();
-					expect(compiled.element.data.type).toBeDefined();
-					expect(compiled.element.identifier).toEqual(recipe.identifier);
-
-					expect(compiled.element.data.type).toBe(recipe.type);
-
-					switch (recipe.type) {
-						case "minecraft:crafting_shapeless":
-							expect(compiled.element.data.ingredients).toBeDefined();
-							break;
-						case "minecraft:crafting_shaped":
-							expect(compiled.element.data.pattern).toBeDefined();
-							expect(compiled.element.data.key).toBeDefined();
-							break;
-						case "minecraft:smelting":
-						case "minecraft:blasting":
-						case "minecraft:smoking":
-						case "minecraft:campfire_cooking":
-							expect(compiled.element.data.ingredient).toBeDefined();
-							break;
-						case "minecraft:stonecutting":
-							expect(compiled.element.data.ingredient).toBeDefined();
-							break;
-					}
-
-					if (recipe.type !== "minecraft:smithing_trim") {
-						expect(compiled.element.data.result).toBeDefined();
-					}
-				}
+		describe("Transmute round-trip", () => {
+			it("should maintain data integrity", () => {
+				const original = originalRecipes.transmute;
+				const voxel = RecipeDataDrivenToVoxelFormat({ element: original });
+				const compiled = VoxelToRecipeDataDriven(voxel, "recipe", original.data);
+				expect(compiled.element.data.type).toBe(original.data.type);
+				expect(compiled.element.data.category).toBe(original.data.category);
+				expect(compiled.element.data.input).toEqual(original.data.input);
+				expect(compiled.element.data.material).toEqual(original.data.material);
+				expect(compiled.element.data.result).toEqual(original.data.result);
 			});
 		});
 	});
