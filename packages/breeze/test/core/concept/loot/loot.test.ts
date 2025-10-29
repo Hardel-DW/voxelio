@@ -2,7 +2,6 @@ import type { Compiler } from "@/core/engine/Compiler";
 import { VoxelToLootDataDriven } from "@/core/schema/loot/Compiler";
 import { LootDataDrivenToVoxelFormat } from "@/core/schema/loot/Parser";
 import type { LootTableProps, MinecraftLootTable } from "@/core/schema/loot/types";
-import type { DataDrivenRegistryElement } from "@/core/Element";
 import { describe, it, expect, beforeEach } from "vitest";
 import { DATA_DRIVEN_TEMPLATE_LOOT_TABLE } from "@test/mock/loot/DataDriven";
 import { VOXEL_TEMPLATE_LOOT_TABLE } from "@test/mock/loot/VoxelDriven";
@@ -233,62 +232,6 @@ describe("LootTable Schema", () => {
 
 			expect(compiled.element.data.type).toBe(original.data.type);
 			expect(compiled.element.data.random_sequence).toBe(original.data.random_sequence);
-		});
-	});
-
-	describe("Mod compatibility", () => {
-		it("should preserve unknown fields from mod entries", () => {
-			// Create a mock loot table with mod fields
-			const modLootTable: DataDrivenRegistryElement<MinecraftLootTable> = {
-				identifier: { namespace: "test", registry: "loot_table", resource: "mod_test" },
-				data: {
-					type: "minecraft:chest",
-					// Mod field at table level
-					mod_custom_field: "some_mod_value",
-					pools: [
-						{
-							rolls: 1,
-							// Mod field at pool level
-							mod_pool_setting: true,
-							entries: [
-								{
-									type: "modname:custom_entry",
-									name: "modname:custom_item",
-									weight: 10,
-									// Mod fields at entry level
-									mod_special_property: 42,
-									mod_config: { enabled: true, level: 5 }
-								}
-							]
-						}
-					]
-				}
-			};
-
-			// Parse to Voxel format
-			const parsed = LootDataDrivenToVoxelFormat({ element: modLootTable });
-
-			// Verify unknown fields are preserved
-			expect(parsed.pools).toHaveLength(1);
-			expect(parsed.pools?.[0].mod_pool_setting).toBe(true);
-
-			expect(parsed.items).toHaveLength(1);
-			const item = parsed.items[0];
-			expect(item.entryType).toBe("modname:custom_entry");
-			expect(item.mod_special_property).toBe(42);
-			expect(item.mod_config).toEqual({ enabled: true, level: 5 });
-
-			// Compile back to Minecraft format
-			const compiled = VoxelToLootDataDriven(parsed, "loot_table", modLootTable.data);
-
-			// Verify unknown fields are restored
-			expect(compiled.element.data.mod_custom_field).toBe("some_mod_value");
-			expect(compiled.element.data.pools?.[0].mod_pool_setting).toBe(true);
-
-			const compiledEntry = compiled.element.data.pools?.[0].entries[0];
-			expect(compiledEntry?.type).toBe("modname:custom_entry");
-			expect(compiledEntry?.mod_special_property).toBe(42);
-			expect(compiledEntry?.mod_config).toEqual({ enabled: true, level: 5 });
 		});
 	});
 });

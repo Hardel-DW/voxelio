@@ -30,6 +30,7 @@ export interface LootItem {
 	expand?: boolean;
 	poolIndex: number;
 	entryIndex: number;
+	[key: string]: any;
 }
 
 /**
@@ -45,6 +46,7 @@ export interface LootGroup {
 	functions?: any[];
 	poolIndex: number;
 	entryIndex: number;
+	[key: string]: any;
 }
 
 export interface PoolData {
@@ -53,6 +55,7 @@ export interface PoolData {
 	bonus_rolls?: any;
 	functions?: any[];
 	conditions?: any[];
+	[key: string]: any;
 }
 
 export interface MinecraftLootTable extends DataDrivenElement {
@@ -60,6 +63,7 @@ export interface MinecraftLootTable extends DataDrivenElement {
 	pools?: MinecraftLootPool[];
 	functions?: any[];
 	random_sequence?: string;
+	[key: string]: any;
 }
 
 export interface MinecraftLootPool {
@@ -68,6 +72,7 @@ export interface MinecraftLootPool {
 	entries: MinecraftLootEntry[];
 	functions?: any[];
 	conditions?: any[];
+	[key: string]: any;
 }
 
 export interface MinecraftLootEntry {
@@ -80,6 +85,7 @@ export interface MinecraftLootEntry {
 	conditions?: any[];
 	children?: MinecraftLootEntry[];
 	expand?: boolean;
+	[key: string]: any;
 }
 
 export type EntryType =
