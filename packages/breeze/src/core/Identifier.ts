@@ -20,8 +20,6 @@ export class Identifier {
 
 	static of(identifier: string, registry: string) {
 		const cleanId = identifier.startsWith("#") ? identifier.slice(1) : identifier;
-
-		// Auto-prefix with "minecraft" if no namespace is provided
 		if (!cleanId.includes(":")) {
 			return new Identifier({ namespace: "minecraft", registry, resource: cleanId });
 		}
@@ -48,9 +46,7 @@ export class Identifier {
 	}
 
 	toString() {
-		if (this.registry?.startsWith("tags/")) {
-			return `#${this.namespace}:${this.resource}`;
-		}
+		if (this.registry?.startsWith("tags/")) return `#${this.namespace}:${this.resource}`;
 		return `${this.namespace}:${this.resource}`;
 	}
 
@@ -153,6 +149,19 @@ export class Identifier {
 	 */
 	static normalize(identifier: string, registry: string): string {
 		return Identifier.of(identifier, registry).toString();
+	}
+
+	/**
+	 * Qualifies a resource location string to include namespace
+	 * @param id - The resource location string
+	 * @returns Qualified identifier string
+	 * @example
+	 * Identifier.qualify("stick"); // "minecraft:stick"
+	 * Identifier.qualify("#logs"); // "#minecraft:logs"
+	 * Identifier.qualify("mod:item"); // "mod:item"
+	 */
+	static qualify(id: string): string {
+		return id.includes(":") ? id : id.startsWith("#") ? `#minecraft:${id.slice(1)}` : `minecraft:${id}`;
 	}
 
 	static isIdentifier(value: any): value is IdentifierObject {

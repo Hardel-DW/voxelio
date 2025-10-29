@@ -1,4 +1,4 @@
-import { normalizeResourceLocation } from "@/core/Element";
+import { Identifier } from "@/core/Identifier";
 import type { Parser, ParserParams } from "@/core/Datapack";
 import type {
 	CraftingTransmuteData,
@@ -21,7 +21,7 @@ export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe>
 	let gridSize: { width: number; height: number } | undefined;
 	let typeSpecific: RecipeTypeSpecific | undefined;
 
-	const normalizedType = normalizeResourceLocation(data.type);
+	const normalizedType = Identifier.qualify(data.type);
 	switch (normalizedType) {
 		case "minecraft:crafting_shaped":
 			parseShapedCrafting();
@@ -172,7 +172,7 @@ export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe>
 	function parseResult(result: any, legacyCount?: number): RecipeResult {
 		if (typeof result === "string") {
 			return {
-				id: normalizeResourceLocation(result),
+				id: Identifier.qualify(result),
 				count: legacyCount || 1
 			};
 		}
@@ -181,6 +181,6 @@ export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe>
 		const count = result?.count || legacyCount || 1;
 		const components = result?.components;
 
-		return { id: normalizeResourceLocation(id), count, ...(components && { components }) };
+		return { id: Identifier.qualify(id), count, ...(components && { components }) };
 	}
 };

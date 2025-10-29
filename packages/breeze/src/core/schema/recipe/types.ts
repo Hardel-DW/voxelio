@@ -1,5 +1,5 @@
 import type { DataDrivenElement, VoxelElement } from "@/core/Element";
-import { normalizeResourceLocation } from "@/core/Element";
+import { Identifier } from "@/core/Identifier";
 export interface RecipeProps extends VoxelElement {
 	type: RecipeType;
 	group?: string;
@@ -117,25 +117,25 @@ export const KNOWN_RECIPE_FIELDS = new Set([
 
 export function normalizeIngredient(ingredient: any): string[] | string {
 	if (!ingredient) return [];
-	if (ingredient.tag) return normalizeResourceLocation(`#${ingredient.tag}`);
+	if (ingredient.tag) return Identifier.qualify(`#${ingredient.tag}`);
 
 	if (typeof ingredient === "string") {
 		return ingredient.startsWith("#")
-			? normalizeResourceLocation(ingredient)
-			: [normalizeResourceLocation(ingredient)];
+			? Identifier.qualify(ingredient)
+			: [Identifier.qualify(ingredient)];
 	}
 
 	if (!Array.isArray(ingredient)) {
-		return ingredient.item ? [normalizeResourceLocation(ingredient.item)] : [];
+		return ingredient.item ? [Identifier.qualify(ingredient.item)] : [];
 	}
 
 	if (ingredient.length === 1) {
 		const first = ingredient[0];
-		if (typeof first === "string" && first.startsWith("#")) return normalizeResourceLocation(first);
-		if (first?.tag) return normalizeResourceLocation(`#${first.tag}`);
+		if (typeof first === "string" && first.startsWith("#")) return Identifier.qualify(first);
+		if (first?.tag) return Identifier.qualify(`#${first.tag}`);
 	}
 
-	return ingredient.map((item) => normalizeResourceLocation(typeof item === "string" ? item : item.item));
+	return ingredient.map((item) => Identifier.qualify(typeof item === "string" ? item : item.item));
 }
 
 export function denormalizeIngredient(items: string[] | string): string | string[] {
@@ -221,17 +221,17 @@ export function compareIngredients(a: any, b: any): boolean {
 	const normalizeForComparison = (ingredient: any): any => {
 		if (typeof ingredient === "string") {
 			if (ingredient.startsWith("#")) {
-				return { tag: normalizeResourceLocation(ingredient.slice(1)) };
+				return { tag: Identifier.qualify(ingredient.slice(1)) };
 			}
-			return normalizeResourceLocation(ingredient);
+			return Identifier.qualify(ingredient);
 		}
 
 		if (ingredient.tag) {
-			return { tag: normalizeResourceLocation(ingredient.tag) };
+			return { tag: Identifier.qualify(ingredient.tag) };
 		}
 
 		if (ingredient.item) {
-			return normalizeResourceLocation(ingredient.item);
+			return Identifier.qualify(ingredient.item);
 		}
 
 		return ingredient;

@@ -23,9 +23,6 @@ export type ConfiguratorConfigFromDatapack = {
 	};
 };
 
-export const normalizeResourceLocation = (id: string) =>
-	id.includes(":") ? id : id.startsWith("#") ? `#minecraft:${id.slice(1)}` : `minecraft:${id}`;
-
 export function isVoxelElement<T extends keyof Analysers>(element: any): element is GetAnalyserVoxel<T> {
 	return "identifier" in element;
 }
