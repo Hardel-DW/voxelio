@@ -121,7 +121,6 @@ export class EnchantmentSimulator {
 		slotIndex?: number
 	): EnchantmentStats[] {
 		const results = new Map<string, { occurrences: number; levels: number[] }>();
-
 		for (const [id] of this.enchantments) {
 			results.set(id, { occurrences: 0, levels: [] });
 		}

@@ -1,7 +1,7 @@
 import type { Analysers } from "@/core/engine/Analyser";
 import type { Compiler } from "@/core/engine/Compiler";
 import type { CraftingTransmuteData, MinecraftRecipe, RecipeProps, SmeltingData, SmithingTransformData, SmithingTrimData } from "./types";
-import { compareIngredients, denormalizeIngredient, getOccupiedSlots, hasSlotContent } from "./types";
+import { denormalizeIngredient, getOccupiedSlots } from "./types";
 
 /**
  * Compile Voxel recipe format back to Minecraft Recipe format using slot-based system.
@@ -63,7 +63,7 @@ export const VoxelToRecipeDataDriven: Compiler<RecipeProps, MinecraftRecipe> = (
 		const getSymbolForIngredient = (ingredient: string | string[]): string => {
 			const normalized = JSON.stringify(ingredient);
 			if (ingredientToSymbol.has(normalized)) return ingredientToSymbol.get(normalized) as string;
-			const exist = original?.key && Object.entries(original.key).find(([, ing]) => compareIngredients(ingredient, ing))?.[0];
+			const exist = original?.key && Object.entries(original.key).find(([, ing]) => JSON.stringify(ingredient) === JSON.stringify(ing))?.[0];
 			const symbol = exist || String.fromCharCode(symbolCounter++);
 			ingredientToSymbol.set(normalized, symbol);
 			key[symbol] = ingredient;
@@ -73,8 +73,7 @@ export const VoxelToRecipeDataDriven: Compiler<RecipeProps, MinecraftRecipe> = (
 		const pattern = Array.from({ length: gridSize.height }, (_, row) => {
 			return Array.from({ length: gridSize.width }, (_, col) => {
 				const items = element.slots[(row * 3 + col).toString()];
-				if (!items || !hasSlotContent(items)) return " ";
-				return getSymbolForIngredient(denormalizeIngredient(items));
+				return items?.length > 0 ? getSymbolForIngredient(denormalizeIngredient(items)) : " ";
 			}).join("");
 		});
 

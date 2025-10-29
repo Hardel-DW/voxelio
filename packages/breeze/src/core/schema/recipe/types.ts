@@ -54,66 +54,30 @@ export type RecipeType =
 	| "minecraft:stonecutting"
 	| "minecraft:smithing_transform"
 	| "minecraft:smithing_trim"
-	| (string & {}); // Allow custom mod recipe types
+	| (string & {});
 
 export type CraftingBookCategory = "building" | "redstone" | "equipment" | "misc";
 export type CookingBookCategory = "food" | "blocks" | "misc";
-
 export interface MinecraftRecipe extends DataDrivenElement {
 	type: string;
 	group?: string;
 	category?: string;
 	show_notification?: boolean;
-
-	// Shaped crafting
-	pattern?: string | string[];
-	key?: Record<string, any>;
-
-	// Shapeless crafting
-	ingredients?: any[];
-
-	// Transmute crafting
-	input?: any;
-	material?: any;
-
-	// Smelting
-	ingredient?: any;
-	experience?: number;
-	cookingtime?: number;
-
-	// Smithing
-	base?: any;
-	addition?: any;
-	template?: any;
-	pattern_trim?: string;
-
-	// Result
+	pattern?: string | string[]; // Shaped
+	key?: Record<string, string | string[]>; // Shaped
+	ingredients?: any[]; // Shapeless
+	input?: string | string[]; // Transmute
+	material?: string | string[]; // Transmute
+	ingredient?: string | string[]; // Smelting
+	experience?: number; // Smelting	
+	cookingtime?: number; // Smelting
+	base?: string | string[]; // Smithing
+	addition?: string | string[]; // Smithing
+	template?: string | string[]; // Smithing
+	pattern_trim?: string; // Smithing
 	result?: any;
-	count?: number; // Legacy stonecutting
-
-	[key: string]: any;
+	count?: number;
 }
-
-export const KNOWN_RECIPE_FIELDS = new Set([
-	"type",
-	"group",
-	"category",
-	"show_notification",
-	"pattern",
-	"key",
-	"ingredients",
-	"input",
-	"material",
-	"ingredient",
-	"experience",
-	"cookingtime",
-	"base",
-	"addition",
-	"template",
-	"pattern_trim",
-	"result",
-	"count"
-]);
 
 export function normalizeIngredient(ingredient: any): string[] | string {
 	if (!ingredient) return [];
@@ -139,8 +103,7 @@ export function normalizeIngredient(ingredient: any): string[] | string {
 }
 
 export function denormalizeIngredient(items: string[] | string): string | string[] {
-	if (typeof items === "string") return items;
-	return items.length === 1 ? items[0] : items;
+	return typeof items === "string" ? items : items.length === 1 ? items[0] : items;
 }
 
 /**
@@ -155,90 +118,10 @@ export function positionToSlot(row: number, col: number, width: number): string 
 }
 
 /**
- * Convert slot index to grid position
- * @param slot Slot index as string
- * @param width Grid width
- * @returns Grid position
- */
-export function slotToPosition(slot: string, width: number): { row: number; col: number } {
-	const index = Number.parseInt(slot, 10);
-	return {
-		row: Math.floor(index / width),
-		col: index % width
-	};
-}
-
-/**
- * Check if a slot has content
- */
-export function hasSlotContent(items: string[] | string): boolean {
-	return typeof items === "string" ? items.length > 0 : items.length > 0;
-}
-
-/**
  * Get all occupied slots from a slots object
  * @param slots Slots record
  * @returns Array of slot indices
  */
 export function getOccupiedSlots(slots: Record<string, string[] | string>): string[] {
-	return Object.entries(slots)
-		.filter(([, items]) => hasSlotContent(items))
-		.map(([slot]) => slot);
-}
-
-/**
- * Optimize grid size to minimum required dimensions
- * @param slots Slots record
- * @param defaultWidth Default grid width
- * @returns Optimized grid size
- */
-export function optimizeGridSize(slots: Record<string, string[] | string>, defaultWidth = 3): { width: number; height: number } {
-	const occupiedSlots = getOccupiedSlots(slots);
-	if (occupiedSlots.length === 0) {
-		return { width: 1, height: 1 };
-	}
-
-	const positions = occupiedSlots.map((slot) => slotToPosition(slot, defaultWidth));
-	const maxRow = Math.max(...positions.map((p) => p.row));
-	const maxCol = Math.max(...positions.map((p) => p.col));
-
-	return {
-		width: maxCol + 1,
-		height: maxRow + 1
-	};
-}
-
-/**
- * Compare two ingredients semantically, handling different formats
- * @param a First ingredient
- * @param b Second ingredient
- * @returns true if ingredients are equivalent
- */
-export function compareIngredients(a: any, b: any): boolean {
-	if (a === b) return true;
-	if (!a || !b) return false;
-
-	const normalizeForComparison = (ingredient: any): any => {
-		if (typeof ingredient === "string") {
-			if (ingredient.startsWith("#")) {
-				return { tag: Identifier.qualify(ingredient.slice(1)) };
-			}
-			return Identifier.qualify(ingredient);
-		}
-
-		if (ingredient.tag) {
-			return { tag: Identifier.qualify(ingredient.tag) };
-		}
-
-		if (ingredient.item) {
-			return Identifier.qualify(ingredient.item);
-		}
-
-		return ingredient;
-	};
-
-	const normalizedA = normalizeForComparison(a);
-	const normalizedB = normalizeForComparison(b);
-
-	return JSON.stringify(normalizedA) === JSON.stringify(normalizedB);
+	return Object.entries(slots).filter(([, items]) => items?.length > 0).map(([slot]) => slot);
 }

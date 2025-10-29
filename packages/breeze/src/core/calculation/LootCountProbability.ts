@@ -13,7 +13,7 @@ export interface CountRange {
  */
 export interface SetCountFunction {
 	function: "minecraft:set_count";
-	count: any; // NumberProvider or number
+	count: NumberProvider | number;
 	add?: boolean;
 	conditions?: any[];
 }
@@ -33,33 +33,26 @@ export function calculateItemCountRange(functions?: any[]): CountRange {
 		return { min: 1, max: 1 };
 	}
 
-	// Filter only set_count functions
 	const setCountFunctions = functions.filter((func): func is SetCountFunction => func.function === "minecraft:set_count");
-
 	if (setCountFunctions.length === 0) {
 		return { min: 1, max: 1 };
 	}
 
-	// Start with base range
 	let currentRange: CountRange = { min: 1, max: 1 };
-
 	for (const func of setCountFunctions) {
 		const countRange = parseCountValue(func.count);
 		const hasConditions = func.conditions && func.conditions.length > 0;
 		const isAdd = func.add === true;
 
 		if (isAdd) {
-			// Add to current range
 			currentRange = {
 				min: currentRange.min + countRange.min,
 				max: currentRange.max + countRange.max
 			};
 		} else {
-			// Replace current range
 			currentRange = countRange;
 		}
 
-		// If there are conditions, extend range from 1 to max (conditions might not be met)
 		if (hasConditions) {
 			currentRange = {
 				min: Math.min(1, currentRange.min),
@@ -77,19 +70,14 @@ export function calculateItemCountRange(functions?: any[]): CountRange {
  * @returns CountRange representing the possible values
  */
 function parseCountValue(count: any): CountRange {
-	// If it's a simple number
 	if (typeof count === "number") {
 		return { min: count, max: count };
 	}
 
-	// If it's a NumberProvider object
 	if (typeof count === "object" && count !== null) {
 		try {
 			const provider = new NumberProvider(count);
 			const description = provider.getRollDescription();
-
-			// Parse the description to extract min/max
-			// Description format: "X Roll" or "X-Y Roll"
 			const match = description.match(/(\d+)(?:-(\d+))?\s+Roll/);
 			if (match) {
 				const min = parseInt(match[1], 10);
@@ -97,12 +85,10 @@ function parseCountValue(count: any): CountRange {
 				return { min, max };
 			}
 		} catch (_error) {
-			// If NumberProvider fails, try to parse manually
 			return parseCountValueManual(count);
 		}
 	}
 
-	// Fallback
 	return { min: 1, max: 1 };
 }
 
@@ -139,24 +125,18 @@ function parseCountValueManual(count: any): CountRange {
  * formatCountRange({ min: 1, max: 1 }) // "1"
  * formatCountRange({ min: 2, max: 5 }) // "2-5"
  */
-export function formatCountRange(range: CountRange): string {
-	return range.min === range.max ? `${range.min}` : `${range.min}-${range.max}`;
-}
+export const formatCountRange = (range: CountRange) => range.min === range.max ? `${range.min}` : `${range.min}-${range.max}`;
 
 /**
  * Check if a count range represents a fixed value
  * @param range - CountRange to check
  * @returns True if min equals max
  */
-export function isFixedCount(range: CountRange): boolean {
-	return range.min === range.max;
-}
+export const isFixedCount = (range: CountRange): boolean => range.min === range.max;
 
 /**
  * Calculate the average count for a range
  * @param range - CountRange to calculate average for
  * @returns Average value as floating point
  */
-export function getAverageCount(range: CountRange): number {
-	return (range.min + range.max) / 2;
-}
+export const getAverageCount = (range: CountRange): number => (range.min + range.max) / 2;
