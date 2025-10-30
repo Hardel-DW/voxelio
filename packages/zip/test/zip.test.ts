@@ -6,7 +6,6 @@ import type { Metadata } from "@/metadata";
 import { resolve } from "node:path";
 
 const BufferFromHex = (hex: string) => new Uint8Array(Array.from(hex.matchAll(/.{2}/g), ([s]) => Number.parseInt(s, 16)));
-
 const zipSpec = readFileSync(resolve(__dirname, "APPNOTE.TXT"));
 const specName = new TextEncoder().encode("APPNOTE.TXT");
 const specDate = new Date("2019-04-26T02:00");
@@ -29,24 +28,30 @@ const baseFolder: ZipFolderDescription & Metadata = Object.freeze({
 	mode: 0o775
 });
 
-// Helper class to mimic Buffer from Deno
 class BufferHelper {
-	private data: Uint8Array;
+	private buffer: Uint8Array;
+	private offset: number;
 
-	constructor() {
-		this.data = new Uint8Array(0);
+	constructor(estimatedSize = 1024 * 200) {
+		this.buffer = new Uint8Array(estimatedSize);
+		this.offset = 0;
 	}
 
 	writeSync(chunk: Uint8Array): number {
-		const newData = new Uint8Array(this.data.length + chunk.length);
-		newData.set(this.data);
-		newData.set(chunk, this.data.length);
-		this.data = newData;
+		if (this.offset + chunk.length > this.buffer.length) {
+			const newBuffer = new Uint8Array(Math.max(this.buffer.length * 2, this.offset + chunk.length));
+			newBuffer.set(this.buffer.subarray(0, this.offset));
+			this.buffer = newBuffer;
+		}
+
+		this.buffer.set(chunk, this.offset);
+		this.offset += chunk.length;
 		return chunk.length;
 	}
 
 	bytes(options?: { copy?: boolean }): Uint8Array {
-		return options?.copy === false ? this.data : this.data.slice();
+		const result = this.buffer.subarray(0, this.offset);
+		return options?.copy === false ? result : result.slice();
 	}
 }
 
@@ -74,9 +79,28 @@ describe("ZIP", () => {
 
 	test("the ZIP fileData function yields all the file's data", async () => {
 		const file = { ...baseFile };
-		const actual = new BufferHelper();
+		const actual = new BufferHelper(zipSpec.length);
 		for await (const chunk of fileData(file)) actual.writeSync(chunk);
-		expect(actual.bytes({ copy: false })).toEqual(new Uint8Array(zipSpec));
+
+		const result = actual.bytes({ copy: false });
+		const expected = new Uint8Array(zipSpec);
+		expect(result.length).toBe(expected.length);
+
+		// Compare by 8-byte blocks
+		const view1 = new DataView(result.buffer, result.byteOffset, result.byteLength);
+		const view2 = new DataView(expected.buffer, expected.byteOffset, expected.byteLength);
+		const blocks = result.length >>> 3;
+
+		for (let i = 0; i < blocks; i++) {
+			const offset = i * 8;
+			if (view1.getBigUint64(offset, true) !== view2.getBigUint64(offset, true)) {
+				throw new Error(`Data differs at offset ${offset}`);
+			}
+		}
+
+		for (let i = blocks * 8; i < result.length; i++) {
+			expect(result[i]).toBe(expected[i]);
+		}
 	});
 
 	test("the ZIP fileData function sets the file's size and CRC properties", async () => {
