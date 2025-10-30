@@ -9,7 +9,6 @@ function updateLootTable(action: any, lootTable: LootTableProps, packVersion = 4
 	return result as LootTableProps;
 }
 
-// Helper function to create mock loot table elements
 function createMockLootTable(overrides: Partial<LootTableProps> = {}): LootTableProps {
 	return {
 		identifier: { namespace: "test", registry: "loot_table", resource: "test_loot" },
@@ -119,9 +118,7 @@ describe("Loot Table Actions", () => {
 	describe("Loot Table Domain Actions", () => {
 		describe("add_loot_item", () => {
 			it("should add item to existing pool", () => {
-				// Vérifie l'état initial
 				expect(mockLootTable.items).toHaveLength(1);
-
 				const action = LootTableAction.addLootItem(0, {
 					name: "minecraft:diamond",
 					weight: 10,
@@ -137,8 +134,6 @@ describe("Loot Table Actions", () => {
 				expect(newItem.quality).toBe(5);
 				expect(newItem.poolIndex).toBe(0);
 				expect(newItem.id).toBeDefined();
-
-				// Vérifie que l'objet original n'a pas changé
 				expect(mockLootTable.items).toHaveLength(1);
 				expect(result).not.toBe(mockLootTable);
 			});
@@ -154,7 +149,7 @@ describe("Loot Table Actions", () => {
 
 				const newItem = result.items[1];
 				expect(newItem.poolIndex).toBe(1);
-				expect(newItem.entryIndex).toBe(0); // Premier dans le nouveau pool
+				expect(newItem.entryIndex).toBe(0);
 			});
 
 			it("should add item with conditions and functions", () => {
@@ -176,54 +171,43 @@ describe("Loot Table Actions", () => {
 
 		describe("remove_loot_item", () => {
 			it("should remove existing item", () => {
-				// Vérifie l'état initial
 				expect(mockLootTable.items).toHaveLength(1);
 				expect(mockLootTable.items[0].id).toBe("item_0");
 
 				const action = LootTableAction.removeLootItem("item_0");
-
 				const result = updateLootTable(action, mockLootTable);
 				expect(result.items).toHaveLength(0);
-
-				// Vérifie que l'objet original n'a pas changé
 				expect(mockLootTable.items).toHaveLength(1);
 				expect(result).not.toBe(mockLootTable);
 			});
 
 			it("should handle removing non-existent item gracefully", () => {
 				const action = LootTableAction.removeLootItem("non_existent");
-
 				const result = updateLootTable(action, mockLootTable);
-				expect(result.items).toHaveLength(1); // Pas de changement
+				expect(result.items).toHaveLength(1);
 				expect(result.items[0].id).toBe("item_0");
 			});
 		});
 
 		describe("modify_loot_item", () => {
 			it("should modify item weight", () => {
-				// Vérifie l'état initial
 				expect(mockLootTable.items[0].weight).toBe(1);
 
 				const action = LootTableAction.modifyLootItem("item_0", "weight", 50);
-
 				const result = updateLootTable(action, mockLootTable);
 				expect(result.items[0].weight).toBe(50);
-
-				// Vérifie que l'objet original n'a pas changé
 				expect(mockLootTable.items[0].weight).toBe(1);
 				expect(result).not.toBe(mockLootTable);
 			});
 
 			it("should modify item quality", () => {
 				const action = LootTableAction.modifyLootItem("item_0", "quality", 15);
-
 				const result = updateLootTable(action, mockLootTable);
 				expect(result.items[0].quality).toBe(15);
 			});
 
 			it("should modify item name", () => {
 				const action = LootTableAction.modifyLootItem("item_0", "name", "minecraft:diamond_sword");
-
 				const result = updateLootTable(action, mockLootTable);
 				expect(result.items[0].name).toBe("minecraft:diamond_sword");
 			});
@@ -231,14 +215,12 @@ describe("Loot Table Actions", () => {
 
 		describe("create_loot_group", () => {
 			it("should create alternatives group", () => {
-				// D'abord ajouter un item pour avoir deux items à grouper
 				const addAction = LootTableAction.addLootItem(0, { name: "minecraft:emerald", weight: 5 });
 
 				let result = updateLootTable(addAction, mockLootTable);
 				expect(result.items).toHaveLength(2);
 
 				const groupAction = LootTableAction.createLootGroup("alternatives", ["item_0", result.items[1].id], 0);
-
 				result = updateLootTable(groupAction, result);
 				expect(result.groups).toHaveLength(1);
 
@@ -251,7 +233,6 @@ describe("Loot Table Actions", () => {
 
 			it("should create sequence group", () => {
 				const action = LootTableAction.createLootGroup("sequence", ["item_0"], 0);
-
 				const result = updateLootTable(action, mockLootTable);
 				expect(result.groups).toHaveLength(1);
 				expect(result.groups[0].type).toBe("sequence");
@@ -259,7 +240,6 @@ describe("Loot Table Actions", () => {
 
 			it("should create group at specific entry index", () => {
 				const action = LootTableAction.createLootGroup("group", ["item_0"], 0, 5);
-
 				const result = updateLootTable(action, mockLootTable);
 				expect(result.groups[0].entryIndex).toBe(5);
 			});
@@ -267,50 +247,40 @@ describe("Loot Table Actions", () => {
 
 		describe("dissolve_loot_group", () => {
 			it("should dissolve existing group", () => {
-				// Utiliser le complexLootTable qui a déjà un groupe
 				expect(complexLootTable.groups).toHaveLength(1);
 				expect(complexLootTable.groups[0].id).toBe("group_0");
 
 				const action = LootTableAction.dissolveLootGroup("group_0");
-
 				const result = updateLootTable(action, complexLootTable);
 				expect(result.groups).toHaveLength(0);
-
-				// Vérifie que l'objet original n'a pas changé
 				expect(complexLootTable.groups).toHaveLength(1);
 				expect(result).not.toBe(complexLootTable);
 			});
 
 			it("should handle dissolving non-existent group gracefully", () => {
 				const action = LootTableAction.dissolveLootGroup("non_existent");
-
 				const result = updateLootTable(action, mockLootTable);
-				expect(result.groups).toHaveLength(0); // Pas de changement
+				expect(result.groups).toHaveLength(0);
 			});
 		});
 
 		describe("move_item_between_pools", () => {
 			it("should move item to different pool", () => {
-				// Utiliser complexLootTable qui a des items dans différents pools
 				expect(complexLootTable.items[2].poolIndex).toBe(1);
 
 				const action = LootTableAction.moveItemBetweenPools("item_2", 0);
-
 				const result = updateLootTable(action, complexLootTable);
 				const movedItem = result.items.find((item) => item.id === "item_2");
 				expect(movedItem?.poolIndex).toBe(0);
-
-				// Vérifie que l'objet original n'a pas changé
 				expect(complexLootTable.items[2].poolIndex).toBe(1);
 				expect(result).not.toBe(complexLootTable);
 			});
 
 			it("should handle moving to same pool gracefully", () => {
 				const action = LootTableAction.moveItemBetweenPools("item_0", 0);
-
 				const result = updateLootTable(action, complexLootTable);
 				const item = result.items.find((item) => item.id === "item_0");
-				expect(item?.poolIndex).toBe(0); // Pas de changement
+				expect(item?.poolIndex).toBe(0);
 			});
 		});
 
@@ -319,17 +289,15 @@ describe("Loot Table Actions", () => {
 				expect(mockLootTable.items).toHaveLength(1);
 
 				const action = LootTableAction.duplicateLootItem("item_0");
-
 				const result = updateLootTable(action, mockLootTable);
 				expect(result.items).toHaveLength(2);
 
 				const original = result.items[0];
 				const duplicate = result.items[1];
-
 				expect(original.name).toBe(duplicate.name);
 				expect(original.weight).toBe(duplicate.weight);
 				expect(original.poolIndex).toBe(duplicate.poolIndex);
-				expect(original.id).not.toBe(duplicate.id); // ID différent
+				expect(original.id).not.toBe(duplicate.id);
 			});
 
 			it("should duplicate item to different pool", () => {
@@ -340,40 +308,32 @@ describe("Loot Table Actions", () => {
 
 				const duplicate = result.items[1];
 				expect(duplicate.poolIndex).toBe(1);
-				expect(duplicate.entryIndex).toBe(0); // Premier dans le nouveau pool
+				expect(duplicate.entryIndex).toBe(0);
 			});
 		});
 
 		describe("bulk_modify_items", () => {
 			it("should multiply weights of multiple items", () => {
 				const action = LootTableAction.bulkModifyItems(["item_0", "item_1"], "weight", "multiply", 2);
-
 				const result = updateLootTable(action, complexLootTable);
-
 				const item0 = result.items.find((item) => item.id === "item_0");
 				const item1 = result.items.find((item) => item.id === "item_1");
-
-				expect(item0?.weight).toBe(2); // 1 * 2
-				expect(item1?.weight).toBe(10); // 5 * 2
+				expect(item0?.weight).toBe(2);
+				expect(item1?.weight).toBe(10);
 			});
 
 			it("should add to quality of multiple items", () => {
 				const action = LootTableAction.bulkModifyItems(["item_0", "item_1"], "quality", "add", 5);
-
 				const result = updateLootTable(action, complexLootTable);
-
 				const item0 = result.items.find((item) => item.id === "item_0");
 				const item1 = result.items.find((item) => item.id === "item_1");
-
 				expect(item0?.quality).toBe(15); // 10 + 5
 				expect(item1?.quality).toBe(10); // 5 + 5
 			});
 
 			it("should set weight of multiple items", () => {
 				const action = LootTableAction.bulkModifyItems(["item_0", "item_1", "item_2"], "weight", "set", 25);
-
 				const result = updateLootTable(action, complexLootTable);
-
 				const items = result.items.filter((item) => ["item_0", "item_1", "item_2"].includes(item.id));
 				for (const item of items) {
 					expect(item.weight).toBe(25);
@@ -385,7 +345,6 @@ describe("Loot Table Actions", () => {
 	describe("Complex Loot Operations", () => {
 		it("should preserve identifier through loot actions", () => {
 			const action = LootTableAction.addLootItem(0, { name: "minecraft:coal" });
-
 			const result = updateLootTable(action, mockLootTable);
 			expect(result.identifier).toBeDefined();
 			expect(mockLootTable.identifier).toEqual(result.identifier);
@@ -395,22 +354,18 @@ describe("Loot Table Actions", () => {
 	describe("Error Handling", () => {
 		it("should handle invalid item IDs gracefully", () => {
 			const action = LootTableAction.modifyLootItem("invalid_id", "weight", 50);
-
 			const result = updateLootTable(action, mockLootTable);
-			expect(result.items).toEqual(mockLootTable.items); // Pas de changement
+			expect(result.items).toEqual(mockLootTable.items);
 		});
 
 		it("should handle invalid group IDs gracefully", () => {
 			const action = LootTableAction.dissolveLootGroup("invalid_group");
-
 			const result = updateLootTable(action, mockLootTable);
-			expect(result.groups).toEqual(mockLootTable.groups); // Pas de changement
+			expect(result.groups).toEqual(mockLootTable.groups);
 		});
 
 		it("should handle negative pool indices", () => {
 			const action = LootTableAction.addLootItem(-1, { name: "minecraft:dirt" });
-
-			// L'action devrait soit échouer gracieusement, soit normaliser l'index
 			const result = updateLootTable(action, mockLootTable);
 			expect(result).toBeDefined();
 		});

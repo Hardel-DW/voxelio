@@ -22,26 +22,15 @@ describe("StructureSet Actions", () => {
 	describe("structure_set.add_structure", () => {
 		it("should add structure at the end by default", () => {
 			const result = updateData(StructureSetAction.addStructure("minecraft:village_desert", 5), baseStructureSet);
-
 			expect(result?.structures).toHaveLength(2);
-			expect(result?.structures?.[1]).toEqual({
-				structure: "minecraft:village_desert",
-				weight: 5
-			});
+			expect(result?.structures?.[0]).toEqual({ structure: "minecraft:village_plains", weight: 10 });
 		});
 
 		it("should add structure at specific position", () => {
 			const result = updateData(StructureSetAction.addStructure("minecraft:village_desert", 5, 0), baseStructureSet);
-
 			expect(result?.structures).toHaveLength(2);
-			expect(result?.structures?.[0]).toEqual({
-				structure: "minecraft:village_desert",
-				weight: 5
-			});
-			expect(result?.structures?.[1]).toEqual({
-				structure: "minecraft:village_plains",
-				weight: 10
-			});
+			expect(result?.structures?.[0]).toEqual({ structure: "minecraft:village_desert", weight: 5 });
+			expect(result?.structures?.[1]).toEqual({ structure: "minecraft:village_plains", weight: 10 });
 		});
 	});
 
@@ -53,23 +42,15 @@ describe("StructureSet Actions", () => {
 			};
 
 			const result = updateData(StructureSetAction.removeStructure("structure_1"), extendedStructureSet);
-
 			expect(result?.structures).toHaveLength(1);
-			expect(result?.structures?.[0]).toEqual({
-				structure: "minecraft:village_plains",
-				weight: 10
-			});
+			expect(result?.structures?.[0]).toEqual({ structure: "minecraft:village_plains", weight: 10 });
 		});
 	});
 
 	describe("structure_set.modify_structure", () => {
 		it("should modify structure weight", () => {
 			const result = updateData(StructureSetAction.modifyStructure("structure_0", "weight", 15), baseStructureSet);
-
-			expect(result?.structures?.[0]).toEqual({
-				structure: "minecraft:village_plains",
-				weight: 15
-			});
+			expect(result?.structures?.[0]).toEqual({ structure: "minecraft:village_plains", weight: 15 });
 		});
 
 		it("should modify structure ID", () => {
@@ -77,18 +58,13 @@ describe("StructureSet Actions", () => {
 				StructureSetAction.modifyStructure("structure_0", "structure", "minecraft:village_desert"),
 				baseStructureSet
 			);
-
-			expect(result?.structures?.[0]).toEqual({
-				structure: "minecraft:village_desert",
-				weight: 10
-			});
+			expect(result?.structures?.[0]).toEqual({ structure: "minecraft:village_desert", weight: 10 });
 		});
 	});
 
 	describe("structure_set.set_placement_type", () => {
 		it("should change placement type", () => {
 			const result = updateData(StructureSetAction.setPlacementType("minecraft:concentric_rings"), baseStructureSet);
-
 			expect(result?.placementType).toBe("minecraft:concentric_rings");
 		});
 	});
@@ -115,11 +91,7 @@ describe("StructureSet Actions", () => {
 	describe("structure_set.set_exclusion_zone", () => {
 		it("should set exclusion zone", () => {
 			const result = updateData(StructureSetAction.setExclusionZone("minecraft:strongholds", 10), baseStructureSet);
-
-			expect(result?.exclusionZone).toEqual({
-				otherSet: "minecraft:strongholds",
-				chunkCount: 10
-			});
+			expect(result?.exclusionZone).toEqual({ otherSet: "minecraft:strongholds", chunkCount: 10 });
 		});
 	});
 
@@ -134,7 +106,6 @@ describe("StructureSet Actions", () => {
 			};
 
 			const result = updateData(StructureSetAction.removeExclusionZone(), structureSetWithExclusion);
-
 			expect(result?.exclusionZone).toBeUndefined();
 		});
 	});

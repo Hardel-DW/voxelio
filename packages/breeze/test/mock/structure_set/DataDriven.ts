@@ -113,5 +113,3 @@ export const endCityStructureSet: DataDrivenRegistryElement<MinecraftStructureSe
 		}
 	}
 };
-
-export const structureSetDataDriven = [villageStructureSet, strongholdStructureSet, ruinedPortalStructureSet, endCityStructureSet];

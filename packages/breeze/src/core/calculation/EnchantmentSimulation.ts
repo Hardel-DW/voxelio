@@ -52,6 +52,9 @@ export class EnchantmentSimulator {
 	private tagsComparator?: TagsProcessor;
 	private inEnchantingTableValues: Set<string> = new Set();
 	private itemTagToEnchantmentsMap: Map<string, string[]> = new Map();
+	private exclusiveSetCache = new Map<string, Set<string>>();
+	private applicableLevelCache = new Map<string, number>();
+	private possibleEnchantmentsCache = new Map<string, EnchantmentPossible[]>();
 
 	constructor(enchantments: Map<string, Enchantment>, tags?: DataDrivenRegistryElement<TagType>[]) {
 		this.enchantments = enchantments;
@@ -61,6 +64,7 @@ export class EnchantmentSimulator {
 			this.initializeInEnchantingTableValues(tags);
 		}
 		this.buildItemTagToEnchantmentsMap();
+		this.preCalculateExclusiveSets();
 	}
 
 	private buildItemTagToEnchantmentsMap(): void {
@@ -76,6 +80,13 @@ export class EnchantmentSimulator {
 					this.itemTagToEnchantmentsMap.set(item, [id]);
 				}
 			}
+		}
+	}
+
+	private preCalculateExclusiveSets(): void {
+		for (const [id, enchantment] of this.enchantments.entries()) {
+			if (!enchantment.exclusive_set) continue;
+			this.exclusiveSetCache.set(id, this.resolveExclusiveSet(enchantment.exclusive_set));
 		}
 	}
 
@@ -109,53 +120,101 @@ export class EnchantmentSimulator {
 	 * @param bookshelves Number of bookshelves
 	 * @param enchantability Item enchantability
 	 * @param itemTags Item tags
-	 * @param iterations Number of iterations for statistical calculation
+	 * @param iterations Maximum number of iterations for statistical calculation
 	 * @param slotIndex Specific slot index (0=top, 1=middle, 2=bottom). If undefined, all slots are considered
+	 * @param convergenceThreshold Threshold for early stopping (default: 0.001 = 0.1% change)
 	 * @returns Statistics for each enchantment
 	 */
 	public calculateEnchantmentProbabilities(
 		bookshelves: number,
 		enchantability: number,
 		itemTags: string[] = [],
-		iterations = 10000,
-		slotIndex?: number
+		iterations = 1000,
+		slotIndex?: number,
+		convergenceThreshold = 0.001
 	): EnchantmentStats[] {
-		const results = new Map<string, { occurrences: number; levels: number[] }>();
-		for (const [id] of this.enchantments) {
-			results.set(id, { occurrences: 0, levels: [] });
-		}
-
 		if (slotIndex !== undefined && (slotIndex < 0 || slotIndex > 2)) {
 			throw new Error(`Invalid slotIndex: ${slotIndex}. Must be 0, 1, or 2.`);
 		}
 
+		const results = new Map<string, { occurrences: number; totalLevel: number; minLevel: number; maxLevel: number }>();
+		for (const [id] of this.enchantments) {
+			results.set(id, { occurrences: 0, totalLevel: 0, minLevel: Number.POSITIVE_INFINITY, maxLevel: 0 });
+		}
+
+		let previousProbabilities: Map<string, number> | null = null;
+		const convergenceCheckInterval = 100;
+		const minIterationsBeforeConvergence = 200;
+		let actualIterations = 0;
+
 		for (let i = 0; i < iterations; i++) {
+			actualIterations = i + 1;
 			const options = this.simulateEnchantmentTable(bookshelves, enchantability, itemTags);
 			const targetOptions = slotIndex !== undefined ? [options[slotIndex]] : options;
 
 			for (const option of targetOptions) {
 				for (const ench of option.enchantments) {
 					const result = results.get(ench.enchantment);
-					if (result) {
-						result.occurrences++;
-						result.levels.push(ench.level);
-					}
+					if (!result) continue;
+
+					result.occurrences++;
+					result.totalLevel += ench.level;
+					if (ench.level < result.minLevel) result.minLevel = ench.level;
+					if (ench.level > result.maxLevel) result.maxLevel = ench.level;
 				}
+			}
+
+			if (i > minIterationsBeforeConvergence && i % convergenceCheckInterval === 0) {
+				const currentTotalOptions = slotIndex !== undefined ? actualIterations : actualIterations * 3;
+				const currentProbabilities = new Map<string, number>();
+
+				for (const [id, data] of results) {
+					if (data.occurrences === 0) continue;
+					currentProbabilities.set(id, (data.occurrences / currentTotalOptions) * 100);
+				}
+
+				if (previousProbabilities && this.hasConverged(previousProbabilities, currentProbabilities, convergenceThreshold)) {
+					break;
+				}
+
+				previousProbabilities = currentProbabilities;
 			}
 		}
 
-		const totalOptions = slotIndex !== undefined ? iterations : iterations * 3;
+		const totalOptions = slotIndex !== undefined ? actualIterations : actualIterations * 3;
+		const stats: EnchantmentStats[] = [];
 
-		return Array.from(results.entries())
-			.map(([id, data]) => ({
+		for (const [id, data] of results) {
+			if (data.occurrences === 0) continue;
+
+			stats.push({
 				enchantmentId: id,
 				probability: (data.occurrences / totalOptions) * 100,
-				averageLevel: data.levels.length > 0 ? data.levels.reduce((a, b) => a + b, 0) / data.levels.length : 0,
-				minLevel: data.levels.length > 0 ? Math.min(...data.levels) : 0,
-				maxLevel: data.levels.length > 0 ? Math.max(...data.levels) : 0
-			}))
-			.filter((stat) => stat.probability > 0)
-			.sort((a, b) => b.probability - a.probability);
+				averageLevel: data.totalLevel / data.occurrences,
+				minLevel: data.minLevel,
+				maxLevel: data.maxLevel
+			});
+		}
+
+		return stats.sort((a, b) => b.probability - a.probability);
+	}
+
+	private hasConverged(previous: Map<string, number>, current: Map<string, number>, threshold: number): boolean {
+		let maxChange = 0;
+
+		for (const [id, currentProb] of current) {
+			const previousProb = previous.get(id) ?? 0;
+			const change = Math.abs(currentProb - previousProb);
+			if (change > maxChange) maxChange = change;
+		}
+
+		for (const [id, previousProb] of previous) {
+			if (!current.has(id)) {
+				if (previousProb > maxChange) maxChange = previousProb;
+			}
+		}
+
+		return maxChange < threshold;
 	}
 
 	/**
@@ -213,26 +272,39 @@ export class EnchantmentSimulator {
 	}
 
 	private findPossibleEnchantments(level: number, itemTagSet: Set<string>): Array<EnchantmentPossible> {
+		const sortedTags = Array.from(itemTagSet).sort().join("|");
+		const cacheKey = `${level}:${sortedTags}`;
+		const cached = this.possibleEnchantmentsCache.get(cacheKey);
+		if (cached) return cached;
+
 		const candidateIds = new Set<string>();
 
 		for (const tag of itemTagSet) {
-			for (const enchId of this.itemTagToEnchantmentsMap.get(tag) ?? []) {
-				candidateIds.add(enchId);
+			const directEnchantments = this.itemTagToEnchantmentsMap.get(tag);
+			if (directEnchantments) {
+				for (const enchId of directEnchantments) candidateIds.add(enchId);
 			}
 
-			for (const enchId of this.itemTagToEnchantmentsMap.get(`#${tag}`) ?? []) {
-				candidateIds.add(enchId);
+			const taggedEnchantments = this.itemTagToEnchantmentsMap.get(`#${tag}`);
+			if (taggedEnchantments) {
+				for (const enchId of taggedEnchantments) candidateIds.add(enchId);
 			}
 		}
 
-		return Array.from(candidateIds)
-			.map((id) => {
-				const enchantment = this.enchantments.get(id);
-				if (!enchantment || !this.isEnchantmentInEnchantingTable(id)) return null;
-				const enchLevel = this.calculateApplicableLevel(enchantment, level);
-				return enchLevel > 0 ? { id, enchantment, weight: enchantment.weight, applicableLevel: enchLevel } : null;
-			})
-			.filter(Boolean) as Array<EnchantmentPossible>;
+		const result: EnchantmentPossible[] = [];
+
+		for (const id of candidateIds) {
+			const enchantment = this.enchantments.get(id);
+			if (!enchantment || !this.isEnchantmentInEnchantingTable(id)) continue;
+
+			const enchLevel = this.calculateApplicableLevel(enchantment, level);
+			if (enchLevel > 0) {
+				result.push({ id, enchantment, weight: enchantment.weight, applicableLevel: enchLevel });
+			}
+		}
+
+		this.possibleEnchantmentsCache.set(cacheKey, result);
+		return result;
 	}
 
 	private selectEnchantments(possibleEnchantments: Array<EnchantmentPossible>, level: number): Array<EnchantmentEntry> {
@@ -280,16 +352,13 @@ export class EnchantmentSimulator {
 	}
 
 	private areEnchantmentsCompatible(newEnchantmentId: string, existingEnchantmentIds: string[]): boolean {
-		const newEnchant = this.enchantments.get(newEnchantmentId);
-		if (!newEnchant?.exclusive_set) return true;
-
-		const resolvedNewSets = this.resolveExclusiveSet(newEnchant.exclusive_set);
+		const resolvedNewSets = this.exclusiveSetCache.get(newEnchantmentId);
+		if (!resolvedNewSets) return true;
 
 		for (const existingId of existingEnchantmentIds) {
-			const existingEnchant = this.enchantments.get(existingId);
-			if (!existingEnchant?.exclusive_set) continue;
+			const resolvedExistingSets = this.exclusiveSetCache.get(existingId);
+			if (!resolvedExistingSets) continue;
 
-			const resolvedExistingSets = this.resolveExclusiveSet(existingEnchant.exclusive_set);
 			for (const newSet of resolvedNewSets) {
 				if (resolvedExistingSets.has(newSet)) return false;
 			}
@@ -369,6 +438,7 @@ export class EnchantmentSimulator {
 	 */
 	public getFlattenedPrimaryItems(itemTags: DataDrivenRegistryElement<TagType>[]): string[] {
 		const items = new Set<string>();
+		const itemTagsProcessor = itemTags.length > 0 ? new TagsProcessor(itemTags) : null;
 
 		for (const [enchantmentId, enchantment] of this.enchantments) {
 			const itemsField = enchantment.primary_items ?? enchantment.supported_items;
@@ -384,7 +454,8 @@ export class EnchantmentSimulator {
 					continue;
 				}
 
-				const resolvedItems = new TagsProcessor(itemTags).getRecursiveValues(Identifier.of(item, "tags/item").get());
+				if (!itemTagsProcessor) continue;
+				const resolvedItems = itemTagsProcessor.getRecursiveValues(Identifier.of(item, "tags/item").get());
 				for (const resolvedItem of resolvedItems) {
 					items.add(resolvedItem);
 				}
@@ -395,14 +466,20 @@ export class EnchantmentSimulator {
 	}
 
 	private calculateApplicableLevel(enchantment: Enchantment, powerLevel: number): number {
+		const cacheKey = `${enchantment.max_level}:${enchantment.min_cost.base}:${enchantment.min_cost.per_level_above_first}:${enchantment.max_cost.base}:${enchantment.max_cost.per_level_above_first}:${powerLevel}`;
+		const cached = this.applicableLevelCache.get(cacheKey);
+		if (cached !== undefined) return cached;
+
 		for (let level = enchantment.max_level; level >= 1; level--) {
 			const minCost = this.calculateEnchantmentCost(enchantment.min_cost, level);
 			const maxCost = this.calculateEnchantmentCost(enchantment.max_cost, level);
 			if (powerLevel >= minCost && powerLevel <= maxCost) {
+				this.applicableLevelCache.set(cacheKey, level);
 				return level;
 			}
 		}
 
+		this.applicableLevelCache.set(cacheKey, 0);
 		return 0;
 	}
 }

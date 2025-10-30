@@ -2,6 +2,7 @@ import { updateData } from "@/core/engine/actions";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 import { describe, expect, it, beforeEach } from "vitest";
 import { createComplexMockElement, createMockEnchantmentElement } from "@test/mock/enchant/VoxelDriven";
+import type { EnchantmentProps } from "@/core/schema/enchant/types";
 
 describe("Action System", () => {
 	let mockElement: ReturnType<typeof createMockEnchantmentElement>;
@@ -107,18 +108,15 @@ describe("Action System", () => {
 
 	describe("Complex Operations", () => {
 		it("should handle nested path operations in objects", () => {
-			// Test modification d'un objet imbriqué
 			expect(complexElement.data.identifier.namespace).toBe("enchantplus");
 			expect(complexElement.data.identifier.resource).toBe("bow/accuracy_shot");
 
 			const response = CoreAction.setValue("identifier.namespace", "modpack");
-
 			const result = updateData(response, complexElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.identifier?.namespace).toBe("modpack");
-			expect(result?.identifier?.resource).toBe("bow/accuracy_shot"); // Pas touché
+			expect(result?.identifier?.resource).toBe("bow/accuracy_shot");
 
-			// Vérifie que l'objet original n'a pas changé
 			expect(complexElement.data.identifier.namespace).toBe("enchantplus");
 			expect(result).not.toBe(complexElement.data);
 		});
@@ -133,22 +131,18 @@ describe("Action System", () => {
 			expect(projectileSpawned[0].effect.function).toBe("enchantplus:actions/accuracy_shot/on_shoot");
 
 			const response = CoreAction.setValue("effects.minecraft:projectile_spawned.0.effect.function", "modpack:new_function");
-
 			const result = updateData(response, complexElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.effects).toBeDefined();
 
 			const resultProjectileSpawned = result?.effects?.["minecraft:projectile_spawned"] as any[];
 			expect(resultProjectileSpawned[0].effect.function).toBe("modpack:new_function");
-			expect(resultProjectileSpawned[0].effect.type).toBe("minecraft:run_function"); // Pas touché
-
-			// Vérifie que l'objet original n'a pas changé
+			expect(resultProjectileSpawned[0].effect.type).toBe("minecraft:run_function");
 			expect(projectileSpawned[0].effect.function).toBe("enchantplus:actions/accuracy_shot/on_shoot");
 			expect(result).not.toBe(complexElement.data);
 		});
 
 		it("should handle nested path operations with description", () => {
-			// Test modification d'un objet de description
 			expect(complexElement.data.description).toBeDefined();
 			expect(typeof complexElement.data.description).toBe("object");
 			expect(!Array.isArray(complexElement.data.description)).toBe(true);
@@ -158,25 +152,20 @@ describe("Action System", () => {
 			expect(description.fallback).toBe("Enchantment Test");
 
 			const response = CoreAction.setValue("description.fallback", "New Test Description");
-
 			const result = updateData(response, complexElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.description).toBeDefined();
-
 			expect(typeof result?.description).toBe("object");
 			expect(!Array.isArray(result?.description)).toBe(true);
 
 			const resultDescription = result?.description as { translate: string; fallback: string };
 			expect(resultDescription.fallback).toBe("New Test Description");
-			expect(resultDescription.translate).toBe("enchantment.test.foo"); // Pas touché
-
-			// Vérifie que l'objet original n'a pas changé
+			expect(resultDescription.translate).toBe("enchantment.test.foo");
 			expect(description.fallback).toBe("Enchantment Test");
 			expect(result).not.toBe(complexElement.data);
 		});
 
 		it("should handle array index operations", () => {
-			// Test modification d'un élément spécifique dans un array
 			expect(complexElement.data.exclusiveSet).toBeDefined();
 			expect(Array.isArray(complexElement.data.exclusiveSet)).toBe(true);
 
@@ -185,17 +174,59 @@ describe("Action System", () => {
 			expect(exclusiveSet[1]).toBe("minecraft:unbreaking");
 
 			const response = CoreAction.setValue("exclusiveSet.1", "minecraft:mending");
-
 			const result = updateData(response, complexElement.data, 48);
 			expect(result).toBeDefined();
 			expect(result?.exclusiveSet).toBeDefined();
 			expect(Array.isArray(result?.exclusiveSet)).toBe(true);
 
 			const resultExclusiveSet = result?.exclusiveSet as string[];
-			expect(resultExclusiveSet[0]).toBe("minecraft:efficiency"); // Pas touché
-			expect(resultExclusiveSet[1]).toBe("minecraft:mending"); // Modifié
+			expect(resultExclusiveSet[0]).toBe("minecraft:efficiency");
+			expect(resultExclusiveSet[1]).toBe("minecraft:mending");
 			expect(exclusiveSet[1]).toBe("minecraft:unbreaking");
 			expect(result).not.toBe(complexElement.data);
+		});
+	});
+
+	describe("Tags - CoreAction.removeTags", () => {
+		it("should remove a tag from enchantment.tags array", () => {
+			const enchantment: Partial<EnchantmentProps> = {
+				tags: ["#minecraft:exclusive_set/armor", "#minecraft:treasure"]
+			};
+
+			const action = CoreAction.removeTags(["#minecraft:exclusive_set/armor"]);
+			const updated = updateData(action, enchantment as Record<string, unknown>);
+			expect(updated?.tags).toEqual(["#minecraft:treasure"]);
+			expect(updated?.tags).not.toContain("#minecraft:exclusive_set/armor");
+		});
+
+		it("should handle removing multiple tags", () => {
+			const enchantment: Partial<EnchantmentProps> = {
+				tags: ["#minecraft:exclusive_set/armor", "#minecraft:treasure", "#minecraft:curse"]
+			};
+
+			const action = CoreAction.removeTags(["#minecraft:exclusive_set/armor", "#minecraft:treasure"]);
+			const updated = updateData(action, enchantment as Record<string, unknown>);
+			expect(updated?.tags).toEqual(["#minecraft:curse"]);
+		});
+
+		it("should not fail if tag doesn't exist", () => {
+			const enchantment: Partial<EnchantmentProps> = {
+				tags: ["#minecraft:treasure"]
+			};
+
+			const action = CoreAction.removeTags(["#minecraft:exclusive_set/armor"]);
+			const updated = updateData(action, enchantment as Record<string, unknown>);
+			expect(updated?.tags).toEqual(["#minecraft:treasure"]);
+		});
+
+		it("should result in empty array if all tags are removed", () => {
+			const enchantment: Partial<EnchantmentProps> = {
+				tags: ["#minecraft:exclusive_set/armor"]
+			};
+
+			const action = CoreAction.removeTags(["#minecraft:exclusive_set/armor"]);
+			const updated = updateData(action, enchantment as Record<string, unknown>);
+			expect(updated?.tags).toEqual([]);
 		});
 	});
 });

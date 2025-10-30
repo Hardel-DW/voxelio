@@ -101,32 +101,3 @@ export const createComplexMockElement = (data: Partial<EnchantmentProps> = {}): 
 		...data
 	}
 });
-
-export const attack_speed_element: EnchantmentProps[] = [
-	{
-		exclusiveSet: undefined,
-		primaryItems: undefined,
-		identifier: {
-			namespace: "enchantplus",
-			registry: "enchantment",
-			resource: "sword/attack_speed"
-		},
-		description: {
-			translate: "enchantment.enchantplus.attack_speed",
-			fallback: "Attack Speed"
-		},
-		supportedItems: "#minecraft:enchantable/sword",
-		maxLevel: 2,
-		weight: 4,
-		anvilCost: 2,
-		minCostBase: 8,
-		minCostPerLevelAboveFirst: 11,
-		maxCostBase: 21,
-		maxCostPerLevelAboveFirst: 9,
-		effects: {},
-		tags: ["#minecraft:non_treasure", "#yggdrasil:equipment/item/sword", "#yggdrasil:structure/alfheim_tree/random_loot"],
-		slots: ["mainhand"],
-		mode: "normal",
-		disabledEffects: []
-	}
-];

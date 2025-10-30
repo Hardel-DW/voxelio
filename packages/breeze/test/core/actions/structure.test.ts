@@ -15,13 +15,11 @@ describe("Structure Actions", () => {
 	describe("structure.set_biomes", () => {
 		it("should replace biomes when replace is true", () => {
 			const result = updateData(StructureAction.setBiomes(["minecraft:desert", "minecraft:savanna"], true), baseStructure);
-
 			expect(result?.biomes).toEqual(["minecraft:desert", "minecraft:savanna"]);
 		});
 
 		it("should add biomes when replace is false", () => {
 			const result = updateData(StructureAction.setBiomes(["minecraft:desert", "minecraft:savanna"], false), baseStructure);
-
 			expect(result?.biomes).toEqual(["minecraft:plains", "minecraft:desert", "minecraft:savanna"]);
 		});
 	});
