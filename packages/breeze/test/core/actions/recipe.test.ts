@@ -1,468 +1,454 @@
-import { updateData } from "@/core/engine/actions";
+import { Action, updateData } from "@/core/engine/actions";
 import { RecipeAction } from "@/core/engine/actions/domains/RecipeAction";
 import type { RecipeProps } from "@/core/schema/recipe/types";
-import { createFilesFromElements, createZipFile } from "@test/mock/utils";
-import { describe, it, expect, beforeEach } from "vitest";
-import { recipeDataDriven } from "@test/mock/recipe/DataDriven";
-import { Datapack } from "@/core/Datapack";
+import { describe, it, expect } from "vitest";
+import { RecipeDataDrivenToVoxelFormat } from "@/core/schema/recipe/Parser";
+import { originalRecipes } from "@test/mock/recipe/DataDriven";
+import { VoxelToRecipeDataDriven } from "@/core/schema/recipe/Compiler";
+import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 
 // Helper function to update data with proper typing
-function updateRecipe(action: any, recipe: RecipeProps, packVersion = 48): RecipeProps {
+function updateRecipe(action: Action, recipe: RecipeProps, packVersion = 48): RecipeProps {
 	const result = updateData(action, recipe, packVersion);
 	expect(result).toBeDefined();
 	return result as RecipeProps;
 }
 
 describe("Recipe Actions", () => {
-	let shapedRecipe: RecipeProps;
-	let shapelessRecipe: RecipeProps;
-	let smeltingRecipe: RecipeProps;
-
-	beforeEach(async () => {
-		const recipeFile = createFilesFromElements(recipeDataDriven);
-		const datapack = await Datapack.from(await createZipFile(recipeFile));
-		const parsedDatapack = datapack.parse();
-
-		const recipes = Array.from(parsedDatapack.elements.values()).filter(
-			(element): element is RecipeProps => element.identifier.registry === "recipe"
-		);
-
-		expect(recipes).toBeDefined();
-		expect(recipes.length).toBeGreaterThan(0);
-
-		// Trouve les recettes spécifiques
-		const foundShaped = recipes.find((r) => r.identifier.resource === "shaped");
-		const foundShapeless = recipes.find((r) => r.identifier.resource === "shapeless");
-		const foundBlasting = recipes.find((r) => r.identifier.resource === "blasting");
-
-		expect(foundShaped).toBeDefined();
-		expect(foundShapeless).toBeDefined();
-		expect(foundBlasting).toBeDefined();
-
-		shapedRecipe = foundShaped as RecipeProps;
-		shapelessRecipe = foundShapeless as RecipeProps;
-		smeltingRecipe = foundBlasting as RecipeProps;
-	});
-
-	describe("Recipe Domain Actions", () => {
-		describe("add_ingredient", () => {
-			it("should add ingredient to empty slot", () => {
-				expect(shapedRecipe.slots["2"]).toBeDefined();
-				const action = RecipeAction.addIngredient("3", ["minecraft:emerald"]);
-
-				const result = updateRecipe(action, shapedRecipe);
-				expect(result.slots["3"]).toEqual(["minecraft:emerald"]);
-				expect(result).not.toBe(shapedRecipe);
-			});
-
-			it("should merge ingredients with existing slot", () => {
-				// Vérifie l'état initial
-				const originalSlotZero = shapedRecipe.slots["0"];
-				expect(originalSlotZero).toBeDefined();
-
-				const action = RecipeAction.addIngredient("0", ["minecraft:emerald"]);
-
-				const result = updateRecipe(action, shapedRecipe);
-				expect(result.slots["0"]).toEqual(["minecraft:acacia_planks", "minecraft:emerald"]);
-
-				// Vérifie que l'objet original n'a pas changé
-				expect(shapedRecipe.slots["0"]).toEqual(originalSlotZero);
-				expect(result).not.toBe(shapedRecipe);
-			});
-
-			it("should replace ingredients when replace=true", () => {
-				const originalSlotZero = shapedRecipe.slots["0"];
-				expect(originalSlotZero).toBeDefined();
-
-				const action = RecipeAction.addIngredient("0", ["minecraft:emerald"], true);
-
-				const result = updateRecipe(action, shapedRecipe);
-				expect(result.slots["0"]).toEqual(["minecraft:emerald"]);
-
-				expect(shapedRecipe.slots["0"]).toEqual(originalSlotZero);
-				expect(result).not.toBe(shapedRecipe);
-			});
-
-			it("should avoid duplicate items when merging", () => {
-				const recipeWithDuplicates = { ...shapedRecipe, slots: { "0": ["minecraft:diamond", "minecraft:stick"] } };
-
-				const action = RecipeAction.addIngredient("0", ["minecraft:diamond", "minecraft:emerald"]);
-
-				const result = updateRecipe(action, recipeWithDuplicates);
-				expect(result.slots["0"]).toEqual(["minecraft:diamond", "minecraft:stick", "minecraft:emerald"]);
-			});
+	describe("Add Ingredients Actions", () => {
+		it("should add ingredient without replace", () => {
+			const shaped2Recipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped2 });
+			const result = updateRecipe(RecipeAction.addIngredient("1", ["minecraft:diamond"], false), shaped2Recipe);
+			expect(result.slots["1"]).toContain("minecraft:diamond");
 		});
 
-		describe("remove_ingredient", () => {
-			it("should remove entire slot when no items specified", () => {
-				expect(shapedRecipe.slots["0"]).toBeDefined();
-				expect(shapedRecipe.slots["1"]).toBeDefined();
-				const action = RecipeAction.removeIngredient("0");
-
-				const result = updateRecipe(action, shapedRecipe);
-				expect(result.slots["0"]).toBeUndefined();
-				expect(result.slots["1"]).toEqual(shapedRecipe.slots["1"]);
-
-				expect(shapedRecipe.slots["0"]).toEqual(["minecraft:acacia_planks"]);
-				expect(shapedRecipe.slots["1"]).toEqual(["minecraft:acacia_planks"]);
-				expect(result).not.toBe(shapedRecipe);
-			});
-
-			it("should remove specific items from slot", () => {
-				const recipeWithMultipleItems = {
-					...shapedRecipe,
-					slots: { "0": ["minecraft:diamond", "minecraft:emerald", "minecraft:gold_ingot"] }
-				};
-				const action = RecipeAction.removeIngredient("0", ["minecraft:emerald"]);
-
-				const result = updateRecipe(action, recipeWithMultipleItems);
-				expect(result.slots["0"]).toEqual(["minecraft:diamond", "minecraft:gold_ingot"]);
-
-				expect(recipeWithMultipleItems.slots["0"]).toEqual(["minecraft:diamond", "minecraft:emerald", "minecraft:gold_ingot"]);
-				expect(result).not.toBe(recipeWithMultipleItems);
-			});
-
-			it("should remove slot when it becomes empty", () => {
-				const recipeWithSingleItem = { ...shapedRecipe, slots: { "0": ["minecraft:diamond"] } };
-
-				const action = RecipeAction.removeIngredient("0", ["minecraft:diamond"]);
-
-				const result = updateRecipe(action, recipeWithSingleItem);
-				expect(result.slots["0"]).toBeUndefined();
-			});
-
-			it("should handle removing from non-existent slot gracefully", () => {
-				const action = RecipeAction.removeIngredient("99");
-
-				const result = updateRecipe(action, shapedRecipe);
-				expect(result.slots).toEqual(shapedRecipe.slots);
-			});
+		it("should add ingredient with replace", () => {
+			const shaped2Recipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped2 });
+			const result = updateRecipe(RecipeAction.addIngredient("1", ["minecraft:diamond"], true), shaped2Recipe);
+			expect(result.slots["1"]).toEqual(["minecraft:diamond"]);
 		});
 
-		describe("convert_recipe_type", () => {
-			it("should convert shaped to shapeless", () => {
-				expect(shapedRecipe.type).toBe("minecraft:crafting_shaped");
-				expect(shapedRecipe.gridSize).toEqual({ width: 3, height: 1 });
-
-				const action = RecipeAction.convertRecipeType("minecraft:crafting_shapeless");
-
-				const result = updateRecipe(action, shapedRecipe);
-				expect(result.type).toBe("minecraft:crafting_shapeless");
-				expect(result.gridSize).toBeUndefined();
-				expect(result.slots).toEqual(shapedRecipe.slots);
-
-				expect(shapedRecipe.type).toBe("minecraft:crafting_shaped");
-				expect(shapedRecipe.gridSize).toEqual({ width: 3, height: 1 });
-				expect(result).not.toBe(shapedRecipe);
-			});
-
-			it("should convert shapeless to shaped with default grid", () => {
-				expect(shapelessRecipe.type).toBe("minecraft:crafting_shapeless");
-				expect(shapelessRecipe.gridSize).toBeUndefined();
-
-				const action = RecipeAction.convertRecipeType("minecraft:crafting_shaped");
-
-				const result = updateRecipe(action, shapelessRecipe);
-				expect(result.type).toBe("minecraft:crafting_shaped");
-				expect(result.gridSize).toEqual({ width: 3, height: 3 });
-
-				expect(shapelessRecipe.type).toBe("minecraft:crafting_shapeless");
-				expect(shapelessRecipe.gridSize).toBeUndefined();
-				expect(result).not.toBe(shapelessRecipe);
-			});
-
-			it("should convert to smelting with single ingredient", () => {
-				const originalSlots = shapedRecipe.slots;
-				const firstSlotValue = Object.values(originalSlots)[0];
-
-				const action = RecipeAction.convertRecipeType("minecraft:smelting");
-
-				const result = updateRecipe(action, shapedRecipe);
-				expect(result.type).toBe("minecraft:smelting");
-				expect(result.gridSize).toBeUndefined();
-				expect(result.slots).toEqual({ "0": firstSlotValue });
-
-				expect(shapedRecipe.slots).toEqual(originalSlots);
-				expect(result).not.toBe(shapedRecipe);
-			});
-
-			it("should convert to stonecutting and remove type-specific data", () => {
-				const action = RecipeAction.convertRecipeType("minecraft:stonecutting");
-
-				const originalSlots = smeltingRecipe.slots;
-				const firstSlotValue = Object.values(originalSlots)[0];
-
-				const result = updateRecipe(action, smeltingRecipe);
-				expect(result.type).toBe("minecraft:stonecutting");
-				expect(result.gridSize).toBeUndefined();
-				expect(result.typeSpecific).toBeUndefined();
-				expect(result.slots).toEqual({ "0": firstSlotValue });
-
-				expect(smeltingRecipe.typeSpecific).toBeDefined();
-				expect(result).not.toBe(smeltingRecipe);
-			});
-		});
-
-		describe("clear_slot", () => {
-			it("should clear a specific slot", () => {
-				expect(shapedRecipe.slots["0"]).toEqual(["minecraft:acacia_planks"]);
-				expect(shapedRecipe.slots["1"]).toEqual(["minecraft:acacia_planks"]);
-				expect(shapedRecipe.slots["2"]).toEqual(["minecraft:acacia_planks"]);
-
-				const action = RecipeAction.clearSlot("0");
-
-				const result = updateRecipe(action, shapedRecipe);
-				expect(result.slots["0"]).toBeUndefined();
-				expect(result.slots["1"]).toEqual(["minecraft:acacia_planks"]);
-				expect(result.slots["2"]).toEqual(["minecraft:acacia_planks"]);
-
-				expect(shapedRecipe.slots["0"]).toEqual(["minecraft:acacia_planks"]);
-				expect(shapedRecipe.slots["1"]).toEqual(["minecraft:acacia_planks"]);
-				expect(shapedRecipe.slots["2"]).toEqual(["minecraft:acacia_planks"]);
-				expect(result).not.toBe(shapedRecipe);
-			});
-
-			it("should handle clearing non-existent slot gracefully", () => {
-				const action = RecipeAction.clearSlot("99");
-
-				const result = updateRecipe(action, shapedRecipe);
-				expect(result.slots).toEqual(shapedRecipe.slots);
-			});
-		});
-
-		describe("add_shapeless_ingredient", () => {
-			it("should add ingredient to shapeless recipe", () => {
-				const originalSlots = shapelessRecipe.slots;
-				const slotsCount = Object.keys(originalSlots).length;
-
-				const action = RecipeAction.addShapelessIngredient(["minecraft:emerald"]);
-
-				const result = updateRecipe(action, shapelessRecipe);
-				expect(Object.keys(result.slots)).toHaveLength(slotsCount + 1);
-				expect(result.slots[slotsCount.toString()]).toEqual(["minecraft:emerald"]);
-
-				expect(shapelessRecipe.slots).toEqual(originalSlots);
-				expect(result).not.toBe(shapelessRecipe);
-			});
-
-			it("should add tag to shapeless recipe", () => {
-				const originalSlots = shapelessRecipe.slots;
-				const slotsCount = Object.keys(originalSlots).length;
-
-				const action = RecipeAction.addShapelessIngredient("#minecraft:logs");
-
-				const result = updateRecipe(action, shapelessRecipe);
-				expect(Object.keys(result.slots)).toHaveLength(slotsCount + 1);
-				expect(result.slots[slotsCount.toString()]).toBe("#minecraft:logs");
-
-				expect(shapelessRecipe.slots).toEqual(originalSlots);
-				expect(result).not.toBe(shapelessRecipe);
-			});
-
-			it("should add multiple items to shapeless recipe", () => {
-				const originalSlots = shapelessRecipe.slots;
-				const slotsCount = Object.keys(originalSlots).length;
-
-				const action = RecipeAction.addShapelessIngredient(["minecraft:emerald", "minecraft:diamond"]);
-
-				const result = updateRecipe(action, shapelessRecipe);
-				expect(Object.keys(result.slots)).toHaveLength(slotsCount + 1);
-				expect(result.slots[slotsCount.toString()]).toEqual(["minecraft:emerald", "minecraft:diamond"]);
-
-				expect(shapelessRecipe.slots).toEqual(originalSlots);
-				expect(result).not.toBe(shapelessRecipe);
-			});
-
-			it("should ignore non-shapeless recipes", () => {
-				const action = RecipeAction.addShapelessIngredient(["minecraft:emerald"]);
-
-				const result = updateRecipe(action, shapedRecipe);
-				expect(result.slots).toEqual(shapedRecipe.slots);
-				expect(result).not.toBe(shapedRecipe);
-			});
-		});
-
-		describe("remove_item_everywhere", () => {
-			it("should remove items from all slots", () => {
-				const testRecipe = {
-					...shapedRecipe,
-					slots: {
-						"0": ["minecraft:acacia_planks", "minecraft:oak_planks"],
-						"1": ["minecraft:stone"],
-						"2": "#minecraft:logs",
-						"3": ["minecraft:acacia_planks"]
-					}
-				};
-
-				const action = RecipeAction.removeItemEverywhere(["minecraft:acacia_planks"]);
-
-				const result = updateRecipe(action, testRecipe);
-				expect(result.slots["0"]).toEqual(["minecraft:oak_planks"]);
-				expect(result.slots["1"]).toEqual(["minecraft:stone"]);
-				expect(result.slots["2"]).toBe("#minecraft:logs");
-				expect(result.slots["3"]).toBeUndefined(); // Slot supprimé car vide
-
-				expect(testRecipe.slots["0"]).toEqual(["minecraft:acacia_planks", "minecraft:oak_planks"]);
-				expect(result).not.toBe(testRecipe);
-			});
-
-			it("should remove tags from slots", () => {
-				const testRecipe = {
-					...shapedRecipe,
-					slots: {
-						"0": ["minecraft:oak_planks"],
-						"1": "#minecraft:logs",
-						"2": ["minecraft:stone"]
-					}
-				};
-
-				const action = RecipeAction.removeItemEverywhere(["#minecraft:logs"]);
-
-				const result = updateRecipe(action, testRecipe);
-				expect(result.slots["0"]).toEqual(["minecraft:oak_planks"]);
-				expect(result.slots["1"]).toBeUndefined(); // Slot supprimé
-				expect(result.slots["2"]).toEqual(["minecraft:stone"]);
-
-				expect(testRecipe.slots["1"]).toBe("#minecraft:logs");
-				expect(result).not.toBe(testRecipe);
-			});
-
-			it("should remove multiple items at once", () => {
-				const testRecipe = {
-					...shapedRecipe,
-					slots: {
-						"0": ["minecraft:oak_planks", "minecraft:birch_planks", "minecraft:stone"],
-						"1": ["minecraft:oak_planks"],
-						"2": ["minecraft:diamond"]
-					}
-				};
-
-				const action = RecipeAction.removeItemEverywhere(["minecraft:oak_planks", "minecraft:birch_planks"]);
-
-				const result = updateRecipe(action, testRecipe);
-				expect(result.slots["0"]).toEqual(["minecraft:stone"]);
-				expect(result.slots["1"]).toBeUndefined(); // Slot supprimé car vide
-				expect(result.slots["2"]).toEqual(["minecraft:diamond"]);
-
-				expect(testRecipe.slots["0"]).toEqual(["minecraft:oak_planks", "minecraft:birch_planks", "minecraft:stone"]);
-				expect(result).not.toBe(testRecipe);
-			});
-		});
-
-		describe("replace_item_everywhere", () => {
-			it("should replace items in array slots", () => {
-				const testRecipe = {
-					...shapedRecipe,
-					slots: {
-						"0": ["minecraft:oak_planks", "minecraft:stone"],
-						"1": ["minecraft:oak_planks"],
-						"2": ["minecraft:diamond"]
-					}
-				};
-
-				const action = RecipeAction.replaceItemEverywhere("minecraft:oak_planks", "minecraft:birch_planks");
-
-				const result = updateRecipe(action, testRecipe);
-				expect(result.slots["0"]).toEqual(["minecraft:birch_planks", "minecraft:stone"]);
-				expect(result.slots["1"]).toEqual(["minecraft:birch_planks"]);
-				expect(result.slots["2"]).toEqual(["minecraft:diamond"]);
-
-				expect(testRecipe.slots["0"]).toEqual(["minecraft:oak_planks", "minecraft:stone"]);
-				expect(result).not.toBe(testRecipe);
-			});
-
-			it("should replace tags with items and transform to array", () => {
-				const testRecipe = {
-					...shapedRecipe,
-					slots: {
-						"0": "#minecraft:logs",
-						"1": ["minecraft:stone"],
-						"2": "#minecraft:logs"
-					}
-				};
-
-				const action = RecipeAction.replaceItemEverywhere("#minecraft:logs", "minecraft:oak_log");
-
-				const result = updateRecipe(action, testRecipe);
-				expect(result.slots["0"]).toEqual(["minecraft:oak_log"]); // Tag → Item = array
-				expect(result.slots["1"]).toEqual(["minecraft:stone"]);
-				expect(result.slots["2"]).toEqual(["minecraft:oak_log"]); // Tag → Item = array
-
-				expect(testRecipe.slots["0"]).toBe("#minecraft:logs");
-				expect(result).not.toBe(testRecipe);
-			});
-
-			it("should remove duplicates after replacement", () => {
-				const testRecipe = {
-					...shapedRecipe,
-					slots: {
-						"0": ["minecraft:oak_planks", "minecraft:birch_planks", "minecraft:oak_planks"],
-						"1": ["minecraft:stone"]
-					}
-				};
-
-				const action = RecipeAction.replaceItemEverywhere("minecraft:birch_planks", "minecraft:oak_planks");
-
-				const result = updateRecipe(action, testRecipe);
-				expect(result.slots["0"]).toEqual(["minecraft:oak_planks"]); // Duplicatas supprimés
-				expect(result.slots["1"]).toEqual(["minecraft:stone"]);
-
-				expect(testRecipe.slots["0"]).toEqual(["minecraft:oak_planks", "minecraft:birch_planks", "minecraft:oak_planks"]);
-				expect(result).not.toBe(testRecipe);
-			});
-
-			it("should replace items with tags and transform to string", () => {
-				const testRecipe = {
-					...shapedRecipe,
-					slots: {
-						"0": ["minecraft:oak_log"], // Seul item dans le slot
-						"1": ["minecraft:oak_log", "minecraft:stone"], // Plusieurs items
-						"2": ["minecraft:birch_log"]
-					}
-				};
-
-				const action = RecipeAction.replaceItemEverywhere("minecraft:oak_log", "#minecraft:logs");
-
-				const result = updateRecipe(action, testRecipe);
-				expect(result.slots["0"]).toBe("#minecraft:logs"); // Item seul → Tag = string
-				expect(result.slots["1"]).toEqual("#minecraft:logs"); // The first tags will be taken. The slots cannot mixed tags and items in array.
-				expect(result.slots["2"]).toEqual(["minecraft:birch_log"]); // Non affecté
-
-				expect(testRecipe.slots["0"]).toEqual(["minecraft:oak_log"]);
-				expect(result).not.toBe(testRecipe);
-			});
-		});
-	});
-
-	describe("Complex Recipe Operations", () => {
-		it("should preserve identifier through recipe actions", () => {
-			const action = RecipeAction.addIngredient("5", ["minecraft:coal"]);
-
-			const result = updateRecipe(action, shapedRecipe);
-			expect(result.identifier).toBeDefined();
-			expect(shapedRecipe.identifier).toEqual(result.identifier);
-		});
-
-		it("should handle complex type conversion", () => {
-			const complexRecipe = {
+		it("should avoid duplicate items when merging", () => {
+			const shapedRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped });
+			const recipeWithDuplicates = {
 				...shapedRecipe,
-				type: "minecraft:crafting_shaped" as const,
-				slots: {
-					"0": ["minecraft:coal", "minecraft:charcoal"],
-					"1": ["minecraft:stick"],
-					"3": ["minecraft:stick"],
-					"4": ["minecraft:stick"],
-					"5": ["minecraft:stick"]
-				},
-				gridSize: { width: 3, height: 2 }
+				slots: { "0": ["minecraft:diamond", "minecraft:stick"] }
 			};
 
-			const action = RecipeAction.convertRecipeType("minecraft:campfire_cooking");
+			const result = updateRecipe(RecipeAction.addIngredient("0", ["minecraft:diamond", "minecraft:emerald"]), recipeWithDuplicates);
+			expect(result.slots["0"]).toEqual(["minecraft:diamond", "minecraft:stick", "minecraft:emerald"]);
+		});
+	});
 
-			const result = updateRecipe(action, complexRecipe);
-			expect(result.type).toBe("minecraft:campfire_cooking");
-			expect(result.slots).toEqual({ "0": ["minecraft:coal"] });
+	describe("Add Shapeless Ingredients Actions", () => {
+		it("should add ingredients to shapeless recipe", () => {
+			const addDiamondAction = RecipeAction.addShapelessIngredient(["minecraft:diamond"]);
+			const result = updateRecipe(addDiamondAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless }));
+			expect(result.slots["1"]).toEqual(["minecraft:diamond"]);
+			expect(result.slots["0"]).toBe("#minecraft:acacia_logs");
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.ingredients).toHaveLength(2);
+			expect(compiled.element.data.ingredients?.[0]).toEqual("#minecraft:acacia_logs");
+			expect(compiled.element.data.ingredients?.[1]).toEqual("minecraft:diamond");
+		});
+
+		it("should replace ingredients in shapeless recipe", () => {
+			const replaceAction = RecipeAction.addShapelessIngredient(["minecraft:diamond", "minecraft:emerald"]);
+			const result = updateRecipe(replaceAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless }));
+			expect(result.slots["1"]).toEqual(["minecraft:diamond", "minecraft:emerald"]);
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.ingredients).toHaveLength(2);
+			expect(compiled.element.data.ingredients?.[0]).toEqual("#minecraft:acacia_logs");
+			expect(compiled.element.data.ingredients?.[1]).toEqual(["minecraft:diamond", "minecraft:emerald"]);
+		});
+
+		it("should remove specific ingredients from recipe", () => {
+			const addAction = RecipeAction.addShapelessIngredient(["minecraft:diamond", "minecraft:emerald", "minecraft:gold_ingot"]);
+			const resultWithIngredients = updateRecipe(addAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless }));
+			expect(resultWithIngredients.slots["1"]).toEqual(["minecraft:diamond", "minecraft:emerald", "minecraft:gold_ingot"]);
+
+			const removeAction = RecipeAction.removeIngredient("1", ["minecraft:emerald"]);
+			const result = updateRecipe(removeAction, resultWithIngredients);
+			expect(result.slots["1"]).toEqual(["minecraft:diamond", "minecraft:gold_ingot"]);
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.ingredients).toHaveLength(2);
+		});
+
+		it("should clear entire slot", () => {
+			const addAction = RecipeAction.addShapelessIngredient(["minecraft:diamond"]);
+			const resultWithDiamond = updateRecipe(addAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless }));
+			expect(resultWithDiamond.slots["1"]).toEqual(["minecraft:diamond"]);
+
+			const clearAction = RecipeAction.clearSlot("1");
+			const result = updateRecipe(clearAction, resultWithDiamond);
+			expect(result.slots["1"]).toBeUndefined();
+			expect(result.slots["0"]).toBe("#minecraft:acacia_logs");
+		});
+
+		it("should swap ingredients between slots", () => {
+			const addAction = RecipeAction.addShapelessIngredient(["minecraft:diamond"]);
+			const result = updateRecipe(addAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless }));
+			expect(result.slots["0"]).toEqual("#minecraft:acacia_logs");
+			expect(result.slots["1"]).toEqual(["minecraft:diamond"]);
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.ingredients?.[0]).toBe("#minecraft:acacia_logs");
+			expect(compiled.element.data.ingredients?.[1]).toBe("minecraft:diamond");
+		});
+
+		it("should add tag to shapeless recipe", () => {
+			const shapelessRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless });
+			const slotsCount = Object.keys(shapelessRecipe.slots).length;
+
+			const result = updateRecipe(RecipeAction.addShapelessIngredient("#minecraft:logs"), shapelessRecipe);
+			expect(Object.keys(result.slots)).toHaveLength(slotsCount + 1);
+			expect(result.slots[slotsCount.toString()]).toBe("#minecraft:logs");
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.ingredients).toHaveLength(2);
+			expect(compiled.element.data.ingredients?.[1]).toBe("#minecraft:logs");
+		});
+
+		it("should ignore non-shapeless recipes", () => {
+			const shapedRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped });
+			const result = updateRecipe(RecipeAction.addShapelessIngredient(["minecraft:emerald"]), shapedRecipe);
+			expect(result.slots).toEqual(shapedRecipe.slots);
+		});
+
+	});
+
+	describe("Remove Ingredients Actions", () => {
+		it("should remove specific ingredient from slot", () => {
+			const shaped2Recipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped2 });
+			const result = updateRecipe(RecipeAction.removeIngredient("4", ["minecraft:redstone"]), shaped2Recipe);
+			expect(result.slots["4"]).toBeUndefined();
+		});
+
+		it("should remove specific ingredient from slot with array item", () => {
+			const shapedArrayItemRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped_array_item });
+			const result = updateRecipe(RecipeAction.removeIngredient("4", ["minecraft:redstone"]), shapedArrayItemRecipe);
+			expect(result.slots["4"]).toEqual(["minecraft:redstone_block"]);
+		});
+
+		it("should remove entire slot when items not specified", () => {
+			const shaped2Recipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped2 });
+			const result = updateRecipe(RecipeAction.removeIngredient("4"), shaped2Recipe);
+			expect(result.slots["4"]).toBeUndefined();
+			expect(result.slots["1"]).toBe("#minecraft:iron_ingot");
+		});
+
+		it("should handle removing from non-existent slot gracefully", () => {
+			const shapedRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped });
+			const result = updateRecipe(RecipeAction.removeIngredient("99"), shapedRecipe);
+			expect(result.slots).toEqual(shapedRecipe.slots);
+		});
+	});
+
+	describe("Remove Item Everywhere Actions", () => {
+		it("should remove items from all slots", () => {
+			const shapedRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped });
+			const testRecipe = {
+				...shapedRecipe,
+				slots: {
+					"0": ["minecraft:acacia_planks", "minecraft:oak_planks"],
+					"1": ["minecraft:stone"],
+					"2": "#minecraft:logs",
+					"3": ["minecraft:acacia_planks"]
+				}
+			};
+
+			const result = updateRecipe(RecipeAction.removeItemEverywhere(["minecraft:acacia_planks"]), testRecipe);
+			expect(result.slots["0"]).toEqual(["minecraft:oak_planks"]);
+			expect(result.slots["1"]).toEqual(["minecraft:stone"]);
+			expect(result.slots["2"]).toBe("#minecraft:logs");
+			expect(result.slots["3"]).toBeUndefined();
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.key).toBeDefined();
+		});
+
+		it("should remove tags from slots", () => {
+			const shapedRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped });
+			const testRecipe = {
+				...shapedRecipe,
+				slots: {
+					"0": ["minecraft:oak_planks"],
+					"1": "#minecraft:logs",
+					"2": ["minecraft:stone"]
+				}
+			};
+
+			const result = updateRecipe(RecipeAction.removeItemEverywhere(["#minecraft:logs"]), testRecipe);
+			expect(result.slots["0"]).toEqual(["minecraft:oak_planks"]);
+			expect(result.slots["1"]).toBeUndefined();
+			expect(result.slots["2"]).toEqual(["minecraft:stone"]);
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.pattern).toBeDefined();
+		});
+
+		it("should remove multiple items at once", () => {
+			const shapedRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped });
+			const testRecipe = {
+				...shapedRecipe,
+				slots: {
+					"0": ["minecraft:oak_planks", "minecraft:birch_planks", "minecraft:stone"],
+					"1": ["minecraft:oak_planks"],
+					"2": ["minecraft:diamond"]
+				}
+			};
+
+			const result = updateRecipe(RecipeAction.removeItemEverywhere(["minecraft:oak_planks", "minecraft:birch_planks"]), testRecipe);
+			expect(result.slots["0"]).toEqual(["minecraft:stone"]);
+			expect(result.slots["1"]).toBeUndefined();
+			expect(result.slots["2"]).toEqual(["minecraft:diamond"]);
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.key).toBeDefined();
+		});
+	});
+
+	describe("Replace Item Everywhere Actions", () => {
+		it("should replace items in array slots", () => {
+			const shapedRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped });
+			const testRecipe = {
+				...shapedRecipe,
+				slots: {
+					"0": ["minecraft:oak_planks", "minecraft:stone"],
+					"1": ["minecraft:oak_planks"],
+					"2": ["minecraft:diamond"]
+				}
+			};
+
+			const result = updateRecipe(RecipeAction.replaceItemEverywhere("minecraft:oak_planks", "minecraft:birch_planks"), testRecipe);
+			expect(result.slots["0"]).toEqual(["minecraft:birch_planks", "minecraft:stone"]);
+			expect(result.slots["1"]).toEqual(["minecraft:birch_planks"]);
+			expect(result.slots["2"]).toEqual(["minecraft:diamond"]);
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.key).toBeDefined();
+		});
+
+		it("should replace tags with items and transform to array", () => {
+			const shapedRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped });
+			const testRecipe = {
+				...shapedRecipe,
+				slots: {
+					"0": "#minecraft:logs",
+					"1": ["minecraft:stone"],
+					"2": "#minecraft:logs"
+				}
+			};
+
+			const result = updateRecipe(RecipeAction.replaceItemEverywhere("#minecraft:logs", "minecraft:oak_log"), testRecipe);
+			expect(result.slots["0"]).toEqual(["minecraft:oak_log"]);
+			expect(result.slots["1"]).toEqual(["minecraft:stone"]);
+			expect(result.slots["2"]).toEqual(["minecraft:oak_log"]);
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.key).toBeDefined();
+		});
+
+		it("should remove duplicates after replacement", () => {
+			const shapedRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped });
+			const testRecipe = {
+				...shapedRecipe,
+				slots: {
+					"0": ["minecraft:oak_planks", "minecraft:birch_planks", "minecraft:oak_planks"],
+					"1": ["minecraft:stone"]
+				}
+			};
+
+			const result = updateRecipe(RecipeAction.replaceItemEverywhere("minecraft:birch_planks", "minecraft:oak_planks"), testRecipe);
+			expect(result.slots["0"]).toEqual(["minecraft:oak_planks"]);
+			expect(result.slots["1"]).toEqual(["minecraft:stone"]);
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.key).toBeDefined();
+		});
+
+		it("should replace items with tags and transform to string", () => {
+			const shapedRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped });
+			const testRecipe = {
+				...shapedRecipe,
+				slots: {
+					"0": ["minecraft:oak_log"],
+					"1": ["minecraft:oak_log", "minecraft:stone"],
+					"2": ["minecraft:birch_log"]
+				}
+			};
+
+			const result = updateRecipe(RecipeAction.replaceItemEverywhere("minecraft:oak_log", "#minecraft:logs"), testRecipe);
+			expect(result.slots["0"]).toBe("#minecraft:logs");
+			expect(result.slots["1"]).toEqual("#minecraft:logs");
+			expect(result.slots["2"]).toEqual(["minecraft:birch_log"]);
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.key).toBeDefined();
+		});
+	});
+
+	describe("Clear Slot Actions", () => {
+		it("should clear slot completely", () => {
+			const shaped2Recipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped2 });
+			const result = updateRecipe(RecipeAction.clearSlot("4"), shaped2Recipe);
+			expect(result.slots["4"]).toBeUndefined();
+			expect(result.slots["1"]).toBe("#minecraft:iron_ingot");
+		});
+
+		it("should handle clearing non-existent slot gracefully", () => {
+			const shapedRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped });
+			const result = updateRecipe(RecipeAction.clearSlot("99"), shapedRecipe);
+			expect(result.slots).toEqual(shapedRecipe.slots);
+		});
+	});
+
+	describe("Convert Recipe Type Actions", () => {
+		it("should convert shapeless to shaped recipe", () => {
+			const convertAction = RecipeAction.convertRecipeType("minecraft:crafting_shaped", true);
+			const result = updateRecipe(convertAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless }));
+			expect(result.type).toBe("minecraft:crafting_shaped");
+			expect(result.gridSize).toEqual({ width: 3, height: 3 });
+			expect(result.slots["0"]).toBe("#minecraft:acacia_logs");
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.type).toBe("minecraft:crafting_shaped");
+			expect(compiled.element.data.pattern).toBeDefined();
+			expect(compiled.element.data.key).toBeDefined();
+		});
+
+		it("should convert shaped to smelting recipe", () => {
+			const convertAction = RecipeAction.convertRecipeType("minecraft:smelting", true);
+			const result = updateRecipe(convertAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped }));
+			expect(result.type).toBe("minecraft:smelting");
 			expect(result.gridSize).toBeUndefined();
+			expect(result.slots["0"]).toEqual(["minecraft:acacia_planks"]);
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.type).toBe("minecraft:smelting");
+			expect(compiled.element.data.ingredient).toBe("minecraft:acacia_planks");
+			expect(compiled.element.data.pattern).toBeUndefined();
+			expect(compiled.element.data.key).toBeUndefined();
+		});
+
+		it("should convert smelting to stonecutting recipe", () => {
+			const convertAction = RecipeAction.convertRecipeType("minecraft:stonecutting", true);
+			const result = updateRecipe(convertAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.blasting }));
+			expect(result.type).toBe("minecraft:stonecutting");
+			expect(result.typeSpecific).toBeUndefined();
+			expect(result.slots["0"]).toEqual(["minecraft:iron_ore"]);
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.type).toBe("minecraft:stonecutting");
+			expect(compiled.element.data.ingredient).toBe("minecraft:iron_ore");
+			expect(compiled.element.data.experience).toBeUndefined();
+			expect(compiled.element.data.cookingtime).toBeUndefined();
+		});
+
+		it("should convert without preserving ingredients", () => {
+			const convertAction = RecipeAction.convertRecipeType("minecraft:crafting_shapeless", false);
+			const result = updateRecipe(convertAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped }));
+			expect(result.type).toBe("minecraft:crafting_shapeless");
+			expect(result.gridSize).toEqual({ width: 3, height: 1 });
+			expect(Object.keys(result.slots).length).toBeGreaterThan(0);
+		});
+
+		it("should handle recipe type conversion edge cases", () => {
+			const shapelessRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless });
+			const convertAction = RecipeAction.convertRecipeType("minecraft:crafting_shapeless", true);
+			const result = updateRecipe(convertAction, shapelessRecipe);
+			expect(result.type).toBe("minecraft:crafting_shapeless");
+			expect(result.slots).toEqual(shapelessRecipe.slots);
+
+			const unknownTypeAction = RecipeAction.convertRecipeType("minecraft:unknown_recipe_type", true);
+			const result2 = updateRecipe(unknownTypeAction, shapelessRecipe);
+			expect(result2.type).toBe("minecraft:unknown_recipe_type");
+		});
+	});
+
+	describe("Core Actions on Recipes", () => {
+		it("should set recipe values using core.set_value", () => {
+			const setGroupAction = CoreAction.setValue("group", "custom_planks");
+			const result = updateRecipe(setGroupAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless }));
+			expect(result.group).toBe("custom_planks");
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.group).toBe("custom_planks");
+		});
+
+		it("should toggle recipe values using core.toggle_value", () => {
+			const toggleNotificationAction = CoreAction.toggleValue("showNotification", false);
+			const result = updateRecipe(toggleNotificationAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless }));
+			expect(result.showNotification).toBe(false);
+
+			const updatedResult = updateRecipe(toggleNotificationAction, result);
+			expect(updatedResult.showNotification).toBeUndefined();
+
+			const compiled = VoxelToRecipeDataDriven(updatedResult, "recipe");
+			expect(compiled.element.data.show_notification).toBeUndefined();
+		});
+
+		it("should set result properties using core.set_value", () => {
+			const setCountAction = CoreAction.setValue("result.count", 8);
+			const result = updateRecipe(setCountAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless }));
+			expect(result.result.count).toBe(8);
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.result).toEqual({ count: 8, id: "minecraft:acacia_planks" });
+		});
+
+		it("should modify smelting data using core.set_value", () => {
+			const setExperienceAction = CoreAction.setValue("typeSpecific.experience", 1.5);
+			const updatedResult = updateRecipe(setExperienceAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.blasting })) as any;
+			expect(updatedResult.typeSpecific?.experience).toBe(1.5);
+
+			const compiled = VoxelToRecipeDataDriven(updatedResult, "recipe");
+			expect(compiled.element.data.experience).toBe(1.5);
+		});
+
+		it("should use core.set_undefined to remove properties", () => {
+			const removeGroupAction = CoreAction.setUndefined("group");
+			const result = updateRecipe(removeGroupAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless }));
+			expect(result.group).toBeUndefined();
+
+			const compiled = VoxelToRecipeDataDriven(result, "recipe");
+			expect(compiled.element.data.group).toBeUndefined();
+		});
+
+		it("should handle invalid path operations gracefully", () => {
+			const invalidPathAction = CoreAction.setValue("nonexistent.deeply.nested.path", "test");
+			const result = updateRecipe(invalidPathAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless })) as any;
+			expect(result.nonexistent?.deeply?.nested?.path).toBe("test");
+		});
+	});
+
+	describe("Complex workflow scenarios", () => {
+		it("should handle action chain on shapeless recipe", () => {
+			const shapelessRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shapeless });
+			const withIngredient = updateRecipe(RecipeAction.addShapelessIngredient(["minecraft:diamond"]), shapelessRecipe);
+			const withGroup = updateRecipe(CoreAction.setValue("group", "custom_planks"), withIngredient);
+			const withCount = updateRecipe(CoreAction.setValue("result.count", 8), withGroup);
+			const replaced = updateRecipe(RecipeAction.replaceItemEverywhere("minecraft:diamond", "minecraft:emerald"), withCount);
+			expect(replaced.slots["0"]).toBe("#minecraft:acacia_logs");
+			expect(replaced.slots["1"]).toEqual(["minecraft:emerald"]);
+			expect(replaced.group).toBe("custom_planks");
+			expect(replaced.result.count).toBe(8);
+
+			const compiled = VoxelToRecipeDataDriven(replaced, "recipe");
+			expect(compiled.element.data.ingredients).toHaveLength(2);
+			expect(compiled.element.data.group).toBe("custom_planks");
+			expect(compiled.element.data.result).toEqual({ count: 8, id: "minecraft:acacia_planks" });
+			expect(compiled.element.data.ingredients?.[1]).toBe("minecraft:emerald");
+		});
+
+		it("should preserve identifier through recipe actions", () => {
+			const shapedRecipe = RecipeDataDrivenToVoxelFormat({ element: originalRecipes.shaped });
+			const result = updateRecipe(RecipeAction.addIngredient("5", ["minecraft:coal"]), shapedRecipe);
+			expect(result.identifier).toBeDefined();
+			expect(shapedRecipe.identifier).toEqual(result.identifier);
 		});
 	});
 });

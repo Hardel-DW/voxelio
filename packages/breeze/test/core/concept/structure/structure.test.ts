@@ -6,10 +6,7 @@ import { village, mineshaft } from "@test/mock/structure/DataDriven";
 describe("Structure Parsing and Compiling", () => {
 	describe("Jigsaw Structure (Village)", () => {
 		it("should parse Minecraft village to Voxel format", () => {
-			const voxelStructure = StructureDataDrivenToVoxelFormat({
-				element: village
-			});
-
+			const voxelStructure = StructureDataDrivenToVoxelFormat({ element: village });
 			expect(voxelStructure.type).toBe("minecraft:village");
 			expect(voxelStructure.biomes).toEqual(["#minecraft:village_biomes"]);
 			expect(voxelStructure.step).toBe("surface_structures");
@@ -23,12 +20,8 @@ describe("Structure Parsing and Compiling", () => {
 		});
 
 		it("should compile Voxel village back to Minecraft format", () => {
-			const voxelStructure = StructureDataDrivenToVoxelFormat({
-				element: village
-			});
-
+			const voxelStructure = StructureDataDrivenToVoxelFormat({ element: village });
 			const { element: minecraftStructure } = VoxelToStructureDataDriven(voxelStructure, "worldgen/structure");
-
 			expect(minecraftStructure.data.type).toBe("minecraft:village");
 			expect(minecraftStructure.data.biomes).toBe("#minecraft:village_biomes");
 			expect(minecraftStructure.data.step).toBe("surface_structures");
@@ -43,33 +36,22 @@ describe("Structure Parsing and Compiling", () => {
 
 	describe("Legacy Structure (Mineshaft)", () => {
 		it("should parse Minecraft mineshaft to Voxel format", () => {
-			const voxelStructure = StructureDataDrivenToVoxelFormat({
-				element: mineshaft
-			});
-
+			const voxelStructure = StructureDataDrivenToVoxelFormat({ element: mineshaft });
 			expect(voxelStructure.type).toBe("minecraft:mineshaft");
 			expect(voxelStructure.biomes).toEqual(["#minecraft:mineshaft_biomes"]);
 			expect(voxelStructure.step).toBe("underground_structures");
 			expect(voxelStructure.typeSpecific?.mineshaft_type).toBe("normal");
 			expect(voxelStructure.typeSpecific?.probability).toBe(0.004);
-
-			// Jigsaw properties should be undefined for legacy structures
 			expect(voxelStructure.startPool).toBeUndefined();
 			expect(voxelStructure.size).toBeUndefined();
 		});
 
 		it("should compile Voxel mineshaft back to Minecraft format", () => {
-			const voxelStructure = StructureDataDrivenToVoxelFormat({
-				element: mineshaft
-			});
-
+			const voxelStructure = StructureDataDrivenToVoxelFormat({ element: mineshaft });
 			const { element: minecraftStructure } = VoxelToStructureDataDriven(voxelStructure, "worldgen/structure");
-
 			expect(minecraftStructure.data.type).toBe("minecraft:mineshaft");
 			expect(minecraftStructure.data.mineshaft_type).toBe("normal");
 			expect(minecraftStructure.data.probability).toBe(0.004);
-
-			// Jigsaw properties should not be present
 			expect(minecraftStructure.data.start_pool).toBeUndefined();
 			expect(minecraftStructure.data.size).toBeUndefined();
 		});
@@ -78,16 +60,8 @@ describe("Structure Parsing and Compiling", () => {
 	describe("Bidirectional Conversion", () => {
 		it("should maintain data integrity through parse -> compile cycle", () => {
 			const originalVillage = village;
-
-			// Parse to Voxel
-			const voxelStructure = StructureDataDrivenToVoxelFormat({
-				element: originalVillage
-			});
-
-			// Compile back to Minecraft
+			const voxelStructure = StructureDataDrivenToVoxelFormat({ element: originalVillage });
 			const { element: compiledStructure } = VoxelToStructureDataDriven(voxelStructure, "worldgen/structure", originalVillage.data);
-
-			// Check key properties are preserved
 			expect(compiledStructure.data.type).toBe(originalVillage.data.type);
 			expect(compiledStructure.data.biomes).toBe("#minecraft:village_biomes");
 			expect(compiledStructure.data.step).toBe(originalVillage.data.step);

@@ -5,56 +5,32 @@ describe("Identifier", () => {
 	describe("Identifier.of", () => {
 		it("should create a basic identifier", () => {
 			const result = Identifier.of("minecraft:stone", "block");
-			expect(result.get()).toEqual({
-				namespace: "minecraft",
-				registry: "block",
-				resource: "stone"
-			});
+			expect(result.get()).toEqual({ namespace: "minecraft", registry: "block", resource: "stone" });
 		});
 
 		it("should create identifier from tag", () => {
 			const result = Identifier.of("#minecraft:wool", "tags/block");
-			expect(result.get()).toEqual({
-				namespace: "minecraft",
-				registry: "tags/block",
-				resource: "wool"
-			});
+			expect(result.get()).toEqual({ namespace: "minecraft", registry: "tags/block", resource: "wool" });
 		});
 
 		it("should handle complex resource paths", () => {
 			const result = Identifier.of("enchantplus:sword/life_steal", "enchantment");
-			expect(result.get()).toEqual({
-				namespace: "enchantplus",
-				registry: "enchantment",
-				resource: "sword/life_steal"
-			});
+			expect(result.get()).toEqual({ namespace: "enchantplus", registry: "enchantment", resource: "sword/life_steal" });
 		});
 
 		it("should auto-prefix with minecraft namespace when none provided", () => {
 			const result = Identifier.of("stone", "block");
-			expect(result.get()).toEqual({
-				namespace: "minecraft",
-				registry: "block",
-				resource: "stone"
-			});
+			expect(result.get()).toEqual({ namespace: "minecraft", registry: "block", resource: "stone" });
 		});
 
 		it("should auto-prefix with minecraft namespace for tags", () => {
 			const result = Identifier.of("#sword", "tags/item");
-			expect(result.get()).toEqual({
-				namespace: "minecraft",
-				registry: "tags/item",
-				resource: "sword"
-			});
+			expect(result.get()).toEqual({ namespace: "minecraft", registry: "tags/item", resource: "sword" });
 		});
 
 		it("should respect explicit namespace when provided", () => {
 			const result = Identifier.of("modname:stone", "block");
-			expect(result.get()).toEqual({
-				namespace: "modname",
-				registry: "block",
-				resource: "stone"
-			});
+			expect(result.get()).toEqual({ namespace: "modname", registry: "block", resource: "stone" });
 		});
 	});
 

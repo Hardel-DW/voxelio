@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { type EnchantmentOption, EnchantmentSimulator, type ItemData } from "@/core/calculation/EnchantmentSimulation";
 import type { Enchantment } from "@/core/schema/enchant/types";
-import { enchantment, tagsEnchantment } from "@test/mock/enchant/EnchantmentSimulation";
+import { enchantment, tagsEnchantment } from "@test/mock/enchant/Simulation";
 
 describe("EnchantmentSimulator Performance", () => {
 	let simulator: EnchantmentSimulator;

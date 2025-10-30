@@ -3,7 +3,6 @@ import { originalRecipes } from "@test/mock/recipe/DataDriven";
 import { describe, it, expect } from "vitest";
 import { RecipeDataDrivenToVoxelFormat } from "@/core/schema/recipe/Parser";
 
-
 describe("Recipe E2E Tests", () => {
 	describe("Complete workflow: Parse → Compile", () => {
 		describe("Shapeless round-trip", () => {

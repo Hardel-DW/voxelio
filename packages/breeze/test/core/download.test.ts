@@ -25,7 +25,6 @@ describe("Indentation Preservation E2E", () => {
 			| undefined;
 
 		if (!parsedEnchantment) throw new Error("Enchantment not found");
-
 		const action = CoreAction.setValue("maxLevel", 5);
 		const updated = parsed.logger.trackChanges(parsedEnchantment, (el) => updateData<EnchantmentProps>(action, el));
 
@@ -38,10 +37,8 @@ describe("Indentation Preservation E2E", () => {
 		const downloadedFiles = await extractZip(new Uint8Array(await downloaded.arrayBuffer()));
 		const originalFile = new TextDecoder().decode(files["data/enchantplus/enchantment/sword/attack_speed.json"]);
 		const compiledFile = new TextDecoder().decode(downloadedFiles["data/enchantplus/enchantment/sword/attack_speed.json"]);
-
 		const originalIndent = Differ.detectIndentation(originalFile);
 		const compiledIndent = Differ.detectIndentation(compiledFile);
-
 		expect(originalIndent).toBe(compiledIndent);
 		expect(compiledIndent).toBe(2);
 	});
@@ -64,7 +61,6 @@ describe("Indentation Preservation E2E", () => {
 
 		const action = CoreAction.setValue("maxLevel", 5);
 		const updated = parsed.logger.trackChanges(parsedEnchantment, (el) => updateData<EnchantmentProps>(action, el));
-
 		const compiled = compileDatapack({
 			elements: [updated as EnchantmentProps],
 			files: parsed.files
@@ -74,10 +70,8 @@ describe("Indentation Preservation E2E", () => {
 		const downloadedFiles = await extractZip(new Uint8Array(await downloaded.arrayBuffer()));
 		const originalFile = new TextDecoder().decode(files["data/enchantplus/enchantment/sword/attack_speed.json"]);
 		const compiledFile = new TextDecoder().decode(downloadedFiles["data/enchantplus/enchantment/sword/attack_speed.json"]);
-
 		const originalIndent = Differ.detectIndentation(originalFile);
 		const compiledIndent = Differ.detectIndentation(compiledFile);
-
 		expect(originalIndent).toBe(compiledIndent);
 		expect(compiledIndent).toBe(4);
 	});
@@ -100,7 +94,6 @@ describe("Indentation Preservation E2E", () => {
 
 		const action = CoreAction.setValue("maxLevel", 5);
 		const updated = parsed.logger.trackChanges(parsedEnchantment, (el) => updateData<EnchantmentProps>(action, el));
-
 		const compiled = compileDatapack({
 			elements: [updated as EnchantmentProps],
 			files: parsed.files
@@ -110,10 +103,8 @@ describe("Indentation Preservation E2E", () => {
 		const downloadedFiles = await extractZip(new Uint8Array(await downloaded.arrayBuffer()));
 		const originalFile = new TextDecoder().decode(files["data/enchantplus/enchantment/sword/attack_speed.json"]);
 		const compiledFile = new TextDecoder().decode(downloadedFiles["data/enchantplus/enchantment/sword/attack_speed.json"]);
-
 		const originalIndent = Differ.detectIndentation(originalFile);
 		const compiledIndent = Differ.detectIndentation(compiledFile);
-
 		expect(originalIndent).toBe(compiledIndent);
 		expect(compiledIndent).toBe("\t");
 	});

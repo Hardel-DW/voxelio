@@ -4,7 +4,7 @@ import type { TagType } from "@/core/Tag";
 import { DatapackError } from "@/core/DatapackError";
 import { createZipFile, prepareFiles, createFilesFromElements } from "@test/mock/utils";
 import { DATA_DRIVEN_TEMPLATE_ENCHANTMENT } from "@test/mock/enchant/DataDriven";
-import { enchantplusTags, vanillaTags } from "@test/mock/enchant/DataDrivenTags";
+import { enchantplusTags, vanillaTags } from "@test/mock/tags/Enchantment";
 
 const enchantmentFiles = createFilesFromElements([...DATA_DRIVEN_TEMPLATE_ENCHANTMENT, ...enchantplusTags, ...vanillaTags]);
 
