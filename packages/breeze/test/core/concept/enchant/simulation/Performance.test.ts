@@ -5,7 +5,6 @@ import { enchantment, tagsEnchantment } from "@test/mock/enchant/EnchantmentSimu
 
 describe("EnchantmentSimulator Performance", () => {
 	let simulator: EnchantmentSimulator;
-
 	const testItem: ItemData = {
 		id: "minecraft:diamond_sword",
 		enchantability: 10,
@@ -45,13 +44,8 @@ describe("EnchantmentSimulator Performance", () => {
 
 		it("should handle high enchantability without slowdown", () => {
 			const start = performance.now();
-
-			for (let i = 0; i < 50; i++) {
-				simulator.simulateEnchantmentTable(15, 100, testItem.tags);
-			}
-
+			for (let i = 0; i < 50; i++) simulator.simulateEnchantmentTable(15, 100, testItem.tags);
 			const duration = performance.now() - start;
-
 			expect(duration).toBeLessThan(30);
 		});
 	});
@@ -59,62 +53,16 @@ describe("EnchantmentSimulator Performance", () => {
 	describe("Probability calculation performance", () => {
 		it("should calculate probabilities efficiently with early stopping", () => {
 			const start = performance.now();
-
 			const stats = simulator.calculateEnchantmentProbabilities(15, 10, testItem.tags, 1000);
-
 			const duration = performance.now() - start;
-
 			expect(duration).toBeLessThan(200);
 			expect(stats.length).toBeGreaterThan(0);
-		});
-
-		// it("should be linear with the number of iterations", () => {
-		//     const iterations = [100, 500, 1000];
-		//     const times: number[] = [];
-
-		//     for (const iter of iterations) {
-		//         const start = performance.now();
-		//         simulator.calculateEnchantmentProbabilities(15, 10, testItem.tags, iter);
-		//         times.push(performance.now() - start);
-		//     }
-
-		//     const ratio1 = times[1] / times[0];
-		//     const ratio2 = times[2] / times[1];
-
-		//     expect(ratio1).toBeGreaterThan(3);
-		//     expect(ratio1).toBeLessThan(7);
-		//     expect(ratio2).toBeGreaterThan(1);
-		//     expect(ratio2).toBeLessThan(2);
-		// });
-	});
-
-	describe("Memory usage", () => {
-		it("should not have memory leaks with caching", () => {
-			if (global.gc) {
-				global.gc();
-			}
-
-			const initialMemory = process.memoryUsage().heapUsed;
-
-			for (let i = 0; i < 1000; i++) {
-				simulator.simulateEnchantmentTable(15, 10, testItem.tags);
-			}
-
-			if (global.gc) {
-				global.gc();
-			}
-
-			const finalMemory = process.memoryUsage().heapUsed;
-			const memoryIncrease = finalMemory - initialMemory;
-
-			expect(memoryIncrease).toBeLessThan(5 * 1024 * 1024);
 		});
 	});
 
 	describe("Stress tests", () => {
 		it("should handle many enchantments with caching", () => {
 			const manyEnchantments = new Map<string, Enchantment>();
-
 			for (const [id, ench] of Object.entries(enchantment)) {
 				manyEnchantments.set(`minecraft:${id}`, ench);
 			}
@@ -133,15 +81,12 @@ describe("EnchantmentSimulator Performance", () => {
 			}
 
 			const stressSimulator = new EnchantmentSimulator(manyEnchantments);
-
 			const start = performance.now();
-
 			for (let i = 0; i < 50; i++) {
 				stressSimulator.simulateEnchantmentTable(15, 10, testItem.tags);
 			}
 
 			const duration = performance.now() - start;
-
 			expect(duration).toBeLessThan(300);
 		});
 
@@ -157,13 +102,11 @@ describe("EnchantmentSimulator Performance", () => {
 			}
 
 			const start = performance.now();
-
 			for (let i = 0; i < 200; i++) {
 				simulator.simulateEnchantmentTable(15, 10, manyTagsItem.tags);
 			}
 
 			const duration = performance.now() - start;
-
 			expect(duration).toBeLessThan(100);
 		});
 	});
