@@ -1,4 +1,4 @@
-import { Action, updateData } from "@/core/engine/actions";
+import { type Action, updateData } from "@/core/engine/actions";
 import { RecipeAction } from "@/core/engine/actions/domains/RecipeAction";
 import type { RecipeProps } from "@/core/schema/recipe/types";
 import { describe, it, expect } from "vitest";
@@ -7,7 +7,6 @@ import { originalRecipes } from "@test/mock/recipe/DataDriven";
 import { VoxelToRecipeDataDriven } from "@/core/schema/recipe/Compiler";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 
-// Helper function to update data with proper typing
 function updateRecipe(action: Action, recipe: RecipeProps, packVersion = 48): RecipeProps {
 	const result = updateData(action, recipe, packVersion);
 	expect(result).toBeDefined();

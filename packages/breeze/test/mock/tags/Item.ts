@@ -194,5 +194,9 @@ export const itemTags: DataDrivenRegistryElement<TagType>[] = [
 		data: {
 			values: ["#minecraft:enchantable/durability"]
 		}
+	},
+	{
+		identifier: { namespace: "test", registry: "tags/item", resource: "ores" },
+		data: { values: ["minecraft:iron_ingot", "minecraft:gold_ingot"] }
 	}
 ];
