@@ -1,8 +1,6 @@
 import type { LootGroup, LootItem, LootTableProps } from "@/core/schema/loot/types";
 import { Action } from "@/core/engine/actions/index";
-
-let globalItemCounter = 0;
-let globalGroupCounter = 0;
+import { randomId } from "@/utils";
 
 export class LootTableAction<P = any> extends Action<P> {
 	constructor(
@@ -23,7 +21,7 @@ export class LootTableAction<P = any> extends Action<P> {
 		return new LootTableAction({ poolIndex, item }, (el, p: { poolIndex: number; item: typeof item }) => {
 			const lootTable = structuredClone(el) as LootTableProps;
 			const newItem: LootItem = {
-				id: `item_${globalItemCounter++}`,
+				id: randomId("item"),
 				name: p.item.name,
 				weight: p.item.weight,
 				quality: p.item.quality,
@@ -81,7 +79,7 @@ export class LootTableAction<P = any> extends Action<P> {
 			if (source) {
 				const duplicate: LootItem = {
 					...source,
-					id: `item_${globalItemCounter++}`,
+					id: randomId("item"),
 					poolIndex: p.targetPoolIndex ?? source.poolIndex
 				};
 				lootTable.items.push(duplicate);
@@ -126,7 +124,7 @@ export class LootTableAction<P = any> extends Action<P> {
 			(el, p: { groupType: "alternatives" | "group" | "sequence"; itemIds: string[]; poolIndex: number; entryIndex?: number }) => {
 				const lootTable = structuredClone(el) as LootTableProps;
 				const group: LootGroup = {
-					id: `group_${globalGroupCounter++}`,
+					id: randomId("group"),
 					type: p.groupType,
 					items: [...p.itemIds],
 					poolIndex: p.poolIndex,
@@ -185,7 +183,7 @@ export class LootTableAction<P = any> extends Action<P> {
 				const item = lootTable.items.find((candidate) => candidate.id === p.itemId);
 				if (item) {
 					const group: LootGroup = {
-						id: `group_${globalGroupCounter++}`,
+						id: randomId("group"),
 						type: p.groupType,
 						items: [p.itemId, ...(p.additionalItems ?? [])],
 						poolIndex: item.poolIndex,

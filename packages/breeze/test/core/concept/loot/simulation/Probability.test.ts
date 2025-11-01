@@ -66,12 +66,14 @@ describe("LootTableProbabilityCalculator - Basic Weight Tests", () => {
 	});
 
 	it("should exclude items by ID", () => {
+		const item0Id = simpleSimulationLootTable.items[0].id;
+		const item1Id = simpleSimulationLootTable.items[1].id;
 		const results = calculator.calculateProbabilities({
-			excludedItemIds: ["item_0", "item_1"]
+			excludedItemIds: [item0Id, item1Id]
 		});
 
 		expect(results).toHaveLength(11);
-		const excludedItems = results.filter((r) => r.itemId === "item_0" || r.itemId === "item_1");
+		const excludedItems = results.filter((r) => r.itemId === item0Id || r.itemId === item1Id);
 		expect(excludedItems).toHaveLength(0);
 		const totalProbability = results.reduce((sum, r) => sum + r.probability, 0);
 		expect(totalProbability).toBeCloseTo(1, 5);

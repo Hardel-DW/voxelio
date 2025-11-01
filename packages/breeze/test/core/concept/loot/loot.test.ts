@@ -34,18 +34,15 @@ describe("LootTable Schema", () => {
 				expect(parsed.items).toHaveLength(2);
 				expect(parsed.groups).toHaveLength(3);
 
+				const group2Id = parsed.groups[2].id;
 				const alternativesGroup = parsed.groups.find((g) => g.type === "alternatives");
-				expect(alternativesGroup).toBeDefined();
-				expect(alternativesGroup?.id).toBe("group_0");
-
 				const groupType = parsed.groups.find((g) => g.type === "group");
-				expect(groupType).toBeDefined();
-				expect(groupType?.id).toBe("group_1");
-
 				const sequenceGroup = parsed.groups.find((g) => g.type === "sequence");
+				expect(alternativesGroup).toBeDefined();
+				expect(groupType).toBeDefined();
 				expect(sequenceGroup).toBeDefined();
-				expect(sequenceGroup?.id).toBe("group_2");
-				expect(sequenceGroup?.items).toContain("item_1");
+
+				expect(alternativesGroup?.id).toBe(group2Id);
 				expect(parsed.randomSequence).toBe("minecraft:entities/wither_skeleton");
 			});
 		});

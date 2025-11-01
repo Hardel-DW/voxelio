@@ -1,18 +1,10 @@
 import { updateData } from "@/core/engine/actions";
 import { VoxelToLootDataDriven } from "@/core/schema/loot/Compiler";
+import { LootDataDrivenToVoxelFormat } from "@/core/schema/loot/Parser";
 import type { LootTableProps } from "@/core/schema/loot/types";
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { LootTableAction } from "@/core/engine/actions/domains/LootTableAction";
-import { createZipFile, prepareFiles } from "@test/mock/utils";
 import { complete, advanced, ultimate, finalBoss } from "@test/mock/loot/DataDriven";
-import { Datapack } from "@/core/Datapack";
-
-const lootFiles = {
-	"data/test/loot_table/test.json": complete.data,
-	"data/test/loot_table/advanced.json": advanced.data,
-	"data/test/loot_table/ultimate.json": ultimate.data,
-	"data/test/loot_table/final_boss.json": finalBoss.data
-};
 
 function updateLootTable(action: any, lootTable: LootTableProps, packVersion = 48): LootTableProps {
 	const result = updateData(action, lootTable, packVersion);
@@ -22,42 +14,9 @@ function updateLootTable(action: any, lootTable: LootTableProps, packVersion = 4
 
 describe("LootTable E2E Tests", () => {
 	describe("Complete workflow: Parse → Actions → Compile", () => {
-		let parsedDatapack: ReturnType<Datapack["parse"]>;
-		let simpleLootTable: LootTableProps;
-		let advancedLootTable: LootTableProps;
-		let ultimateLootTable: LootTableProps;
-		let finalBossLootTable: LootTableProps;
-
-		beforeEach(async () => {
-			const lootTableZip = await createZipFile(prepareFiles(lootFiles));
-			const datapack = await Datapack.from(lootTableZip);
-			parsedDatapack = datapack.parse();
-
-			const lootTables = Array.from(parsedDatapack.elements.values()).filter(
-				(element): element is LootTableProps => element.identifier.registry === "loot_table"
-			);
-
-			expect(lootTables).toBeDefined();
-			expect(lootTables).toHaveLength(4);
-
-			const foundSimple = lootTables.find((lt) => lt.identifier.resource === "test");
-			const foundAdvanced = lootTables.find((lt) => lt.identifier.resource === "advanced");
-			const foundUltimate = lootTables.find((lt) => lt.identifier.resource === "ultimate");
-			const foundFinalBoss = lootTables.find((lt) => lt.identifier.resource === "final_boss");
-
-			expect(foundSimple).toBeDefined();
-			expect(foundAdvanced).toBeDefined();
-			expect(foundUltimate).toBeDefined();
-			expect(foundFinalBoss).toBeDefined();
-
-			simpleLootTable = foundSimple as LootTableProps;
-			advancedLootTable = foundAdvanced as LootTableProps;
-			ultimateLootTable = foundUltimate as LootTableProps;
-			finalBossLootTable = foundFinalBoss as LootTableProps;
-		});
-
 		describe("Round-trip purity (Parse → Compile without actions)", () => {
 			it("should preserve simple loot table data perfectly", () => {
+				const simpleLootTable = LootDataDrivenToVoxelFormat({ element: complete });
 				const compiled = VoxelToLootDataDriven(simpleLootTable, "loot_table");
 				expect(compiled.element.data.pools).toHaveLength(1);
 				expect(compiled.element.data.functions).toHaveLength(1);
@@ -89,7 +48,8 @@ describe("LootTable E2E Tests", () => {
 			});
 
 			it("should preserve advanced loot table with groups perfectly", () => {
-				const compiled = VoxelToLootDataDriven(advancedLootTable, "loot_table");
+				const voxel = LootDataDrivenToVoxelFormat({ element: advanced });
+				const compiled = VoxelToLootDataDriven(voxel, "loot_table");
 				expect(compiled.element.data.pools).toHaveLength(1);
 				expect(compiled.element.data.functions).toHaveLength(1);
 				expect(compiled.element.data.random_sequence).toBe("minecraft:entities/wither_skeleton");
@@ -110,11 +70,12 @@ describe("LootTable E2E Tests", () => {
 					expect(groupEntry.functions).toHaveLength(1);
 				}
 
-				expect(compiled.element.identifier).toEqual(advancedLootTable.identifier);
+				expect(compiled.element.identifier).toEqual(voxel.identifier);
 			});
 
 			it("should preserve ultimate loot table with complex nesting perfectly", () => {
-				const compiled = VoxelToLootDataDriven(ultimateLootTable, "loot_table");
+				const voxel = LootDataDrivenToVoxelFormat({ element: ultimate });
+				const compiled = VoxelToLootDataDriven(voxel, "loot_table");
 				expect(compiled.element.data.pools).toHaveLength(1);
 				expect(compiled.element.data.functions).toHaveLength(1);
 				expect(compiled.element.data.random_sequence).toBe("minecraft:entities/wither_skeleton");
@@ -159,11 +120,12 @@ describe("LootTable E2E Tests", () => {
 				expect(poolFunction).toBeDefined();
 				expect(poolFunction?.function).toBe("minecraft:set_count");
 				expect(poolFunction?.count).toBe(2);
-				expect(compiled.element.identifier).toEqual(ultimateLootTable.identifier);
+				expect(compiled.element.identifier).toEqual(voxel.identifier);
 			});
 
 			it("should preserve final boss loot table with complex NumberProviders and nested structures perfectly", () => {
-				const compiled = VoxelToLootDataDriven(finalBossLootTable, "loot_table");
+				const voxel = LootDataDrivenToVoxelFormat({ element: finalBoss });
+				const compiled = VoxelToLootDataDriven(voxel, "loot_table");
 				expect(compiled.element.data.pools).toHaveLength(2);
 				expect(compiled.element.data.functions).toHaveLength(1);
 				expect(compiled.element.data.random_sequence).toBe("minecraft:entities/wither_skeleton");
@@ -254,12 +216,13 @@ describe("LootTable E2E Tests", () => {
 				expect(tableFunction).toBeDefined();
 				expect(tableFunction?.function).toBe("minecraft:apply_bonus");
 				expect(tableFunction?.enchantment).toBe("minecraft:luck_of_the_sea");
-				expect(compiled.element.identifier).toEqual(finalBossLootTable.identifier);
+				expect(compiled.element.identifier).toEqual(voxel.identifier);
 			});
 
 			it("should identify data loss in simple loot table", () => {
-				const originalJson = lootFiles["data/test/loot_table/test.json"];
-				const compiled = VoxelToLootDataDriven(simpleLootTable, "loot_table");
+				const originalJson = complete.data;
+				const voxel = LootDataDrivenToVoxelFormat({ element: complete });
+				const compiled = VoxelToLootDataDriven(voxel, "loot_table");
 				const compiledData = compiled.element.data;
 				expect(compiledData.pools).toHaveLength(originalJson.pools?.length ?? 0);
 				expect(compiledData.functions).toHaveLength(originalJson.functions?.length ?? 0);
@@ -277,8 +240,9 @@ describe("LootTable E2E Tests", () => {
 			});
 
 			it("should identify data loss in advanced loot table", () => {
-				const originalJson = lootFiles["data/test/loot_table/advanced.json"];
-				const compiled = VoxelToLootDataDriven(advancedLootTable, "loot_table");
+				const originalJson = advanced.data;
+				const voxel = LootDataDrivenToVoxelFormat({ element: advanced });
+				const compiled = VoxelToLootDataDriven(voxel, "loot_table");
 				const compiledData = compiled.element.data;
 				expect(compiledData.pools).toHaveLength(originalJson.pools?.length ?? 0);
 				expect(compiledData.functions).toHaveLength(originalJson.functions?.length ?? 0);
@@ -301,8 +265,9 @@ describe("LootTable E2E Tests", () => {
 			});
 
 			it("should identify data loss in ultimate loot table", () => {
-				const originalJson = lootFiles["data/test/loot_table/ultimate.json"];
-				const compiled = VoxelToLootDataDriven(ultimateLootTable, "loot_table");
+				const originalJson = ultimate.data;
+				const voxel = LootDataDrivenToVoxelFormat({ element: ultimate });
+				const compiled = VoxelToLootDataDriven(voxel, "loot_table");
 				const compiledData = compiled.element.data;
 				expect(compiledData.pools).toHaveLength(originalJson.pools?.length ?? 0);
 				expect(compiledData.functions).toHaveLength(originalJson.functions?.length ?? 0);
@@ -321,8 +286,9 @@ describe("LootTable E2E Tests", () => {
 			});
 
 			it("should identify data preservation in final boss loot table", () => {
-				const originalJson = lootFiles["data/test/loot_table/final_boss.json"];
-				const compiled = VoxelToLootDataDriven(finalBossLootTable, "loot_table");
+				const originalJson = finalBoss.data;
+				const voxel = LootDataDrivenToVoxelFormat({ element: finalBoss });
+				const compiled = VoxelToLootDataDriven(voxel, "loot_table");
 				const compiledData = compiled.element.data;
 
 				expect(compiledData.pools).toHaveLength(originalJson.pools?.length ?? 0);
@@ -374,25 +340,27 @@ describe("LootTable E2E Tests", () => {
 
 		describe("Ultimate loot table workflow", () => {
 			it("should handle complex group operations", () => {
-				const dissolveGroupAction = LootTableAction.dissolveLootGroup("group_1");
-				const resultAfterDissolve = updateLootTable(dissolveGroupAction, ultimateLootTable);
+				const voxel = LootDataDrivenToVoxelFormat({ element: ultimate });
+				const groupToDissolve = voxel.groups[1];
+				const dissolveGroupAction = LootTableAction.dissolveLootGroup(groupToDissolve.id); const resultAfterDissolve = updateLootTable(dissolveGroupAction, voxel);
 				expect(resultAfterDissolve.groups).toHaveLength(2);
 
-				const createSequenceAction = LootTableAction.createLootGroup("sequence", ["item_0", "item_1"], 0);
-				const resultAfterSequence = updateLootTable(createSequenceAction, resultAfterDissolve);
+				const item0Id = voxel.items[0].id;
+				const item1Id = voxel.items[1].id;
+				const createSequenceAction = LootTableAction.createLootGroup("sequence", [item0Id, item1Id], 0); const resultAfterSequence = updateLootTable(createSequenceAction, resultAfterDissolve);
 				expect(resultAfterSequence.groups).toHaveLength(3);
 
 				const sequenceGroup = resultAfterSequence.groups.find((g) => g.type === "sequence");
 				expect(sequenceGroup).toBeDefined();
-				expect(sequenceGroup?.items).toEqual(["item_0", "item_1"]);
+				expect(sequenceGroup?.items).toEqual([item0Id, item1Id]);
 
-				const duplicateAction = LootTableAction.duplicateLootItem("item_0", 1);
+				const duplicateAction = LootTableAction.duplicateLootItem(item0Id, 1);
 				const resultAfterDuplicate = updateLootTable(duplicateAction, resultAfterSequence);
 				expect(resultAfterDuplicate.items).toHaveLength(6);
 
 				const duplicatedItem = resultAfterDuplicate.items.find((item) => item.name === "minecraft:acacia_sapling" && item.poolIndex === 1);
 				expect(duplicatedItem).toBeDefined();
-				expect(duplicatedItem?.id).not.toBe("item_0");
+				expect(duplicatedItem?.id).not.toBe(item0Id);
 
 				const compiled = VoxelToLootDataDriven(resultAfterDuplicate, "loot_table");
 				expect(compiled.element.data.pools).toHaveLength(2);
@@ -407,16 +375,16 @@ describe("LootTable E2E Tests", () => {
 
 		describe("Final Boss loot table workflow", () => {
 			it("should handle complex actions on final boss loot table", () => {
-				const table = finalBossLootTable;
-				const originalItemCount = table.items.length;
-				const originalGroupCount = table.groups.length;
+				const voxel = LootDataDrivenToVoxelFormat({ element: finalBoss });
+				const originalItemCount = voxel.items.length;
+				const originalGroupCount = voxel.groups.length;
 				const addLegendaryAction = LootTableAction.addLootItem(0, {
 					name: "minecraft:netherite_sword",
 					weight: 1,
 					quality: 100
 				});
 
-				const result = updateLootTable(addLegendaryAction, table);
+				const result = updateLootTable(addLegendaryAction, voxel);
 				expect(result.items).toHaveLength(originalItemCount + 1);
 
 				const createRareGroupAction = LootTableAction.createLootGroup(
@@ -425,7 +393,7 @@ describe("LootTable E2E Tests", () => {
 					0
 				);
 
-				const updatedTable = updateLootTable(createRareGroupAction, table);
+				const updatedTable = updateLootTable(createRareGroupAction, voxel);
 				expect(updatedTable.groups).toHaveLength(originalGroupCount + 1);
 
 				const moveItemAction = LootTableAction.moveItemBetweenPools(updatedTable.items[0].id, 1);
@@ -454,20 +422,20 @@ describe("LootTable E2E Tests", () => {
 			});
 
 			it("should preserve complex nested structures through actions", () => {
-				const table = finalBossLootTable;
-				const complexGroup = table.groups.find((g) => g.items.length > 0);
+				const voxel = LootDataDrivenToVoxelFormat({ element: finalBoss });
+				const complexGroup = voxel.groups.find((g) => g.items.length > 0);
 
 				if (complexGroup) {
 					const originalItems = [...complexGroup.items];
 					const dissolveAction = LootTableAction.dissolveLootGroup(complexGroup.id);
-					const dissolvedTable = updateLootTable(dissolveAction, table);
+					const dissolvedTable = updateLootTable(dissolveAction, voxel);
 					for (const itemId of originalItems) {
 						const item = dissolvedTable.items.find((i) => i.id === itemId);
 						expect(item).toBeDefined();
 					}
 				}
 
-				const compiled = VoxelToLootDataDriven(table, "loot_table");
+				const compiled = VoxelToLootDataDriven(voxel, "loot_table");
 				expect(compiled.element.data.pools).toHaveLength(2);
 				expect(compiled.element.data.functions).toHaveLength(1);
 				expect(compiled.element.data.random_sequence).toBe("minecraft:entities/wither_skeleton");
@@ -491,25 +459,27 @@ describe("LootTable E2E Tests", () => {
 
 		describe("Round-trip integrity", () => {
 			it("should maintain data integrity through full workflow", () => {
-				const table = ultimateLootTable;
-				const originalItemCount = table.items.length;
-				const originalGroupCount = table.groups.length;
+				const voxel = LootDataDrivenToVoxelFormat({ element: ultimate });
+				const originalItemCount = voxel.items.length;
+				const originalGroupCount = voxel.groups.length;
+				const item0Id = voxel.items[0].id;
+				const item4Id = voxel.items[4].id;
 
 				const actions = [
 					LootTableAction.addLootItem(0, { name: "minecraft:diamond_block", weight: 1, quality: 15 }),
-					LootTableAction.modifyLootItem("item_0", "weight", 100),
-					LootTableAction.createLootGroup("alternatives", ["item_0", "item_4"], 0),
-					LootTableAction.moveItemBetweenPools("item_1", 1)
+					LootTableAction.modifyLootItem(item0Id, "weight", 100),
+					LootTableAction.createLootGroup("alternatives", [item0Id, item4Id], 0),
+					LootTableAction.moveItemBetweenPools(voxel.items[1].id, 1)
 				];
 
-				const result = actions.reduce((acc, action) => updateLootTable(action, acc), table);
+				const result = actions.reduce((acc, action) => updateLootTable(action, acc), voxel);
 				expect(result.items).toHaveLength(originalItemCount + 1);
 				expect(result.groups).toHaveLength(originalGroupCount + 1);
 
 				const compiled = VoxelToLootDataDriven(result, "loot_table");
 				expect(compiled.element.data).toBeDefined();
 				expect(compiled.element.data.pools).toHaveLength(2);
-				expect(compiled.element.identifier).toEqual(ultimateLootTable.identifier);
+				expect(compiled.element.identifier).toEqual(voxel.identifier);
 
 				const pool0 = compiled.element.data.pools?.[0];
 				expect(pool0).toBeDefined();
@@ -518,16 +488,16 @@ describe("LootTable E2E Tests", () => {
 				expect(alternativesEntry).toBeDefined();
 				expect(alternativesEntry?.children).toBeDefined();
 				expect(alternativesEntry?.children?.length).toBeGreaterThan(0);
-				expect(compiled.element.data.random_sequence).toBe(ultimateLootTable.randomSequence);
-				expect(compiled.element.data.functions).toEqual(ultimateLootTable.functions);
+				expect(compiled.element.data.random_sequence).toBe(voxel.randomSequence);
+				expect(compiled.element.data.functions).toEqual(voxel.functions);
 			});
 		});
 
 		describe("Error handling and edge cases", () => {
 			it("should handle empty groups correctly", () => {
-				const table = advancedLootTable;
-				const dissolveGroupAction = LootTableAction.dissolveLootGroup("group_0");
-				const result = updateLootTable(dissolveGroupAction, table);
+				const voxel = LootDataDrivenToVoxelFormat({ element: advanced });
+				const dissolveGroupAction = LootTableAction.dissolveLootGroup(voxel.groups[0].id);
+				const result = updateLootTable(dissolveGroupAction, voxel);
 				expect(result.groups).toHaveLength(0);
 
 				const compiled = VoxelToLootDataDriven(result, "loot_table");

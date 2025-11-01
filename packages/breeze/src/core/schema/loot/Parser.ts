@@ -1,5 +1,6 @@
 import type { Parser, ParserParams } from "@/core/Datapack";
 import type { LootGroup, LootItem, LootTableProps, MinecraftLootEntry, MinecraftLootTable, PoolData } from "@/core/schema/loot/types";
+import { randomId } from "@/utils";
 
 /**
  * Parse Minecraft LootTable to simplified Voxel format.
@@ -11,8 +12,6 @@ export const LootDataDrivenToVoxelFormat: Parser<LootTableProps, MinecraftLootTa
 	const data = structuredClone(element.data);
 	const items: LootItem[] = [];
 	const groups: LootGroup[] = [];
-	let itemCounter = 0;
-	let groupCounter = 0;
 
 	data.pools?.forEach((pool, poolIndex) => {
 		pool.entries?.forEach((entry, entryIndex) => {
@@ -51,7 +50,7 @@ export const LootDataDrivenToVoxelFormat: Parser<LootTableProps, MinecraftLootTa
 		const isGroup = entry.type.includes("alternatives") || entry.type.includes("group") || entry.type.includes("sequence");
 
 		if (isGroup) {
-			const groupId = `group_${groupCounter++}`;
+			const groupId = randomId("group");
 			const groupType = entry.type.replace("minecraft:", "") as "alternatives" | "group" | "sequence";
 
 			const childIds = entry.children?.map((child) => processEntry(child, poolIndex, entryIndex)) || [];
@@ -69,7 +68,7 @@ export const LootDataDrivenToVoxelFormat: Parser<LootTableProps, MinecraftLootTa
 			return groupId;
 		}
 
-		const itemId = `item_${itemCounter++}`;
+		const itemId = randomId("item");
 		let name = "";
 		let value: string | undefined;
 
