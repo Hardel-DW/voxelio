@@ -2,7 +2,7 @@ import { updateData } from "@/core/engine/actions";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 import { describe, expect, it } from "vitest";
 import { EnchantmentDataDrivenToVoxelFormat } from "@/core/schema/enchant/Parser";
-import { originalEnchantments } from "@test/mock/enchant/DataDriven";
+import { originalEnchantments } from "@test/mock/enchant";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
 
 describe("Action System", () => {

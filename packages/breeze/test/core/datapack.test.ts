@@ -3,7 +3,7 @@ import { Datapack } from "@/core/Datapack";
 import type { TagType } from "@/core/Tag";
 import { DatapackError } from "@/core/DatapackError";
 import { createZipFile, prepareFiles, createFilesFromElements } from "@test/mock/utils";
-import { originalEnchantments } from "@test/mock/enchant/DataDriven";
+import { originalEnchantments } from "@test/mock/enchant";
 import { enchantplusTags, vanillaTags } from "@test/mock/tags/Enchantment";
 
 const enchantmentFiles = createFilesFromElements([...Object.values(originalEnchantments), ...enchantplusTags, ...vanillaTags]);

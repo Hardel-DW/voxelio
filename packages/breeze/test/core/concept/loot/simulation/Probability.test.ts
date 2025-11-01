@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { LootTableAppearanceProbability } from "@/core/calculation/LootTableAppearanceProbability";
 import { LootDataDrivenToVoxelFormat } from "@/core/schema/loot/Parser";
-import { simulation, finalBoss } from "@test/mock/loot/DataDriven";
+import { simulation, finalBoss } from "@test/mock/loot";
 
 const simpleSimulationLootTable = LootDataDrivenToVoxelFormat({ element: simulation });
 const extremeLootTable = LootDataDrivenToVoxelFormat({ element: finalBoss });

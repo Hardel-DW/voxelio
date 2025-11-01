@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { VoxelToEnchantmentDataDriven } from "@/core/schema/enchant/Compiler";
 import { EnchantmentDataDrivenToVoxelFormat } from "@/core/schema/enchant/Parser";
-import { originalEnchantments } from "@test/mock/enchant/DataDriven";
+import { originalEnchantments } from "@test/mock/enchant";
 import { Identifier } from "@/core/Identifier";
 
 describe("Enchantment Schema", () => {

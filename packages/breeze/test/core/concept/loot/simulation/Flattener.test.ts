@@ -14,7 +14,7 @@ import {
 	deepTop,
 	deepMid,
 	deepBottom
-} from "@test/mock/loot/DataDriven";
+} from "@test/mock/loot";
 import { itemTags } from "@test/mock/tags/Item";
 
 describe("LootTableFlattener", () => {

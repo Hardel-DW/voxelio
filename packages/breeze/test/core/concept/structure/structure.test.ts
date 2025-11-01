@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { StructureDataDrivenToVoxelFormat } from "@/core/schema/structure/Parser";
 import { VoxelToStructureDataDriven } from "@/core/schema/structure/Compiler";
-import { village, mineshaft } from "@test/mock/structure/DataDriven";
+import { village, mineshaft } from "@test/mock/structure";
 
 describe("Structure Parsing and Compiling", () => {
 	describe("Jigsaw Structure (Village)", () => {

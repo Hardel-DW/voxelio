@@ -6,7 +6,7 @@ import {
 	strongholdStructureSet,
 	ruinedPortalStructureSet,
 	endCityStructureSet
-} from "@test/mock/structure_set/DataDriven";
+} from "@test/mock/structure_set";
 
 describe("StructureSet Schema", () => {
 	describe("Parser", () => {

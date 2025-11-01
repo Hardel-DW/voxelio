@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { type EnchantmentOption, EnchantmentSimulator, type ItemData } from "@/core/calculation/EnchantmentSimulation";
 import type { Enchantment } from "@/core/schema/enchant/types";
-import { originalEnchantments } from "@test/mock/enchant/DataDriven";
+import { originalEnchantments } from "@test/mock/enchant";
 import { simulationTags } from "@test/mock/tags/Enchantment";
 
 const enchantments = new Map<string, Enchantment>(

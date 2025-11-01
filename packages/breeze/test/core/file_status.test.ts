@@ -5,7 +5,7 @@ import type { DataDrivenRegistryElement } from "@/core/Element";
 import type { Enchantment, EnchantmentProps } from "@/core/schema/enchant/types";
 import { Logger } from "@/core/engine/migrations/logger";
 import { EnchantmentDataDrivenToVoxelFormat } from "@/core/schema/enchant/Parser";
-import { originalEnchantments } from "@test/mock/enchant/DataDriven";
+import { originalEnchantments } from "@test/mock/enchant";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 import { updateData } from "@/core/engine/actions";
 import { Identifier } from "@/core/Identifier";

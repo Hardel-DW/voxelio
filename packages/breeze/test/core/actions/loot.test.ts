@@ -3,7 +3,7 @@ import { LootTableAction } from "@/core/engine/actions/domains/LootTableAction";
 import type { LootTableProps } from "@/core/schema/loot/types";
 import { describe, it, expect } from "vitest";
 import { LootDataDrivenToVoxelFormat } from "@/core/schema/loot/Parser";
-import { simple, complete, advanced, ultimate } from "@test/mock/loot/DataDriven";
+import { simple, complete, advanced, ultimate } from "@test/mock/loot";
 import { VoxelToLootDataDriven } from "@/core/schema/loot/Compiler";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 

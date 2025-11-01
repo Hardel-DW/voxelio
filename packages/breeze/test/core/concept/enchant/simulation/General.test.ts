@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { EnchantmentSimulator, type ItemData } from "@/core/calculation/EnchantmentSimulation";
-import { originalEnchantments } from "@test/mock/enchant/DataDriven";
+import { originalEnchantments } from "@test/mock/enchant";
 import { simulationTags } from "@test/mock/tags/Enchantment";
 import { itemTags } from "@test/mock/tags/Item";
 import type { Enchantment } from "@/core/schema/enchant/types";
