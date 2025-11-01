@@ -1,10 +1,18 @@
-import { describe, it, expect, beforeAll, vi } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { EnchantmentSimulator, type ItemData } from "@/core/calculation/EnchantmentSimulation";
-import { enchantment, tagsEnchantment } from "@test/mock/enchant/Simulation";
+import { originalEnchantments } from "@test/mock/enchant/DataDriven";
+import { simulationTags } from "@test/mock/tags/Enchantment";
 import { itemTags } from "@test/mock/tags/Item";
 import type { Enchantment } from "@/core/schema/enchant/types";
-import type { DataDrivenRegistryElement } from "@/core/Element";
-import type { TagType } from "@/core/Tag";
+
+const enchantments = new Map<string, Enchantment>(
+	Object.values(originalEnchantments).map((element) => [
+		`${element.identifier.namespace}:${element.identifier.resource}`,
+		element.data
+	])
+);
+
+const simulator = new EnchantmentSimulator(enchantments, simulationTags);
 
 const diamondSword: ItemData = {
 	id: "minecraft:diamond_sword",
@@ -21,23 +29,10 @@ const diamondSword: ItemData = {
 };
 
 describe("EnchantmentSimulator", () => {
-	let simulator: EnchantmentSimulator;
-	let enchantments: Map<string, Enchantment>;
-	let exclusivityTags: DataDrivenRegistryElement<TagType>[];
-
-	beforeAll(() => {
-		enchantments = new Map(Object.entries(enchantment).map(([id, ench]) => [`minecraft:${id}`, ench]));
-		exclusivityTags = Object.entries(tagsEnchantment).map(([id, tag]) => ({
-			identifier: { namespace: "minecraft", registry: "tags/enchantment", resource: id },
-			data: { values: tag.values }
-		}));
-		simulator = new EnchantmentSimulator(enchantments, exclusivityTags);
-	});
 
 	describe("simulateEnchantmentTable", () => {
 		it("should return exactly 3 options with correct structure", () => {
 			const options = simulator.simulateEnchantmentTable(15, 10, diamondSword.tags);
-
 			expect(options).toHaveLength(3);
 			expect(options[0]).toHaveProperty("level");
 			expect(options[0]).toHaveProperty("cost");
@@ -47,7 +42,6 @@ describe("EnchantmentSimulator", () => {
 		it("should have increasing levels with mocked randomness", () => {
 			const mockRandom = vi.spyOn(Math, "random");
 			mockRandom.mockReturnValue(0.5);
-
 			const options = simulator.simulateEnchantmentTable(15, 10, diamondSword.tags);
 			expect(options[0].level).toBeLessThanOrEqual(options[1].level);
 			expect(options[1].level).toBeLessThanOrEqual(options[2].level);
@@ -85,9 +79,7 @@ describe("EnchantmentSimulator", () => {
 							: [];
 
 					const isCompatible = supportedItems.some((item) =>
-						item.startsWith("#")
-							? diamondSword.tags.includes(item.substring(1))
-							: diamondSword.tags.includes(item)
+						item.startsWith("#") ? diamondSword.tags.includes(item.substring(1)) : diamondSword.tags.includes(item)
 					);
 
 					expect(isCompatible).toBe(true);
@@ -165,7 +157,6 @@ describe("EnchantmentSimulator", () => {
 				const hasSmite = enchantmentIds.includes("minecraft:smite");
 				const hasBaneOfArthropods = enchantmentIds.includes("minecraft:bane_of_arthropods");
 				const damageEnchants = [hasSharpness, hasSmite, hasBaneOfArthropods].filter(Boolean).length;
-
 				expect(damageEnchants).toBeLessThanOrEqual(1);
 			}
 
@@ -175,13 +166,11 @@ describe("EnchantmentSimulator", () => {
 		it("should verify Silk Touch is incompatible with swords", () => {
 			const mockRandom = vi.spyOn(Math, "random");
 			mockRandom.mockReturnValue(0.5);
-
 			const options = simulator.simulateEnchantmentTable(15, 25, diamondSword.tags);
 			for (const option of options) {
 				const enchantmentIds = option.enchantments.map((e) => e.enchantment);
 				expect(enchantmentIds).not.toContain("minecraft:silk_touch");
 			}
-
 			mockRandom.mockRestore();
 		});
 	});

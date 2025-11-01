@@ -1,44 +1,31 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { type EnchantmentOption, EnchantmentSimulator, type ItemData } from "@/core/calculation/EnchantmentSimulation";
 import type { Enchantment } from "@/core/schema/enchant/types";
-import { enchantment, tagsEnchantment } from "@test/mock/enchant/Simulation";
+import { originalEnchantments } from "@test/mock/enchant/DataDriven";
+import { simulationTags } from "@test/mock/tags/Enchantment";
+
+const enchantments = new Map<string, Enchantment>(
+	Object.values(originalEnchantments).map((element) => [
+		`${element.identifier.namespace}:${element.identifier.resource}`,
+		element.data
+	])
+);
+const simulator = new EnchantmentSimulator(enchantments, simulationTags);
+
+const testItem: ItemData = {
+	id: "minecraft:diamond_sword",
+	enchantability: 10,
+	tags: ["minecraft:enchantable/sword", "minecraft:enchantable/sharp_weapon", "minecraft:enchantable/weapon"]
+};
 
 describe("EnchantmentSimulator Performance", () => {
-	let simulator: EnchantmentSimulator;
-	const testItem: ItemData = {
-		id: "minecraft:diamond_sword",
-		enchantability: 10,
-		tags: ["minecraft:enchantable/sword", "minecraft:enchantable/sharp_weapon", "minecraft:enchantable/weapon"]
-	};
-
-	beforeEach(() => {
-		const enchantments = new Map<string, Enchantment>();
-		for (const [id, ench] of Object.entries(enchantment)) {
-			enchantments.set(`minecraft:${id}`, ench);
-		}
-
-		const exclusivityTags = Object.entries(tagsEnchantment).map(([id, tag]) => ({
-			identifier: {
-				namespace: "minecraft",
-				registry: "tags/enchantment",
-				resource: id
-			},
-			data: { values: tag.values }
-		}));
-
-		simulator = new EnchantmentSimulator(enchantments, exclusivityTags);
-	});
-
 	describe("Single simulation performance", () => {
 		it("should simulate an enchantment table quickly", () => {
 			const start = performance.now();
-
 			for (let i = 0; i < 200; i++) {
 				simulator.simulateEnchantmentTable(15, 10, testItem.tags);
 			}
-
 			const duration = performance.now() - start;
-
 			expect(duration).toBeLessThan(50);
 		});
 
@@ -62,10 +49,7 @@ describe("EnchantmentSimulator Performance", () => {
 
 	describe("Stress tests", () => {
 		it("should handle many enchantments with caching", () => {
-			const manyEnchantments = new Map<string, Enchantment>();
-			for (const [id, ench] of Object.entries(enchantment)) {
-				manyEnchantments.set(`minecraft:${id}`, ench);
-			}
+			const manyEnchantments = new Map<string, Enchantment>(enchantments);
 
 			for (let i = 0; i < 200; i++) {
 				manyEnchantments.set(`test:enchant_${i}`, {
@@ -85,7 +69,6 @@ describe("EnchantmentSimulator Performance", () => {
 			for (let i = 0; i < 50; i++) {
 				stressSimulator.simulateEnchantmentTable(15, 10, testItem.tags);
 			}
-
 			const duration = performance.now() - start;
 			expect(duration).toBeLessThan(300);
 		});
@@ -105,7 +88,6 @@ describe("EnchantmentSimulator Performance", () => {
 			for (let i = 0; i < 200; i++) {
 				simulator.simulateEnchantmentTable(15, 10, manyTagsItem.tags);
 			}
-
 			const duration = performance.now() - start;
 			expect(duration).toBeLessThan(100);
 		});

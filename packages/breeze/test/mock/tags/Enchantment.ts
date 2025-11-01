@@ -94,3 +94,83 @@ export const vanillaTags: DataDrivenRegistryElement<TagType>[] = [
 		data: { values: ["enchantplus:elytra/armored"] }
 	}
 ];
+
+export const exclusivityTestTags: DataDrivenRegistryElement<TagType>[] = [
+	{
+		identifier: { namespace: "test", registry: "tags/enchantment", resource: "exclusive_set/damage" },
+		data: {
+			values: ["minecraft:sharpness", "minecraft:smite", "minecraft:bane_of_arthropods", "test:damage_boost"]
+		}
+	},
+	{
+		identifier: { namespace: "minecraft", registry: "tags/enchantment", resource: "in_enchanting_table" },
+		data: {
+			values: [
+				"#minecraft:non_treasure",
+				"test:sharpness_v2",
+				"test:damage_boost",
+				"test:multi_exclusive",
+				"test:universal",
+				"test:supported_only_string",
+				"test:supported_only_tag",
+				"test:supported_only_array",
+				"test:primary_wins",
+				"test:primary_tag",
+				"test:primary_array"
+			]
+		}
+	}
+];
+
+export const simulationTags: DataDrivenRegistryElement<TagType>[] = [
+	{
+		identifier: { namespace: "minecraft", registry: "tags/enchantment", resource: "in_enchanting_table" },
+		data: { values: ["#minecraft:non_treasure"] }
+	},
+	{
+		identifier: { namespace: "minecraft", registry: "tags/enchantment", resource: "non_treasure" },
+		data: {
+			values: [
+				"minecraft:protection",
+				"minecraft:fire_protection",
+				"minecraft:feather_falling",
+				"minecraft:blast_protection",
+				"minecraft:projectile_protection",
+				"minecraft:respiration",
+				"minecraft:aqua_affinity",
+				"minecraft:thorns",
+				"minecraft:depth_strider",
+				"minecraft:sharpness",
+				"minecraft:smite",
+				"minecraft:bane_of_arthropods",
+				"minecraft:knockback",
+				"minecraft:fire_aspect",
+				"minecraft:looting",
+				"minecraft:sweeping_edge",
+				"minecraft:efficiency",
+				"minecraft:silk_touch",
+				"minecraft:unbreaking",
+				"minecraft:fortune",
+				"minecraft:power",
+				"minecraft:punch",
+				"minecraft:flame",
+				"minecraft:infinity",
+				"minecraft:luck_of_the_sea",
+				"minecraft:lure",
+				"minecraft:loyalty",
+				"minecraft:impaling",
+				"minecraft:riptide",
+				"minecraft:channeling",
+				"minecraft:multishot",
+				"minecraft:quick_charge",
+				"minecraft:piercing",
+				"minecraft:density",
+				"minecraft:breach"
+			]
+		}
+	},
+	{
+		identifier: { namespace: "minecraft", registry: "tags/enchantment", resource: "exclusive_set/damage" },
+		data: { values: ["minecraft:sharpness", "minecraft:smite", "minecraft:bane_of_arthropods"] }
+	}
+];

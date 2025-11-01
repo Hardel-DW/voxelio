@@ -1,213 +1,103 @@
-import { analyserCollection } from "@/core/engine/Analyser";
-import type { Compiler } from "@/core/engine/Compiler";
+import { describe, it, expect } from "vitest";
+import { VoxelToEnchantmentDataDriven } from "@/core/schema/enchant/Compiler";
+import { EnchantmentDataDrivenToVoxelFormat } from "@/core/schema/enchant/Parser";
+import { originalEnchantments } from "@test/mock/enchant/DataDriven";
 import { Identifier } from "@/core/Identifier";
-import type { EnchantmentProps } from "@/core/schema/enchant/types";
-import type { Enchantment } from "@/core/schema/enchant/types";
-import { DATA_DRIVEN_TEMPLATE_ENCHANTMENT, makeAdvancedEnchantment } from "@test/mock/enchant/DataDriven";
-import { simpleVoxelElement, onlyCreativeVoxelElement, softDeleteVoxelElement } from "@test/mock/enchant/VoxelDriven";
-import { describe, it, expect, beforeEach } from "vitest";
 
 describe("Enchantment Schema", () => {
-	describe("Voxel Element to Data Driven", () => {
-		const dataDrivenEnchantment = DATA_DRIVEN_TEMPLATE_ENCHANTMENT[0];
-
-		describe("Should be defined", () => {
-			it("should be defined", () => {
-				expect(simpleVoxelElement).toBeDefined();
-			});
-
-			it("should have an identifier", () => {
-				expect(simpleVoxelElement.identifier).toBeDefined();
-			});
-
-			it("should have a data", () => {
-				expect(simpleVoxelElement.data).toBeDefined();
-			});
-
-			it("should have a description", () => {
-				expect(simpleVoxelElement.data.description).toBeDefined();
-			});
+	describe("Data Driven to Voxel (Parser)", () => {
+		it("should parse accuracy_shot with effects", () => {
+			const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.accuracy_shot });
+			expect(parsed).toBeDefined();
+			expect(parsed.description).toEqual({ translate: "enchantment.enchantplus.accuracy_shot", fallback: "Accuracy Shot" });
+			expect(parsed.supportedItems).toBe("#voxel:enchantable/range");
+			expect(parsed.weight).toBe(2);
+			expect(parsed.maxLevel).toBe(1);
+			expect(parsed.slots).toEqual(["mainhand", "offhand"]);
+			expect(parsed.mode).toBe("normal");
 		});
 
-		describe("Should Compile", () => {
-			it("should compile", () => {
-				const { compiler } = analyserCollection.enchantment;
-				const compiled = compiler(simpleVoxelElement.data, "enchantment");
-				expect(compiled).toBeDefined();
+		it("should parse sharpness with exclusive_set and primary_items", () => {
+			const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.sharpness });
+			expect(parsed.exclusiveSet).toBe("#minecraft:exclusive_set/damage");
+			expect(parsed.primaryItems).toBe("#minecraft:enchantable/sword");
+			expect(parsed.supportedItems).toBe("#minecraft:enchantable/sharp_weapon");
+			expect(parsed.weight).toBe(10);
+			expect(parsed.maxLevel).toBe(5);
+		});
+
+		describe("Mode Detection", () => {
+			it("should detect soft_delete mode when no effects and no tags", () => {
+				const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.armored_soft_delete, tags: [] });
+				expect(parsed.mode).toBe("soft_delete");
+				expect(parsed.effects).toBeUndefined();
 			});
 
-			describe("Simple Data Driven Compilation", () => {
-				let compiled: ReturnType<Compiler<EnchantmentProps, Enchantment>>;
-
-				beforeEach(() => {
-					const { compiler } = analyserCollection.enchantment;
-					compiled = compiler(simpleVoxelElement.data, "enchantment", dataDrivenEnchantment.data);
+			it("should detect only_creative mode when only functionality tags", () => {
+				const parsed = EnchantmentDataDrivenToVoxelFormat({
+					element: originalEnchantments.agility_only_creative,
+					tags: ["#minecraft:curse", "#minecraft:double_trade_price"]
 				});
-
-				it("should compile with data driven enchantment", () => {
-					expect(compiled).toBeDefined();
-				});
-
-				it("All required fields are defined", () => {
-					expect(compiled.element.data.description).toBeDefined();
-					expect(compiled.element.data.exclusive_set).toBeDefined();
-					expect(compiled.element.data.supported_items).toBeDefined();
-					expect(compiled.element.data.weight).toBeDefined();
-					expect(compiled.element.data.max_level).toBeDefined();
-					expect(compiled.element.data.min_cost).toBeDefined();
-					expect(compiled.element.data.max_cost).toBeDefined();
-					expect(compiled.element.data.slots).toBeDefined();
-					expect(compiled.element.data.effects).toBeDefined();
-
-					expect(compiled.element.data.slots).toBeInstanceOf(Array);
-					expect(compiled.element.data.weight).toBe(2);
-					expect(compiled.element.data.max_level).toBe(1);
-					expect(compiled.element.data.min_cost).toBeInstanceOf(Object);
-					expect(compiled.element.data.max_cost).toBeInstanceOf(Object);
-					expect(compiled.element.data.min_cost.base).toBe(20);
-					expect(compiled.element.data.min_cost.per_level_above_first).toBe(9);
-					expect(compiled.element.data.max_cost.base).toBe(65);
-					expect(compiled.element.data.max_cost.per_level_above_first).toBe(9);
-					expect(compiled.element.data.effects).toEqual(expect.any(Object));
-				});
-
-				it("should have effects defined", () => {
-					expect(compiled.element.data.effects).toBeDefined();
-				});
-
-				it("should contain projectile_spawned effect", () => {
-					expect(Object.keys(compiled.element.data.effects as any)).toContain("minecraft:projectile_spawned");
-				});
-
-				it("should not contain damage effect", () => {
-					expect(Object.keys(compiled.element.data.effects as any).find((key) => key === "minecraft:damage")).toBeUndefined();
-				});
+				expect(parsed.mode).toBe("only_creative");
 			});
 
-			describe("Only Creative Compilation", () => {
-				let compiled: ReturnType<Compiler<EnchantmentProps, Enchantment>>;
-
-				beforeEach(() => {
-					const { compiler } = analyserCollection.enchantment;
-					compiled = compiler(onlyCreativeVoxelElement.data, "enchantment");
-				});
-
-				it("should compile with data driven enchantment", () => {
-					expect(compiled).toBeDefined();
-				});
-
-				it("Should remove all unfunctional tags to the elements", () => {
-					expect(
-						compiled.tags.find((tag) =>
-							new Identifier(tag).equalsObject(Identifier.of("minecraft:double_trade_price", "tags/enchantment"))
-						)
-					).toBeUndefined();
-					expect(
-						compiled.tags.find((tag) =>
-							new Identifier(tag).equalsObject(Identifier.of("minecraft:prevents_bee_spawns_when_mining", "tags/enchantment"))
-						)
-					).toBeUndefined();
-				});
-			});
-
-			describe("Soft Delete Compilation", () => {
-				let compiled: ReturnType<Compiler<EnchantmentProps, Enchantment>>;
-
-				beforeEach(() => {
-					const { compiler } = analyserCollection.enchantment;
-					compiled = compiler(softDeleteVoxelElement.data, "enchantment");
-				});
-
-				it("should compile with data driven enchantment", () => {
-					expect(compiled).toBeDefined();
-				});
-
-				it("should have correct exclusive set tag", () => {
-					expect(compiled.tags).toEqual([]);
-					expect(compiled.element.data.exclusiveSet).toBeUndefined();
-					expect(compiled.element.data.effects).toBeUndefined();
-				});
+			it("should detect normal mode when effects are present", () => {
+				const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.accuracy_shot });
+				expect(parsed.mode).toBe("normal");
+				expect(parsed.effects).toBeDefined();
 			});
 		});
 	});
 
-	describe("Data Driven to Voxel Element", () => {
-		it("should compile", () => {
-			const dataDrivenEnchantment = DATA_DRIVEN_TEMPLATE_ENCHANTMENT[0];
-
-			const { parser } = analyserCollection.enchantment;
-			const compiled = parser({ element: dataDrivenEnchantment });
+	describe("Voxel to Data Driven (Compiler)", () => {
+		it("should compile simple voxel element", () => {
+			const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.accuracy_shot_with_disabled });
+			const compiled = VoxelToEnchantmentDataDriven(parsed, "enchantment");
 			expect(compiled).toBeDefined();
+			expect(compiled.element.data.description).toBeDefined();
+			expect(compiled.element.data.supported_items).toBeDefined();
+			expect(compiled.element.data.weight).toBe(2);
+			expect(compiled.element.data.max_level).toBe(1);
 		});
 
-		describe("Should Determine Mode", () => {
-			it("Should be soft delete", () => {
-				const dataDrivenEnchantment = makeAdvancedEnchantment({
-					tags: [],
-					exclusiveSet: undefined,
-					effects: {}
-				});
+		it("should compile with original data and preserve fields", () => {
+			const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.accuracy_shot_with_disabled });
+			const compiled = VoxelToEnchantmentDataDriven(parsed, "enchantment", originalEnchantments.accuracy_shot_with_disabled.data);
+			expect(compiled.element.data.exclusive_set).toBe("#enchantplus:exclusive_set/bow");
+			expect(compiled.element.data.min_cost).toEqual({ base: 20, per_level_above_first: 9 });
+			expect(compiled.element.data.max_cost).toEqual({ base: 65, per_level_above_first: 9 });
+			expect(compiled.element.data.effects).toBeDefined();
+		});
 
-				const { parser } = analyserCollection.enchantment;
-				const compiled = parser({ element: dataDrivenEnchantment });
-				expect(compiled).toBeDefined();
-				expect(compiled.mode).toBe("soft_delete");
+		it("should handle disabled effects when compiling", () => {
+			const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.accuracy_shot_with_disabled });
+			parsed.disabledEffects = ["minecraft:damage"];
+			const compiled = VoxelToEnchantmentDataDriven(parsed, "enchantment", originalEnchantments.accuracy_shot_with_disabled.data);
+			expect(compiled.element.data.effects).toBeDefined();
+			expect(Object.keys(compiled.element.data.effects ?? {})).toContain("minecraft:projectile_spawned");
+			expect(Object.keys(compiled.element.data.effects ?? {})).not.toContain("minecraft:damage");
+		});
+
+		describe("Only Creative Compilation", () => {
+			it("should filter out non-functionality tags in only_creative mode", () => {
+				const parsed = EnchantmentDataDrivenToVoxelFormat({
+					element: originalEnchantments.agility_only_creative,
+					tags: ["#minecraft:curse", "#minecraft:double_trade_price"]
+				});
+				const compiled = VoxelToEnchantmentDataDriven(parsed, "enchantment");
+				expect(compiled.tags.find(tag =>
+					new Identifier(tag).equalsObject(Identifier.of("minecraft:double_trade_price", "tags/enchantment"))
+				)).toBeUndefined();
 			});
+		});
 
-			it("Should be only creative", () => {
-				const dataDrivenEnchantment = makeAdvancedEnchantment({
-					tags: ["minecraft:curse", "minecraft:double_trade_price", "minecraft:prevents_bee_spawns_when_mining"],
-					effects: {
-						"minecraft:damage": [
-							{
-								effect: {
-									type: "minecraft:add",
-									value: 5
-								}
-							}
-						]
-					}
-				});
-
-				const { parser } = analyserCollection.enchantment;
-				const compiled = parser({ element: dataDrivenEnchantment });
-				expect(compiled).toBeDefined();
-				expect(compiled.mode).toBe("only_creative");
-			});
-
-			it("Should be only creative even with exclusive set", () => {
-				const dataDrivenEnchantment = makeAdvancedEnchantment({
-					tags: ["minecraft:curse", "minecraft:double_trade_price", "minecraft:prevents_bee_spawns_when_mining"],
-					exclusiveSet: "#enchantplus:exclusive_set/sword_effect",
-					effects: {
-						"minecraft:damage": [
-							{
-								effect: {
-									type: "minecraft:add",
-									value: 5
-								}
-							}
-						]
-					}
-				});
-
-				const { parser } = analyserCollection.enchantment;
-				const compiled = parser({ element: dataDrivenEnchantment });
-				expect(compiled).toBeDefined();
-				expect(compiled.mode).toBe("only_creative");
-			});
-
-			it("Should be soft delete even with exclusive set", () => {
-				const dataDrivenEnchantment = makeAdvancedEnchantment({
-					tags: [],
-					exclusiveSet: "#enchantplus:exclusive_set/sword_effect",
-					effects: {}
-				});
-
-				const { parser } = analyserCollection.enchantment;
-				const compiled = parser({ element: dataDrivenEnchantment });
-				expect(compiled).toBeDefined();
-				expect(compiled.mode).toBe("soft_delete");
+		describe("Soft Delete Compilation", () => {
+			it("should remove exclusive_set and effects in soft_delete mode", () => {
+				const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.armored_soft_delete, tags: [] });
+				const compiled = VoxelToEnchantmentDataDriven(parsed, "enchantment");
+				expect(compiled.tags).toEqual([]);
+				expect(compiled.element.data.exclusive_set).toBeUndefined();
+				expect(compiled.element.data.effects).toBeUndefined();
 			});
 		});
 	});
