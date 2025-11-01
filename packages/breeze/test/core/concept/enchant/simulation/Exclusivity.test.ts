@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { type EnchantmentPossible, EnchantmentSimulator } from "@/core/calculation/EnchantmentSimulation";
-import { originalEnchantments } from "@test/mock/enchant";
-import { exclusivityTestTags } from "@test/mock/tags/Enchantment";
+import { originalEnchantments } from "@test/mock/concept/enchant";
+import { exclusivityTestTags } from "@test/mock/tags/enchant";
 import type { Enchantment } from "@/core/schema/enchant/types";
 
 const enchantments = new Map<string, Enchantment>(

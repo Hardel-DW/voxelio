@@ -3,7 +3,7 @@ import { RecipeAction } from "@/core/engine/actions/domains/RecipeAction";
 import type { RecipeProps } from "@/core/schema/recipe/types";
 import { describe, it, expect } from "vitest";
 import { RecipeDataDrivenToVoxelFormat } from "@/core/schema/recipe/Parser";
-import { originalRecipes } from "@test/mock/recipe";
+import { originalRecipes } from "@test/mock/concept/recipe";
 import { VoxelToRecipeDataDriven } from "@/core/schema/recipe/Compiler";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 

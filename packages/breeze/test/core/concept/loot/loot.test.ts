@@ -1,7 +1,7 @@
 import { VoxelToLootDataDriven } from "@/core/schema/loot/Compiler";
 import { LootDataDrivenToVoxelFormat } from "@/core/schema/loot/Parser";
 import { describe, it, expect } from "vitest";
-import { simple, extreme, reference } from "@test/mock/loot";
+import { simple, extreme, reference } from "@test/mock/concept/loot";
 
 describe("LootTable Schema", () => {
 	describe("Data Driven to Voxel Element", () => {

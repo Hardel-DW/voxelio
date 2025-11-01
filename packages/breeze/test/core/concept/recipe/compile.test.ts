@@ -3,7 +3,7 @@ import { VoxelToRecipeDataDriven } from "@/core/schema/recipe/Compiler";
 import { RecipeDataDrivenToVoxelFormat } from "@/core/schema/recipe/Parser";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 import { updateData } from "@/core/engine/actions";
-import { shapeless } from "@test/mock/recipe";
+import { shapeless } from "@test/mock/concept/recipe";
 import type { RecipeProps } from "@/core/schema/recipe/types";
 
 describe("Recipe Compilation - Result Count", () => {

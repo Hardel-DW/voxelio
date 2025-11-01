@@ -4,7 +4,7 @@ import { LootDataDrivenToVoxelFormat } from "@/core/schema/loot/Parser";
 import type { LootTableProps } from "@/core/schema/loot/types";
 import { describe, it, expect } from "vitest";
 import { LootTableAction } from "@/core/engine/actions/domains/LootTableAction";
-import { complete, advanced, ultimate, finalBoss } from "@test/mock/loot";
+import { complete, advanced, ultimate, finalBoss } from "@test/mock/concept/loot";
 
 function updateLootTable(action: any, lootTable: LootTableProps, packVersion = 48): LootTableProps {
 	const result = updateData(action, lootTable, packVersion);

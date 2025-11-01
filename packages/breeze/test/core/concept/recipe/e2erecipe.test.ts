@@ -1,5 +1,5 @@
 import { VoxelToRecipeDataDriven } from "@/core/schema/recipe/Compiler";
-import { originalRecipes } from "@test/mock/recipe";
+import { originalRecipes } from "@test/mock/concept/recipe";
 import { describe, it, expect } from "vitest";
 import { RecipeDataDrivenToVoxelFormat } from "@/core/schema/recipe/Parser";
 

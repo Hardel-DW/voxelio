@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { VoxelToEnchantmentDataDriven } from "@/core/schema/enchant/Compiler";
 import { EnchantmentDataDrivenToVoxelFormat } from "@/core/schema/enchant/Parser";
-import { originalEnchantments } from "@test/mock/enchant";
+import { originalEnchantments } from "@test/mock/concept/enchant";
 
 describe("Enchantment E2E Tests", () => {
 	describe("Complete workflow: Parse → Compile", () => {

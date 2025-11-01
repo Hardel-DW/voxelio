@@ -14,8 +14,8 @@ import {
 	deepTop,
 	deepMid,
 	deepBottom
-} from "@test/mock/loot";
-import { itemTags } from "@test/mock/tags/Item";
+} from "@test/mock/concept/loot";
+import { itemTags } from "@test/mock/tags/item";
 
 describe("LootTableFlattener", () => {
 	it("flattens a simple loot table", () => {

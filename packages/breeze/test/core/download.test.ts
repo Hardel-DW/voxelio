@@ -5,7 +5,7 @@ import { compileDatapack } from "@/core/engine/Compiler";
 import { Datapack } from "@/core/Datapack";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
 import { createZipFile } from "@test/mock/utils";
-import { attackSpeed } from "@test/mock/enchant";
+import { attackSpeed } from "@test/mock/concept/enchant";
 import { Differ } from "@voxelio/diff";
 import { extractZip } from "@voxelio/zip";
 

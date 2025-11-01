@@ -3,7 +3,7 @@ import { Tags } from "@/core/Tag";
 import { TagsProcessor } from "@/core/TagsProcessor";
 import type { DataDrivenRegistryElement } from "@/core/Element";
 import type { TagType } from "@/core/Tag";
-import { vanillaDatapackTags, customDatapackTags, replacingDatapackTags, advancedDatapackTags } from "@test/mock/tags/Enchantment";
+import { vanillaDatapackTags, customDatapackTags, replacingDatapackTags, advancedDatapackTags } from "@test/mock/tags/enchant";
 
 describe("Tag Functions", () => {
 	describe("isPresentInTag", () => {
