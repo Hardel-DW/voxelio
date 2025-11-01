@@ -3,10 +3,10 @@ import { Datapack } from "@/core/Datapack";
 import type { TagType } from "@/core/Tag";
 import { DatapackError } from "@/core/DatapackError";
 import { createZipFile, prepareFiles, createFilesFromElements } from "@test/mock/utils";
-import { DATA_DRIVEN_TEMPLATE_ENCHANTMENT } from "@test/mock/enchant/DataDriven";
+import { originalEnchantments } from "@test/mock/enchant/DataDriven";
 import { enchantplusTags, vanillaTags } from "@test/mock/tags/Enchantment";
 
-const enchantmentFiles = createFilesFromElements([...DATA_DRIVEN_TEMPLATE_ENCHANTMENT, ...enchantplusTags, ...vanillaTags]);
+const enchantmentFiles = createFilesFromElements([...Object.values(originalEnchantments), ...enchantplusTags, ...vanillaTags]);
 
 describe("Datapack", () => {
 	it("should create a datapack instance from files", () => {

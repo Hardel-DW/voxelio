@@ -4,7 +4,7 @@ import type { SlotRegistryType } from "@/core/SlotManager";
 import type { SingleOrMultiple } from "@/index";
 import type { TextComponentType } from "@/core/schema/TextComponentType";
 
-const tags_related_to_functionality = [
+export const FUNCTIONALITY_TAGS = [
 	{ namespace: "minecraft", registry: "tags/enchantment", resource: "curse" },
 	{ namespace: "minecraft", registry: "tags/enchantment", resource: "double_trade_price" },
 	{ namespace: "minecraft", registry: "tags/enchantment", resource: "prevents_bee_spawns_when_mining" },
@@ -15,7 +15,7 @@ const tags_related_to_functionality = [
 	{ namespace: "minecraft", registry: "tags/enchantment", resource: "tooltip_order" }
 ];
 
-export const FUNCTIONALITY_TAGS_CACHE = new Set(tags_related_to_functionality.map((tag) => new Identifier(tag).toString()));
+export const FUNCTIONALITY_TAGS_CACHE = new Set(FUNCTIONALITY_TAGS.map((tag) => new Identifier(tag).toString()));
 export interface EnchantmentProps extends VoxelElement {
 	description: TextComponentType;
 	exclusiveSet: SingleOrMultiple<string> | undefined;

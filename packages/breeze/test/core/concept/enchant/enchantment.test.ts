@@ -7,7 +7,7 @@ import { Identifier } from "@/core/Identifier";
 describe("Enchantment Schema", () => {
 	describe("Data Driven to Voxel (Parser)", () => {
 		it("should parse accuracy_shot with effects", () => {
-			const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.accuracy_shot });
+			const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.accuracy_shot, tags: ["#foo:bar"] });
 			expect(parsed).toBeDefined();
 			expect(parsed.description).toEqual({ translate: "enchantment.enchantplus.accuracy_shot", fallback: "Accuracy Shot" });
 			expect(parsed.supportedItems).toBe("#voxel:enchantable/range");
@@ -42,7 +42,7 @@ describe("Enchantment Schema", () => {
 			});
 
 			it("should detect normal mode when effects are present", () => {
-				const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.accuracy_shot });
+				const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.accuracy_shot, tags: ["#foo:bar"] });
 				expect(parsed.mode).toBe("normal");
 				expect(parsed.effects).toBeDefined();
 			});
@@ -51,8 +51,9 @@ describe("Enchantment Schema", () => {
 
 	describe("Voxel to Data Driven (Compiler)", () => {
 		it("should compile simple voxel element", () => {
+			const element = originalEnchantments.accuracy_shot_with_disabled;
 			const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.accuracy_shot_with_disabled });
-			const compiled = VoxelToEnchantmentDataDriven(parsed, "enchantment");
+			const compiled = VoxelToEnchantmentDataDriven(parsed, "enchantment", element.data);
 			expect(compiled).toBeDefined();
 			expect(compiled.element.data.description).toBeDefined();
 			expect(compiled.element.data.supported_items).toBeDefined();
@@ -80,15 +81,14 @@ describe("Enchantment Schema", () => {
 
 		describe("Only Creative Compilation", () => {
 			it("should filter out non-functionality tags in only_creative mode", () => {
-				const parsed = EnchantmentDataDrivenToVoxelFormat({
-					element: originalEnchantments.agility_only_creative,
-					tags: ["#minecraft:curse", "#minecraft:double_trade_price"]
-				});
+				const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.agility_only_creative, tags: ["#minecraft:curse", "#minecraft:double_trade_price"] });
 				const compiled = VoxelToEnchantmentDataDriven(parsed, "enchantment");
-				console.dir(compiled, { depth: null });
 
 				expect(compiled.tags.find(tag =>
 					new Identifier(tag).equalsObject(Identifier.of("minecraft:double_trade_price", "tags/enchantment"))
+				)).toBeUndefined();
+				expect(compiled.tags.find(tag =>
+					new Identifier(tag).equalsObject(Identifier.of("minecraft:curse", "tags/enchantment"))
 				)).toBeUndefined();
 			});
 		});

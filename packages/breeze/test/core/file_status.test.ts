@@ -4,103 +4,55 @@ import { createFilesFromElements } from "@test/mock/utils";
 import type { DataDrivenRegistryElement } from "@/core/Element";
 import type { Enchantment, EnchantmentProps } from "@/core/schema/enchant/types";
 import { Logger } from "@/core/engine/migrations/logger";
-import { createMockEnchantmentElement } from "@test/mock/enchant/VoxelDriven";
+import { EnchantmentDataDrivenToVoxelFormat } from "@/core/schema/enchant/Parser";
+import { originalEnchantments } from "@test/mock/enchant/DataDriven";
 import { CoreAction } from "@/core/engine/actions/domains/CoreAction";
 import { updateData } from "@/core/engine/actions";
+import { Identifier } from "@/core/Identifier";
 
-const createSimpleEnchantment = (namespace: string, resource: string): EnchantmentProps =>
-	createMockEnchantmentElement({
-		identifier: { namespace, registry: "enchantment", resource },
-		description: { translate: `enchantment.${namespace}.${resource}` }
-	}).data;
+const minimalId = new Identifier(originalEnchantments.minimal.identifier);
+const unknownId = new Identifier(originalEnchantments.unknown.identifier);
+const sharpnessId = new Identifier(originalEnchantments.sharpness.identifier);
+const knockbackId = new Identifier(originalEnchantments.knockback.identifier);
 
 describe("FileStatusComparator", () => {
 	describe("ADDED status", () => {
 		it("should detect newly added enchantment", () => {
-			const originalFiles = createFilesFromElements([
-				{
-					identifier: { namespace: "test", registry: "enchantment", resource: "existing" },
-					data: {
-						description: { translate: "enchantment.test.existing" },
-						anvil_cost: 1,
-						max_level: 1,
-						min_cost: { base: 1, per_level_above_first: 1 },
-						max_cost: { base: 10, per_level_above_first: 1 },
-						weight: 1,
-						supported_items: "#minecraft:enchantable/sword",
-						slots: ["mainhand"],
-						effects: {}
-					}
-				}
-			] as DataDrivenRegistryElement<Enchantment>[]);
-
+			const originalFiles = createFilesFromElements([originalEnchantments.minimal] as DataDrivenRegistryElement<Enchantment>[]);
 			const elements = new Map();
-			elements.set("test:existing$enchantment", createSimpleEnchantment("test", "existing"));
-			elements.set("test:new_one$enchantment", createSimpleEnchantment("test", "new_one"));
+			elements.set(minimalId.toUniqueKey(), EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.minimal }));
+			elements.set(unknownId.toUniqueKey(), EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.unknown }));
 
 			const logger = new Logger();
 			const comparator = new FileStatusComparator(originalFiles, elements, logger);
-
-			expect(comparator.getFileStatus("test:new_one$enchantment")).toBe(FILE_STATUS.ADDED);
+			expect(comparator.getFileStatus(unknownId.toUniqueKey())).toBe(FILE_STATUS.ADDED);
 		});
 	});
 
 	describe("UPDATED status", () => {
 		it("should detect updated enchantment when tracked by logger", () => {
-			const originalFiles = createFilesFromElements([
-				{
-					identifier: { namespace: "test", registry: "enchantment", resource: "modified" },
-					data: {
-						description: { translate: "enchantment.test.modified" },
-						anvil_cost: 1,
-						max_level: 1,
-						min_cost: { base: 1, per_level_above_first: 1 },
-						max_cost: { base: 10, per_level_above_first: 1 },
-						weight: 1,
-						supported_items: "#minecraft:enchantable/sword",
-						slots: ["mainhand"],
-						effects: {}
-					}
-				}
-			] as DataDrivenRegistryElement<Enchantment>[]);
-
+			const originalFiles = createFilesFromElements([originalEnchantments.sharpness] as DataDrivenRegistryElement<Enchantment>[]);
 			const logger = new Logger();
-			const enchantment = createSimpleEnchantment("test", "modified");
+			const enchantment = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.sharpness });
 			logger.trackChanges(enchantment, (el) => updateData<EnchantmentProps>(CoreAction.setValue("maxLevel", 5), el));
 			logger.trackChanges(enchantment, (el) => updateData<EnchantmentProps>(CoreAction.setValue("maxLevel", 3), el));
 			logger.trackChanges(enchantment, (el) => updateData<EnchantmentProps>(CoreAction.setValue("maxLevel", 10), el));
 
-			const elements = new Map().set("test:modified$enchantment", enchantment);
+			const elements = new Map().set(sharpnessId.toUniqueKey(), enchantment);
 			const comparator = new FileStatusComparator(originalFiles, elements, logger);
-			expect(comparator.getFileStatus("test:modified$enchantment")).toBe(FILE_STATUS.UPDATED);
+			expect(comparator.getFileStatus(sharpnessId.toUniqueKey())).toBe(FILE_STATUS.UPDATED);
 		});
 	});
 
 	describe("UNCHANGED status", () => {
 		it("should detect unchanged enchantment when not tracked by logger", () => {
-			const originalFiles = createFilesFromElements([
-				{
-					identifier: { namespace: "test", registry: "enchantment", resource: "unchanged" },
-					data: {
-						description: { translate: "enchantment.test.unchanged" },
-						anvil_cost: 1,
-						max_level: 1,
-						min_cost: { base: 1, per_level_above_first: 1 },
-						max_cost: { base: 10, per_level_above_first: 1 },
-						weight: 1,
-						supported_items: "#minecraft:enchantable/sword",
-						slots: ["mainhand"],
-						effects: {}
-					}
-				}
-			] as DataDrivenRegistryElement<Enchantment>[]);
-
+			const originalFiles = createFilesFromElements([originalEnchantments.knockback] as DataDrivenRegistryElement<Enchantment>[]);
 			const logger = new Logger();
 			const elements = new Map();
-			elements.set("test:unchanged$enchantment", createSimpleEnchantment("test", "unchanged"));
+			elements.set(knockbackId.toUniqueKey(), EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.knockback }));
 
 			const comparator = new FileStatusComparator(originalFiles, elements, logger);
-			expect(comparator.getFileStatus("test:unchanged$enchantment")).toBe(FILE_STATUS.UNCHANGED);
+			expect(comparator.getFileStatus(knockbackId.toUniqueKey())).toBe(FILE_STATUS.UNCHANGED);
 		});
 	});
 

@@ -48,7 +48,7 @@ export const VoxelToEnchantmentDataDriven: Compiler<EnchantmentProps, Enchantmen
 	}
 
 	if (element.mode === "only_creative") {
-		tags = tags.filter((tag) => FUNCTIONALITY_TAGS_CACHE.has(tag.toString()));
+		tags = tags.filter((tag) => !FUNCTIONALITY_TAGS_CACHE.has(tag.toString()));
 	}
 
 	if (element.exclusiveSet) {

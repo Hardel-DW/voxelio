@@ -100,16 +100,7 @@ export const accuracyShot: DataDrivenRegistryElement<Enchantment> = {
 		max_cost: { base: 65, per_level_above_first: 9 },
 		anvil_cost: 4,
 		slots: ["mainhand", "offhand"],
-		effects: {
-			"minecraft:projectile_spawned": [
-				{
-					effect: {
-						type: "minecraft:run_function",
-						function: "enchantplus:actions/accuracy_shot/on_shoot"
-					}
-				}
-			]
-		}
+		effects: { "test": {} }
 	}
 };
 
@@ -123,21 +114,7 @@ export const agility: DataDrivenRegistryElement<Enchantment> = {
 		min_cost: { base: 20, per_level_above_first: 9 },
 		max_cost: { base: 65, per_level_above_first: 9 },
 		anvil_cost: 4,
-		slots: ["feet"],
-		effects: {
-			"minecraft:attributes": [
-				{
-					id: "minecraft:enchantment.agility",
-					attribute: "minecraft:movement_speed",
-					amount: {
-						type: "minecraft:linear",
-						base: 0.2,
-						per_level_above_first: 0.2
-					},
-					operation: "add_multiplied_total"
-				}
-			]
-		}
+		slots: ["feet"]
 	}
 };
 
@@ -151,28 +128,7 @@ export const armored: DataDrivenRegistryElement<Enchantment> = {
 		min_cost: { base: 20, per_level_above_first: 9 },
 		max_cost: { base: 65, per_level_above_first: 9 },
 		anvil_cost: 4,
-		slots: ["chest"],
-		effects: {
-			"minecraft:damage_protection": [
-				{
-					effect: {
-						type: "minecraft:add",
-						value: 9
-					},
-					requirements: {
-						condition: "minecraft:damage_source_properties",
-						predicate: {
-							tags: [
-								{
-									expected: false,
-									id: "minecraft:bypasses_invulnerability"
-								}
-							]
-						}
-					}
-				}
-			]
-		}
+		slots: ["chest"]
 	}
 };
 
@@ -187,21 +143,7 @@ export const attackSpeed: DataDrivenRegistryElement<Enchantment> = {
 		min_cost: { base: 8, per_level_above_first: 11 },
 		max_cost: { base: 21, per_level_above_first: 9 },
 		anvil_cost: 2,
-		slots: ["mainhand"],
-		effects: {
-			"minecraft:attributes": [
-				{
-					id: "minecraft:enchantment.attack_speed",
-					attribute: "minecraft:attack_speed",
-					amount: {
-						type: "minecraft:linear",
-						base: 0.15,
-						per_level_above_first: 0.15
-					},
-					operation: "add_multiplied_base"
-				}
-			]
-		}
+		slots: ["mainhand"]
 	}
 };
 
@@ -449,21 +391,7 @@ export const agilityOnlyCreative: DataDrivenRegistryElement<Enchantment> = {
 		min_cost: { base: 20, per_level_above_first: 9 },
 		max_cost: { base: 65, per_level_above_first: 9 },
 		anvil_cost: 4,
-		slots: ["feet"],
-		effects: {
-			"minecraft:attributes": [
-				{
-					id: "minecraft:enchantment.agility",
-					attribute: "minecraft:movement_speed",
-					amount: {
-						type: "minecraft:linear",
-						base: 0.2,
-						per_level_above_first: 0.2
-					},
-					operation: "add_multiplied_total"
-				}
-			]
-		}
+		slots: ["feet"]
 	}
 };
 

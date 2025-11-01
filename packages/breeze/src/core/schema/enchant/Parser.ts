@@ -30,13 +30,14 @@ export const EnchantmentDataDrivenToVoxelFormat: Parser<EnchantmentProps, Enchan
 	const slots = data.slots;
 
 	const hasEffects = data.effects && Object.entries(data.effects).length > 0;
+	const hasExclusiveSet = data.exclusive_set !== undefined;
 	let mode: "normal" | "soft_delete" | "only_creative" = "normal";
 
 	if (tags.every((tag) => FUNCTIONALITY_TAGS_CACHE.has(tag))) {
 		mode = "only_creative";
 	}
 
-	if (!hasEffects && tags.length === 0) {
+	if (!hasEffects && tags.length === 0 && !hasExclusiveSet) {
 		mode = "soft_delete";
 	}
 
