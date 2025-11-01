@@ -32,21 +32,6 @@ export const smite: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const baneOfArthropods: DataDrivenRegistryElement<Enchantment> = {
-	identifier: { namespace: "minecraft", registry: "enchantment", resource: "bane_of_arthropods" },
-	data: {
-		description: { translate: "enchantment.minecraft.bane_of_arthropods", fallback: "Bane of Arthropods" },
-		exclusive_set: "#minecraft:exclusive_set/damage",
-		supported_items: "#minecraft:enchantable/sword",
-		weight: 5,
-		max_level: 5,
-		min_cost: { base: 5, per_level_above_first: 8 },
-		max_cost: { base: 25, per_level_above_first: 8 },
-		anvil_cost: 1,
-		slots: ["mainhand"]
-	}
-};
-
 export const knockback: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "minecraft", registry: "enchantment", resource: "knockback" },
 	data: {
@@ -57,20 +42,6 @@ export const knockback: DataDrivenRegistryElement<Enchantment> = {
 		min_cost: { base: 5, per_level_above_first: 20 },
 		max_cost: { base: 55, per_level_above_first: 20 },
 		anvil_cost: 2,
-		slots: ["mainhand"]
-	}
-};
-
-export const channeling: DataDrivenRegistryElement<Enchantment> = {
-	identifier: { namespace: "minecraft", registry: "enchantment", resource: "channeling" },
-	data: {
-		description: { translate: "enchantment.minecraft.channeling", fallback: "Channeling" },
-		supported_items: "#minecraft:enchantable/trident",
-		weight: 1,
-		max_level: 1,
-		min_cost: { base: 25, per_level_above_first: 0 },
-		max_cost: { base: 50, per_level_above_first: 0 },
-		anvil_cost: 8,
 		slots: ["mainhand"]
 	}
 };
@@ -89,7 +60,7 @@ export const unbreaking: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const accuracyShot: DataDrivenRegistryElement<Enchantment> = {
+export const accuracy_shot: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "enchantplus", registry: "enchantment", resource: "bow/accuracy_shot" },
 	data: {
 		description: { translate: "enchantment.enchantplus.accuracy_shot", fallback: "Accuracy Shot" },
@@ -104,35 +75,7 @@ export const accuracyShot: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const agility: DataDrivenRegistryElement<Enchantment> = {
-	identifier: { namespace: "enchantplus", registry: "enchantment", resource: "boots/agility" },
-	data: {
-		description: { translate: "enchantment.enchantplus.agility", fallback: "Agility" },
-		supported_items: "#minecraft:enchantable/foot_armor",
-		weight: 2,
-		max_level: 1,
-		min_cost: { base: 20, per_level_above_first: 9 },
-		max_cost: { base: 65, per_level_above_first: 9 },
-		anvil_cost: 4,
-		slots: ["feet"]
-	}
-};
-
-export const armored: DataDrivenRegistryElement<Enchantment> = {
-	identifier: { namespace: "enchantplus", registry: "enchantment", resource: "elytra/armored" },
-	data: {
-		description: { translate: "enchantment.enchantplus.armored", fallback: "Armored" },
-		supported_items: "#voxel:enchantable/elytra",
-		weight: 1,
-		max_level: 1,
-		min_cost: { base: 20, per_level_above_first: 9 },
-		max_cost: { base: 65, per_level_above_first: 9 },
-		anvil_cost: 4,
-		slots: ["chest"]
-	}
-};
-
-export const attackSpeed: DataDrivenRegistryElement<Enchantment> = {
+export const attack_speed: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "enchantplus", registry: "enchantment", resource: "sword/attack_speed" },
 	data: {
 		description: { translate: "enchantment.enchantplus.attack_speed", fallback: "Attack Speed" },
@@ -147,39 +90,7 @@ export const attackSpeed: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const deathTouch: DataDrivenRegistryElement<Enchantment> = {
-	identifier: { namespace: "enchantplus", registry: "enchantment", resource: "sword/death_touch" },
-	data: {
-		description: { translate: "enchantment.enchantplus.death_touch", fallback: "Death Touch" },
-		exclusive_set: "#enchantplus:exclusive_set/sword_effect",
-		primary_items: "#minecraft:enchantable/sword",
-		supported_items: "#minecraft:enchantable/weapon",
-		weight: 2,
-		max_level: 1,
-		min_cost: { base: 20, per_level_above_first: 9 },
-		max_cost: { base: 65, per_level_above_first: 9 },
-		anvil_cost: 4,
-		slots: ["mainhand"],
-		effects: {
-			"minecraft:post_attack": [
-				{
-					enchanted: "attacker",
-					affected: "victim",
-					effect: {
-						type: "minecraft:run_function",
-						function: "enchantplus:actions/death_touch"
-					},
-					requirements: {
-						condition: "minecraft:random_chance",
-						chance: 0.5
-					}
-				}
-			]
-		}
-	}
-};
-
-export const poisonAspect: DataDrivenRegistryElement<Enchantment> = {
+export const poison_aspect: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "enchantplus", registry: "enchantment", resource: "sword/poison_aspect" },
 	data: {
 		description: { translate: "enchantment.enchantplus.poison_aspect", fallback: "Poison Aspect" },
@@ -191,35 +102,11 @@ export const poisonAspect: DataDrivenRegistryElement<Enchantment> = {
 		min_cost: { base: 20, per_level_above_first: 9 },
 		max_cost: { base: 65, per_level_above_first: 9 },
 		anvil_cost: 4,
-		slots: ["mainhand"],
-		effects: {
-			"minecraft:post_attack": [
-				{
-					affected: "victim",
-					enchanted: "attacker",
-					effect: {
-						type: "minecraft:apply_mob_effect",
-						max_duration: {
-							type: "minecraft:linear",
-							base: 3.25,
-							per_level_above_first: 1.25
-						},
-						max_amplifier: {
-							type: "minecraft:linear",
-							base: 2,
-							per_level_above_first: 1
-						},
-						min_duration: 3.25,
-						min_amplifier: 2,
-						to_apply: "minecraft:wither"
-					}
-				}
-			]
-		}
+		slots: ["mainhand"]
 	}
 };
 
-export const sharpnessV2: DataDrivenRegistryElement<Enchantment> = {
+export const sharpness_v2: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "test", registry: "enchantment", resource: "sharpness_v2" },
 	data: {
 		description: { translate: "test.sharpness_v2", fallback: "Sharpness V2" },
@@ -234,7 +121,7 @@ export const sharpnessV2: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const damageBoost: DataDrivenRegistryElement<Enchantment> = {
+export const damage_boost: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "test", registry: "enchantment", resource: "damage_boost" },
 	data: {
 		description: { translate: "test.damage_boost", fallback: "Damage Boost" },
@@ -249,7 +136,7 @@ export const damageBoost: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const multiExclusive: DataDrivenRegistryElement<Enchantment> = {
+export const multi_exclusive: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "test", registry: "enchantment", resource: "multi_exclusive" },
 	data: {
 		description: { translate: "test.multi_exclusive", fallback: "Multi Exclusive" },
@@ -264,7 +151,7 @@ export const multiExclusive: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const supportedOnlyString: DataDrivenRegistryElement<Enchantment> = {
+export const supported_only_string: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "test", registry: "enchantment", resource: "supported_only_string" },
 	data: {
 		description: { translate: "test.supported_only_string", fallback: "Supported Only String" },
@@ -278,7 +165,7 @@ export const supportedOnlyString: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const supportedOnlyTag: DataDrivenRegistryElement<Enchantment> = {
+export const supported_only_tag: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "test", registry: "enchantment", resource: "supported_only_tag" },
 	data: {
 		description: { translate: "test.supported_only_tag", fallback: "Supported Only Tag" },
@@ -292,7 +179,7 @@ export const supportedOnlyTag: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const supportedOnlyArray: DataDrivenRegistryElement<Enchantment> = {
+export const supported_only_array: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "test", registry: "enchantment", resource: "supported_only_array" },
 	data: {
 		description: { translate: "test.supported_only_array", fallback: "Supported Only Array" },
@@ -306,7 +193,7 @@ export const supportedOnlyArray: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const primaryWins: DataDrivenRegistryElement<Enchantment> = {
+export const primary_wins: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "test", registry: "enchantment", resource: "primary_wins" },
 	data: {
 		description: { translate: "test.primary_wins", fallback: "Primary Wins" },
@@ -321,7 +208,7 @@ export const primaryWins: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const primaryTag: DataDrivenRegistryElement<Enchantment> = {
+export const primary_tag: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "test", registry: "enchantment", resource: "primary_tag" },
 	data: {
 		description: { translate: "test.primary_tag", fallback: "Primary Tag" },
@@ -336,7 +223,7 @@ export const primaryTag: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const primaryArray: DataDrivenRegistryElement<Enchantment> = {
+export const primary_array: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "test", registry: "enchantment", resource: "primary_array" },
 	data: {
 		description: { translate: "test.primary_array", fallback: "Primary Array" },
@@ -351,7 +238,7 @@ export const primaryArray: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const accuracyShotWithDisabledEffects: DataDrivenRegistryElement<Enchantment> = {
+export const accuracy_shot_with_disabled: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "enchantplus", registry: "enchantment", resource: "bow/accuracy_shot" },
 	data: {
 		description: { translate: "enchantment.enchantplus.accuracy_shot", fallback: "Accuracy Shot" },
@@ -363,25 +250,11 @@ export const accuracyShotWithDisabledEffects: DataDrivenRegistryElement<Enchantm
 		max_cost: { base: 65, per_level_above_first: 9 },
 		anvil_cost: 4,
 		slots: ["mainhand", "offhand"],
-		effects: {
-			"minecraft:projectile_spawned": [
-				{
-					effect: {
-						type: "minecraft:run_function",
-						function: "enchantplus:actions/accuracy_shot/on_shoot"
-					}
-				}
-			],
-			"minecraft:damage": [
-				{
-					amount: 1
-				}
-			]
-		}
+		effects: { "foo": [{ "effect": { "type": "minecraft:run_function", "function": "enchantplus:actions/accuracy_shot/on_shoot" } }], "bar": { "test": {} } }
 	}
 };
 
-export const agilityOnlyCreative: DataDrivenRegistryElement<Enchantment> = {
+export const agility_only_creative: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "enchantplus", registry: "enchantment", resource: "boots/agility" },
 	data: {
 		description: { translate: "enchantment.enchantplus.agility", fallback: "Agility" },
@@ -395,7 +268,7 @@ export const agilityOnlyCreative: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const armoredSoftDelete: DataDrivenRegistryElement<Enchantment> = {
+export const armored_soft_delete: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "enchantplus", registry: "enchantment", resource: "elytra/armored" },
 	data: {
 		description: { translate: "enchantment.enchantplus.armored", fallback: "Armored" },
@@ -409,7 +282,7 @@ export const armoredSoftDelete: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const minimalEnchantment: DataDrivenRegistryElement<Enchantment> = {
+export const minimal: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "test", registry: "enchantment", resource: "minimal" },
 	data: {
 		description: { translate: "test.minimal", fallback: "Minimal" },
@@ -423,7 +296,7 @@ export const minimalEnchantment: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const unknownEnchantment: DataDrivenRegistryElement<Enchantment> = {
+export const unknown: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "test", registry: "enchantment", resource: "unknown" },
 	data: {
 		description: { translate: "test.unknown", fallback: "Unknown" },
@@ -433,27 +306,6 @@ export const unknownEnchantment: DataDrivenRegistryElement<Enchantment> = {
 		min_cost: { base: 1, per_level_above_first: 0 },
 		max_cost: { base: 10, per_level_above_first: 0 },
 		anvil_cost: 1,
-		slots: ["mainhand"],
-		effects: {
-			"modname:custom_effect": [
-				{
-					custom_field: "value"
-				}
-			]
-		}
-	}
-};
-
-export const zeroWeightEnchantment: DataDrivenRegistryElement<Enchantment> = {
-	identifier: { namespace: "test", registry: "enchantment", resource: "zero_weight" },
-	data: {
-		description: { translate: "test.zero_weight", fallback: "Zero Weight" },
-		supported_items: "#minecraft:enchantable/sword",
-		weight: 0,
-		max_level: 1,
-		min_cost: { base: 1, per_level_above_first: 0 },
-		max_cost: { base: 50, per_level_above_first: 0 },
-		anvil_cost: 1,
 		slots: ["mainhand"]
 	}
 };
@@ -461,31 +313,25 @@ export const zeroWeightEnchantment: DataDrivenRegistryElement<Enchantment> = {
 export const originalEnchantments = {
 	sharpness,
 	smite,
-	bane_of_arthropods: baneOfArthropods,
 	knockback,
-	channeling,
 	unbreaking,
-	accuracy_shot: accuracyShot,
-	agility,
-	armored,
-	attack_speed: attackSpeed,
-	death_touch: deathTouch,
-	poison_aspect: poisonAspect,
-	sharpness_v2: sharpnessV2,
-	damage_boost: damageBoost,
-	multi_exclusive: multiExclusive,
-	supported_only_string: supportedOnlyString,
-	supported_only_tag: supportedOnlyTag,
-	supported_only_array: supportedOnlyArray,
-	primary_wins: primaryWins,
-	primary_tag: primaryTag,
-	primary_array: primaryArray,
-	accuracy_shot_with_disabled: accuracyShotWithDisabledEffects,
-	agility_only_creative: agilityOnlyCreative,
-	armored_soft_delete: armoredSoftDelete,
-	minimal: minimalEnchantment,
-	unknown: unknownEnchantment,
-	zero_weight: zeroWeightEnchantment
+	accuracy_shot,
+	attack_speed,
+	poison_aspect,
+	sharpness_v2,
+	damage_boost,
+	multi_exclusive,
+	supported_only_string,
+	supported_only_tag,
+	supported_only_array,
+	primary_wins,
+	primary_tag,
+	primary_array,
+	accuracy_shot_with_disabled,
+	agility_only_creative,
+	armored_soft_delete,
+	minimal,
+	unknown
 };
 
 export type EnchantmentKey = keyof typeof originalEnchantments;

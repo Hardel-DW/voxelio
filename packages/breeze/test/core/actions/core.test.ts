@@ -105,22 +105,22 @@ describe("Action System", () => {
 		it("should handle nested path operations in arrays", () => {
 			const element = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.accuracy_shot_with_disabled });
 			expect(element.effects).toBeDefined();
-			expect(element.effects?.["minecraft:projectile_spawned"]).toBeDefined();
-			expect(Array.isArray(element.effects?.["minecraft:projectile_spawned"])).toBe(true);
+			expect(element.effects?.foo).toBeDefined();
+			expect(Array.isArray(element.effects?.foo)).toBe(true);
 
-			const projectileSpawned = element.effects?.["minecraft:projectile_spawned"] as any[];
-			expect(projectileSpawned[0].effect.type).toBe("minecraft:run_function");
-			expect(projectileSpawned[0].effect.function).toBe("enchantplus:actions/accuracy_shot/on_shoot");
+			const foo = element.effects?.foo as { effect: { type: string; function: string } }[];
+			expect(foo[0].effect.type).toBe("minecraft:run_function");
+			expect(foo[0].effect.function).toBe("enchantplus:actions/accuracy_shot/on_shoot");
 
-			const response = CoreAction.setValue("effects.minecraft:projectile_spawned.0.effect.function", "modpack:new_function");
+			const response = CoreAction.setValue("effects.foo.0.effect.function", "modpack:new_function");
 			const result = updateData(response, element, 48);
 			expect(result).toBeDefined();
 			expect(result?.effects).toBeDefined();
 
-			const resultProjectileSpawned = result?.effects?.["minecraft:projectile_spawned"] as any[];
-			expect(resultProjectileSpawned[0].effect.function).toBe("modpack:new_function");
-			expect(resultProjectileSpawned[0].effect.type).toBe("minecraft:run_function");
-			expect(projectileSpawned[0].effect.function).toBe("enchantplus:actions/accuracy_shot/on_shoot");
+			const resultFoo = result?.effects?.foo as { effect: { type: string; function: string } }[];
+			expect(resultFoo[0].effect.function).toBe("modpack:new_function");
+			expect(resultFoo[0].effect.type).toBe("minecraft:run_function");
+			expect(foo[0].effect.function).toBe("enchantplus:actions/accuracy_shot/on_shoot");
 			expect(result).not.toBe(element);
 		});
 

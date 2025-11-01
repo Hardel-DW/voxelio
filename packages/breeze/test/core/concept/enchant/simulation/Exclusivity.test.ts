@@ -14,7 +14,6 @@ const enchantments = new Map<string, Enchantment>(
 const simulator = new EnchantmentSimulator(enchantments, exclusivityTestTags);
 
 describe("EnchantmentSimulator - Exclusivity and Primary Items", () => {
-
 	describe("Exclusive Set Compatibility", () => {
 		it("should reject enchantments with same exclusive_set (string vs tag)", () => {
 			// @ts-expect-error - Testing private method areEnchantmentsCompatible

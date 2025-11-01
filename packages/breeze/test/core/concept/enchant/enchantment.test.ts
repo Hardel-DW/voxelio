@@ -72,11 +72,11 @@ describe("Enchantment Schema", () => {
 
 		it("should handle disabled effects when compiling", () => {
 			const parsed = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.accuracy_shot_with_disabled });
-			parsed.disabledEffects = ["minecraft:damage"];
+			parsed.disabledEffects = ["bar"];
 			const compiled = VoxelToEnchantmentDataDriven(parsed, "enchantment", originalEnchantments.accuracy_shot_with_disabled.data);
 			expect(compiled.element.data.effects).toBeDefined();
-			expect(Object.keys(compiled.element.data.effects ?? {})).toContain("minecraft:projectile_spawned");
-			expect(Object.keys(compiled.element.data.effects ?? {})).not.toContain("minecraft:damage");
+			expect(Object.keys(compiled.element.data.effects ?? {})).toContain("foo");
+			expect(Object.keys(compiled.element.data.effects ?? {})).not.toContain("bar");
 		});
 
 		describe("Only Creative Compilation", () => {

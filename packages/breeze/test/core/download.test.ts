@@ -5,7 +5,7 @@ import { compileDatapack } from "@/core/engine/Compiler";
 import { Datapack } from "@/core/Datapack";
 import type { EnchantmentProps } from "@/core/schema/enchant/types";
 import { createZipFile } from "@test/mock/utils";
-import { attackSpeed } from "@test/mock/concept/enchant";
+import { attack_speed } from "@test/mock/concept/enchant";
 import { Differ } from "@voxelio/diff";
 import { extractZip } from "@voxelio/zip";
 
@@ -14,7 +14,7 @@ describe("Indentation Preservation E2E", () => {
 		const files: Record<string, Uint8Array> = {};
 		files["pack.mcmeta"] = new TextEncoder().encode(JSON.stringify({ pack: { pack_format: 61, description: "test" } }, null, 2));
 		files["data/enchantplus/enchantment/sword/attack_speed.json"] = new TextEncoder().encode(
-			JSON.stringify(attackSpeed.data, null, 2)
+			JSON.stringify(attack_speed.data, null, 2)
 		);
 
 		const zipFile = await createZipFile(files);
@@ -47,7 +47,7 @@ describe("Indentation Preservation E2E", () => {
 		const files: Record<string, Uint8Array> = {};
 		files["pack.mcmeta"] = new TextEncoder().encode(JSON.stringify({ pack: { pack_format: 61, description: "test" } }, null, 4));
 		files["data/enchantplus/enchantment/sword/attack_speed.json"] = new TextEncoder().encode(
-			JSON.stringify(attackSpeed.data, null, 4)
+			JSON.stringify(attack_speed.data, null, 4)
 		);
 
 		const zipFile = await createZipFile(files);
@@ -80,7 +80,7 @@ describe("Indentation Preservation E2E", () => {
 		const files: Record<string, Uint8Array> = {};
 		files["pack.mcmeta"] = new TextEncoder().encode(JSON.stringify({ pack: { pack_format: 61, description: "test" } }, null, "\t"));
 		files["data/enchantplus/enchantment/sword/attack_speed.json"] = new TextEncoder().encode(
-			JSON.stringify(attackSpeed.data, null, "\t")
+			JSON.stringify(attack_speed.data, null, "\t")
 		);
 
 		const zipFile = await createZipFile(files);
