@@ -17,10 +17,10 @@ export const StructureDataDrivenToVoxelFormat: Parser<StructureProps, MinecraftS
 	const spawnOverrides: SpawnOverride[] | undefined =
 		spawnOverridesEntries.length > 0
 			? spawnOverridesEntries.map(([category, override]) => ({
-				mobCategory: category as MobCategory,
-				boundingBox: override.bounding_box,
-				spawns: override.spawns || []
-			}))
+					mobCategory: category as MobCategory,
+					boundingBox: override.bounding_box,
+					spawns: override.spawns || []
+				}))
 			: undefined;
 
 	const structure: StructureProps = {

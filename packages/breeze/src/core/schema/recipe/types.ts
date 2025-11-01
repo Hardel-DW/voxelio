@@ -69,7 +69,7 @@ export interface MinecraftRecipe extends DataDrivenElement {
 	input?: string | string[]; // Transmute
 	material?: string | string[]; // Transmute
 	ingredient?: string | string[]; // Smelting
-	experience?: number; // Smelting	
+	experience?: number; // Smelting
 	cookingtime?: number; // Smelting
 	base?: string | string[]; // Smithing
 	addition?: string | string[]; // Smithing
@@ -84,9 +84,7 @@ export function normalizeIngredient(ingredient: any): string[] | string {
 	if (ingredient.tag) return Identifier.qualify(`#${ingredient.tag}`);
 
 	if (typeof ingredient === "string") {
-		return ingredient.startsWith("#")
-			? Identifier.qualify(ingredient)
-			: [Identifier.qualify(ingredient)];
+		return ingredient.startsWith("#") ? Identifier.qualify(ingredient) : [Identifier.qualify(ingredient)];
 	}
 
 	if (!Array.isArray(ingredient)) {
@@ -123,5 +121,7 @@ export function positionToSlot(row: number, col: number, width: number): string 
  * @returns Array of slot indices
  */
 export function getOccupiedSlots(slots: Record<string, string[] | string>): string[] {
-	return Object.entries(slots).filter(([, items]) => items?.length > 0).map(([slot]) => slot);
+	return Object.entries(slots)
+		.filter(([, items]) => items?.length > 0)
+		.map(([slot]) => slot);
 }

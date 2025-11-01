@@ -52,9 +52,10 @@ export const RecipeDataDrivenToVoxelFormat: Parser<RecipeProps, MinecraftRecipe>
 			break;
 	}
 
-	const result = normalizedType === "minecraft:smithing_trim" || !data.result
-		? { id: "minecraft:air", count: 1 }
-		: parseResult(data.result, data.count);
+	const result =
+		normalizedType === "minecraft:smithing_trim" || !data.result
+			? { id: "minecraft:air", count: 1 }
+			: parseResult(data.result, data.count);
 
 	return {
 		identifier: element.identifier,

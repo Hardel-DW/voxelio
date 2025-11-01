@@ -125,7 +125,7 @@ function parseCountValueManual(count: any): CountRange {
  * formatCountRange({ min: 1, max: 1 }) // "1"
  * formatCountRange({ min: 2, max: 5 }) // "2-5"
  */
-export const formatCountRange = (range: CountRange) => range.min === range.max ? `${range.min}` : `${range.min}-${range.max}`;
+export const formatCountRange = (range: CountRange) => (range.min === range.max ? `${range.min}` : `${range.min}-${range.max}`);
 
 /**
  * Check if a count range represents a fixed value

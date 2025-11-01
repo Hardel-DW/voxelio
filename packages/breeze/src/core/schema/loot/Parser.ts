@@ -25,7 +25,7 @@ export const LootDataDrivenToVoxelFormat: Parser<LootTableProps, MinecraftLootTa
 			rolls: pool.rolls,
 			...(pool.bonus_rolls !== undefined && { bonus_rolls: pool.bonus_rolls }),
 			...(pool.functions?.length && { functions: pool.functions }),
-			...(pool.conditions?.length && { conditions: pool.conditions }),
+			...(pool.conditions?.length && { conditions: pool.conditions })
 		})) || [];
 
 	// Determine if loot table should be disabled
@@ -62,7 +62,7 @@ export const LootDataDrivenToVoxelFormat: Parser<LootTableProps, MinecraftLootTa
 				poolIndex,
 				entryIndex,
 				...(entry.conditions?.length && { conditions: entry.conditions }),
-				...(entry.functions?.length && { functions: entry.functions }),
+				...(entry.functions?.length && { functions: entry.functions })
 			});
 
 			return groupId;
@@ -100,7 +100,7 @@ export const LootDataDrivenToVoxelFormat: Parser<LootTableProps, MinecraftLootTa
 			...(entry.quality !== undefined && { quality: entry.quality }),
 			...(entry.conditions?.length && { conditions: entry.conditions }),
 			...(entry.functions?.length && { functions: entry.functions }),
-			...(entry.expand !== undefined && { expand: entry.expand }),
+			...(entry.expand !== undefined && { expand: entry.expand })
 		});
 
 		return itemId;

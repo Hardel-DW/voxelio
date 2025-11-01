@@ -63,7 +63,8 @@ export const VoxelToRecipeDataDriven: Compiler<RecipeProps, MinecraftRecipe> = (
 		const getSymbolForIngredient = (ingredient: string | string[]): string => {
 			const normalized = JSON.stringify(ingredient);
 			if (ingredientToSymbol.has(normalized)) return ingredientToSymbol.get(normalized) as string;
-			const exist = original?.key && Object.entries(original.key).find(([, ing]) => JSON.stringify(ingredient) === JSON.stringify(ing))?.[0];
+			const exist =
+				original?.key && Object.entries(original.key).find(([, ing]) => JSON.stringify(ingredient) === JSON.stringify(ing))?.[0];
 			const symbol = exist || String.fromCharCode(symbolCounter++);
 			ingredientToSymbol.set(normalized, symbol);
 			key[symbol] = ingredient;
@@ -83,9 +84,7 @@ export const VoxelToRecipeDataDriven: Compiler<RecipeProps, MinecraftRecipe> = (
 
 	function compileShapelessCrafting() {
 		const occupiedSlots = getOccupiedSlots(element.slots);
-		recipe.ingredients = occupiedSlots
-			.map((slot) => denormalizeIngredient(element.slots[slot]))
-			.filter((ing) => ing !== undefined);
+		recipe.ingredients = occupiedSlots.map((slot) => denormalizeIngredient(element.slots[slot])).filter((ing) => ing !== undefined);
 	}
 
 	function compileCraftingTransmute() {
@@ -150,9 +149,7 @@ export const VoxelToRecipeDataDriven: Compiler<RecipeProps, MinecraftRecipe> = (
 			return;
 		}
 
-		recipe.ingredients = occupiedSlots
-			.map((slot) => denormalizeIngredient(element.slots[slot]))
-			.filter((ing) => ing !== undefined);
+		recipe.ingredients = occupiedSlots.map((slot) => denormalizeIngredient(element.slots[slot])).filter((ing) => ing !== undefined);
 	}
 
 	function compileResult() {
@@ -168,5 +165,4 @@ export const VoxelToRecipeDataDriven: Compiler<RecipeProps, MinecraftRecipe> = (
 			...(components && { components })
 		};
 	}
-
 };

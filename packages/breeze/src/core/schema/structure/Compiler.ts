@@ -1,6 +1,12 @@
 import type { Analysers } from "@/core/engine/Analyser";
 import type { Compiler } from "@/core/engine/Compiler";
-import type { MinecraftPoolAlias, MinecraftSpawnOverride, MinecraftStructure, MobCategory, StructureProps } from "@/core/schema/structure/types";
+import type {
+	MinecraftPoolAlias,
+	MinecraftSpawnOverride,
+	MinecraftStructure,
+	MobCategory,
+	StructureProps
+} from "@/core/schema/structure/types";
 import { JIGSAW_STRUCTURE_TYPES } from "@/core/schema/structure/types";
 
 /**

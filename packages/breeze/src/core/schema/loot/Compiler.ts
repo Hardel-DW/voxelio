@@ -43,7 +43,7 @@ export const VoxelToLootDataDriven: Compiler<LootTableProps, MinecraftLootTable>
 
 		if (originalPool) {
 			for (const key in originalPool) {
-				pool[key] = (originalPool)[key];
+				pool[key] = originalPool[key];
 			}
 		}
 
@@ -93,7 +93,7 @@ function buildEntry(item: LootItem): MinecraftLootEntry {
 		...(item.quality !== undefined && { quality: item.quality }),
 		...(item.conditions?.length && { conditions: item.conditions }),
 		...(item.functions?.length && { functions: item.functions }),
-		...(item.expand !== undefined && { expand: item.expand }),
+		...(item.expand !== undefined && { expand: item.expand })
 	};
 
 	if (entryType === "minecraft:loot_table") entry.value = item.value ?? item.name;
@@ -119,6 +119,6 @@ function buildGroupEntry(group: LootGroup, itemMap: Map<string, LootItem>, group
 			})
 			.filter((entry): entry is MinecraftLootEntry => entry !== null),
 		...(group.conditions?.length && { conditions: group.conditions }),
-		functions: group.functions || [],
+		functions: group.functions || []
 	};
 }

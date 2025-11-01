@@ -114,7 +114,11 @@ export class EnchantmentSimulator {
 	 * @returns [top, middle, bottom] enchantment options
 	 * @see {@link https://minecraft.wiki/w/Enchanting_mechanics#How_enchantments_are_chosen | Selection Algorithm}
 	 */
-	public simulateEnchantmentTable(bookshelves: number, enchantability: number, itemTags: string[] = []): [EnchantmentOption, EnchantmentOption, EnchantmentOption] {
+	public simulateEnchantmentTable(
+		bookshelves: number,
+		enchantability: number,
+		itemTags: string[] = []
+	): [EnchantmentOption, EnchantmentOption, EnchantmentOption] {
 		const clampedBookshelves = Math.min(15, Math.max(0, bookshelves));
 		const base = randomInt(1, 8) + Math.floor(clampedBookshelves / 2) + randomInt(0, clampedBookshelves);
 		const topSlot = Math.floor(Math.max(base / 3, 1));
