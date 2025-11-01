@@ -85,6 +85,8 @@ describe("Enchantment Schema", () => {
 					tags: ["#minecraft:curse", "#minecraft:double_trade_price"]
 				});
 				const compiled = VoxelToEnchantmentDataDriven(parsed, "enchantment");
+				console.dir(compiled, { depth: null });
+
 				expect(compiled.tags.find(tag =>
 					new Identifier(tag).equalsObject(Identifier.of("minecraft:double_trade_price", "tags/enchantment"))
 				)).toBeUndefined();

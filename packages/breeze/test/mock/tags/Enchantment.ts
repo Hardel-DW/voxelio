@@ -97,6 +97,12 @@ export const vanillaTags: DataDrivenRegistryElement<TagType>[] = [
 
 export const exclusivityTestTags: DataDrivenRegistryElement<TagType>[] = [
 	{
+		identifier: { namespace: "minecraft", registry: "tags/enchantment", resource: "exclusive_set/damage" },
+		data: {
+			values: ["minecraft:sharpness", "minecraft:smite", "minecraft:bane_of_arthropods"]
+		}
+	},
+	{
 		identifier: { namespace: "test", registry: "tags/enchantment", resource: "exclusive_set/damage" },
 		data: {
 			values: ["minecraft:sharpness", "minecraft:smite", "minecraft:bane_of_arthropods", "test:damage_boost"]
@@ -110,7 +116,6 @@ export const exclusivityTestTags: DataDrivenRegistryElement<TagType>[] = [
 				"test:sharpness_v2",
 				"test:damage_boost",
 				"test:multi_exclusive",
-				"test:universal",
 				"test:supported_only_string",
 				"test:supported_only_tag",
 				"test:supported_only_array",

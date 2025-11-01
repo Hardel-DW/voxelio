@@ -111,13 +111,11 @@ describe("EnchantmentSimulator", () => {
 		it("should have more enchantments with more bookshelves", () => {
 			const stats0 = simulator.calculateEnchantmentProbabilities(0, 10, diamondSword.tags, 500);
 			const stats15 = simulator.calculateEnchantmentProbabilities(15, 10, diamondSword.tags, 500);
-
 			expect(stats15.length).toBeGreaterThanOrEqual(stats0.length);
 		});
 
 		it("should filter out enchantments with 0% probability", () => {
 			const stats = simulator.calculateEnchantmentProbabilities(15, 10, diamondSword.tags, 100);
-
 			for (const stat of stats) {
 				expect(stat.probability).toBeGreaterThan(0);
 			}

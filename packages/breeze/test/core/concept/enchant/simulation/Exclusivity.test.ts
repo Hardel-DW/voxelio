@@ -1,92 +1,54 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { type EnchantmentPossible, EnchantmentSimulator } from "@/core/calculation/EnchantmentSimulation";
-import { Identifier } from "@/core/Identifier";
-import {
-	EXCLUSIVITY_TEST_ENCHANTMENTS,
-	EXCLUSIVITY_TEST_TAGS,
-	PRIMARY_ITEMS_TEST_ENCHANTMENTS,
-	VANILLA_TEST_ENCHANTMENTS
-} from "@test/mock/enchant/ExclusivityTest";
+import { originalEnchantments } from "@test/mock/enchant/DataDriven";
+import { exclusivityTestTags } from "@test/mock/tags/Enchantment";
 import type { Enchantment } from "@/core/schema/enchant/types";
-import type { DataDrivenRegistryElement } from "@/core/Element";
-import type { TagType } from "@/core/Tag";
+
+const enchantments = new Map<string, Enchantment>(
+	Object.values(originalEnchantments).map((element) => [
+		`${element.identifier.namespace}:${element.identifier.resource}`,
+		element.data
+	])
+);
+
+const simulator = new EnchantmentSimulator(enchantments, exclusivityTestTags);
 
 describe("EnchantmentSimulator - Exclusivity and Primary Items", () => {
-	let enchantments: Map<string, Enchantment>;
-	let exclusivityTags: DataDrivenRegistryElement<TagType>[];
-	let simulator: EnchantmentSimulator;
-
-	beforeEach(() => {
-		enchantments = new Map();
-		for (const enchantment of VANILLA_TEST_ENCHANTMENTS) {
-			const id = new Identifier(enchantment.identifier).toString();
-			enchantments.set(id, enchantment.data);
-		}
-
-		for (const enchantment of EXCLUSIVITY_TEST_ENCHANTMENTS) {
-			const id = new Identifier(enchantment.identifier).toString();
-			enchantments.set(id, enchantment.data);
-		}
-
-		for (const enchantment of PRIMARY_ITEMS_TEST_ENCHANTMENTS) {
-			const id = new Identifier(enchantment.identifier).toString();
-			enchantments.set(id, enchantment.data);
-		}
-
-		exclusivityTags = [
-			{
-				identifier: { namespace: "minecraft", registry: "tags/enchantment", resource: "exclusive_set/damage" },
-				data: {
-					values: ["minecraft:sharpness", "minecraft:smite", "minecraft:bane_of_arthropods"]
-				}
-			},
-			...EXCLUSIVITY_TEST_TAGS
-		];
-
-		simulator = new EnchantmentSimulator(enchantments, exclusivityTags);
-	});
 
 	describe("Exclusive Set Compatibility", () => {
 		it("should reject enchantments with same exclusive_set (string vs tag)", () => {
 			// @ts-expect-error - Testing private method areEnchantmentsCompatible
 			const compatible = simulator.areEnchantmentsCompatible("test:sharpness_v2", ["minecraft:sharpness"]);
-
 			expect(compatible).toBe(false);
 		});
 
 		it("should reject enchantments with same exclusive_set (tag vs tag)", () => {
 			// @ts-expect-error - Testing private method areEnchantmentsCompatible
 			const compatible = simulator.areEnchantmentsCompatible("test:damage_boost", ["minecraft:sharpness"]);
-
 			expect(compatible).toBe(false);
 		});
 
 		it("should reject enchantments with overlapping exclusive_set (array)", () => {
 			// @ts-expect-error - Testing private method areEnchantmentsCompatible
 			const compatible = simulator.areEnchantmentsCompatible("test:multi_exclusive", ["minecraft:sharpness"]);
-
 			expect(compatible).toBe(false);
 		});
 
 		it("should allow enchantments with different exclusive_sets", () => {
 			// @ts-expect-error - Testing private method areEnchantmentsCompatible
 			const compatible = simulator.areEnchantmentsCompatible("test:universal", ["minecraft:sharpness"]);
-
 			expect(compatible).toBe(true);
 		});
 
 		it("should allow enchantments when neither has exclusive_set", () => {
 			// @ts-expect-error - Testing private method areEnchantmentsCompatible
 			const compatible = simulator.areEnchantmentsCompatible("test:universal", ["minecraft:unbreaking"]);
-
 			expect(compatible).toBe(true);
 		});
 
 		it("should handle multiple existing enchantments", () => {
 			// @ts-expect-error - Testing private method areEnchantmentsCompatible
 			const compatible = simulator.areEnchantmentsCompatible("test:multi_exclusive", ["minecraft:sharpness", "minecraft:unbreaking"]);
-
-			// Should be incompatible due to sharpness conflict
 			expect(compatible).toBe(false);
 		});
 	});
@@ -97,7 +59,6 @@ describe("EnchantmentSimulator - Exclusivity and Primary Items", () => {
 			simulator.buildItemTagToEnchantmentsMap();
 			// @ts-expect-error - Accessing private property itemTagToEnchantmentsMap
 			const itemMap = simulator.itemTagToEnchantmentsMap;
-
 			expect(itemMap.get("minecraft:diamond_sword")).toContain("test:primary_wins");
 			expect(itemMap.get("minecraft:stone_sword")).toBeUndefined();
 		});
@@ -141,7 +102,6 @@ describe("EnchantmentSimulator - Exclusivity and Primary Items", () => {
 			simulator.buildItemTagToEnchantmentsMap();
 			// @ts-expect-error - Accessing private property itemTagToEnchantmentsMap
 			const itemMap = simulator.itemTagToEnchantmentsMap;
-
 			expect(itemMap.get("#minecraft:enchantable/sword")).toContain("test:primary_tag");
 		});
 
@@ -150,7 +110,6 @@ describe("EnchantmentSimulator - Exclusivity and Primary Items", () => {
 			simulator.buildItemTagToEnchantmentsMap();
 			// @ts-expect-error - Accessing private property itemTagToEnchantmentsMap
 			const itemMap = simulator.itemTagToEnchantmentsMap;
-
 			expect(itemMap.get("minecraft:diamond_sword")).toContain("test:primary_array");
 			expect(itemMap.get("minecraft:netherite_sword")).toContain("test:primary_array");
 		});
@@ -167,7 +126,6 @@ describe("EnchantmentSimulator - Exclusivity and Primary Items", () => {
 		it("should find enchantments for sword items", () => {
 			// @ts-expect-error - Testing private method findPossibleEnchantments
 			const possible = simulator.findPossibleEnchantments(30, new Set(swordTags));
-
 			const enchantmentIds = possible.map((p: EnchantmentPossible) => p.id);
 			expect(enchantmentIds).toContain("test:supported_only_tag");
 			expect(enchantmentIds).toContain("test:primary_tag");
