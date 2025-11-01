@@ -296,6 +296,21 @@ export const minimal: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
+
+export const unknown_tag: DataDrivenRegistryElement<Enchantment> = {
+	identifier: { namespace: "test", registry: "enchantment", resource: "unknown" },
+	data: {
+		description: "Unknown Tag",
+		supported_items: "#unknown:nonexistent",
+		weight: 1,
+		max_level: 1,
+		min_cost: { base: 1, per_level_above_first: 0 },
+		max_cost: { base: 50, per_level_above_first: 0 },
+		anvil_cost: 1,
+		slots: ["mainhand"]
+	}
+};
+
 export const unknown: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "test", registry: "enchantment", resource: "unknown" },
 	data: {
@@ -309,6 +324,63 @@ export const unknown: DataDrivenRegistryElement<Enchantment> = {
 		slots: ["mainhand"]
 	}
 };
+
+export const direct: DataDrivenRegistryElement<Enchantment> = {
+	identifier: { namespace: "test", registry: "enchantment", resource: "direct" },
+	data: {
+		description: "Test",
+		supported_items: "minecraft:stick",
+		weight: 1,
+		max_level: 1,
+		min_cost: { base: 1, per_level_above_first: 0 },
+		max_cost: { base: 50, per_level_above_first: 0 },
+		anvil_cost: 1,
+		slots: ["mainhand"]
+	}
+};
+
+export const array: DataDrivenRegistryElement<Enchantment> = {
+	identifier: { namespace: "test", registry: "enchantment", resource: "array" },
+	data: {
+		description: "Test Array",
+		supported_items: ["minecraft:apple", "minecraft:bread"],
+		weight: 1,
+		max_level: 1,
+		min_cost: { base: 1, per_level_above_first: 0 },
+		max_cost: { base: 50, per_level_above_first: 0 },
+		anvil_cost: 1,
+		slots: ["mainhand"]
+	}
+};
+
+export const incomplete: DataDrivenRegistryElement<Enchantment> = {
+	identifier: { namespace: "test", registry: "enchantment", resource: "incomplete" },
+	// @ts-expect-error - Testing incomplete enchantment
+	data: {
+		description: "Incomplete",
+		weight: 1,
+		max_level: 1,
+		min_cost: { base: 1, per_level_above_first: 0 },
+		max_cost: { base: 50, per_level_above_first: 0 },
+		anvil_cost: 1,
+		slots: ["mainhand"]
+	}
+};
+
+export const zero_weight: DataDrivenRegistryElement<Enchantment> = {
+	identifier: { namespace: "test", registry: "enchantment", resource: "zero_weight" },
+	data: {
+		description: "Zero Weight",
+		supported_items: "#minecraft:enchantable/sword",
+		weight: 0,
+		max_level: 1,
+		min_cost: { base: 1, per_level_above_first: 0 },
+		max_cost: { base: 50, per_level_above_first: 0 },
+		anvil_cost: 1,
+		slots: ["mainhand"]
+	}
+};
+
 
 export const originalEnchantments = {
 	sharpness,
@@ -331,7 +403,7 @@ export const originalEnchantments = {
 	agility_only_creative,
 	armored_soft_delete,
 	minimal,
-	unknown
+	unknown,
 };
 
 export type EnchantmentKey = keyof typeof originalEnchantments;

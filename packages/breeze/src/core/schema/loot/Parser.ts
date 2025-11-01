@@ -28,9 +28,7 @@ export const LootDataDrivenToVoxelFormat: Parser<LootTableProps, MinecraftLootTa
 			...(pool.conditions?.length && { conditions: pool.conditions })
 		})) || [];
 
-	// Determine if loot table should be disabled
 	const disabled = items.length === 0 && groups.length === 0 && (!data.pools || data.pools.length === 0);
-
 	return {
 		identifier: element.identifier,
 		type: data.type,

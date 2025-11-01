@@ -42,9 +42,8 @@ export const VoxelToLootDataDriven: Compiler<LootTableProps, MinecraftLootTable>
 		};
 
 		if (originalPool) {
-			for (const key in originalPool) {
-				pool[key] = originalPool[key];
-			}
+			const { entries: _, ...originalPoolProps } = originalPool;
+			Object.assign(pool, originalPoolProps);
 		}
 
 		return pool;
