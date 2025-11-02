@@ -77,7 +77,68 @@ describe("Datapack", () => {
 				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({ pack: { pack_format: 61 } }))
 			};
 			const datapack = new Datapack(invalidMcmeta);
-			expect(datapack.getDescription("fallback")).toBe("fallback");
+			expect(datapack.getDescription({ fallback: "fallback" })).toBe("fallback");
+		});
+
+		it("should convert TextComponent object to string", () => {
+			const textComponentMcmeta = {
+				...enchantmentFiles,
+				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({
+					pack: {
+						pack_format: 61,
+						description: { text: "Hello", extra: [{ text: "World" }] }
+					}
+				}))
+			};
+			const datapack = new Datapack(textComponentMcmeta);
+			expect(datapack.getDescription()).toBe("HelloWorld");
+		});
+
+		it("should convert TextComponent array to string", () => {
+			const arrayMcmeta = {
+				...enchantmentFiles,
+				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({
+					pack: {
+						pack_format: 61,
+						description: [
+							{ text: "Foo", extra: [{ text: "Bar" }] },
+							"World",
+							{ translate: "", fallback: "Uhm :3" }
+						]
+					}
+				}))
+			};
+			const datapack = new Datapack(arrayMcmeta);
+			expect(datapack.getDescription()).toBe("FooBarWorldUhm :3");
+		});
+
+		it("should use fallback for translate without fallback", () => {
+			const translateMcmeta = {
+				...enchantmentFiles,
+				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({
+					pack: {
+						pack_format: 61,
+						description: { translate: "some.key" }
+					}
+				}))
+			};
+			const datapack = new Datapack(translateMcmeta);
+			expect(datapack.getDescription()).toBe("");
+		});
+
+		it("should return raw TextComponent when raw option is true", () => {
+			const textComponentMcmeta = {
+				...enchantmentFiles,
+				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({
+					pack: {
+						pack_format: 61,
+						description: { text: "Test", extra: [{ text: "Raw" }] }
+					}
+				}))
+			};
+			const datapack = new Datapack(textComponentMcmeta);
+			const raw = datapack.getDescription({ raw: true });
+			expect(raw).toEqual({ text: "Test", extra: [{ text: "Raw" }] });
 		});
 	});
 

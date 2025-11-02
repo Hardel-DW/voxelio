@@ -28,6 +28,7 @@ export { isVoxelElement, sortElementsByRegistry } from "@/core/Element";
 export { getItemFromMultipleOrOne, getAllItems, separateItemsAndTags } from "@/core/ItemList";
 export { updateData } from "@/core/engine/actions/index";
 export { calculateItemCountRange } from "@/core/calculation/LootCountProbability";
+export { textComponentToString } from "@/core/schema/TextComponentType";
 export { toRoman } from "@/Roman";
 export { compileDatapack } from "@/core/engine/Compiler";
 

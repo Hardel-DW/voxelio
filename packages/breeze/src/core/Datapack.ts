@@ -10,6 +10,7 @@ import { extractZip } from "@voxelio/zip";
 import { DatapackDownloader } from "@/core/DatapackDownloader";
 import { analyserCollection } from "@/core/engine/Analyser";
 import type { Analysers, GetAnalyserVoxel, GetAnalyserMinecraft } from "@/core/engine/Analyser";
+import { textComponentToString } from "@/core/schema/TextComponentType";
 
 export interface RegistryCache {
 	[registry: string]: Map<string, DataDrivenRegistryElement<any>>;
@@ -122,9 +123,10 @@ export class Datapack {
 	 * @param fallback - The fallback description.
 	 * @returns The description of the datapack.
 	 */
-	getDescription(fallback = "Unknown") {
-		if (!fallback && !this.pack.pack.description) throw new DatapackError("failed_to_get_datapack_description");
-		return this.pack.pack.description || fallback;
+	getDescription(props?: { fallback?: string, raw?: boolean }) {
+		if (!props?.fallback && !this.pack.pack.description) throw new DatapackError("failed_to_get_datapack_description");
+		const description = this.pack.pack.description;
+		return props?.raw && description ? description : description ? textComponentToString(description) : props?.fallback;
 	}
 
 	/**

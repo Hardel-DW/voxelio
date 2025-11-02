@@ -5,10 +5,16 @@
 		"outDir": "dist",
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["./src/*"],
-			"@test/*": ["./test/*"],
-			"@benchmark/*": ["./benchmark/*"]
+			"@/*": [
+				"./src/*"
+			],
+			"@test/*": [
+				"./test/*"
+			]
 		}
 	},
-	"include": ["src/**/*", "test/**/*"]
+	"include": [
+		"src/**/*",
+		"test/**/*"
+	]
 }
