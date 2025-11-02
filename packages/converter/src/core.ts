@@ -32,15 +32,15 @@ export async function convertDatapack(datapackZip: File, platforms: ModPlatformT
  * @returns Extracted metadata combined with default values
  */
 export async function extractMetadata(files: File, modName: string): Promise<ModMetadata> {
-	const iconEntry = Object.keys(files).find((path) => path.match(/^[^/]+\.png$/i));
+	const extractedFiles = await extractZip(new Uint8Array(await files.arrayBuffer()));
+	const iconEntry = Object.keys(extractedFiles).find((path) => path.match(/^[^/]+\.png$/i));
 	let metadata: Partial<ModMetadata> = {};
 
 	try {
 		const datapack = await Datapack.from(files);
-		metadata = {
-			description: datapack.getDescription(DEFAULT_MOD_METADATA.description),
-			version: datapack.getVersion()
-		};
+		const description = datapack.getDescription({ fallback: DEFAULT_MOD_METADATA.description });
+		const version = datapack.getVersion();
+		metadata = { description, version };
 	} catch (error) {
 		console.error("Error parsing pack.mcmeta", error);
 	}

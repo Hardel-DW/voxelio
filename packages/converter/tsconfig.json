@@ -1,11 +1,20 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		"target": "es2024",
 		"outDir": "dist",
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": [
+				"./src/*"
+			],
+			"@test/*": [
+				"./test/*"
+			]
 		}
 	},
-	"include": ["src/**/*"]
+	"include": [
+		"src/**/*",
+		"test/**/*"
+	]
 }

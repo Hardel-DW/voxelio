@@ -7,6 +7,7 @@
 		"build": "tsdown",
 		"build:watch": "tsdown --watch",
 		"check": "tsc --noEmit",
+		"test": "vitest",
 		"biome:format": "biome format --write ./src",
 		"biome:check": "biome check ./src",
 		"biome:unsafefix": "biome check --write --unsafe  ./src"
