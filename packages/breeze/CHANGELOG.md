@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.18
+
+### Patch Changes
+
+- d2c980d: Fixes RandomId function, now not use node import
+
 ## 1.10.17
 
 ### Patch Changes
