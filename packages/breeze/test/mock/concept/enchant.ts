@@ -71,7 +71,7 @@ export const accuracy_shot: DataDrivenRegistryElement<Enchantment> = {
 		max_cost: { base: 65, per_level_above_first: 9 },
 		anvil_cost: 4,
 		slots: ["mainhand", "offhand"],
-		effects: { "test": {} }
+		effects: { test: {} }
 	}
 };
 
@@ -250,7 +250,10 @@ export const accuracy_shot_with_disabled: DataDrivenRegistryElement<Enchantment>
 		max_cost: { base: 65, per_level_above_first: 9 },
 		anvil_cost: 4,
 		slots: ["mainhand", "offhand"],
-		effects: { "foo": [{ "effect": { "type": "minecraft:run_function", "function": "enchantplus:actions/accuracy_shot/on_shoot" } }], "bar": { "test": {} } }
+		effects: {
+			foo: [{ effect: { type: "minecraft:run_function", function: "enchantplus:actions/accuracy_shot/on_shoot" } }],
+			bar: { test: {} }
+		}
 	}
 };
 
@@ -295,7 +298,6 @@ export const minimal: DataDrivenRegistryElement<Enchantment> = {
 		slots: ["mainhand"]
 	}
 };
-
 
 export const unknown_tag: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "test", registry: "enchantment", resource: "unknown" },
@@ -381,7 +383,6 @@ export const zero_weight: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-
 export const originalEnchantments = {
 	sharpness,
 	smite,
@@ -403,7 +404,7 @@ export const originalEnchantments = {
 	agility_only_creative,
 	armored_soft_delete,
 	minimal,
-	unknown,
+	unknown
 };
 
 export type EnchantmentKey = keyof typeof originalEnchantments;

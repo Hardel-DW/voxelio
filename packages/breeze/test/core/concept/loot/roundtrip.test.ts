@@ -17,12 +17,14 @@ describe("LootTable E2E Tests", () => {
 		it("should handle complex group operations", () => {
 			const voxel = LootDataDrivenToVoxelFormat({ element: ultimate });
 			const groupToDissolve = voxel.groups[1];
-			const dissolveGroupAction = LootTableAction.dissolveLootGroup(groupToDissolve.id); const resultAfterDissolve = updateLootTable(dissolveGroupAction, voxel);
+			const dissolveGroupAction = LootTableAction.dissolveLootGroup(groupToDissolve.id);
+			const resultAfterDissolve = updateLootTable(dissolveGroupAction, voxel);
 			expect(resultAfterDissolve.groups).toHaveLength(2);
 
 			const item0Id = voxel.items[0].id;
 			const item1Id = voxel.items[1].id;
-			const createSequenceAction = LootTableAction.createLootGroup("sequence", [item0Id, item1Id], 0); const resultAfterSequence = updateLootTable(createSequenceAction, resultAfterDissolve);
+			const createSequenceAction = LootTableAction.createLootGroup("sequence", [item0Id, item1Id], 0);
+			const resultAfterSequence = updateLootTable(createSequenceAction, resultAfterDissolve);
 			expect(resultAfterSequence.groups).toHaveLength(3);
 
 			const sequenceGroup = resultAfterSequence.groups.find((g) => g.type === "sequence");
@@ -33,7 +35,9 @@ describe("LootTable E2E Tests", () => {
 			const resultAfterDuplicate = updateLootTable(duplicateAction, resultAfterSequence);
 			expect(resultAfterDuplicate.items).toHaveLength(6);
 
-			const duplicatedItem = resultAfterDuplicate.items.find((item) => item.name === "minecraft:acacia_sapling" && item.poolIndex === 1);
+			const duplicatedItem = resultAfterDuplicate.items.find(
+				(item) => item.name === "minecraft:acacia_sapling" && item.poolIndex === 1
+			);
 			expect(duplicatedItem).toBeDefined();
 			expect(duplicatedItem?.id).not.toBe(item0Id);
 
@@ -60,11 +64,7 @@ describe("LootTable E2E Tests", () => {
 			const result = updateLootTable(addLegendaryAction, voxel);
 			expect(result.items).toHaveLength(originalItemCount + 1);
 
-			const createRareGroupAction = LootTableAction.createLootGroup(
-				"alternatives",
-				[result.items[result.items.length - 1].id],
-				0
-			);
+			const createRareGroupAction = LootTableAction.createLootGroup("alternatives", [result.items[result.items.length - 1].id], 0);
 
 			const updatedTable = updateLootTable(createRareGroupAction, voxel);
 			expect(updatedTable.groups).toHaveLength(originalGroupCount + 1);

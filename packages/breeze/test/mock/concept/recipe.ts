@@ -56,7 +56,7 @@ export const shaped2: DataDrivenRegistryElement<MinecraftRecipe> = {
 		category: "equipment",
 		key: {
 			"#": "#iron_ingot",
-			"X": "redstone"
+			X: "redstone"
 		},
 		pattern: [" # ", "#X#", " # "],
 		result: {
@@ -73,7 +73,7 @@ export const shapedArrayItem: DataDrivenRegistryElement<MinecraftRecipe> = {
 		category: "equipment",
 		key: {
 			"#": "#minecraft:iron_ingot",
-			"X": ["minecraft:redstone", "minecraft:redstone_block"]
+			X: ["minecraft:redstone", "minecraft:redstone_block"]
 		},
 		pattern: [" # ", "#X#", " # "],
 		result: {
@@ -284,7 +284,7 @@ export const shapedWithoutNamespace: DataDrivenRegistryElement<MinecraftRecipe> 
 		},
 		pattern: [" # ", "#X#", " # "],
 		result: {
-			"id": "minecraft:compass"
+			id: "minecraft:compass"
 		}
 	}
 };
@@ -319,29 +319,28 @@ export const modRecipe: DataDrivenRegistryElement<MinecraftRecipe> = {
 	}
 };
 
-
 export const originalRecipes = {
-	"shapeless": shapeless,
-	"shaped": shaped,
-	"shaped2": shaped2,
-	"shaped_array_item": shapedArrayItem,
-	"shaped_empty_line": ShapedWithEmptyLine,
-	"shaped_empty_rows": ShapedWithEmptyRows,
-	"shaped_two_by_two": shapedTwoByTwo,
-	"shaped_empty_rows_columns": ShapedWithEmptyRowsAndColumns,
-	"stonecutting": stonecutting,
-	"blasting": blasting,
-	"smelting": smelting,
-	"smoking": smoking,
-	"campfire_cooking": campfire_cooking,
-	"smithing_trim": smithing_transform,
-	"transform": transform,
-	"transmute": transmute,
-	"shaped_no_namespace": shapedWithoutNamespace,
-	"shapedtwobytwo": shapedtwobytwo,
-	"minimal": minimalRecipe,
-	"unknown": unknownRecipe,
-	"mod_recipe": modRecipe
+	shapeless: shapeless,
+	shaped: shaped,
+	shaped2: shaped2,
+	shaped_array_item: shapedArrayItem,
+	shaped_empty_line: ShapedWithEmptyLine,
+	shaped_empty_rows: ShapedWithEmptyRows,
+	shaped_two_by_two: shapedTwoByTwo,
+	shaped_empty_rows_columns: ShapedWithEmptyRowsAndColumns,
+	stonecutting: stonecutting,
+	blasting: blasting,
+	smelting: smelting,
+	smoking: smoking,
+	campfire_cooking: campfire_cooking,
+	smithing_trim: smithing_transform,
+	transform: transform,
+	transmute: transmute,
+	shaped_no_namespace: shapedWithoutNamespace,
+	shapedtwobytwo: shapedtwobytwo,
+	minimal: minimalRecipe,
+	unknown: unknownRecipe,
+	mod_recipe: modRecipe
 };
 
 export type RecipeKey = keyof typeof originalRecipes;

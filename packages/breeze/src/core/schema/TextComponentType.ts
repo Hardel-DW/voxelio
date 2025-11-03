@@ -99,17 +99,17 @@ type TextComponentBase = {
 	hover_event?: {
 		action: "show_text" | "show_item" | "show_entity";
 		value?:
-		| TextComponentType
-		| {
-			id?: string;
-			count?: number;
-			components?: Record<string, unknown>;
-		}
-		| {
-			id: string;
-			uuid: string | number[];
-			name?: TextComponentType;
-		};
+			| TextComponentType
+			| {
+					id?: string;
+					count?: number;
+					components?: Record<string, unknown>;
+			  }
+			| {
+					id: string;
+					uuid: string | number[];
+					name?: TextComponentType;
+			  };
 	};
 };
 
@@ -141,15 +141,9 @@ export function textComponentToString(component: TextComponentType): string {
 		return component.map(textComponentToString).join("");
 	}
 
-	const text = "text" in component
-		? component.text
-		: ("translate" in component && component.fallback)
-			? component.fallback
-			: "";
+	const text = "text" in component ? component.text : "translate" in component && component.fallback ? component.fallback : "";
 
-	const extra = component.extra
-		? textComponentToString(component.extra)
-		: "";
+	const extra = component.extra ? textComponentToString(component.extra) : "";
 
 	return text + extra;
 }

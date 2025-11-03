@@ -123,7 +123,7 @@ export class Datapack {
 	 * @param fallback - The fallback description.
 	 * @returns The description of the datapack.
 	 */
-	getDescription(props?: { fallback?: string, raw?: boolean }) {
+	getDescription(props?: { fallback?: string; raw?: boolean }) {
 		if (!props?.fallback && !this.pack.pack.description) throw new DatapackError("failed_to_get_datapack_description");
 		const description = this.pack.pack.description;
 		return props?.raw && description ? description : description ? textComponentToString(description) : props?.fallback;

@@ -83,12 +83,14 @@ describe("Datapack", () => {
 		it("should convert TextComponent object to string", () => {
 			const textComponentMcmeta = {
 				...enchantmentFiles,
-				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({
-					pack: {
-						pack_format: 61,
-						description: { text: "Hello", extra: [{ text: "World" }] }
-					}
-				}))
+				"pack.mcmeta": new TextEncoder().encode(
+					JSON.stringify({
+						pack: {
+							pack_format: 61,
+							description: { text: "Hello", extra: [{ text: "World" }] }
+						}
+					})
+				)
 			};
 			const datapack = new Datapack(textComponentMcmeta);
 			expect(datapack.getDescription()).toBe("HelloWorld");
@@ -97,16 +99,14 @@ describe("Datapack", () => {
 		it("should convert TextComponent array to string", () => {
 			const arrayMcmeta = {
 				...enchantmentFiles,
-				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({
-					pack: {
-						pack_format: 61,
-						description: [
-							{ text: "Foo", extra: [{ text: "Bar" }] },
-							"World",
-							{ translate: "", fallback: "Uhm :3" }
-						]
-					}
-				}))
+				"pack.mcmeta": new TextEncoder().encode(
+					JSON.stringify({
+						pack: {
+							pack_format: 61,
+							description: [{ text: "Foo", extra: [{ text: "Bar" }] }, "World", { translate: "", fallback: "Uhm :3" }]
+						}
+					})
+				)
 			};
 			const datapack = new Datapack(arrayMcmeta);
 			expect(datapack.getDescription()).toBe("FooBarWorldUhm :3");
@@ -115,12 +115,14 @@ describe("Datapack", () => {
 		it("should use fallback for translate without fallback", () => {
 			const translateMcmeta = {
 				...enchantmentFiles,
-				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({
-					pack: {
-						pack_format: 61,
-						description: { translate: "some.key" }
-					}
-				}))
+				"pack.mcmeta": new TextEncoder().encode(
+					JSON.stringify({
+						pack: {
+							pack_format: 61,
+							description: { translate: "some.key" }
+						}
+					})
+				)
 			};
 			const datapack = new Datapack(translateMcmeta);
 			expect(datapack.getDescription()).toBe("");
@@ -129,12 +131,14 @@ describe("Datapack", () => {
 		it("should return raw TextComponent when raw option is true", () => {
 			const textComponentMcmeta = {
 				...enchantmentFiles,
-				"pack.mcmeta": new TextEncoder().encode(JSON.stringify({
-					pack: {
-						pack_format: 61,
-						description: { text: "Test", extra: [{ text: "Raw" }] }
-					}
-				}))
+				"pack.mcmeta": new TextEncoder().encode(
+					JSON.stringify({
+						pack: {
+							pack_format: 61,
+							description: { text: "Test", extra: [{ text: "Raw" }] }
+						}
+					})
+				)
 			};
 			const datapack = new Datapack(textComponentMcmeta);
 			const raw = datapack.getDescription({ raw: true });

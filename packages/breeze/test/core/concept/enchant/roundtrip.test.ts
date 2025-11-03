@@ -22,4 +22,4 @@ describe("Enchantment E2E Tests", () => {
 			expect(compiled.element.data.effects).toEqual(original.data.effects);
 		});
 	});
-}); 
+});

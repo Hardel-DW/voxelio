@@ -182,7 +182,9 @@ describe("Action System", () => {
 		});
 
 		it("should handle removing multiple tags", () => {
-			const enchantment: Partial<EnchantmentProps> = { tags: ["#minecraft:exclusive_set/armor", "#minecraft:treasure", "#minecraft:curse"] };
+			const enchantment: Partial<EnchantmentProps> = {
+				tags: ["#minecraft:exclusive_set/armor", "#minecraft:treasure", "#minecraft:curse"]
+			};
 			const action = CoreAction.removeTags(["#minecraft:exclusive_set/armor", "#minecraft:treasure"]);
 			const updated = updateData(action, enchantment);
 			expect(updated?.tags).toEqual(["#minecraft:curse"]);

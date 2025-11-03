@@ -116,7 +116,6 @@ describe("Recipe Actions", () => {
 			const result = updateRecipe(RecipeAction.addShapelessIngredient(["minecraft:emerald"]), shapedRecipe);
 			expect(result.slots).toEqual(shapedRecipe.slots);
 		});
-
 	});
 
 	describe("Remove Ingredients Actions", () => {
@@ -401,7 +400,10 @@ describe("Recipe Actions", () => {
 
 		it("should modify smelting data using core.set_value", () => {
 			const setExperienceAction = CoreAction.setValue("typeSpecific.experience", 1.5);
-			const updatedResult = updateRecipe(setExperienceAction, RecipeDataDrivenToVoxelFormat({ element: originalRecipes.blasting })) as any;
+			const updatedResult = updateRecipe(
+				setExperienceAction,
+				RecipeDataDrivenToVoxelFormat({ element: originalRecipes.blasting })
+			) as any;
 			expect(updatedResult.typeSpecific?.experience).toBe(1.5);
 
 			const compiled = VoxelToRecipeDataDriven(updatedResult, "recipe");

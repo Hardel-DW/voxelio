@@ -40,8 +40,10 @@ describe("Recipe E2E Tests", () => {
 				const originalIngredient = Object.values(originalKey)[0];
 				const compiledIngredient = Object.values(compiledKey)[0];
 
-				const originalItem = typeof originalIngredient === "string" ? originalIngredient : originalIngredient.item || originalIngredient.tag;
-				const compiledItem = typeof compiledIngredient === "string" ? compiledIngredient : compiledIngredient.item || compiledIngredient.tag;
+				const originalItem =
+					typeof originalIngredient === "string" ? originalIngredient : originalIngredient.item || originalIngredient.tag;
+				const compiledItem =
+					typeof compiledIngredient === "string" ? compiledIngredient : compiledIngredient.item || compiledIngredient.tag;
 				expect(compiledItem).toBe(originalItem);
 				expect(compiled.element.data.result).toEqual(original.data.result);
 			});

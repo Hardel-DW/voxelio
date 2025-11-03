@@ -7,10 +7,7 @@ import { itemTags } from "@test/mock/tags/item";
 import type { Enchantment } from "@/core/schema/enchant/types";
 
 const enchantments = new Map<string, Enchantment>(
-	Object.values(originalEnchantments).map((element) => [
-		`${element.identifier.namespace}:${element.identifier.resource}`,
-		element.data
-	])
+	Object.values(originalEnchantments).map((element) => [`${element.identifier.namespace}:${element.identifier.resource}`, element.data])
 );
 
 const diamondSword: ItemData = {
@@ -495,8 +492,6 @@ describe("EnchantmentSimulator - Exclusivity and Primary Items", () => {
 		});
 	});
 });
-
-
 
 describe("EnchantmentSimulator Performance", () => {
 	const simulator = new EnchantmentSimulator(enchantments, simulationTags);
