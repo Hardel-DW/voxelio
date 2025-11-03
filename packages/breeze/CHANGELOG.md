@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.19
+
+### Patch Changes
+
+- 0becd59: Revert Enchantment Simulation
+
 ## 1.10.18
 
 ### Patch Changes
