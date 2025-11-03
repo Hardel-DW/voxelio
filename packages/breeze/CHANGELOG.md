@@ -1,5 +1,12 @@
 # @voxelio/breeze
 
+## 1.10.16
+
+### Patch Changes
+
+- da77b6b: Minor fixes for recipes, loot and enchantment simulation. Total Refactor for testing files.
+- 6dd896b: New method to convert TextComponent to flat string
+
 ## 1.10.15
 
 ### Patch Changes

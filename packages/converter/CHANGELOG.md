@@ -1,5 +1,14 @@
 # @voxelio/converter
 
+## 1.0.28
+
+### Patch Changes
+
+- 6dd896b: Now support TextComponent for description
+- Updated dependencies [da77b6b]
+- Updated dependencies [6dd896b]
+  - @voxelio/breeze@1.10.16
+
 ## 1.0.27
 
 ### Patch Changes
