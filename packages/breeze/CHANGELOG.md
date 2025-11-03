@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.17
+
+### Patch Changes
+
+- adeef65: Enchantment Simulator take non_treasure value
+
 ## 1.10.16
 
 ### Patch Changes
