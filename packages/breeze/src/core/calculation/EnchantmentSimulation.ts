@@ -459,19 +459,28 @@ export class EnchantmentSimulator {
 	}
 
 	/**
-	 * Initializes enchantments available in tables via `#minecraft:in_enchanting_table` tag.
-	 * Excludes treasure enchantments not in this tag.
+	 * Initializes enchantments available in tables via `#minecraft:in_enchanting_table` and `#minecraft:non_treasure` tags.
+	 * Excludes treasure enchantments not in these tags.
 	 * @param tags - Enchantment tags
 	 */
 	private initializeInEnchantingTableValues(tags: DataDrivenRegistryElement<TagType>[]): void {
-		const inEnchantingTableTag = tags.find(
-			(tag) => tag.identifier.resource === "in_enchanting_table" && tag.identifier.registry === "tags/enchantment"
-		);
-
-		if (inEnchantingTableTag && this.tagsComparator) {
-			const values = this.tagsComparator.getRecursiveValues(inEnchantingTableTag.identifier);
-			this.inEnchantingTableValues = new Set(values);
+		if (!this.tagsComparator) {
+			this.inEnchantingTableValues = new Set<string>();
+			return;
 		}
+
+		const values = new Set<string>();
+		for (const resource of ["in_enchanting_table", "non_treasure"]) {
+			const tag = tags.find((tag) => tag.identifier.resource === resource && tag.identifier.registry === "tags/enchantment");
+
+			if (tag) {
+				for (const value of this.tagsComparator.getRecursiveValues(tag.identifier)) {
+					values.add(value);
+				}
+			}
+		}
+
+		this.inEnchantingTableValues = values;
 	}
 
 	/**
