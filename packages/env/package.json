@@ -1,6 +1,6 @@
 {
 	"name": "@voxelio/env",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"type": "module",
 	"description": "Handles environment variables in a secure way, using own modern package and lightweight package.",
 	"scripts": {
