@@ -82,7 +82,7 @@ export const analyserCollection: VersionedAnalysers = {
 	}
 };
 
-export const conceptWithTag = new Map<keyof Analysers, boolean>(
+export const conceptWithTag: Map<keyof Analysers, boolean> = new Map(
 	Object.entries(analyserCollection).map(([key, analyser]) => [key as keyof Analysers, analyser.hasTag])
 );
 

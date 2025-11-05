@@ -187,7 +187,7 @@ export class LootTableAppearanceProbability {
 		});
 	}
 
-	getItemById = (itemId: string) => this.itemMap.get(itemId);
-	getItemByIndex = (index: number) => this.lootTable.items[index];
-	getGroupById = (groupId: string) => this.groupMap.get(groupId);
+	getItemById = (itemId: string): LootItem | undefined => this.itemMap.get(itemId);
+	getItemByIndex = (index: number): LootItem | undefined => this.lootTable.items[index];
+	getGroupById = (groupId: string): LootGroup | undefined => this.groupMap.get(groupId);
 }

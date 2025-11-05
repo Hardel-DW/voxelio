@@ -319,7 +319,7 @@ export const modRecipe: DataDrivenRegistryElement<MinecraftRecipe> = {
 	}
 };
 
-export const originalRecipes = {
+export const originalRecipes: Record<string, DataDrivenRegistryElement<MinecraftRecipe>> = {
 	shapeless: shapeless,
 	shaped: shaped,
 	shaped2: shaped2,
@@ -345,4 +345,4 @@ export const originalRecipes = {
 
 export type RecipeKey = keyof typeof originalRecipes;
 
-export const recipeDataDriven = Object.values(originalRecipes);
+export const recipeDataDriven: DataDrivenRegistryElement<MinecraftRecipe>[] = Object.values(originalRecipes);

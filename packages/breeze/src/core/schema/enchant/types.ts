@@ -1,10 +1,10 @@
 import type { DataDrivenElement, VoxelElement } from "@/core/Element";
-import { Identifier } from "@/core/Identifier";
+import { Identifier, type IdentifierObject } from "@/core/Identifier";
 import type { SlotRegistryType } from "@/core/SlotManager";
 import type { SingleOrMultiple } from "@/index";
 import type { TextComponentType } from "@/core/schema/TextComponentType";
 
-export const FUNCTIONALITY_TAGS = [
+export const FUNCTIONALITY_TAGS: IdentifierObject[] = [
 	{ namespace: "minecraft", registry: "tags/enchantment", resource: "curse" },
 	{ namespace: "minecraft", registry: "tags/enchantment", resource: "double_trade_price" },
 	{ namespace: "minecraft", registry: "tags/enchantment", resource: "prevents_bee_spawns_when_mining" },
@@ -15,7 +15,7 @@ export const FUNCTIONALITY_TAGS = [
 	{ namespace: "minecraft", registry: "tags/enchantment", resource: "tooltip_order" }
 ];
 
-export const FUNCTIONALITY_TAGS_CACHE = new Set(FUNCTIONALITY_TAGS.map((tag) => new Identifier(tag).toString()));
+export const FUNCTIONALITY_TAGS_CACHE: Set<string> = new Set(FUNCTIONALITY_TAGS.map((tag) => new Identifier(tag).toString()));
 export interface EnchantmentProps extends VoxelElement {
 	description: TextComponentType;
 	exclusiveSet: SingleOrMultiple<string> | undefined;

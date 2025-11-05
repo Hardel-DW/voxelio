@@ -1,4 +1,4 @@
-export const CRC_TABLE = new Uint32Array(256);
+export const CRC_TABLE: Uint32Array = new Uint32Array(256);
 
 for (let i = 0; i < 256; ++i) {
 	let crc = i;

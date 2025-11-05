@@ -22,7 +22,7 @@ export type ForAwaitable<T> = AsyncIterable<T> | Iterable<T>;
 
 type Zip64FieldLength = 0 | 12 | 28;
 
-export function contentLength(files: Iterable<Omit<Metadata, "nameIsBuffer">>) {
+export function contentLength(files: Iterable<Omit<Metadata, "nameIsBuffer">>): bigint {
 	let centralLength = BigInt(endLength);
 	let offset = 0n;
 	let archiveNeedsZip64 = false;
@@ -45,7 +45,7 @@ export function contentLength(files: Iterable<Omit<Metadata, "nameIsBuffer">>) {
 	return centralLength + offset;
 }
 
-export function flagNameUTF8({ encodedName, nameIsBuffer }: Metadata, buffersAreUTF8?: boolean) {
+export function flagNameUTF8({ encodedName, nameIsBuffer }: Metadata, buffersAreUTF8?: boolean): number {
 	// @ts-expect-error: This is a valid use of BigInt
 	return (!nameIsBuffer || (buffersAreUTF8 ?? tryUTF8(encodedName))) * 0b1000;
 }
@@ -59,7 +59,7 @@ function tryUTF8(str: Uint8Array) {
 	return true;
 }
 
-export async function* loadFiles(files: ForAwaitable<ZipEntryDescription & Metadata>, options: Options) {
+export async function* loadFiles(files: ForAwaitable<ZipEntryDescription & Metadata>, options: Options): AsyncIterable<Uint8Array> {
 	const centralRecord: Uint8Array[] = [];
 	let offset = 0n;
 	let fileCount = 0n;
@@ -135,7 +135,7 @@ export async function* loadFiles(files: ForAwaitable<ZipEntryDescription & Metad
 	yield makeUint8Array(end);
 }
 
-export function fileHeader(file: ZipEntryDescription & Metadata, flags = 0) {
+export function fileHeader(file: ZipEntryDescription & Metadata, flags = 0): Uint8Array {
 	const header = makeBuffer(fileHeaderLength);
 	header.setUint32(0, fileHeaderSignature);
 	header.setUint32(4, 0x2d_00_0800 | flags); // ZIP version 4.5 | flags, bit 3 on = size and CRCs will be zero
@@ -148,7 +148,7 @@ export function fileHeader(file: ZipEntryDescription & Metadata, flags = 0) {
 	return makeUint8Array(header);
 }
 
-export async function* fileData(file: ZipFileDescription & Metadata) {
+export async function* fileData(file: ZipFileDescription & Metadata): AsyncIterable<Uint8Array> {
 	let { bytes } = file;
 	if ("then" in bytes) bytes = await bytes;
 	if (bytes instanceof Uint8Array) {
@@ -170,7 +170,7 @@ export async function* fileData(file: ZipFileDescription & Metadata) {
 	}
 }
 
-export function dataDescriptor(file: ZipEntryDescription & Metadata, needsZip64: boolean) {
+export function dataDescriptor(file: ZipEntryDescription & Metadata, needsZip64: boolean): Uint8Array {
 	const header = makeBuffer(descriptorLength + (needsZip64 ? 8 : 0));
 	header.setUint32(0, descriptorSignature);
 	header.setUint32(4, file.isFile ? (file.crc ?? 0) : 0, true);
@@ -187,7 +187,12 @@ export function dataDescriptor(file: ZipEntryDescription & Metadata, needsZip64:
 	return makeUint8Array(header);
 }
 
-export function centralHeader(file: ZipEntryDescription & Metadata, offset: bigint, flags = 0, zip64HeaderLength: Zip64FieldLength = 0) {
+export function centralHeader(
+	file: ZipEntryDescription & Metadata,
+	offset: bigint,
+	flags = 0,
+	zip64HeaderLength: Zip64FieldLength = 0
+): Uint8Array {
 	const header = makeBuffer(centralHeaderLength);
 	header.setUint32(0, centralHeaderSignature);
 	header.setUint32(4, 0x2d03_2d_00); // UNIX app version 4.5 | ZIP version 4.5
@@ -206,7 +211,11 @@ export function centralHeader(file: ZipEntryDescription & Metadata, offset: bigi
 	return makeUint8Array(header);
 }
 
-export function zip64ExtraField(file: ZipEntryDescription & Metadata, offset: bigint, zip64HeaderLength: Exclude<Zip64FieldLength, 0>) {
+export function zip64ExtraField(
+	file: ZipEntryDescription & Metadata,
+	offset: bigint,
+	zip64HeaderLength: Exclude<Zip64FieldLength, 0>
+): Uint8Array {
 	const header = makeBuffer(zip64HeaderLength);
 	header.setUint16(0, 1, true);
 	header.setUint16(2, zip64HeaderLength - 4, true);

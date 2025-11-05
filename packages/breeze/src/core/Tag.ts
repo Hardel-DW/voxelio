@@ -25,7 +25,7 @@ export class Tags {
 	 * });
 	 * const data = tag.getTags(); // Returns the TagType object
 	 */
-	getTags() {
+	getTags(): TagType {
 		return this.tags;
 	}
 
@@ -39,7 +39,7 @@ export class Tags {
 	 * });
 	 * tag.hasValue("minecraft:diamond_sword"); // Returns true
 	 */
-	hasValue(name: string | OptionalTag) {
+	hasValue(name: string | OptionalTag): boolean {
 		const searchId = typeof name === "string" ? name : name.id;
 		return this.tags.values.some((v) => (typeof v === "string" ? v : v.id) === searchId);
 	}
@@ -59,7 +59,7 @@ export class Tags {
 	 * });
 	 * tag.getValues(); // Returns ["minecraft:diamond_sword", "minecraft:iron_sword"]
 	 */
-	getValues() {
+	getValues(): TagType["values"] {
 		return this.tags.values;
 	}
 

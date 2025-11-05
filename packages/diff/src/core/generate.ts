@@ -18,7 +18,7 @@ interface MatchPair {
 	targetIndex: number;
 }
 
-export function generatePatch(input: unknown, output: unknown, pointer = new Pointer()): PatchOperation[] {
+export function generatePatch(input: unknown, output: unknown, pointer: Pointer = new Pointer()): PatchOperation[] {
 	if (isEqual(input, output)) {
 		return [];
 	}

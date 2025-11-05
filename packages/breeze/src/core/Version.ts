@@ -21,7 +21,7 @@ export const PACK_VERSION = {
 	"86": "1.21.9"
 };
 
-export const SIMPLE_PACK_VERSION = Object.fromEntries(
+export const SIMPLE_PACK_VERSION: Record<string, string> = Object.fromEntries(
 	Object.entries(PACK_VERSION).map(([key, value]) => [key, typeof value === "string" ? value : `${value.start} - ${value.end}`])
 );
 

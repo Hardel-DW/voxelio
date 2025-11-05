@@ -2,6 +2,12 @@ import type { LootGroup, LootItem, LootTableProps } from "@/core/schema/loot/typ
 import { Action } from "@/core/engine/actions/index";
 import { randomId } from "@/utils";
 
+type BulkProperty = "weight" | "quality";
+type Property = "name" | "weight" | "quality";
+type Operation = "multiply" | "add" | "set";
+type GroupType = "alternatives" | "group" | "sequence";
+type ItemOperation = "add_item" | "remove_item" | "change_type";
+
 export class LootTableAction<P = any> extends Action<P> {
 	constructor(
 		params: P,
@@ -17,7 +23,10 @@ export class LootTableAction<P = any> extends Action<P> {
 	static addLootItem(
 		poolIndex: number,
 		item: { name: string; weight?: number; quality?: number; conditions?: string[]; functions?: string[] }
-	) {
+	): LootTableAction<{
+		poolIndex: number;
+		item: typeof item;
+	}> {
 		return new LootTableAction({ poolIndex, item }, (el, p: { poolIndex: number; item: typeof item }) => {
 			const lootTable = structuredClone(el) as LootTableProps;
 			const newItem: LootItem = {
@@ -36,7 +45,7 @@ export class LootTableAction<P = any> extends Action<P> {
 		});
 	}
 
-	static removeLootItem(itemId: string) {
+	static removeLootItem(itemId: string): LootTableAction<{ itemId: string }> {
 		return new LootTableAction({ itemId }, (el, p: { itemId: string }) => {
 			const lootTable = structuredClone(el) as LootTableProps;
 			lootTable.items = lootTable.items.filter((item) => item.id !== p.itemId);
@@ -48,31 +57,32 @@ export class LootTableAction<P = any> extends Action<P> {
 		});
 	}
 
-	static modifyLootItem(itemId: string, property: "name" | "weight" | "quality", value: unknown) {
-		return new LootTableAction(
-			{ itemId, property, value },
-			(el, p: { itemId: string; property: "name" | "weight" | "quality"; value: unknown }) => {
-				const lootTable = structuredClone(el) as LootTableProps;
-				const item = lootTable.items.find((candidate) => candidate.id === p.itemId);
-				if (item) {
-					switch (p.property) {
-						case "name":
-							item.name = p.value as string;
-							break;
-						case "weight":
-							item.weight = p.value as number;
-							break;
-						case "quality":
-							item.quality = p.value as number;
-							break;
-					}
+	static modifyLootItem(
+		itemId: string,
+		property: Property,
+		value: unknown
+	): LootTableAction<{ itemId: string; property: Property; value: unknown }> {
+		return new LootTableAction({ itemId, property, value }, (el, p: { itemId: string; property: Property; value: unknown }) => {
+			const lootTable = structuredClone(el) as LootTableProps;
+			const item = lootTable.items.find((candidate) => candidate.id === p.itemId);
+			if (item) {
+				switch (p.property) {
+					case "name":
+						item.name = p.value as string;
+						break;
+					case "weight":
+						item.weight = p.value as number;
+						break;
+					case "quality":
+						item.quality = p.value as number;
+						break;
 				}
-				return lootTable;
 			}
-		);
+			return lootTable;
+		});
 	}
 
-	static duplicateLootItem(itemId: string, targetPoolIndex?: number) {
+	static duplicateLootItem(itemId: string, targetPoolIndex?: number): LootTableAction<{ itemId: string; targetPoolIndex?: number }> {
 		return new LootTableAction({ itemId, targetPoolIndex }, (el, p: { itemId: string; targetPoolIndex?: number }) => {
 			const lootTable = structuredClone(el) as LootTableProps;
 			const source = lootTable.items.find((candidate) => candidate.id === p.itemId);
@@ -88,10 +98,15 @@ export class LootTableAction<P = any> extends Action<P> {
 		});
 	}
 
-	static bulkModifyItems(itemIds: string[], property: "weight" | "quality", operation: "multiply" | "add" | "set", value: number) {
+	static bulkModifyItems(
+		itemIds: string[],
+		property: BulkProperty,
+		operation: Operation,
+		value: number
+	): LootTableAction<{ itemIds: string[]; property: BulkProperty; operation: Operation; value: number }> {
 		return new LootTableAction(
 			{ itemIds, property, operation, value },
-			(el, p: { itemIds: string[]; property: "weight" | "quality"; operation: "multiply" | "add" | "set"; value: number }) => {
+			(el, p: { itemIds: string[]; property: BulkProperty; operation: Operation; value: number }) => {
 				const lootTable = structuredClone(el) as LootTableProps;
 				for (const itemId of p.itemIds) {
 					const item = lootTable.items.find((candidate) => candidate.id === itemId);
@@ -118,10 +133,15 @@ export class LootTableAction<P = any> extends Action<P> {
 		);
 	}
 
-	static createLootGroup(groupType: "alternatives" | "group" | "sequence", itemIds: string[], poolIndex: number, entryIndex?: number) {
+	static createLootGroup(
+		groupType: GroupType,
+		itemIds: string[],
+		poolIndex: number,
+		entryIndex?: number
+	): LootTableAction<{ groupType: GroupType; itemIds: string[]; poolIndex: number; entryIndex?: number }> {
 		return new LootTableAction(
 			{ groupType, itemIds, poolIndex, entryIndex },
-			(el, p: { groupType: "alternatives" | "group" | "sequence"; itemIds: string[]; poolIndex: number; entryIndex?: number }) => {
+			(el, p: { groupType: GroupType; itemIds: string[]; poolIndex: number; entryIndex?: number }) => {
 				const lootTable = structuredClone(el) as LootTableProps;
 				const group: LootGroup = {
 					id: randomId("group"),
@@ -136,10 +156,14 @@ export class LootTableAction<P = any> extends Action<P> {
 		);
 	}
 
-	static modifyLootGroup(groupId: string, operation: "add_item" | "remove_item" | "change_type", value: unknown) {
+	static modifyLootGroup(
+		groupId: string,
+		operation: ItemOperation,
+		value: unknown
+	): LootTableAction<{ groupId: string; operation: ItemOperation; value: unknown }> {
 		return new LootTableAction(
 			{ groupId, operation, value },
-			(el, p: { groupId: string; operation: "add_item" | "remove_item" | "change_type"; value: unknown }) => {
+			(el, p: { groupId: string; operation: ItemOperation; value: unknown }) => {
 				const lootTable = structuredClone(el) as LootTableProps;
 				const group = lootTable.groups.find((candidate) => candidate.id === p.groupId);
 				if (!group) return lootTable;
@@ -164,7 +188,7 @@ export class LootTableAction<P = any> extends Action<P> {
 		);
 	}
 
-	static dissolveLootGroup(groupId: string) {
+	static dissolveLootGroup(groupId: string): LootTableAction<{ groupId: string }> {
 		return new LootTableAction({ groupId }, (el, p: { groupId: string }) => {
 			const lootTable = structuredClone(el) as LootTableProps;
 			lootTable.groups = lootTable.groups.filter((group) => group.id !== p.groupId);
@@ -175,10 +199,14 @@ export class LootTableAction<P = any> extends Action<P> {
 		});
 	}
 
-	static convertItemToGroup(itemId: string, groupType: "alternatives" | "group" | "sequence", additionalItems?: string[]) {
+	static convertItemToGroup(
+		itemId: string,
+		groupType: GroupType,
+		additionalItems?: string[]
+	): LootTableAction<{ itemId: string; groupType: GroupType; additionalItems?: string[] }> {
 		return new LootTableAction(
 			{ itemId, groupType, additionalItems },
-			(el, p: { itemId: string; groupType: "alternatives" | "group" | "sequence"; additionalItems?: string[] }) => {
+			(el, p: { itemId: string; groupType: GroupType; additionalItems?: string[] }) => {
 				const lootTable = structuredClone(el) as LootTableProps;
 				const item = lootTable.items.find((candidate) => candidate.id === p.itemId);
 				if (item) {
@@ -196,7 +224,7 @@ export class LootTableAction<P = any> extends Action<P> {
 		);
 	}
 
-	static convertGroupToItem(groupId: string, keepFirstItem?: boolean) {
+	static convertGroupToItem(groupId: string, keepFirstItem?: boolean): LootTableAction<{ groupId: string; keepFirstItem?: boolean }> {
 		return new LootTableAction({ groupId, keepFirstItem }, (el, p: { groupId: string; keepFirstItem?: boolean }) => {
 			const lootTable = structuredClone(el) as LootTableProps;
 			const group = lootTable.groups.find((candidate) => candidate.id === p.groupId);
@@ -217,7 +245,11 @@ export class LootTableAction<P = any> extends Action<P> {
 		});
 	}
 
-	static nestGroupInGroup(childGroupId: string, parentGroupId: string, position?: number) {
+	static nestGroupInGroup(
+		childGroupId: string,
+		parentGroupId: string,
+		position?: number
+	): LootTableAction<{ childGroupId: string; parentGroupId: string; position?: number }> {
 		return new LootTableAction(
 			{ childGroupId, parentGroupId, position },
 			(el, p: { childGroupId: string; parentGroupId: string; position?: number }) => {
@@ -232,7 +264,7 @@ export class LootTableAction<P = any> extends Action<P> {
 		);
 	}
 
-	static unnestGroup(groupId: string) {
+	static unnestGroup(groupId: string): LootTableAction<{ groupId: string }> {
 		return new LootTableAction({ groupId }, (el, p: { groupId: string }) => {
 			const lootTable = structuredClone(el) as LootTableProps;
 			for (const group of lootTable.groups) {
@@ -242,7 +274,7 @@ export class LootTableAction<P = any> extends Action<P> {
 		});
 	}
 
-	static moveItemBetweenPools(itemId: string, targetPoolIndex: number) {
+	static moveItemBetweenPools(itemId: string, targetPoolIndex: number): LootTableAction<{ itemId: string; targetPoolIndex: number }> {
 		return new LootTableAction({ itemId, targetPoolIndex }, (el, p: { itemId: string; targetPoolIndex: number }) => {
 			const lootTable = structuredClone(el) as LootTableProps;
 			const item = lootTable.items.find((candidate) => candidate.id === p.itemId);
@@ -253,7 +285,7 @@ export class LootTableAction<P = any> extends Action<P> {
 		});
 	}
 
-	static moveGroupBetweenPools(groupId: string, targetPoolIndex: number) {
+	static moveGroupBetweenPools(groupId: string, targetPoolIndex: number): LootTableAction<{ groupId: string; targetPoolIndex: number }> {
 		return new LootTableAction({ groupId, targetPoolIndex }, (el, p: { groupId: string; targetPoolIndex: number }) => {
 			const lootTable = structuredClone(el) as LootTableProps;
 			const group = lootTable.groups.find((candidate) => candidate.id === p.groupId);
@@ -264,7 +296,7 @@ export class LootTableAction<P = any> extends Action<P> {
 		});
 	}
 
-	static balanceWeights(poolIndex: number, targetTotal?: number) {
+	static balanceWeights(poolIndex: number, targetTotal?: number): LootTableAction<{ poolIndex: number; targetTotal?: number }> {
 		return new LootTableAction({ poolIndex, targetTotal }, (el, p: { poolIndex: number; targetTotal?: number }) => {
 			const lootTable = structuredClone(el) as LootTableProps;
 			const poolItems = lootTable.items.filter((item) => item.poolIndex === p.poolIndex);

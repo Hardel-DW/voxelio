@@ -18,7 +18,7 @@ export class Identifier {
 		this.resource = identifier.resource;
 	}
 
-	static of(identifier: string, registry: string) {
+	static of(identifier: string, registry: string): Identifier {
 		const cleanId = identifier.startsWith("#") ? identifier.slice(1) : identifier;
 		if (!cleanId.includes(":")) {
 			return new Identifier({ namespace: "minecraft", registry, resource: cleanId });
@@ -35,7 +35,7 @@ export class Identifier {
 	 * @param uniqueKey
 	 * @returns
 	 */
-	static fromUniqueKey(uniqueKey: string) {
+	static fromUniqueKey(uniqueKey: string): Identifier {
 		const [$namespace_resource, registry] = uniqueKey.split("$");
 		const [namespace, resource] = $namespace_resource.split(":");
 		return new Identifier({ namespace, registry, resource });
@@ -45,7 +45,7 @@ export class Identifier {
 		return { namespace: this.namespace, registry: this.registry, resource: this.resource };
 	}
 
-	toString() {
+	toString(): string {
 		if (this.registry?.startsWith("tags/")) return `#${this.namespace}:${this.resource}`;
 		return `${this.namespace}:${this.resource}`;
 	}
@@ -54,12 +54,12 @@ export class Identifier {
 		return `${this.namespace}:${this.resource}$${this.registry}`;
 	}
 
-	equals(other: Identifier | undefined) {
+	equals(other: Identifier | undefined): boolean {
 		if (!other) return false;
 		return this.namespace === other.namespace && this.registry === other.registry && this.resource === other.resource;
 	}
 
-	equalsObject(other: IdentifierObject | undefined) {
+	equalsObject(other: IdentifierObject | undefined): boolean {
 		if (!other) return false;
 		return this.namespace === other.namespace && this.registry === other.registry && this.resource === other.resource;
 	}

@@ -15,7 +15,10 @@ export class EnchantmentAction<P = any> extends Action<P> {
 		return this.applyFn(element, this.params, version);
 	}
 
-	static setComputedSlot(path: string, slot: SlotRegistryType | unknown) {
+	static setComputedSlot(
+		path: string,
+		slot: SlotRegistryType | unknown
+	): EnchantmentAction<{ path: string; slot: SlotRegistryType | unknown }> {
 		return new EnchantmentAction({ path, slot }, (el, p: { path: string; slot: SlotRegistryType | unknown }, version) => {
 			if (!version) {
 				throw new Error("Version is required for computed slot actions");
@@ -42,7 +45,7 @@ export class EnchantmentAction<P = any> extends Action<P> {
 		});
 	}
 
-	static toggleEnchantmentToExclusiveSet(enchantment: string) {
+	static toggleEnchantmentToExclusiveSet(enchantment: string): EnchantmentAction<{ enchantment: string }> {
 		return new EnchantmentAction({ enchantment }, (el, p: { enchantment: string }) => {
 			const props = structuredClone(el) as EnchantmentProps;
 
@@ -63,7 +66,7 @@ export class EnchantmentAction<P = any> extends Action<P> {
 		});
 	}
 
-	static setExclusiveSetWithTags(value: string) {
+	static setExclusiveSetWithTags(value: string): EnchantmentAction<{ value: string }> {
 		return new EnchantmentAction({ value }, (el, p: { value: string }) => {
 			const props = structuredClone(el) as EnchantmentProps;
 			if (props.exclusiveSet === p.value) {

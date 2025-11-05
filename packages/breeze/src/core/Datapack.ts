@@ -55,7 +55,7 @@ export class Datapack {
 		this.pack = pack;
 	}
 
-	static async from(file: File) {
+	static async from(file: File): Promise<Datapack> {
 		return new Datapack(await extractZip(new Uint8Array(await file.arrayBuffer())));
 	}
 
@@ -63,7 +63,7 @@ export class Datapack {
 	 * Parse the datapack.
 	 * @returns The parsed datapack.
 	 */
-	parse<T extends keyof Analysers>() {
+	parse<T extends keyof Analysers>(): ParseDatapackResult<GetAnalyserVoxel<T>> {
 		const logger = new Logger(this.files);
 		const elements = new Map<string, GetAnalyserVoxel<T>>();
 
@@ -92,7 +92,7 @@ export class Datapack {
 	 * Get the namespaces of the datapack. (From Data)
 	 * @returns The namespaces of the datapack.
 	 */
-	getNamespaces() {
+	getNamespaces(): string[] {
 		return Object.keys(this.files)
 			.filter((path) => path.startsWith("data/"))
 			.map((path) => path.split("/")[1])
@@ -103,7 +103,7 @@ export class Datapack {
 	 * Get the pack format of the datapack. Or throw an error if it's not found.
 	 * @returns The pack format of the datapack.
 	 */
-	getPackFormat() {
+	getPackFormat(): number {
 		if (!this.pack.pack.pack_format) throw new DatapackError("failed_to_get_pack_format");
 		return this.pack.pack.pack_format;
 	}
@@ -114,7 +114,7 @@ export class Datapack {
 	 * @example
 	 * getVersion() // "1.21.1"
 	 */
-	getVersion() {
+	getVersion(): string {
 		return getMinecraftVersion(this.getPackFormat());
 	}
 
@@ -123,7 +123,7 @@ export class Datapack {
 	 * @param fallback - The fallback description.
 	 * @returns The description of the datapack.
 	 */
-	getDescription(props?: { fallback?: string; raw?: boolean }) {
+	getDescription(props?: { fallback?: string; raw?: boolean }): string | undefined {
 		if (!props?.fallback && !this.pack.pack.description) throw new DatapackError("failed_to_get_datapack_description");
 		const description = this.pack.pack.description;
 		return props?.raw && description ? description : description ? textComponentToString(description) : props?.fallback;
@@ -155,7 +155,7 @@ export class Datapack {
 	 * Get the files of the datapack.
 	 * @returns The files of the datapack.
 	 */
-	getFiles() {
+	getFiles(): Record<string, Uint8Array<ArrayBufferLike>> {
 		return this.files;
 	}
 
@@ -238,7 +238,7 @@ export class Datapack {
 		return JSON.parse(new TextDecoder().decode(this.files[file]));
 	}
 
-	generate(logger?: Logger) {
+	generate(logger?: Logger): Promise<Response> {
 		return new DatapackDownloader(this.files).download(logger);
 	}
 

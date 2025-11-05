@@ -3,6 +3,8 @@ import { Action } from "@/core/engine/actions/index";
 
 const ensureArray = <T>(value: unknown): T[] => (Array.isArray(value) ? (value as T[]) : []);
 
+type ReturnCore = CoreAction<{ path: string; value: unknown }>;
+
 export class CoreAction<P = any> extends Action<P> {
 	constructor(
 		params: P,
@@ -15,18 +17,18 @@ export class CoreAction<P = any> extends Action<P> {
 		return this.applyFn(element, this.params);
 	}
 
-	static setValue(path: string, value: unknown) {
+	static setValue(path: string, value: unknown): ReturnCore {
 		return new CoreAction({ path, value }, (el, p: { path: string; value: unknown }) => setValueAtPath(el, p.path, p.value));
 	}
 
-	static toggleValue(path: string, value: unknown) {
+	static toggleValue(path: string, value: unknown): ReturnCore {
 		return new CoreAction({ path, value }, (el, p: { path: string; value: unknown }) => {
 			const current = getValueAtPath(el, p.path);
 			return setValueAtPath(el, p.path, current === p.value ? undefined : p.value);
 		});
 	}
 
-	static toggleValueInList(path: string, value: unknown) {
+	static toggleValueInList(path: string, value: unknown): ReturnCore {
 		return new CoreAction({ path, value }, (el, p: { path: string; value: unknown }) => {
 			const arr = ensureArray<unknown>(getValueAtPath(el, p.path));
 			const exists = arr.includes(p.value);
@@ -34,7 +36,7 @@ export class CoreAction<P = any> extends Action<P> {
 		});
 	}
 
-	static toggleAllValuesInList(path: string, values: unknown[]) {
+	static toggleAllValuesInList(path: string, values: unknown[]): CoreAction<{ path: string; values: unknown[] }> {
 		return new CoreAction({ path, values }, (el, p: { path: string; values: unknown[] }) => {
 			const arr = ensureArray<unknown>(getValueAtPath(el, p.path));
 			const hasAny = p.values.some((v) => arr.includes(v));
@@ -53,18 +55,18 @@ export class CoreAction<P = any> extends Action<P> {
 		});
 	}
 
-	static setUndefined(path: string) {
+	static setUndefined(path: string): CoreAction<{ path: string }> {
 		return new CoreAction({ path }, (el, p: { path: string }) => deleteValueAtPath(el, p.path));
 	}
 
-	static invertBoolean(path: string) {
+	static invertBoolean(path: string): CoreAction<{ path: string }> {
 		return new CoreAction({ path }, (el, p: { path: string }) => {
 			const bool = getValueAtPath(el, p.path);
 			return typeof bool === "boolean" ? setValueAtPath(el, p.path, !bool) : el;
 		});
 	}
 
-	static addTags(tags: string[]) {
+	static addTags(tags: string[]): CoreAction<{ tags: string[] }> {
 		return new CoreAction({ tags }, (el, p: { tags: string[] }) => {
 			const clone = structuredClone(el);
 			if (Array.isArray(clone.tags)) {
@@ -74,7 +76,7 @@ export class CoreAction<P = any> extends Action<P> {
 		});
 	}
 
-	static removeTags(tags: string[]) {
+	static removeTags(tags: string[]): CoreAction<{ tags: string[] }> {
 		return new CoreAction({ tags }, (el, p: { tags: string[] }) => {
 			const clone = structuredClone(el);
 			if (Array.isArray(clone.tags)) {

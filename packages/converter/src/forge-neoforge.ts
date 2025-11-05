@@ -33,7 +33,7 @@ const buildModEntry = (mod: ModMetadata): string => {
  * @param platforms - Target platforms (affects loader generation)
  * @returns Formatted TOML content for mods.toml
  */
-export function generateForgeMods(metadata: ModMetadata, platforms: ModPlatformType[]) {
+export function generateForgeMods(metadata: ModMetadata, platforms: ModPlatformType[]): string {
 	const config = platforms.includes(ModPlatforms.FORGE) ? LOADER_CONFIG[ModPlatforms.FORGE] : LOADER_CONFIG[ModPlatforms.NEOFORGE];
 	const fields = new Map<string, string | boolean>([
 		["modLoader", config.loader],

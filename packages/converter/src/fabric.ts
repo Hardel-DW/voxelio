@@ -22,7 +22,7 @@ interface FabricModJson {
 	};
 }
 
-export function generateFabricMod(commonData: ModMetadata) {
+export function generateFabricMod(commonData: ModMetadata): string {
 	const config: FabricModJson = {
 		schemaVersion: 1,
 		id: commonData.id,

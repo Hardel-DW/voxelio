@@ -108,7 +108,7 @@ export class Logger {
 		return result;
 	}
 
-	loadFromFiles(files: Record<string, Uint8Array>) {
+	loadFromFiles(files: Record<string, Uint8Array>): void {
 		for (const [path, data] of Object.entries(files)) {
 			if (!path.startsWith(CHANGES_PREFIX) || !path.endsWith(".json")) continue;
 

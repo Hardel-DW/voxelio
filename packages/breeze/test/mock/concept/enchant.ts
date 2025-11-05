@@ -383,7 +383,7 @@ export const zero_weight: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
-export const originalEnchantments = {
+export const originalEnchantments: Record<string, DataDrivenRegistryElement<Enchantment>> = {
 	sharpness,
 	smite,
 	knockback,
@@ -408,4 +408,4 @@ export const originalEnchantments = {
 };
 
 export type EnchantmentKey = keyof typeof originalEnchantments;
-export const enchantmentDataDriven = Object.values(originalEnchantments);
+export const enchantmentDataDriven: DataDrivenRegistryElement<Enchantment>[] = Object.values(originalEnchantments);

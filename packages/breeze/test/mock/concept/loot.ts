@@ -727,7 +727,7 @@ export const simulation: DataDrivenRegistryElement<MinecraftLootTable> = {
 	}
 };
 
-export const originalLootTables = {
+export const originalLootTables: Record<string, DataDrivenRegistryElement<MinecraftLootTable>> = {
 	simple,
 	extreme,
 	reference,
@@ -751,4 +751,4 @@ export const originalLootTables = {
 };
 
 export type LootKey = keyof typeof originalLootTables;
-export const lootDataDriven = Object.values(originalLootTables);
+export const lootDataDriven: DataDrivenRegistryElement<MinecraftLootTable>[] = Object.values(originalLootTables);

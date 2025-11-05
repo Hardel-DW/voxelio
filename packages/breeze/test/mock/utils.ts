@@ -21,7 +21,7 @@ export async function createZipFile(filesRecord: Record<string, Uint8Array>): Pr
  * @param packVersion - The version of the pack
  * @returns A record of files
  */
-export function prepareFiles(filesRecord: Record<string, Record<string, unknown>>, packVersion = 61) {
+export function prepareFiles(filesRecord: Record<string, Record<string, unknown>>, packVersion = 61): Record<string, Uint8Array> {
 	const packData = packVersion === -1 ? { pack: {} } : { pack: { pack_format: packVersion, description: "lorem ipsum" } };
 	const files: Record<string, Uint8Array> = {};
 	files["pack.mcmeta"] = new TextEncoder().encode(JSON.stringify(packData, null, 2));

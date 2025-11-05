@@ -11,7 +11,8 @@
 	},
 	"files": [
 		"dist/**/*.js",
-		"dist/**/*.d.ts"
+		"dist/**/*.d.ts",
+		"!dist/**/*.map"
 	],
 	"scripts": {
 		"build": "tsdown",

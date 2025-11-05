@@ -13,7 +13,11 @@ export class RecipeAction<P = any> extends Action<P> {
 		return this.applyFn(element, this.params);
 	}
 
-	static addIngredient(slot: string, items: string[], replace?: boolean) {
+	static addIngredient(
+		slot: string,
+		items: string[],
+		replace?: boolean
+	): RecipeAction<{ slot: string; items: string[]; replace?: boolean }> {
 		return new RecipeAction({ slot, items, replace }, (el, p: { slot: string; items: string[]; replace?: boolean }) => {
 			const recipe = structuredClone(el) as RecipeProps;
 			if (recipe.type === "minecraft:crafting_shapeless") return recipe;
@@ -30,7 +34,7 @@ export class RecipeAction<P = any> extends Action<P> {
 		});
 	}
 
-	static addShapelessIngredient(items: string | string[]) {
+	static addShapelessIngredient(items: string | string[]): RecipeAction<{ items: string | string[] }> {
 		return new RecipeAction({ items }, (el, p: { items: string | string[] }) => {
 			const recipe = structuredClone(el) as RecipeProps;
 			if (recipe.type !== "minecraft:crafting_shapeless") return recipe;
@@ -41,7 +45,7 @@ export class RecipeAction<P = any> extends Action<P> {
 		});
 	}
 
-	static removeIngredient(slot: string, items?: string[]) {
+	static removeIngredient(slot: string, items?: string[]): RecipeAction<{ slot: string; items?: string[] }> {
 		return new RecipeAction({ slot, items }, (el, p: { slot: string; items?: string[] }) => {
 			const recipe = structuredClone(el) as RecipeProps;
 			const content = recipe.slots[p.slot];
@@ -60,7 +64,7 @@ export class RecipeAction<P = any> extends Action<P> {
 		});
 	}
 
-	static removeItemEverywhere(items: string[]) {
+	static removeItemEverywhere(items: string[]): RecipeAction<{ items: string[] }> {
 		return new RecipeAction({ items }, (el, p: { items: string[] }) => {
 			const recipe = structuredClone(el) as RecipeProps;
 			const toRemove = new Set(p.items);
@@ -79,7 +83,7 @@ export class RecipeAction<P = any> extends Action<P> {
 		});
 	}
 
-	static replaceItemEverywhere(from: string, to: string) {
+	static replaceItemEverywhere(from: string, to: string): RecipeAction<{ from: string; to: string }> {
 		return new RecipeAction({ from, to }, (el, p: { from: string; to: string }) => {
 			const recipe = structuredClone(el) as RecipeProps;
 
@@ -100,7 +104,7 @@ export class RecipeAction<P = any> extends Action<P> {
 		});
 	}
 
-	static clearSlot(slot: string) {
+	static clearSlot(slot: string): RecipeAction<{ slot: string }> {
 		return new RecipeAction({ slot }, (el, p: { slot: string }) => {
 			const recipe = structuredClone(el) as RecipeProps;
 			delete recipe.slots[p.slot];
@@ -108,7 +112,10 @@ export class RecipeAction<P = any> extends Action<P> {
 		});
 	}
 
-	static convertRecipeType(newType: string, preserveIngredients?: boolean) {
+	static convertRecipeType(
+		newType: string,
+		preserveIngredients?: boolean
+	): RecipeAction<{ newType: string; preserveIngredients?: boolean }> {
 		return new RecipeAction({ newType, preserveIngredients }, (el, p: { newType: string; preserveIngredients?: boolean }) => {
 			const recipe = structuredClone(el) as RecipeProps;
 			const shouldPreserve = p.preserveIngredients ?? true;

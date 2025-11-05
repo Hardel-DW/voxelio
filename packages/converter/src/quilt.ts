@@ -28,7 +28,7 @@ interface QuiltModJson {
 	};
 }
 
-export function generateQuiltMod(commonData: ModMetadata) {
+export function generateQuiltMod(commonData: ModMetadata): string {
 	const config: QuiltModJson = {
 		schema_version: 1,
 		quilt_loader: {

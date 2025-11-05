@@ -19,7 +19,11 @@ export class StructureSetAction<P = any> extends Action<P> {
 		return this.applyFn(element, this.params);
 	}
 
-	static addStructure(structure: string, weight: number, position?: number) {
+	static addStructure(
+		structure: string,
+		weight: number,
+		position?: number
+	): StructureSetAction<{ structure: string; weight: number; position?: number }> {
 		return new StructureSetAction(
 			{ structure, weight, position },
 			(el, p: { structure: string; weight: number; position?: number }) => {
@@ -42,7 +46,7 @@ export class StructureSetAction<P = any> extends Action<P> {
 		);
 	}
 
-	static removeStructure(structureId: string) {
+	static removeStructure(structureId: string): StructureSetAction<{ structureId: string }> {
 		return new StructureSetAction({ structureId }, (el, p: { structureId: string }) => {
 			const structureSet = structuredClone(el) as StructureSetProps;
 			structureSet.structures = structureSet.structures.filter((_, index) => `structure_${index}` !== p.structureId);
@@ -50,7 +54,11 @@ export class StructureSetAction<P = any> extends Action<P> {
 		});
 	}
 
-	static modifyStructure(structureId: string, property: "structure" | "weight", value: string | number) {
+	static modifyStructure(
+		structureId: string,
+		property: "structure" | "weight",
+		value: string | number
+	): StructureSetAction<{ structureId: string; property: "structure" | "weight"; value: string | number }> {
 		return new StructureSetAction(
 			{ structureId, property, value },
 			(el, p: { structureId: string; property: "structure" | "weight"; value: string | number }) => {
@@ -72,7 +80,7 @@ export class StructureSetAction<P = any> extends Action<P> {
 		);
 	}
 
-	static setPlacementType(placementType: PlacementType) {
+	static setPlacementType(placementType: PlacementType): StructureSetAction<{ placementType: PlacementType }> {
 		return new StructureSetAction({ placementType }, (el, p: { placementType: PlacementType }) => {
 			const structureSet = structuredClone(el) as StructureSetProps;
 			structureSet.placementType = p.placementType;
@@ -85,7 +93,7 @@ export class StructureSetAction<P = any> extends Action<P> {
 		frequencyReductionMethod?: FrequencyReductionMethod;
 		frequency?: number;
 		locateOffset?: [number, number, number];
-	}) {
+	}): StructureSetAction<typeof config> {
 		return new StructureSetAction(config, (el, p: typeof config) => {
 			const structureSet = structuredClone(el) as StructureSetProps;
 			if (p.salt !== undefined) structureSet.salt = p.salt;
@@ -98,7 +106,7 @@ export class StructureSetAction<P = any> extends Action<P> {
 		});
 	}
 
-	static setExclusionZone(otherSet: string, chunkCount: number) {
+	static setExclusionZone(otherSet: string, chunkCount: number): StructureSetAction<{ otherSet: string; chunkCount: number }> {
 		return new StructureSetAction({ otherSet, chunkCount }, (el, p: { otherSet: string; chunkCount: number }) => {
 			const structureSet = structuredClone(el) as StructureSetProps;
 			structureSet.exclusionZone = {
@@ -109,7 +117,7 @@ export class StructureSetAction<P = any> extends Action<P> {
 		});
 	}
 
-	static removeExclusionZone() {
+	static removeExclusionZone(): StructureSetAction<{}> {
 		return new StructureSetAction({}, (el) => {
 			const structureSet = structuredClone(el) as StructureSetProps;
 			structureSet.exclusionZone = undefined;
@@ -117,7 +125,12 @@ export class StructureSetAction<P = any> extends Action<P> {
 		});
 	}
 
-	static configureConcentricRings(config: { distance?: number; spread?: number; count?: number; preferredBiomes?: string[] }) {
+	static configureConcentricRings(config: {
+		distance?: number;
+		spread?: number;
+		count?: number;
+		preferredBiomes?: string[];
+	}): StructureSetAction<typeof config> {
 		return new StructureSetAction(config, (el, p: typeof config) => {
 			const structureSet = structuredClone(el) as StructureSetProps;
 			if (p.distance !== undefined) structureSet.distance = p.distance;
@@ -128,7 +141,11 @@ export class StructureSetAction<P = any> extends Action<P> {
 		});
 	}
 
-	static configureRandomSpread(config: { spacing?: number; separation?: number; spreadType?: SpreadType }) {
+	static configureRandomSpread(config: {
+		spacing?: number;
+		separation?: number;
+		spreadType?: SpreadType;
+	}): StructureSetAction<typeof config> {
 		return new StructureSetAction(config, (el, p: typeof config) => {
 			const structureSet = structuredClone(el) as StructureSetProps;
 			if (p.spacing !== undefined) structureSet.spacing = p.spacing;
@@ -138,7 +155,7 @@ export class StructureSetAction<P = any> extends Action<P> {
 		});
 	}
 
-	static reorderStructures(structureIds: string[]) {
+	static reorderStructures(structureIds: string[]): StructureSetAction<{ structureIds: string[] }> {
 		return new StructureSetAction({ structureIds }, (el, p: { structureIds: string[] }) => {
 			const structureSet = structuredClone(el) as StructureSetProps;
 			const reordered = p.structureIds

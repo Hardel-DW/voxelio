@@ -68,9 +68,9 @@ export type SpreadType = "linear" | "triangular";
 /**
  * Placement types that use concentric rings configuration
  */
-export const CONCENTRIC_RINGS_TYPES = new Set(["minecraft:concentric_rings"]);
+export const CONCENTRIC_RINGS_TYPES: Set<string> = new Set(["minecraft:concentric_rings"]);
 
 /**
  * Placement types that use random spread configuration
  */
-export const RANDOM_SPREAD_TYPES = new Set(["minecraft:random_spread"]);
+export const RANDOM_SPREAD_TYPES: Set<string> = new Set(["minecraft:random_spread"]);

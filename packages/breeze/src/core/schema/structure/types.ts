@@ -155,7 +155,7 @@ export type BiomeTemperature = "cold" | "warm";
 export type RuinedPortalPlacement = "on_land_surface" | "partly_buried" | "on_ocean_floor" | "in_mountain" | "underground" | "in_nether";
 
 // Structure types that use Jigsaw config
-export const JIGSAW_STRUCTURE_TYPES = new Set([
+export const JIGSAW_STRUCTURE_TYPES: Set<string> = new Set([
 	"minecraft:bastion_remnant",
 	"minecraft:jigsaw",
 	"minecraft:pillager_outpost",
@@ -163,7 +163,7 @@ export const JIGSAW_STRUCTURE_TYPES = new Set([
 ]);
 
 // Legacy structure types (store config as-is)
-export const LEGACY_STRUCTURE_TYPES = new Set([
+export const LEGACY_STRUCTURE_TYPES: Set<string> = new Set([
 	"minecraft:desert_pyramid",
 	"minecraft:end_city",
 	"minecraft:fortress",

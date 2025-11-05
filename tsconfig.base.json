@@ -6,12 +6,12 @@
         "isolatedModules": true,
         "strict": true,
         "noImplicitAny": false,
+        "isolatedDeclarations": true,
         "esModuleInterop": true,
         "pretty": true,
         "composite": true,
         "sourceMap": true,
         "declaration": true,
-        "declarationMap": true,
         "newLine": "LF",
         "skipLibCheck": true
     }

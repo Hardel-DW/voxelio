@@ -1,6 +1,16 @@
 import type { StructureProps, SpawnOverride, DecorationStep } from "@/core/schema/structure/types";
 import { Action } from "@/core/engine/actions/index";
 
+type Adaptation = "none" | "beard_thin" | "beard_box" | "bury" | "encapsulate";
+type BoundingBox = "piece" | "full";
+type PoolAlias = { weight: number; data: string };
+type AddPoolAliasParams = {
+	aliasType: string;
+	alias?: string;
+	target?: string;
+	targets?: Array<PoolAlias>;
+};
+
 export class StructureAction<P = any> extends Action<P> {
 	constructor(
 		params: P,
@@ -13,7 +23,7 @@ export class StructureAction<P = any> extends Action<P> {
 		return this.applyFn(element, this.params);
 	}
 
-	static setBiomes(biomes: string[], replace?: boolean) {
+	static setBiomes(biomes: string[], replace?: boolean): StructureAction<{ biomes: string[]; replace?: boolean }> {
 		return new StructureAction({ biomes, replace }, (el, p: { biomes: string[]; replace?: boolean }) => {
 			const structure = structuredClone(el) as StructureProps;
 			if (p.replace) {
@@ -29,16 +39,20 @@ export class StructureAction<P = any> extends Action<P> {
 
 	static addSpawnOverride(
 		mobCategory: string,
-		boundingBox: "piece" | "full",
+		boundingBox: BoundingBox,
 		spawns: Array<{ type: string; weight: number; minCount: number; maxCount: number }>
-	) {
+	): StructureAction<{
+		mobCategory: string;
+		boundingBox: BoundingBox;
+		spawns: Array<(typeof spawns)[number]>;
+	}> {
 		return new StructureAction(
 			{ mobCategory, boundingBox, spawns },
 			(
 				el,
 				p: {
 					mobCategory: string;
-					boundingBox: "piece" | "full";
+					boundingBox: BoundingBox;
 					spawns: Array<{ type: string; weight: number; minCount: number; maxCount: number }>;
 				}
 			) => {
@@ -57,7 +71,7 @@ export class StructureAction<P = any> extends Action<P> {
 		);
 	}
 
-	static removeSpawnOverride(mobCategory: string) {
+	static removeSpawnOverride(mobCategory: string): StructureAction<{ mobCategory: string }> {
 		return new StructureAction({ mobCategory }, (el, p: { mobCategory: string }) => {
 			const structure = structuredClone(el) as StructureProps;
 			const currentOverrides = Array.isArray(structure.spawnOverrides) ? structure.spawnOverrides : [];
@@ -73,7 +87,7 @@ export class StructureAction<P = any> extends Action<P> {
 		startJigsawName?: string;
 		maxDistanceFromCenter?: number;
 		useExpansionHack?: boolean;
-	}) {
+	}): StructureAction<typeof config> {
 		return new StructureAction(config, (el, p: typeof config) => {
 			const structure = structuredClone(el) as StructureProps;
 			if (p.startPool !== undefined) structure.startPool = p.startPool;
@@ -86,25 +100,27 @@ export class StructureAction<P = any> extends Action<P> {
 		});
 	}
 
-	static addPoolAlias(aliasType: string, alias?: string, target?: string, targets?: Array<{ weight: number; data: string }>) {
-		return new StructureAction(
-			{ aliasType, alias, target, targets },
-			(el, p: { aliasType: string; alias?: string; target?: string; targets?: Array<{ weight: number; data: string }> }) => {
-				const structure = structuredClone(el) as StructureProps;
-				const aliasObj: Record<string, unknown> = { type: p.aliasType };
-				if (p.alias !== undefined) aliasObj.alias = p.alias;
-				if (p.target !== undefined) aliasObj.target = p.target;
-				if (p.targets !== undefined) aliasObj.targets = p.targets;
+	static addPoolAlias(
+		aliasType: string,
+		alias?: string,
+		target?: string,
+		targets?: Array<PoolAlias>
+	): StructureAction<AddPoolAliasParams> {
+		return new StructureAction({ aliasType, alias, target, targets }, (el, p: AddPoolAliasParams) => {
+			const structure = structuredClone(el) as StructureProps;
+			const aliasObj: Record<string, unknown> = { type: p.aliasType };
+			if (p.alias !== undefined) aliasObj.alias = p.alias;
+			if (p.target !== undefined) aliasObj.target = p.target;
+			if (p.targets !== undefined) aliasObj.targets = p.targets;
 
-				const poolAliases = Array.isArray(structure.poolAliases) ? [...structure.poolAliases] : [];
-				poolAliases.push(aliasObj as any);
-				structure.poolAliases = poolAliases as StructureProps["poolAliases"];
-				return structure;
-			}
-		);
+			const poolAliases = Array.isArray(structure.poolAliases) ? [...structure.poolAliases] : [];
+			poolAliases.push(aliasObj as any);
+			structure.poolAliases = poolAliases as StructureProps["poolAliases"];
+			return structure;
+		});
 	}
 
-	static removePoolAlias(alias: string) {
+	static removePoolAlias(alias: string): StructureAction<{ alias: string }> {
 		return new StructureAction({ alias }, (el, p: { alias: string }) => {
 			const structure = structuredClone(el) as StructureProps;
 			const poolAliases = Array.isArray(structure.poolAliases) ? structure.poolAliases : [];
@@ -113,18 +129,15 @@ export class StructureAction<P = any> extends Action<P> {
 		});
 	}
 
-	static setTerrainAdaptation(adaptation: "none" | "beard_thin" | "beard_box" | "bury" | "encapsulate") {
-		return new StructureAction(
-			{ adaptation },
-			(el, p: { adaptation: "none" | "beard_thin" | "beard_box" | "bury" | "encapsulate" }) => {
-				const structure = structuredClone(el) as StructureProps;
-				structure.terrainAdaptation = p.adaptation;
-				return structure;
-			}
-		);
+	static setTerrainAdaptation(adaptation: Adaptation): StructureAction<{ adaptation: Adaptation }> {
+		return new StructureAction({ adaptation }, (el, p: { adaptation: Adaptation }) => {
+			const structure = structuredClone(el) as StructureProps;
+			structure.terrainAdaptation = p.adaptation;
+			return structure;
+		});
 	}
 
-	static setDecorationStep(step: string) {
+	static setDecorationStep(step: string): StructureAction<{ step: string }> {
 		return new StructureAction({ step }, (el, p: { step: string }) => {
 			const structure = structuredClone(el) as StructureProps;
 			structure.step = p.step as DecorationStep;
