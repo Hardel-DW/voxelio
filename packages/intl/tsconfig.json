@@ -1,0 +1,21 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"target": "es2024",
+		"outDir": "dist",
+		"jsx": "react-jsx",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": [
+				"./src/*"
+			],
+			"@examples/*": [
+				"./examples/*"
+			]
+		}
+	},
+	"include": [
+		"src/**/*",
+		"examples/**/*"
+	]
+}
