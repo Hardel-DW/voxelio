@@ -47,11 +47,12 @@ importers:
   packages/env: {}
 
   packages/intl:
-    devDependencies:
-      '@oxc-project/types':
+    dependencies:
+      oxc-parser:
         specifier: ^0.96.0
         version: 0.96.0
-      oxc-parser:
+    devDependencies:
+      '@oxc-project/types':
         specifier: ^0.96.0
         version: 0.96.0
       vite:
