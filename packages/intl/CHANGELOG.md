@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.0.2
+
+### Patch Changes
+
+- cc023bf: Added @oxc-parser/binding-wasm32-wasi packages
+
 ## 1.0.1
 
 ### Patch Changes
