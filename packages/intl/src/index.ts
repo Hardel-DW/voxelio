@@ -103,12 +103,22 @@ const syncLocales = async (messages: Map<string, string>, localesDir: string, so
 
 export default function viteI18nExtract(options: Options = {}): Plugin {
 	const { sourceLocale = 'en', localesDir = './src/locales' } = options;
-	const globalMessages = new Map<string, string>();
+	const fileMessages = new Map<string, Map<string, string>>();
+
+	const getAllMessages = (): Map<string, string> => {
+		const allMessages = new Map<string, string>();
+		for (const messages of fileMessages.values()) {
+			for (const [key, text] of messages) {
+				allMessages.set(key, text);
+			}
+		}
+		return allMessages;
+	};
 
 	return {
 		name: '@voxelio/intl',
 		buildStart() {
-			globalMessages.clear();
+			fileMessages.clear();
 		},
 
 		async transform(code: string, id: string) {
@@ -117,24 +127,25 @@ export default function viteI18nExtract(options: Options = {}): Plugin {
 				return null;
 
 			const messages = extractMessages(code, id);
-			if (messages.size === 0) return null;
-
-			for (const [key, text] of messages) {
-				globalMessages.set(key, text);
-			}
+			fileMessages.set(id, messages);
 
 			const transformedCode = transformCode(code, id);
-			await syncLocales(globalMessages, localesDir, sourceLocale);
+			await syncLocales(getAllMessages(), localesDir, sourceLocale);
 			return { code: transformedCode, map: null };
 		},
 
-		async handleHotUpdate({ file }) {
+		async handleHotUpdate({ file, read }) {
 			if (!/\.(jsx|tsx)$/.test(file)) return;
-			await syncLocales(globalMessages, localesDir, sourceLocale);
+
+			const code = await read();
+			const messages = extractMessages(code, file);
+			fileMessages.set(file, messages);
+
+			await syncLocales(getAllMessages(), localesDir, sourceLocale);
 		},
 
 		async buildEnd() {
-			await syncLocales(globalMessages, localesDir, sourceLocale);
+			await syncLocales(getAllMessages(), localesDir, sourceLocale);
 		},
 	};
 }
