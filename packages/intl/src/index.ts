@@ -96,7 +96,9 @@ const syncLocales = async (messages: Map<string, string>, localesDir: string, so
 		const filePath = join(localesDir, file);
 		const content = await safeTryAsync(() => readFile(filePath, 'utf-8'));
 		const localeMessages = safeTry(() => content ? JSON.parse(content.toString()) : {}) ?? {};
-		const updatedMessages = Object.fromEntries(Object.keys(sourceMessages).map((key) => [key, localeMessages[key] ?? '']));
+		const updatedMessages = Object.fromEntries(
+			Object.entries(sourceMessages).map(([key, sourceText]) => [key, localeMessages[key] ?? sourceText]),
+		);
 		await writeFile(filePath, JSON.stringify(updatedMessages, null, 2), 'utf-8');
 	}
 };
