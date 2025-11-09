@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsdown'
+import { defineConfig, type UserConfig } from 'tsdown'
 
 export default defineConfig({
     workspace: true,
@@ -8,4 +8,4 @@ export default defineConfig({
     clean: true,
     minify: true,
     sourcemap: false
-})
+}) as UserConfig

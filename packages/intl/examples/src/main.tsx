@@ -10,8 +10,8 @@ const render = () => {
 	const rootElement = document.getElementById('root');
 	if (rootElement) {
 		rootElement.innerHTML = `
-			<div id="app">
-				<h1>${test}</h1>
+			<div id="app"> 
+				<h1>${test}</h1>  
 				<p>${test2}</p>
 				<p>${test3}</p>
 				<p>Current language: ${currentLang}</p>

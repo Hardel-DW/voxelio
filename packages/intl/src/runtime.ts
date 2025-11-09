@@ -49,7 +49,6 @@ class I18nRuntime {
             this.translations.set(locale, translations);
         }
         this.isInitialized = true;
-        console.log('[i18n] Initialized with locales:', Object.keys(locales));
     }
 
     translate(key: string, params?: TranslationParams): string {
