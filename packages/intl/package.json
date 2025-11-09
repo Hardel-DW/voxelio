@@ -1,6 +1,6 @@
 {
 	"name": "@voxelio/intl",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"type": "module",
 	"description": "Internationalization package for Vite projects, extract keys from tsx/jsx files and automatically generate translation files.",
 	"scripts": {
