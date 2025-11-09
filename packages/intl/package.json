@@ -36,7 +36,6 @@
 		"access": "public"
 	},
 	"dependencies": {
-		"@oxc-parser/binding-wasm32-wasi": "^0.96.0",
 		"oxc-parser": "^0.96.0"
 	},
 	"devDependencies": {
