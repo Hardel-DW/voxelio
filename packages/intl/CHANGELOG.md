@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.0.4
+
+### Patch Changes
+
+- edc471c: Revert binding package for intl
+
 ## 1.0.3
 
 ### Patch Changes
