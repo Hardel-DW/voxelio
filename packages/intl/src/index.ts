@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { parseSync, Visitor, type VisitorObject } from 'oxc-parser';
+import { parseSync, Visitor, type VisitorObject } from 'oxc-parser/src-js/index.js';
 import type { CallExpression } from '@oxc-project/types';
 import type { Plugin } from 'vite';
 import { safeTry, safeTryAsync } from '@/utils';
