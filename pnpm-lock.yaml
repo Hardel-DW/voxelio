@@ -48,6 +48,9 @@ importers:
 
   packages/intl:
     dependencies:
+      '@oxc-parser/binding-wasm32-wasi':
+        specifier: ^0.96.0
+        version: 0.96.0
       oxc-parser:
         specifier: ^0.96.0
         version: 0.96.0
@@ -1608,17 +1611,14 @@ snapshots:
     dependencies:
       '@emnapi/wasi-threads': 1.1.0
       tslib: 2.8.1
-    optional: true
 
   '@emnapi/runtime@1.6.0':
     dependencies:
       tslib: 2.8.1
-    optional: true
 
   '@emnapi/wasi-threads@1.1.0':
     dependencies:
       tslib: 2.8.1
-    optional: true
 
   '@esbuild/aix-ppc64@0.25.11':
     optional: true
@@ -1738,7 +1738,6 @@ snapshots:
       '@emnapi/core': 1.6.0
       '@emnapi/runtime': 1.6.0
       '@tybys/wasm-util': 0.10.1
-    optional: true
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -1791,7 +1790,6 @@ snapshots:
   '@oxc-parser/binding-wasm32-wasi@0.96.0':
     dependencies:
       '@napi-rs/wasm-runtime': 1.0.7
-    optional: true
 
   '@oxc-parser/binding-win32-arm64-msvc@0.96.0':
     optional: true
@@ -1922,7 +1920,6 @@ snapshots:
   '@tybys/wasm-util@0.10.1':
     dependencies:
       tslib: 2.8.1
-    optional: true
 
   '@types/chai@5.2.3':
     dependencies:
@@ -2469,8 +2466,7 @@ snapshots:
       - supports-color
       - vue-tsc
 
-  tslib@2.8.1:
-    optional: true
+  tslib@2.8.1: {}
 
   typescript@5.9.3: {}
 
