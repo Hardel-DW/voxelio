@@ -12,9 +12,9 @@ Already implemented:
 - If other ".json" files are present, The keys will be also added to the other files, with the o.g translations.
 - HMR work of course when changing a key in tsx files.
 - Hash strategy: Same text = same key globally
+- Interpolation support: t("Hello {name}", { name: "John" }) → "Hello John"
 
 Functionalities to implement:
-- Interpolation support: t("Hello {name}", { name: "John" }) → "Hello John"
 - We can detect the lang with url, cookie, header, localstorage or context/function. (Need Brain storming)
 
 For SSG/SSR : (Need Brain storming)
