@@ -13,9 +13,9 @@
 		"biome:unsafefix": "biome check --write --unsafe  ./src"
 	},
 	"exports": {
-		".": {
-			"import": "./dist/index.js",
-			"types": "./dist/index.d.ts"
+		"./plugin": {
+			"import": "./dist/plugin.js",
+			"types": "./dist/plugin.d.ts"
 		},
 		"./runtime": {
 			"import": "./dist/runtime.js",

@@ -1,7 +1,7 @@
 import { defineConfig, type UserConfig } from "tsdown";
 
 export default defineConfig({
-	entry: ["./src/index.ts", "./src/runtime.ts"],
+	entry: ["./src/plugin.ts", "./src/runtime.ts"],
 	format: ["esm"],
 	dts: true,
 	clean: true,

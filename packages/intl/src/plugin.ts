@@ -106,6 +106,14 @@ const syncLocales = async (messages: Map<string, string>, localesDir: string, so
 export default function viteI18nExtract(options: Options = {}): Plugin {
 	const { sourceLocale = 'en', localesDir = './src/locales' } = options;
 	const fileMessages = new Map<string, Map<string, string>>();
+	const virtualModuleId = 'virtual:@voxelio/intl';
+	const resolvedVirtualModuleId = `\0${virtualModuleId}`;
+	let configFilePath = '';
+
+	const getAbsoluteLocalesDir = (): string => {
+		const configDir = configFilePath ? join(configFilePath, '..') : process.cwd();
+		return join(configDir, localesDir);
+	};
 
 	const getAllMessages = (): Map<string, string> => {
 		const allMessages = new Map<string, string>();
@@ -117,10 +125,67 @@ export default function viteI18nExtract(options: Options = {}): Plugin {
 		return allMessages;
 	};
 
+	const generateVirtualModule = async (): Promise<string> => {
+		const absoluteLocalesDir = getAbsoluteLocalesDir();
+		console.log('[Plugin] Looking for locales in:', absoluteLocalesDir);
+		const files = await readdir(absoluteLocalesDir).catch(() => []);
+		console.log('[Plugin] Found files:', files);
+		const localeFiles = files.filter((f) => f.endsWith('.json'));
+		console.log('[Plugin] Found locale files:', localeFiles);
+
+		const configDir = configFilePath ? join(configFilePath, '..') : process.cwd();
+		const runtimePath = join(configDir, '../dist/runtime.js').replace(/\\/g, '/');
+		const isDevMode = runtimePath.includes('/packages/intl/');
+		const runtimeImport = isDevMode ? runtimePath : '@voxelio/intl/runtime';
+
+		if (localeFiles.length === 0) {
+			console.warn('[Plugin] No locale files found!');
+			return `import { init } from '${runtimeImport}';
+init({});`;
+		}
+
+		const imports = localeFiles.map((file, idx) => {
+			const absolutePath = join(absoluteLocalesDir, file).replace(/\\/g, '/');
+			console.log(`[Plugin] Import ${idx}: ${absolutePath}`);
+			return `import locale_${idx} from '${absolutePath}';`;
+		}).join('\n');
+
+		const localesObject = localeFiles.map((file, idx) => {
+			const locale = file.replace('.json', '');
+			return `  '${locale}': locale_${idx}`;
+		}).join(',\n');
+
+		const code = `${imports}
+import { init } from '${runtimeImport}';
+
+const locales = {
+${localesObject}
+};
+
+console.log('[Virtual Module] Locales object:', locales);
+init(locales);
+`;
+		return code;
+	};
+
 	return {
 		name: '@voxelio/intl',
+		configResolved(config) {
+			configFilePath = config.configFile ?? '';
+		},
+
 		buildStart() {
 			fileMessages.clear();
+		},
+
+		resolveId(id: string) {
+			if (id === virtualModuleId) return resolvedVirtualModuleId;
+		},
+
+		async load(id: string) {
+			if (id === resolvedVirtualModuleId) {
+				return generateVirtualModule();
+			}
 		},
 
 		async transform(code: string, id: string) {
@@ -132,24 +197,27 @@ export default function viteI18nExtract(options: Options = {}): Plugin {
 			fileMessages.set(id, messages);
 
 			const transformedCode = transformCode(code, id);
-			await syncLocales(getAllMessages(), localesDir, sourceLocale);
+			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale);
 			return { code: transformedCode, map: null };
 		},
 
-		async handleHotUpdate({ file, read }) {
+		async handleHotUpdate({ file, read, server }) {
 			if (!/\.(jsx|tsx)$/.test(file)) return;
 
 			const code = await read();
 			const messages = extractMessages(code, file);
 			fileMessages.set(file, messages);
 
-			await syncLocales(getAllMessages(), localesDir, sourceLocale);
+			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale);
+
+			const virtualModule = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
+			if (virtualModule) {
+				server.moduleGraph.invalidateModule(virtualModule);
+			}
 		},
 
 		async buildEnd() {
-			await syncLocales(getAllMessages(), localesDir, sourceLocale);
+			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale);
 		},
 	};
 }
-
-export { t } from './runtime';

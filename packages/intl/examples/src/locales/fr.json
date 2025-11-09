@@ -1,4 +1,5 @@
 {
-  "f2ef0813": "",
-  "f5866e73": ""
+    "f2ef0813": "Hello Foo BAR",
+    "f5866e73": "Hello Foo BAR BAZ Tesdt",
+    "a1a7fa2c": "Bonjour {name}, vous avez {count} messages"
 }
