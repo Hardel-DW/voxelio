@@ -12,12 +12,14 @@ import { safeTry, safeTryAsync } from '@/utils';
  * @param locales - Array of supported locales
  * @param localesDir - The directory to store the locales (optional, defaults to './src/locales')
  * @param include - File extensions to process (optional, defaults to ['jsx', 'tsx'])
+ * @param silent - Disable warning logs (optional, defaults to false)
  */
 interface Options {
 	sourceLocale: string;
 	locales: string[];
 	localesDir?: string;
 	include?: string[];
+	silent?: boolean;
 }
 
 interface Replacement {
@@ -28,11 +30,16 @@ interface Replacement {
 const generateKey = (text: string): string =>
 	createHash('sha256').update(text, 'utf8').digest('base64').slice(0, 12);
 
-const extractAndTransform = (code: string, id: string): { messages: Map<string, string>; transformedCode: string } => {
+const extractAndTransform = (code: string, id: string, silent: boolean): { messages: Map<string, string>; transformedCode: string } => {
 	const messages = new Map<string, string>();
 	const replacements: Replacement[] = [];
 	const result = parseSync(id, code);
-	if (result.errors.length > 0) return { messages, transformedCode: code };
+	if (result.errors.length > 0) {
+		if (!silent) {
+			console.warn(`[@voxelio/intl] Parse errors in ${id}:`, result.errors.map(e => e.message).join(', '));
+		}
+		return { messages, transformedCode: code };
+	}
 
 	const visitor = new Visitor({
 		CallExpression(node: CallExpression) {
@@ -78,14 +85,21 @@ const syncLocales = async (messages: Map<string, string>, localesDir: string, so
 	}
 };
 
+interface CacheEntry {
+	codeHash: string;
+	messages: Map<string, string>;
+	transformedCode: string;
+}
+
 export default function viteI18nExtract(options: Options): Plugin {
-	const { sourceLocale, locales, localesDir = './src/locales', include = ['jsx', 'tsx'] } = options;
+	const { sourceLocale, locales, localesDir = './src/locales', include = ['jsx', 'tsx'], silent = false } = options;
 	if (!locales.includes(sourceLocale)) {
 		throw new Error(`sourceLocale "${sourceLocale}" must be included in locales array: [${locales.join(', ')}]`);
 	}
 
 	const filePattern = new RegExp(`\\.(${include.join('|')})$`);
 	const fileMessages = new Map<string, Map<string, string>>();
+	const parseCache = new Map<string, CacheEntry>();
 	const virtualModuleId = 'virtual:@voxelio/intl';
 	const resolvedVirtualModuleId = `\0${virtualModuleId}`;
 	let configFilePath = '';
@@ -96,15 +110,19 @@ export default function viteI18nExtract(options: Options): Plugin {
 		return join(configDir, localesDir);
 	};
 
-	const getAllMessages = (): Map<string, string> => {
-		const allMessages = new Map<string, string>();
-		for (const messages of fileMessages.values()) {
-			for (const [key, text] of messages) {
-				allMessages.set(key, text);
-			}
+	const processFile = (code: string, id: string, silent: boolean): { messages: Map<string, string>; transformedCode: string; isCached: boolean } => {
+		const codeHash = createHash('sha256').update(code, 'utf8').digest('hex');
+		const cached = parseCache.get(id);
+		if (cached && cached.codeHash === codeHash) {
+			return { messages: cached.messages, transformedCode: cached.transformedCode, isCached: true };
 		}
-		return allMessages;
+
+		const { messages, transformedCode } = extractAndTransform(code, id, silent);
+		parseCache.set(id, { codeHash, messages, transformedCode });
+		return { messages, transformedCode, isCached: false };
 	};
+
+	const getAllMessages = (): Map<string, string> => new Map(Array.from(fileMessages.values()).flatMap(messages => Array.from(messages)));
 
 	const resolveRuntimeImport = (): string => {
 		if (!configFilePath) return '@voxelio/intl/runtime';
@@ -155,6 +173,7 @@ export default function viteI18nExtract(options: Options): Plugin {
 		},
 		async buildStart() {
 			fileMessages.clear();
+			parseCache.clear();
 			initialSyncPromise = null;
 		},
 		resolveId(id: string) {
@@ -165,11 +184,11 @@ export default function viteI18nExtract(options: Options): Plugin {
 		},
 		async transform(code: string, id: string) {
 			if (!filePattern.test(id)) return null;
-			if (!code.includes("t('") && !code.includes('t("') && !code.includes('t(`'))
-				return null;
+			if (!code.includes("@voxelio/intl")) return null;
 
-			const { messages, transformedCode } = extractAndTransform(code, id);
+			const { messages, transformedCode } = processFile(code, id, silent);
 			fileMessages.set(id, messages);
+
 			if (!initialSyncPromise && fileMessages.size > 0) {
 				initialSyncPromise = syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales).catch((error) => {
 					console.error('[voxelio/intl] Failed to sync locales:', error);
@@ -183,9 +202,10 @@ export default function viteI18nExtract(options: Options): Plugin {
 		async handleHotUpdate({ file, read, server }) {
 			if (!filePattern.test(file)) return;
 			const code = await read();
-			const { messages } = extractAndTransform(code, file);
-			fileMessages.set(file, messages);
+			const { messages, isCached } = processFile(code, file, silent);
 
+			if (isCached) return;
+			fileMessages.set(file, messages);
 			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales);
 			const virtualModule = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
 			if (virtualModule) {

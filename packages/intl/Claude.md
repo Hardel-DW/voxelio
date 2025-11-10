@@ -1,7 +1,6 @@
 # CLAUDE.md
 This file provides guidance to Claude Code when working with this repository, This is a TSDown + TypeScript, OXC-Parser package built with Rolldown, Biome and Vitest.
 Goal: Create a package of professional internationalisation for Vite, usable in thousands of production projects and frameworks.
-Warning: t() is automatically escaped by react so no XSS possible, if the user uses dangerouslySetInnerHTML at his own risk (That make no sense to use t() in that case).
 
 Already implemented:
 - Extract keys from tsx/jsx files and automatically generate translation files.
@@ -21,6 +20,10 @@ For SSG/SSR : (Need Brain storming)
 - A "build mode" with no .json or runtime code of intl in the final bundle.
 - A "runtime mode" for SSR/SSG the translations is done on the client by sending the list of keys. Only the keys used will be sent.
 - Vite Framework-agnostic, maybe a package for each framework Astro/TanStack/React/Vue/Svelte/Solid/SvleteKit/Nuxt. To correctly manage route.
+
+Warning:
+- t() is automatically escaped by react so no XSS possible, if the user uses dangerouslySetInnerHTML at his own risk (That make no sense to use t() in that case).
+- No Pluralization support this feature is not compatible with the current paradigm of the package.
 --- 
 
 # Development Commands
@@ -39,6 +42,7 @@ This projects is intended for a large public use, so we need to be careful with 
 - No Null Assertion "!"
 - Prefer early returns for smooth code.
 - No .foreach prefer for of or any loop.
+- The examples folders can skip some claude rules like no null assertion "!"
 
 It's not mandatory but you can use modern syntax ES2024 like Map.groupby or other thing.
 Map -> groupBy()

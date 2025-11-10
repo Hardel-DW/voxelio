@@ -1,13 +1,7 @@
 type Translations = Record<string, string>;
 type TranslationParams = Record<string, string | number>;
-
-type ExtractParams<T extends string> = T extends `${infer _Start}{${infer Param}}${infer Rest}`
-    ? Param | ExtractParams<Rest>
-    : never;
-
-type ParamsObject<T extends string> = ExtractParams<T> extends never
-    ? never
-    : { [K in ExtractParams<T>]: string | number };
+type ExtractParams<T extends string> = T extends `${infer _Start}{${infer Param}}${infer Rest}` ? Param | ExtractParams<Rest> : never;
+type ParamsObject<T extends string> = ExtractParams<T> extends never ? never : { [K in ExtractParams<T>]: string | number };
 
 class I18nRuntime {
     private currentLocale: string | null = null;
@@ -77,7 +71,6 @@ class I18nRuntime {
         const text = translations[key] ?? key;
         return this.interpolate(text, params);
     }
-
     setLanguage(locale: string): void {
         if (!this.isValidLocale(locale)) {
             throw new Error(`Invalid locale: "${locale}". Supported locales: [${Array.from(this.supportedLocales).join(', ')}]`);
