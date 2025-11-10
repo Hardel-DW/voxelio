@@ -79,6 +79,9 @@ class I18nRuntime {
     }
 
     setLanguage(locale: string): void {
+        if (!this.isValidLocale(locale)) {
+            throw new Error(`Invalid locale: "${locale}". Supported locales: [${Array.from(this.supportedLocales).join(', ')}]`);
+        }
         this.currentLocale = locale;
         if (typeof window !== 'undefined') {
             localStorage.setItem('locale', locale);
@@ -88,6 +91,10 @@ class I18nRuntime {
     getLanguage(): string {
         return this.detectLanguage();
     }
+
+    getSupportedLocales(): string[] {
+        return Array.from(this.supportedLocales);
+    }
 }
 
 const runtime = new I18nRuntime();
@@ -95,3 +102,4 @@ export const init = (locales: Record<string, Translations>, options?: { fallback
 export const t = <T extends string>(text: T, ...args: ParamsObject<T> extends never ? [] : [ParamsObject<T>]): string => runtime.translate(text, args[0]);
 export const setLanguage = (locale: string): void => runtime.setLanguage(locale);
 export const getLanguage = (): string => runtime.getLanguage();
+export const getSupportedLocales = (): string[] => runtime.getSupportedLocales();
