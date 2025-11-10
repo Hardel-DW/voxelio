@@ -3,4 +3,4 @@ import viteIntl from "../dist/plugin";
 
 export default defineConfig({
     plugins: [viteIntl({ sourceLocale: 'en', locales: ['en', 'fr'] })]
-}) as UserConfig;
+}) as UserConfig; 

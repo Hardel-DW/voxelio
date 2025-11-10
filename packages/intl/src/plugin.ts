@@ -109,6 +109,7 @@ export default function viteI18nExtract(options: Options): Plugin {
 	const virtualModuleId = 'virtual:@voxelio/intl';
 	const resolvedVirtualModuleId = `\0${virtualModuleId}`;
 	let configFilePath = '';
+	let hasWrittenInitial = false;
 
 	const getAbsoluteLocalesDir = (): string => {
 		const configDir = configFilePath ? join(configFilePath, '..') : process.cwd();
@@ -157,8 +158,9 @@ export default function viteI18nExtract(options: Options): Plugin {
 		configResolved(config) {
 			configFilePath = config.configFile ?? '';
 		},
-		buildStart() {
+		async buildStart() {
 			fileMessages.clear();
+			hasWrittenInitial = false;
 		},
 		resolveId(id: string) {
 			if (id === virtualModuleId) return resolvedVirtualModuleId;
@@ -176,7 +178,12 @@ export default function viteI18nExtract(options: Options): Plugin {
 			const messages = extractMessages(code, id);
 			fileMessages.set(id, messages);
 			const transformedCode = transformCode(code, id);
-			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales);
+
+			if (!hasWrittenInitial && fileMessages.size > 0) {
+				hasWrittenInitial = true;
+				await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales);
+			}
+
 			return { code: transformedCode, map: null };
 		},
 		async handleHotUpdate({ file, read, server }) {

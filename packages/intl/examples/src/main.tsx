@@ -13,7 +13,7 @@ const render = () => {
 				<h1>${test}</h1>  
 				<p>${t("Hello Dataworld")}</p>
 				<p>${test3}</p>	
-				<p>Current language: ${currentLang}</p>
+				<p>Current language: ${currentLang}</p>  
 				<button id="btn-en">English</button>
 				<button id="btn-fr">Français</button>
 			</div>
