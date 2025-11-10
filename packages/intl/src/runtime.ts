@@ -2,12 +2,12 @@ type Translations = Record<string, string>;
 type TranslationParams = Record<string, string | number>;
 
 type ExtractParams<T extends string> = T extends `${infer _Start}{${infer Param}}${infer Rest}`
-	? Param | ExtractParams<Rest>
-	: never;
+    ? Param | ExtractParams<Rest>
+    : never;
 
 type ParamsObject<T extends string> = ExtractParams<T> extends never
-	? never
-	: { [K in ExtractParams<T>]: string | number };
+    ? never
+    : { [K in ExtractParams<T>]: string | number };
 
 class I18nRuntime {
     private currentLocale: string | null = null;
@@ -89,10 +89,10 @@ const runtime = new I18nRuntime();
 export const init = (locales: Record<string, Translations>): void => runtime.init(locales);
 
 export function t<T extends string>(
-	text: T,
-	...args: ParamsObject<T> extends never ? [] : [ParamsObject<T>]
+    text: T,
+    ...args: ParamsObject<T> extends never ? [] : [ParamsObject<T>]
 ): string {
-	return runtime.translate(text, args[0]);
+    return runtime.translate(text, args[0]);
 }
 
 export const setLanguage = (locale: string): void => runtime.setLanguage(locale);
