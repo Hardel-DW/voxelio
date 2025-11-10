@@ -27,8 +27,11 @@ interface Replacement {
 	end: number;
 	key: string;
 }
-const generateKey = (text: string): string =>
-	createHash('sha256').update(text, 'utf8').digest('base64').slice(0, 12);
+const generateKey = (text: string): string => {
+	const cleaned = text.replace(/[./:]/g, ' ').replace(/[^a-zA-Z0-9 _-]/g, '').toLowerCase();
+	const alphaNum = cleaned.replace(/[ _-]+/g, '_').trim().slice(0, 32);
+	return alphaNum || createHash('sha256').update(text, 'utf8').digest('base64').slice(0, 12);
+};
 
 const extractAndTransform = (code: string, id: string, silent: boolean): { messages: Map<string, string>; transformedCode: string } => {
 	const messages = new Map<string, string>();
