@@ -12,32 +12,35 @@ type ParamsObject<T extends string> = ExtractParams<T> extends never
 class I18nRuntime {
     private currentLocale: string | null = null;
     private translations: Map<string, Translations> = new Map();
-    private fallbackLocale = 'en';
+    private supportedLocales: Set<string> = new Set();
+    private fallbackLocale: string | undefined;
     private isInitialized = false;
+
+    private isValidLocale(locale: string): boolean {
+        return this.supportedLocales.has(locale);
+    }
 
     private detectLanguage(): string {
         if (this.currentLocale) return this.currentLocale;
+        if (!this.fallbackLocale) throw new Error('Runtime not initialized: fallbackLocale is not set. Import "virtual:@voxelio/intl" in your app entry point.');
         if (typeof window === 'undefined') return this.fallbackLocale;
 
         const urlParams = new URLSearchParams(window.location.search);
         const langParam = urlParams.get('lang');
-        if (langParam) return langParam;
+        if (langParam && this.isValidLocale(langParam)) return langParam;
 
         const subdomain = window.location.hostname.split('.')[0];
-        if (subdomain && subdomain.length === 2 && subdomain !== 'www') {
-            return subdomain;
-        }
+        if (subdomain && this.isValidLocale(subdomain)) return subdomain;
 
         const pathLang = window.location.pathname.split('/')[1];
-        if (pathLang && pathLang.length === 2) {
-            return pathLang;
-        }
+        if (pathLang && this.isValidLocale(pathLang)) return pathLang;
 
         const storedLang = localStorage.getItem('locale');
-        if (storedLang) return storedLang;
+        if (storedLang && this.isValidLocale(storedLang)) return storedLang;
 
         if (navigator.language) {
-            return navigator.language.split('-')[0];
+            const browserLang = navigator.language.split('-')[0];
+            if (this.isValidLocale(browserLang)) return browserLang;
         }
 
         return this.fallbackLocale;
@@ -52,9 +55,13 @@ class I18nRuntime {
         });
     }
 
-    init(locales: Record<string, Translations>): void {
+    init(locales: Record<string, Translations>, options?: { fallbackLocale?: string }): void {
         for (const [locale, translations] of Object.entries(locales)) {
             this.translations.set(locale, translations);
+            this.supportedLocales.add(locale);
+        }
+        if (options?.fallbackLocale) {
+            this.fallbackLocale = options.fallbackLocale;
         }
         this.isInitialized = true;
     }
@@ -63,7 +70,10 @@ class I18nRuntime {
         if (!this.isInitialized) return key;
 
         const locale = this.detectLanguage();
-        const translations = this.translations.get(locale) ?? this.translations.get(this.fallbackLocale) ?? {};
+        if (!this.isValidLocale(locale)) {
+            throw new Error(`Invalid locale detected: "${locale}". Supported locales: [${Array.from(this.supportedLocales).join(', ')}]`);
+        }
+        const translations = this.translations.get(locale) ?? {};
         const text = translations[key] ?? key;
         return this.interpolate(text, params);
     }
@@ -85,16 +95,8 @@ class I18nRuntime {
 }
 
 const runtime = new I18nRuntime();
-
-export const init = (locales: Record<string, Translations>): void => runtime.init(locales);
-
-export function t<T extends string>(
-    text: T,
-    ...args: ParamsObject<T> extends never ? [] : [ParamsObject<T>]
-): string {
-    return runtime.translate(text, args[0]);
-}
-
+export const init = (locales: Record<string, Translations>, options?: { fallbackLocale?: string }): void => runtime.init(locales, options);
+export const t = <T extends string>(text: T, ...args: ParamsObject<T> extends never ? [] : [ParamsObject<T>]): string => runtime.translate(text, args[0]);
 export const setLanguage = (locale: string): void => runtime.setLanguage(locale);
 export const getLanguage = (): string => runtime.getLanguage();
 export const configure = (options: { fallbackLocale?: string }): void => runtime.configure(options);

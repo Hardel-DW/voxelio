@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseSync, Visitor, type VisitorObject } from 'oxc-parser/src-js/index.js';
 import type { CallExpression } from '@oxc-project/types';
@@ -8,12 +8,16 @@ import { safeTry, safeTryAsync } from '@/utils';
 
 /**
  * Plugin configuration options
- * @param sourceLocale - The source locale to use
- * @param localesDir - The directory to store the locales
+ * @param sourceLocale - The source locale to use (must be in locales array)
+ * @param locales - Array of supported locales
+ * @param localesDir - The directory to store the locales (optional, defaults to './src/locales')
+ * @param include - File extensions to process (optional, defaults to ['jsx', 'tsx'])
  */
 interface Options {
-	sourceLocale?: string;
+	sourceLocale: string;
+	locales: string[];
 	localesDir?: string;
+	include?: string[];
 }
 
 interface Replacement {
@@ -21,9 +25,8 @@ interface Replacement {
 	end: number;
 	key: string;
 }
-
 const generateKey = (text: string): string =>
-	createHash('md5').update(text, 'utf8').digest('hex').slice(0, 8);
+	createHash('sha256').update(text, 'utf8').digest('base64').slice(0, 12);
 
 const extractMessages = (code: string, id: string): Map<string, string> => {
 	const messages = new Map<string, string>();
@@ -73,27 +76,19 @@ const transformCode = (code: string, id: string): string => {
 
 	visitor.visit(result.program);
 	if (replacements.length === 0) return code;
-
-	let transformed = code;
-	for (const { start, end, key } of replacements.reverse()) {
-		transformed = `${transformed.slice(0, start)}'${key}'${transformed.slice(end)}`;
-	}
-
-	return transformed;
+	return replacements.reverse().reduce((acc, { start, end, key }) => `${acc.slice(0, start)}'${key}'${acc.slice(end)}`, code);
 };
 
-const syncLocales = async (messages: Map<string, string>, localesDir: string, sourceLocale: string): Promise<void> => {
+const syncLocales = async (messages: Map<string, string>, localesDir: string, sourceLocale: string, supportedLocales: string[]): Promise<void> => {
 	if (messages.size === 0) return;
 	await mkdir(localesDir, { recursive: true });
-	const sourceFile = join(localesDir, `${sourceLocale}.json`);
 	const sourceMessages = Object.fromEntries(messages);
-
+	const sourceFile = join(localesDir, `${sourceLocale}.json`);
 	await writeFile(sourceFile, JSON.stringify(sourceMessages, null, 2), 'utf-8');
-	const files = await readdir(localesDir).catch(() => []);
-	const localeFiles = files.filter((f) => f.endsWith('.json') && f !== `${sourceLocale}.json`);
 
-	for (const file of localeFiles) {
-		const filePath = join(localesDir, file);
+	for (const locale of supportedLocales) {
+		if (locale === sourceLocale) continue;
+		const filePath = join(localesDir, `${locale}.json`);
 		const content = await safeTryAsync(() => readFile(filePath, 'utf-8'));
 		const localeMessages = safeTry(() => content ? JSON.parse(content.toString()) : {}) ?? {};
 		const updatedMessages = Object.fromEntries(
@@ -103,8 +98,13 @@ const syncLocales = async (messages: Map<string, string>, localesDir: string, so
 	}
 };
 
-export default function viteI18nExtract(options: Options = {}): Plugin {
-	const { sourceLocale = 'en', localesDir = './src/locales' } = options;
+export default function viteI18nExtract(options: Options): Plugin {
+	const { sourceLocale, locales, localesDir = './src/locales', include = ['jsx', 'tsx'] } = options;
+	if (!locales.includes(sourceLocale)) {
+		throw new Error(`sourceLocale "${sourceLocale}" must be included in locales array: [${locales.join(', ')}]`);
+	}
+
+	const filePattern = new RegExp(`\\.(${include.join('|')})$`);
 	const fileMessages = new Map<string, Map<string, string>>();
 	const virtualModuleId = 'virtual:@voxelio/intl';
 	const resolvedVirtualModuleId = `\0${virtualModuleId}`;
@@ -127,32 +127,29 @@ export default function viteI18nExtract(options: Options = {}): Plugin {
 
 	const resolveRuntimeImport = (): string => {
 		if (!configFilePath) return '@voxelio/intl/runtime';
-
 		const configDir = join(configFilePath, '..');
 		const potentialDevPath = join(configDir, '../dist/runtime.js');
 		const isDevelopment = potentialDevPath.includes('packages/intl');
 		return isDevelopment ? potentialDevPath.replace(/\\/g, '/') : '@voxelio/intl/runtime';
 	};
 
-	const generateVirtualModule = async (): Promise<string> => {
+	const generateVirtualModule = (): string => {
 		const absoluteLocalesDir = getAbsoluteLocalesDir();
-		const files = await readdir(absoluteLocalesDir).catch(() => []);
-		const localeFiles = files.filter((f) => f.endsWith('.json'));
 		const runtimeImport = resolveRuntimeImport();
-		if (localeFiles.length === 0) {
+
+		if (locales.length === 0) {
 			return `import{init}from'${runtimeImport}';init({});`;
 		}
 
-		const modules = localeFiles.map((file) => {
-			const locale = file.replace('.json', '');
+		const modules = locales.map((locale) => {
 			const varName = locale.replace(/[^a-zA-Z0-9]/g, '_');
-			const importPath = join(absoluteLocalesDir, file).replace(/\\/g, '/');
+			const importPath = join(absoluteLocalesDir, `${locale}.json`).replace(/\\/g, '/');
 			return { locale, varName, importPath };
 		});
 
 		const imports = modules.map(({ varName, importPath }) => `import ${varName} from'${importPath}';`).join('');
 		const entries = modules.map(({ locale, varName }) => `'${locale}':${varName}`).join(',');
-		return `${imports}import{init}from'${runtimeImport}';init({${entries}});`;
+		return `${imports}import{init}from'${runtimeImport}';init({${entries}},{fallbackLocale:'${sourceLocale}'});`;
 	};
 
 	return {
@@ -172,33 +169,30 @@ export default function viteI18nExtract(options: Options = {}): Plugin {
 			}
 		},
 		async transform(code: string, id: string) {
-			if (!/\.(jsx|tsx)$/.test(id)) return null;
+			if (!filePattern.test(id)) return null;
 			if (!code.includes("t('") && !code.includes('t("') && !code.includes('t(`'))
 				return null;
 
 			const messages = extractMessages(code, id);
 			fileMessages.set(id, messages);
-
 			const transformedCode = transformCode(code, id);
-			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale);
+			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales);
 			return { code: transformedCode, map: null };
 		},
 		async handleHotUpdate({ file, read, server }) {
-			if (!/\.(jsx|tsx)$/.test(file)) return;
-
+			if (!filePattern.test(file)) return;
 			const code = await read();
 			const messages = extractMessages(code, file);
 			fileMessages.set(file, messages);
 
-			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale);
-
+			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales);
 			const virtualModule = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
 			if (virtualModule) {
 				server.moduleGraph.invalidateModule(virtualModule);
 			}
 		},
 		async buildEnd() {
-			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale);
+			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales);
 		},
 	};
 }
