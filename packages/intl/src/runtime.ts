@@ -99,7 +99,7 @@ class I18nRuntime {
 
 const runtime = new I18nRuntime();
 export const init = (locales: Record<string, Translations>, options?: { fallbackLocale?: string }): void => runtime.init(locales, options);
-export const t = <T extends string>(text: T, ...args: ParamsObject<T> extends never ? [] : [ParamsObject<T>]): string => runtime.translate(text, args[0]);
 export const setLanguage = (locale: string): void => runtime.setLanguage(locale);
 export const getLanguage = (): string => runtime.getLanguage();
 export const getSupportedLocales = (): string[] => runtime.getSupportedLocales();
+export const t = <T extends string>(text: T, ...args: ParamsObject<T> extends never ? [] : [ParamsObject<T>]): string => runtime.translate(text, args[0]);

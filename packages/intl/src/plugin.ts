@@ -28,10 +28,11 @@ interface Replacement {
 const generateKey = (text: string): string =>
 	createHash('sha256').update(text, 'utf8').digest('base64').slice(0, 12);
 
-const extractMessages = (code: string, id: string): Map<string, string> => {
+const extractAndTransform = (code: string, id: string): { messages: Map<string, string>; transformedCode: string } => {
 	const messages = new Map<string, string>();
+	const replacements: Replacement[] = [];
 	const result = parseSync(id, code);
-	if (result.errors.length > 0) return messages;
+	if (result.errors.length > 0) return { messages, transformedCode: code };
 
 	const visitor = new Visitor({
 		CallExpression(node: CallExpression) {
@@ -46,37 +47,16 @@ const extractMessages = (code: string, id: string): Map<string, string> => {
 			const text = arg.value;
 			const key = generateKey(text);
 			messages.set(key, text);
+			replacements.push({ start: arg.start, end: arg.end, key });
 		},
 	} satisfies VisitorObject);
 
 	visitor.visit(result.program);
-	return messages;
-};
+	const transformedCode = replacements.length === 0
+		? code
+		: replacements.reverse().reduce((acc, { start, end, key }) => `${acc.slice(0, start)}'${key}'${acc.slice(end)}`, code);
 
-const transformCode = (code: string, id: string): string => {
-	const replacements: Replacement[] = [];
-	const result = parseSync(id, code);
-	if (result.errors.length > 0) return code;
-
-	const visitor = new Visitor({
-		CallExpression(node: CallExpression) {
-			if (node.callee.type !== 'Identifier') return;
-			if (node.callee.name !== 't') return;
-			if (node.arguments.length === 0) return;
-
-			const arg = node.arguments[0];
-			if (arg.type !== 'Literal') return;
-			if (typeof arg.value !== 'string') return;
-
-			const text = arg.value;
-			const key = generateKey(text);
-			replacements.push({ start: arg.start, end: arg.end, key, });
-		},
-	} satisfies VisitorObject);
-
-	visitor.visit(result.program);
-	if (replacements.length === 0) return code;
-	return replacements.reverse().reduce((acc, { start, end, key }) => `${acc.slice(0, start)}'${key}'${acc.slice(end)}`, code);
+	return { messages, transformedCode };
 };
 
 const syncLocales = async (messages: Map<string, string>, localesDir: string, sourceLocale: string, supportedLocales: string[]): Promise<void> => {
@@ -109,7 +89,7 @@ export default function viteI18nExtract(options: Options): Plugin {
 	const virtualModuleId = 'virtual:@voxelio/intl';
 	const resolvedVirtualModuleId = `\0${virtualModuleId}`;
 	let configFilePath = '';
-	let hasWrittenInitial = false;
+	let initialSyncPromise: Promise<void> | null = null;
 
 	const getAbsoluteLocalesDir = (): string => {
 		const configDir = configFilePath ? join(configFilePath, '..') : process.cwd();
@@ -175,7 +155,7 @@ export default function viteI18nExtract(options: Options): Plugin {
 		},
 		async buildStart() {
 			fileMessages.clear();
-			hasWrittenInitial = false;
+			initialSyncPromise = null;
 		},
 		resolveId(id: string) {
 			if (id === virtualModuleId) return resolvedVirtualModuleId;
@@ -188,21 +168,22 @@ export default function viteI18nExtract(options: Options): Plugin {
 			if (!code.includes("t('") && !code.includes('t("') && !code.includes('t(`'))
 				return null;
 
-			const messages = extractMessages(code, id);
+			const { messages, transformedCode } = extractAndTransform(code, id);
 			fileMessages.set(id, messages);
-			const transformedCode = transformCode(code, id);
-
-			if (!hasWrittenInitial && fileMessages.size > 0) {
-				hasWrittenInitial = true;
-				await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales);
+			if (!initialSyncPromise && fileMessages.size > 0) {
+				initialSyncPromise = syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales).catch((error) => {
+					console.error('[voxelio/intl] Failed to sync locales:', error);
+					initialSyncPromise = null;
+				});
 			}
 
+			if (initialSyncPromise) await initialSyncPromise;
 			return { code: transformedCode, map: null };
 		},
 		async handleHotUpdate({ file, read, server }) {
 			if (!filePattern.test(file)) return;
 			const code = await read();
-			const messages = extractMessages(code, file);
+			const { messages } = extractAndTransform(code, file);
 			fileMessages.set(file, messages);
 
 			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales);

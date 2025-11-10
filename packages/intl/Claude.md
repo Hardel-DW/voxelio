@@ -1,6 +1,7 @@
 # CLAUDE.md
 This file provides guidance to Claude Code when working with this repository, This is a TSDown + TypeScript, OXC-Parser package built with Rolldown, Biome and Vitest.
 Goal: Create a package of professional internationalisation for Vite, usable in thousands of production projects and frameworks.
+Warning: t() is automatically escaped by react so no XSS possible, if the user uses dangerouslySetInnerHTML at his own risk (That make no sense to use t() in that case).
 
 Already implemented:
 - Extract keys from tsx/jsx files and automatically generate translation files.
@@ -13,10 +14,9 @@ Already implemented:
 - HMR work of course when changing a key in tsx files.
 - Hash strategy: Same text = same key globally
 - Interpolation support: t("Hello {name}", { name: "John" }) → "Hello John"
+- We can detect the lang with url, cookie, header, localstorage or context/function.
 
 Functionalities to implement:
-- We can detect the lang with url, cookie, header, localstorage or context/function. (Need Brain storming)
-
 For SSG/SSR : (Need Brain storming)
 - A "build mode" with no .json or runtime code of intl in the final bundle.
 - A "runtime mode" for SSR/SSG the translations is done on the client by sending the list of keys. Only the keys used will be sent.
