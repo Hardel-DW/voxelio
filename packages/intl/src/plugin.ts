@@ -158,6 +158,21 @@ export default function viteI18nExtract(options: Options): Plugin {
 		configResolved(config) {
 			configFilePath = config.configFile ?? '';
 		},
+		configureServer(server) {
+			server.watcher.on('unlink', async (path) => {
+				const absoluteLocalesDir = getAbsoluteLocalesDir();
+				if (path.startsWith(absoluteLocalesDir) && path.endsWith('.json')) {
+					const fileName = path.split(/[\\/]/).pop()?.replace('.json', '');
+					if (fileName && locales.includes(fileName)) {
+						await syncLocales(getAllMessages(), absoluteLocalesDir, sourceLocale, locales);
+						const virtualModule = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
+						if (virtualModule) {
+							server.moduleGraph.invalidateModule(virtualModule);
+						}
+					}
+				}
+			});
+		},
 		async buildStart() {
 			fileMessages.clear();
 			hasWrittenInitial = false;
@@ -166,9 +181,7 @@ export default function viteI18nExtract(options: Options): Plugin {
 			if (id === virtualModuleId) return resolvedVirtualModuleId;
 		},
 		async load(id: string) {
-			if (id === resolvedVirtualModuleId) {
-				return generateVirtualModule();
-			}
+			if (id === resolvedVirtualModuleId) return generateVirtualModule();
 		},
 		async transform(code: string, id: string) {
 			if (!filePattern.test(id)) return null;
