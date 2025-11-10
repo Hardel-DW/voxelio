@@ -88,10 +88,6 @@ class I18nRuntime {
     getLanguage(): string {
         return this.detectLanguage();
     }
-
-    configure(options: { fallbackLocale?: string }): void {
-        if (options.fallbackLocale) this.fallbackLocale = options.fallbackLocale;
-    }
 }
 
 const runtime = new I18nRuntime();
@@ -99,4 +95,3 @@ export const init = (locales: Record<string, Translations>, options?: { fallback
 export const t = <T extends string>(text: T, ...args: ParamsObject<T> extends never ? [] : [ParamsObject<T>]): string => runtime.translate(text, args[0]);
 export const setLanguage = (locale: string): void => runtime.setLanguage(locale);
 export const getLanguage = (): string => runtime.getLanguage();
-export const configure = (options: { fallbackLocale?: string }): void => runtime.configure(options);
