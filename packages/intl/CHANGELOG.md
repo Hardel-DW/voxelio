@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.0.5
+
+### Patch Changes
+
+- 6bd2a5b: Added Runtime translation, Interporlation and Virtua import
+
 ## 1.0.4
 
 ### Patch Changes
