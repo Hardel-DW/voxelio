@@ -14,6 +14,7 @@ Already implemented:
 - Hash strategy: Same text = same key globally
 - Interpolation support: t("Hello {name}", { name: "John" }) → "Hello John"
 - We can detect the lang with url, cookie, header, localstorage or context/function.
+- .cache folder contain obsolete keys, when user re-implement the same key, the key will be restored from cache and removed from .cache folder.
 
 Functionalities to implement:
 For SSG/SSR : (Need Brain storming)

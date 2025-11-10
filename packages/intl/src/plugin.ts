@@ -66,23 +66,34 @@ const extractAndTransform = (code: string, id: string, silent: boolean): { messa
 	return { messages, transformedCode };
 };
 
+const loadJSON = async (path: string) => {
+	const content = await safeTryAsync(() => readFile(path, 'utf-8'));
+	return safeTry(() => JSON.parse(content?.toString() ?? '{}')) ?? {};
+};
+
 const syncLocales = async (messages: Map<string, string>, localesDir: string, sourceLocale: string, supportedLocales: string[]): Promise<void> => {
 	if (messages.size === 0) return;
-	await mkdir(localesDir, { recursive: true });
-	const sourceMessages = Object.fromEntries(messages);
-	const sourceFile = join(localesDir, `${sourceLocale}.json`);
-	await writeFile(sourceFile, JSON.stringify(sourceMessages, null, 2), 'utf-8');
+	const cacheDir = join(localesDir, '.cache');
+	await Promise.all([mkdir(localesDir, { recursive: true }), mkdir(cacheDir, { recursive: true })]);
 
-	for (const locale of supportedLocales) {
-		if (locale === sourceLocale) continue;
-		const filePath = join(localesDir, `${locale}.json`);
-		const content = await safeTryAsync(() => readFile(filePath, 'utf-8'));
-		const localeMessages = safeTry(() => content ? JSON.parse(content.toString()) : {}) ?? {};
-		const updatedMessages = Object.fromEntries(
-			Object.entries(sourceMessages).map(([key, sourceText]) => [key, localeMessages[key] ?? sourceText]),
-		);
-		await writeFile(filePath, JSON.stringify(updatedMessages, null, 2), 'utf-8');
-	}
+	const sourceMessages = Object.fromEntries(messages);
+	await writeFile(join(localesDir, `${sourceLocale}.json`), JSON.stringify(sourceMessages, null, 2), 'utf-8');
+
+	await Promise.all(supportedLocales.filter(l => l !== sourceLocale).map(async (locale) => {
+		const [current, cache] = await Promise.all([loadJSON(join(localesDir, `${locale}.json`)), loadJSON(join(cacheDir, `${locale}.json`))]);
+		const sourceKeys = new Set(Object.keys(sourceMessages));
+
+		const active = Object.fromEntries(Object.keys(sourceMessages).map(k => [k, cache[k] ?? current[k] ?? sourceMessages[k]]));
+		const obsolete = Object.fromEntries([
+			...Object.entries(cache).filter(([k]) => !sourceKeys.has(k)),
+			...Object.entries(current).filter(([k]) => !sourceKeys.has(k))
+		]);
+
+		await Promise.all([
+			writeFile(join(localesDir, `${locale}.json`), JSON.stringify(active, null, 2), 'utf-8'),
+			Object.keys(obsolete).length && writeFile(join(cacheDir, `${locale}.json`), JSON.stringify(obsolete, null, 2), 'utf-8')
+		].filter(Boolean));
+	}));
 };
 
 interface CacheEntry {
@@ -151,23 +162,38 @@ export default function viteI18nExtract(options: Options): Plugin {
 		return `${imports}import{init}from'${runtimeImport}';init({${entries}},{fallbackLocale:'${sourceLocale}'});`;
 	};
 
+	const handleLocaleFileChange = async (path: string, server: any, shouldSync: boolean): Promise<void> => {
+		const absoluteLocalesDir = getAbsoluteLocalesDir();
+		if (!path.startsWith(absoluteLocalesDir) || !path.endsWith('.json')) return;
+
+		const fileName = path.split(/[\\/]/).pop()?.replace('.json', '');
+		if (!fileName || !locales.includes(fileName)) return;
+
+		if (shouldSync) {
+			await syncLocales(getAllMessages(), absoluteLocalesDir, sourceLocale, locales);
+		}
+
+		const virtualModule = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
+		if (virtualModule) {
+			server.moduleGraph.invalidateModule(virtualModule);
+			if (!shouldSync) {
+				server.ws.send({ type: 'full-reload' });
+			}
+		}
+	};
+
 	return {
 		name: '@voxelio/intl',
 		configResolved(config) {
 			configFilePath = config.configFile ?? '';
 		},
 		configureServer(server) {
-			server.watcher.on('unlink', async (path) => {
-				const absoluteLocalesDir = getAbsoluteLocalesDir();
-				if (path.startsWith(absoluteLocalesDir) && path.endsWith('.json')) {
-					const fileName = path.split(/[\\/]/).pop()?.replace('.json', '');
-					if (fileName && locales.includes(fileName)) {
-						await syncLocales(getAllMessages(), absoluteLocalesDir, sourceLocale, locales);
-						const virtualModule = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
-						if (virtualModule) {
-							server.moduleGraph.invalidateModule(virtualModule);
-						}
-					}
+			server.watcher.on('change', (path) => handleLocaleFileChange(path, server, false));
+			server.watcher.on('unlink', (path) => {
+				handleLocaleFileChange(path, server, true);
+				if (filePattern.test(path)) {
+					fileMessages.delete(path);
+					parseCache.delete(path);
 				}
 			});
 		},
@@ -194,9 +220,9 @@ export default function viteI18nExtract(options: Options): Plugin {
 					console.error('[voxelio/intl] Failed to sync locales:', error);
 					initialSyncPromise = null;
 				});
+				await initialSyncPromise;
 			}
 
-			if (initialSyncPromise) await initialSyncPromise;
 			return { code: transformedCode, map: null };
 		},
 		async handleHotUpdate({ file, read, server }) {
@@ -205,6 +231,7 @@ export default function viteI18nExtract(options: Options): Plugin {
 			const { messages, isCached } = processFile(code, file, silent);
 
 			if (isCached) return;
+			parseCache.delete(file);
 			fileMessages.set(file, messages);
 			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales);
 			const virtualModule = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
