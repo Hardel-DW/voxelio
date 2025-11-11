@@ -3,7 +3,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseSync, Visitor, type VisitorObject } from 'oxc-parser/src-js/index.js';
 import type { CallExpression } from '@oxc-project/types';
-import type { Plugin } from 'vite';
+import type { Plugin, ViteDevServer } from 'vite';
 import { safeTry, safeTryAsync } from '@/utils';
 
 /**
@@ -83,18 +83,27 @@ const syncLocales = async (messages: Map<string, string>, localesDir: string, so
 	await writeFile(join(localesDir, `${sourceLocale}.json`), JSON.stringify(sourceMessages, null, 2), 'utf-8');
 
 	await Promise.all(supportedLocales.filter(l => l !== sourceLocale).map(async (locale) => {
-		const [current, cache] = await Promise.all([loadJSON(join(localesDir, `${locale}.json`)), loadJSON(join(cacheDir, `${locale}.json`))]);
+		const localePath = join(localesDir, `${locale}.json`);
+		const cachePath = join(cacheDir, `${locale}.json`);
+		const [current, cache] = await Promise.all([loadJSON(localePath), loadJSON(cachePath)]);
 		const sourceKeys = new Set(Object.keys(sourceMessages));
 
-		const active = Object.fromEntries(Object.keys(sourceMessages).map(k => [k, cache[k] ?? current[k] ?? sourceMessages[k]]));
+		const active = Object.fromEntries(
+			Object.keys(sourceMessages).map(k => {
+				if (current[k] !== undefined) return [k, current[k]];
+				if (cache[k] !== undefined) return [k, cache[k]];
+				return [k, sourceMessages[k]];
+			})
+		);
+
 		const obsolete = Object.fromEntries([
 			...Object.entries(cache).filter(([k]) => !sourceKeys.has(k)),
 			...Object.entries(current).filter(([k]) => !sourceKeys.has(k))
 		]);
 
 		await Promise.all([
-			writeFile(join(localesDir, `${locale}.json`), JSON.stringify(active, null, 2), 'utf-8'),
-			Object.keys(obsolete).length && writeFile(join(cacheDir, `${locale}.json`), JSON.stringify(obsolete, null, 2), 'utf-8')
+			writeFile(localePath, JSON.stringify(active, null, 2), 'utf-8'),
+			Object.keys(obsolete).length > 0 && writeFile(cachePath, JSON.stringify(obsolete, null, 2), 'utf-8')
 		].filter(Boolean));
 	}));
 };
@@ -165,23 +174,20 @@ export default function viteI18nExtract(options: Options): Plugin {
 		return `${imports}import{init}from'${runtimeImport}';init({${entries}},{fallbackLocale:'${sourceLocale}'});`;
 	};
 
-	const handleLocaleFileChange = async (path: string, server: any, shouldSync: boolean): Promise<void> => {
+	const handleLocaleFileChange = async (path: string, server: ViteDevServer): Promise<void> => {
 		const absoluteLocalesDir = getAbsoluteLocalesDir();
 		if (!path.startsWith(absoluteLocalesDir) || !path.endsWith('.json')) return;
+		if (path.includes('.cache')) return;
 
 		const fileName = path.split(/[\\/]/).pop()?.replace('.json', '');
 		if (!fileName || !locales.includes(fileName)) return;
 
-		if (shouldSync) {
-			await syncLocales(getAllMessages(), absoluteLocalesDir, sourceLocale, locales);
-		}
+		await syncLocales(getAllMessages(), absoluteLocalesDir, sourceLocale, locales);
 
 		const virtualModule = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
 		if (virtualModule) {
 			server.moduleGraph.invalidateModule(virtualModule);
-			if (!shouldSync) {
-				server.ws.send({ type: 'full-reload' });
-			}
+			server.ws.send({ type: 'full-reload' });
 		}
 	};
 
@@ -191,14 +197,20 @@ export default function viteI18nExtract(options: Options): Plugin {
 			configFilePath = config.configFile ?? '';
 		},
 		configureServer(server) {
-			server.watcher.on('change', (path) => handleLocaleFileChange(path, server, false));
+			server.watcher.on('change', (path) => handleLocaleFileChange(path, server));
 			server.watcher.on('unlink', (path) => {
-				handleLocaleFileChange(path, server, true);
+				handleLocaleFileChange(path, server);
 				if (filePattern.test(path)) {
 					fileMessages.delete(path);
 					parseCache.delete(path);
 				}
 			});
+		},
+		renderChunk(code) {
+			return {
+				code: `// Test comment\n${code}`,
+				map: null
+			};
 		},
 		async buildStart() {
 			fileMessages.clear();

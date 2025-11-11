@@ -7,7 +7,7 @@ const render = () => {
 
 	const rootElement = document.getElementById('root');
 	if (rootElement) {
-		rootElement.innerHTML = `
+		rootElement.innerHTML = ` 
 			<div id="app"> 
 				<h1>${test}</h1>
 				<p>${t('Welcome {name}, you have {count} messages', { name: 'John', count: 5 })}</p>	
