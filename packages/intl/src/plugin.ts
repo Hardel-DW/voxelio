@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { parseSync, Visitor, type VisitorObject } from 'oxc-parser/src-js/index.js';
 import type { CallExpression } from '@oxc-project/types';
 import type { Plugin, ViteDevServer } from 'vite';
-import { safeTry, safeTryAsync } from '@/utils';
+import { safeTry, safeTryAsync, KeyMinifier } from '@/utils';
 
 /**
  * Plugin configuration options
@@ -27,46 +27,52 @@ interface Replacement {
 	end: number;
 	key: string;
 }
+
+interface CacheEntry {
+	codeHash: string;
+	messages: Map<string, string>;
+	transformedCode: string;
+}
+
 const generateKey = (text: string): string => {
 	const cleaned = text.replace(/[./:]/g, ' ').replace(/[^a-zA-Z0-9 _-]/g, '').toLowerCase();
 	const alphaNum = cleaned.replace(/[ _-]+/g, '_').trim().slice(0, 32);
 	return alphaNum || createHash('sha256').update(text, 'utf8').digest('base64').slice(0, 12);
 };
 
-const extractAndTransform = (code: string, id: string, silent: boolean): { messages: Map<string, string>; transformedCode: string } => {
-	const messages = new Map<string, string>();
+const transformTCalls = (
+	code: string,
+	filePath: string,
+	onLiteral: (value: string) => string | null,
+	options?: { silent?: boolean; filterCallee?: string }
+): string => {
+	const { silent = false, filterCallee } = options ?? {};
 	const replacements: Replacement[] = [];
-	const result = parseSync(id, code);
+	const result = parseSync(filePath, code);
+
 	if (result.errors.length > 0) {
 		if (!silent) {
-			console.warn(`[@voxelio/intl] Parse errors in ${id}:`, result.errors.map(e => e.message).join(', '));
+			console.warn(`[@voxelio/intl] Parse errors in ${filePath}:`, result.errors.map(e => e.message).join(', '));
 		}
-		return { messages, transformedCode: code };
+		return code;
 	}
 
 	const visitor = new Visitor({
 		CallExpression(node: CallExpression) {
-			if (node.callee.type !== 'Identifier') return;
-			if (node.callee.name !== 't') return;
-			if (node.arguments.length === 0) return;
+			if (node.callee.type !== 'Identifier' || node.arguments.length === 0) return;
+			if (filterCallee && node.callee.name !== filterCallee) return;
 
 			const arg = node.arguments[0];
-			if (arg.type !== 'Literal') return;
-			if (typeof arg.value !== 'string') return;
+			if (arg.type !== 'Literal' || typeof arg.value !== 'string') return;
 
-			const text = arg.value;
-			const key = generateKey(text);
-			messages.set(key, text);
-			replacements.push({ start: arg.start, end: arg.end, key });
+			const transformed = onLiteral(arg.value);
+			if (transformed) replacements.push({ start: arg.start, end: arg.end, key: transformed });
 		},
 	} satisfies VisitorObject);
 
 	visitor.visit(result.program);
-	const transformedCode = replacements.length === 0
-		? code
-		: replacements.reverse().reduce((acc, { start, end, key }) => `${acc.slice(0, start)}'${key}'${acc.slice(end)}`, code);
-
-	return { messages, transformedCode };
+	return replacements.reverse().reduce((acc, { start, end, key }) =>
+		`${acc.slice(0, start)}'${key}'${acc.slice(end)}`, code);
 };
 
 const loadJSON = async (path: string) => {
@@ -108,12 +114,6 @@ const syncLocales = async (messages: Map<string, string>, localesDir: string, so
 	}));
 };
 
-interface CacheEntry {
-	codeHash: string;
-	messages: Map<string, string>;
-	transformedCode: string;
-}
-
 export default function viteI18nExtract(options: Options): Plugin {
 	const { sourceLocale, locales, localesDir = './src/locales', include = ['jsx', 'tsx'], silent = false } = options;
 	if (!locales.includes(sourceLocale)) {
@@ -127,6 +127,7 @@ export default function viteI18nExtract(options: Options): Plugin {
 	const resolvedVirtualModuleId = `\0${virtualModuleId}`;
 	let configFilePath = '';
 	let initialSyncPromise: Promise<void> | null = null;
+	const keyMinifier = new KeyMinifier();
 
 	const getAbsoluteLocalesDir = (): string => {
 		const configDir = configFilePath ? join(configFilePath, '..') : process.cwd();
@@ -140,7 +141,12 @@ export default function viteI18nExtract(options: Options): Plugin {
 			return { messages: cached.messages, transformedCode: cached.transformedCode, isCached: true };
 		}
 
-		const { messages, transformedCode } = extractAndTransform(code, id, silent);
+		const messages = new Map<string, string>();
+		const transformedCode = transformTCalls(code, id, (text) => {
+			const key = generateKey(text);
+			messages.set(key, text);
+			return key;
+		}, { silent, filterCallee: 't' });
 		parseCache.set(id, { codeHash, messages, transformedCode });
 		return { messages, transformedCode, isCached: false };
 	};
@@ -207,8 +213,10 @@ export default function viteI18nExtract(options: Options): Plugin {
 			});
 		},
 		renderChunk(code) {
+			const allMessages = getAllMessages();
+			const minifiedCode = transformTCalls(code, 'chunk.js', (key) => allMessages.has(key) ? keyMinifier.minifyKey(key) : null);
 			return {
-				code: `// Test comment\n${code}`,
+				code: minifiedCode,
 				map: null
 			};
 		},

@@ -2,19 +2,29 @@
 This file provides guidance to Claude Code when working with this repository, This is a TSDown + TypeScript, OXC-Parser package built with Rolldown, Biome and Vitest.
 Goal: Create a package of professional internationalisation for Vite, usable in thousands of production projects and frameworks.
 
+Config in vite plugin :
+- Mandatory: sourceLocale: string; // The source locale to use (must be in locales array)
+- Mandatory: locales: string[]; // Array of supported locales
+- Optional: localesDir?: string; (default: './src/locales') // The directory to store the locales
+- Optional: include?: string[]; (default: ['jsx', 'tsx']) // File extensions to process
+- Optional: silent?: boolean; (default: false) // Disable warning logs
+
 Already implemented:
 - Extract keys from tsx/jsx files and automatically generate translation files.
-- Syntax like import { t } from "@voxelio/intl";
-- Use : `t("Hello World")`, and Hello world will be replace by hash at compile time -> `t("abcdef")`
-- Default locale, and default path folder is configurable in vite.config.ts (default: 'en')
+- Syntax like `import { t } from "@voxelio/intl"`
+- Use : `t("Hello World")`, and Hello world wiil be automatically added to locales json file with key -> `t("hello_world")` at compile time.
 - The JSON will automatically be generated at `src/locales/en.json`.
-- Remove unused/obsolete keys from the JSON file when changing a key in tsx files.
-- If other ".json" files are present, The keys will be also added to the other files, with the o.g translations.
+- Remove unused/obsolete keys from the JSON file when changing a key in tsx files. It will be added to cache.
+- The new keys are generated in all .json files locales specified in the plugin config.
 - HMR work of course when changing a key in tsx files.
-- Hash strategy: Same text = same key globally
 - Interpolation support: t("Hello {name}", { name: "John" }) → "Hello John"
 - We can detect the lang with url, cookie, header, localstorage or context/function.
+- The key are generated to be lisible by human during dev.
+- During the `npx vite build` the keys and parameters are minified. New json are generated to not impact the locales folders.
 - .cache folder contain obsolete keys, when user re-implement the same key, the key will be restored from cache and removed from .cache folder.
+- When delete locale file, if will be regenerate.
+- When key is removed manually, it will be restored with default locale key.
+- When Start vite dev server, the locales will be created if not exist.
 
 Functionalities to implement:
 For SSG/SSR : (Need Brain storming)
@@ -44,6 +54,8 @@ This projects is intended for a large public use, so we need to be careful with 
 - Prefer early returns for smooth code.
 - No .foreach prefer for of or any loop.
 - The examples folders can skip some claude rules like no null assertion "!"
+- Must use AST if it's the best solution for the problem.
+- Dont repeat yourself, use functions, classes, etc.
 
 It's not mandatory but you can use modern syntax ES2024 like Map.groupby or other thing.
 Map -> groupBy()
