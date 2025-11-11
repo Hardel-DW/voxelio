@@ -44,9 +44,9 @@ const transformTCalls = (
 	code: string,
 	filePath: string,
 	onLiteral: (value: string) => string | null,
-	options?: { silent?: boolean; filterCallee?: string }
+	options?: { silent?: boolean; filterCallee?: string; onParamKey?: (key: string) => string | null }
 ): string => {
-	const { silent = false, filterCallee } = options ?? {};
+	const { silent = false, filterCallee, onParamKey } = options ?? {};
 	const replacements: Replacement[] = [];
 	const result = parseSync(filePath, code);
 
@@ -67,6 +67,17 @@ const transformTCalls = (
 
 			const transformed = onLiteral(arg.value);
 			if (transformed) replacements.push({ start: arg.start, end: arg.end, key: transformed });
+
+			if (onParamKey && node.arguments.length > 1) {
+				const paramArg = node.arguments[1];
+				if (paramArg.type === 'ObjectExpression') {
+					for (const prop of paramArg.properties) {
+						if (prop.type !== 'Property' || prop.key.type !== 'Identifier') continue;
+						const minified = onParamKey(prop.key.name);
+						if (minified) replacements.push({ start: prop.key.start, end: prop.key.end, key: minified });
+					}
+				}
+			}
 		},
 	} satisfies VisitorObject);
 
@@ -214,7 +225,10 @@ export default function viteI18nExtract(options: Options): Plugin {
 		},
 		renderChunk(code) {
 			const allMessages = getAllMessages();
-			const minifiedCode = transformTCalls(code, 'chunk.js', (key) => allMessages.has(key) ? keyMinifier.minifyKey(key) : null);
+			const minifiedCode = transformTCalls(code, 'chunk.js',
+				(key) => allMessages.has(key) ? keyMinifier.minifyKey(key) : null,
+				{ onParamKey: (param) => keyMinifier.minifyParam(param) }
+			);
 			return {
 				code: minifiedCode,
 				map: null

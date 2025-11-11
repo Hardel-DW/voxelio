@@ -5,6 +5,7 @@
 	"description": "Internationalization package for Vite projects, extract keys from tsx/jsx files and automatically generate translation files.",
 	"scripts": {
 		"build": "tsdown",
+		"build:example": "vite build examples",
 		"build:watch": "tsdown --watch",
 		"check": "tsc --noEmit",
 		"example": "vite examples",
