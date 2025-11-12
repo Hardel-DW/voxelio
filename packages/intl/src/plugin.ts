@@ -102,16 +102,23 @@ const syncLocales = async (
 	sourceLocale: string,
 	supportedLocales: string[]
 ): Promise<void> => {
-	console.log(`[@voxelio/intl] syncLocales called with ${messages.size} messages`);
+	console.log(`[@voxelio/intl] 🔄 syncLocales called`);
+	console.log(`[@voxelio/intl]    - Messages: ${messages.size}`);
+	console.log(`[@voxelio/intl]    - Keys:`, Array.from(messages.keys()));
+	console.log(`[@voxelio/intl]    - Directory: ${localesDir}`);
+	console.log(`[@voxelio/intl]    - Source: ${sourceLocale}, Supported: [${supportedLocales.join(', ')}]`);
+
 	if (messages.size === 0) {
-		console.log(`[@voxelio/intl] No messages, creating empty locale files if needed`);
+		console.log(`[@voxelio/intl] ⚠️  No messages, skipping sync`);
+		return;
 	}
+
 	const cacheDir = join(localesDir, ".cache");
 	await Promise.all([mkdir(localesDir, { recursive: true }), mkdir(cacheDir, { recursive: true })]);
 
 	const sourceMessages = Object.fromEntries(messages);
 	const sourcePath = join(localesDir, `${sourceLocale}.json`);
-	console.log(`[@voxelio/intl] Writing source locale: ${sourcePath}`);
+	console.log(`[@voxelio/intl] 📝 Writing ${sourceLocale}.json:`, sourceMessages);
 	await writeFile(sourcePath, JSON.stringify(sourceMessages, null, 2), "utf-8");
 
 	await Promise.all(
@@ -120,8 +127,10 @@ const syncLocales = async (
 			.map(async (locale) => {
 				const localePath = join(localesDir, `${locale}.json`);
 				const cachePath = join(cacheDir, `${locale}.json`);
-				console.log(`[@voxelio/intl] Processing locale: ${locale}`);
+				console.log(`[@voxelio/intl] 🌍 Processing ${locale}...`);
 				const [current, cache] = await Promise.all([loadJSON(localePath), loadJSON(cachePath)]);
+				console.log(`[@voxelio/intl]    - Current:`, current);
+				console.log(`[@voxelio/intl]    - Cache:`, cache);
 				const sourceKeys = new Set(Object.keys(sourceMessages));
 
 				const active = Object.fromEntries(
@@ -137,7 +146,8 @@ const syncLocales = async (
 					...Object.entries(current).filter(([k]) => !sourceKeys.has(k))
 				]);
 
-				console.log(`[@voxelio/intl] Writing ${locale}: ${localePath}`);
+				console.log(`[@voxelio/intl] 💾 Writing ${locale}.json:`, active);
+				if (Object.keys(obsolete).length > 0) console.log(`[@voxelio/intl] 🗑️  Obsolete:`, obsolete);
 				await Promise.all(
 					[
 						writeFile(localePath, JSON.stringify(active, null, 2), "utf-8"),
@@ -146,6 +156,7 @@ const syncLocales = async (
 				);
 			})
 	);
+	console.log(`[@voxelio/intl] ✅ Sync completed!`);
 };
 
 export default function viteI18nExtract(options: Options): Plugin {
@@ -175,23 +186,28 @@ export default function viteI18nExtract(options: Options): Plugin {
 		id: string,
 		silent: boolean
 	): { messages: Map<string, string>; transformedCode: string; isCached: boolean } => {
+		console.log(`[@voxelio/intl] 🔍 Processing file: ${id}`);
 		const codeHash = createHash("sha256").update(code, "utf8").digest("hex");
 		const cached = parseCache.get(id);
 		if (cached && cached.codeHash === codeHash) {
+			console.log(`[@voxelio/intl]    ⚡ Using cached version (${cached.messages.size} messages)`);
 			return { messages: cached.messages, transformedCode: cached.transformedCode, isCached: true };
 		}
 
+		console.log(`[@voxelio/intl]    🆕 Cache miss, parsing AST...`);
 		const messages = new Map<string, string>();
 		const transformedCode = transformTCalls(
 			code,
 			id,
 			(text) => {
 				const key = generateKey(text);
+				console.log(`[@voxelio/intl]       Found t("${text}") -> "${key}"`);
 				messages.set(key, text);
 				return key;
 			},
 			{ silent, filterCallee: "t" }
 		);
+		console.log(`[@voxelio/intl]    ✅ Extracted ${messages.size} messages`);
 		parseCache.set(id, { codeHash, messages, transformedCode });
 		return { messages, transformedCode, isCached: false };
 	};
@@ -259,29 +275,43 @@ export default function viteI18nExtract(options: Options): Plugin {
 		},
 		async configureServer(server) {
 			const absoluteLocalesDir = getAbsoluteLocalesDir();
-			console.log(`[@voxelio/intl] Locales directory: ${absoluteLocalesDir}`);
-			console.log(`[@voxelio/intl] Creating initial locale files...`);
-			await syncLocales(new Map(), absoluteLocalesDir, sourceLocale, locales);
-			console.log(`[@voxelio/intl] Initial locale files created`);
+			const cacheDir = join(absoluteLocalesDir, ".cache");
+			console.log(`[@voxelio/intl] 🚀 ========== CONFIGURE SERVER ==========`);
+			console.log(`[@voxelio/intl]    📂 Locales dir: ${absoluteLocalesDir}`);
+			console.log(`[@voxelio/intl]    📂 Cache dir: ${cacheDir}`);
+			console.log(`[@voxelio/intl]    🌍 Supported locales: [${locales.join(', ')}]`);
+			console.log(`[@voxelio/intl]    🎯 Source locale: ${sourceLocale}`);
+			console.log(`[@voxelio/intl]    📄 File pattern: \\.(${include.join('|')})$`);
+			await Promise.all([mkdir(absoluteLocalesDir, { recursive: true }), mkdir(cacheDir, { recursive: true })]);
+			console.log(`[@voxelio/intl] ✅ Directories ensured`);
 
 			server.watcher.on("change", (path) => {
+				console.log(`[@voxelio/intl] 📄 File CHANGE: ${path}`);
 				if (isLocaleFile(path)) {
-					console.log(`[@voxelio/intl] Locale file changed: ${path}`);
+					console.log(`[@voxelio/intl]    ✅ Is locale file -> Invalidating virtual module`);
 					invalidateVirtualModule(server);
+				} else {
+					console.log(`[@voxelio/intl]    ⏭️  Not a locale file`);
 				}
 			});
 			server.watcher.on("unlink", async (path) => {
-				console.log(`[@voxelio/intl] File unlinked: ${path}, isLocale: ${isLocaleFile(path)}`);
-				if (isLocaleFile(path)) {
-					console.log(`[@voxelio/intl] Recreating locale file: ${path}`);
+				console.log(`[@voxelio/intl] 🗑️  File UNLINK: ${path}`);
+				const isLocale = isLocaleFile(path);
+				console.log(`[@voxelio/intl]    isLocaleFile: ${isLocale}`);
+				if (isLocale) {
+					console.log(`[@voxelio/intl]    🔄 Recreating deleted locale file...`);
+					console.log(`[@voxelio/intl]    Current fileMessages size: ${fileMessages.size}`);
+					console.log(`[@voxelio/intl]    Total messages to sync: ${getAllMessages().size}`);
 					await syncLocales(getAllMessages(), absoluteLocalesDir, sourceLocale, locales);
 					invalidateVirtualModule(server);
 				}
 				if (filePattern.test(path)) {
+					console.log(`[@voxelio/intl]    🧹 Cleaning cache for source file`);
 					fileMessages.delete(path);
 					parseCache.delete(path);
 				}
 			});
+			console.log(`[@voxelio/intl] 🎉 Server configuration complete!`);
 		},
 		renderChunk(code) {
 			const allMessages = getAllMessages();
@@ -318,20 +348,45 @@ export default function viteI18nExtract(options: Options): Plugin {
 			}
 		},
 		async transform(code: string, id: string) {
-			if (!filePattern.test(id)) return null;
-			if (!code.includes("@voxelio/intl")) return null;
+			console.log(`[@voxelio/intl] 🔧 ========== TRANSFORM ==========`);
+			console.log(`[@voxelio/intl]    📄 File: ${id}`);
+			console.log(`[@voxelio/intl]    📏 Code length: ${code.length}`);
+			console.log(`[@voxelio/intl]    🎯 Pattern test: ${filePattern.test(id)}`);
+			console.log(`[@voxelio/intl]    📦 Has @voxelio/intl: ${code.includes("@voxelio/intl")}`);
 
+			if (!filePattern.test(id)) {
+				console.log(`[@voxelio/intl]    ⏭️  SKIP: File doesn't match pattern`);
+				return null;
+			}
+
+			if (!code.includes("@voxelio/intl")) {
+				console.log(`[@voxelio/intl]    ⏭️  SKIP: No @voxelio/intl import found`);
+				return null;
+			}
+
+			console.log(`[@voxelio/intl]    ✅ PROCESSING...`);
 			const { messages, transformedCode } = processFile(code, id, silent);
+			console.log(`[@voxelio/intl]    📊 Extracted messages: ${messages.size}`);
+			console.log(`[@voxelio/intl]    📊 Messages:`, Array.from(messages.entries()));
 			fileMessages.set(id, messages);
+			console.log(`[@voxelio/intl]    📊 Total files in tracker: ${fileMessages.size}`);
+			console.log(`[@voxelio/intl]    📊 Total unique messages: ${getAllMessages().size}`);
 
 			if (!initialSyncPromise && fileMessages.size > 0) {
+				console.log(`[@voxelio/intl]    🎬 TRIGGERING INITIAL SYNC!`);
+				console.log(`[@voxelio/intl]    🎬 All messages to sync:`, Array.from(getAllMessages().entries()));
 				initialSyncPromise = syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales).catch((error) => {
-					console.error("[voxelio/intl] Failed to sync locales:", error);
+					console.error("[@voxelio/intl] ❌ SYNC FAILED:", error);
 					initialSyncPromise = null;
 				});
 				await initialSyncPromise;
+			} else if (initialSyncPromise) {
+				console.log(`[@voxelio/intl]    ⏳ Initial sync already in progress...`);
+			} else {
+				console.log(`[@voxelio/intl]    ℹ️  No initial sync needed (fileMessages: ${fileMessages.size})`);
 			}
 
+			console.log(`[@voxelio/intl]    ✅ Transform complete!`);
 			return { code: transformedCode, map: null };
 		},
 		async handleHotUpdate({ file, read, server }) {
