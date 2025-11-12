@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.1.0
+
+### Minor Changes
+
+- 29caad9: Intl now injected virtual module, and chuncks use dynamic imports. Key and params are minified. Keys are readable in dev. Fixing some bugs
+
 ## 1.0.5
 
 ### Patch Changes
