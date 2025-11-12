@@ -165,7 +165,7 @@ export default function viteI18nExtract(options: Options): Plugin {
 		throw new Error(`sourceLocale "${sourceLocale}" must be included in locales array: [${locales.join(", ")}]`);
 	}
 
-	const filePattern = new RegExp(`\\.(${include.join("|")})$`);
+	const filePattern = new RegExp(`\\.(${include.join("|")})($|\\?)`);
 	const fileMessages = new Map<string, Map<string, string>>();
 	const parseCache = new Map<string, CacheEntry>();
 	const virtualModuleId = "virtual:@voxelio/intl";
@@ -359,10 +359,12 @@ export default function viteI18nExtract(options: Options): Plugin {
 				return null;
 			}
 
-			if (!code.includes("@voxelio/intl")) {
+			const hasIntlImport = code.includes("@voxelio/intl/runtime") || code.includes("@voxelio/intl");
+			if (!hasIntlImport) {
 				console.log(`[@voxelio/intl]    ⏭️  SKIP: No @voxelio/intl import found`);
 				return null;
 			}
+			console.log(`[@voxelio/intl]    ✅ Has intl import!`);
 
 			console.log(`[@voxelio/intl]    ✅ PROCESSING...`);
 			const { messages, transformedCode } = processFile(code, id, silent);
