@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.1.5
+
+### Patch Changes
+
+- d2f47ca: Fixing the file pattern to include query parameters
+
 ## 1.1.4
 
 ### Patch Changes
