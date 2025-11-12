@@ -247,6 +247,9 @@ export default function viteI18nExtract(options: Options): Plugin {
 			configFilePath = config.configFile ?? "";
 			isBuild = config.command === "build";
 		},
+		transformIndexHtml() {
+			return [{ tag: "script", attrs: { type: "module", src: "/@id/__x00__virtual:@voxelio/intl" }, injectTo: "head-prepend" }];
+		},
 		configureServer(server) {
 			server.watcher.on("change", (path) => handleLocaleFileChange(path, server));
 			server.watcher.on("unlink", (path) => {

@@ -1,5 +1,5 @@
 import { defineConfig, type UserConfig } from 'vite';
-import viteIntl from "../dist/plugin";
+import viteIntl from "@voxelio/intl/plugin";
 
 export default defineConfig({
     plugins: [viteIntl({ sourceLocale: 'en', locales: ['en', 'fr'] })]
