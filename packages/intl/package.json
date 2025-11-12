@@ -21,6 +21,10 @@
 		"./runtime": {
 			"import": "./dist/runtime.js",
 			"types": "./dist/runtime.d.ts"
+		},
+		"./loader": {
+			"import": "./dist/loader.js",
+			"types": "./dist/loader.d.ts"
 		}
 	},
 	"files": [

@@ -136,9 +136,11 @@ export default function viteI18nExtract(options: Options): Plugin {
 	const parseCache = new Map<string, CacheEntry>();
 	const virtualModuleId = 'virtual:@voxelio/intl';
 	const resolvedVirtualModuleId = `\0${virtualModuleId}`;
+	const localeModulePrefix = `${virtualModuleId}/locale-`;
 	let configFilePath = '';
 	let initialSyncPromise: Promise<void> | null = null;
 	const keyMinifier = new KeyMinifier();
+	let isBuild = false;
 
 	const getAbsoluteLocalesDir = (): string => {
 		const configDir = configFilePath ? join(configFilePath, '..') : process.cwd();
@@ -173,22 +175,30 @@ export default function viteI18nExtract(options: Options): Plugin {
 	};
 
 	const generateVirtualModule = (): string => {
-		const absoluteLocalesDir = getAbsoluteLocalesDir();
 		const runtimeImport = resolveRuntimeImport();
 
 		if (locales.length === 0) {
 			return `import{init}from'${runtimeImport}';init({});`;
 		}
 
-		const modules = locales.map((locale) => {
-			const varName = locale.replace(/[^a-zA-Z0-9]/g, '_');
-			const importPath = join(absoluteLocalesDir, `${locale}.json`).replace(/\\/g, '/');
-			return { locale, varName, importPath };
-		});
+		if (!isBuild) {
+			const absoluteLocalesDir = getAbsoluteLocalesDir();
+			const modules = locales.map((locale) => {
+				const varName = locale.replace(/[^a-zA-Z0-9]/g, '_');
+				const importPath = join(absoluteLocalesDir, `${locale}.json`).replace(/\\/g, '/');
+				return { locale, varName, importPath };
+			});
 
-		const imports = modules.map(({ varName, importPath }) => `import ${varName} from'${importPath}';`).join('');
-		const entries = modules.map(({ locale, varName }) => `'${locale}':${varName}`).join(',');
-		return `${imports}import{init}from'${runtimeImport}';init({${entries}},{fallbackLocale:'${sourceLocale}'});`;
+			const imports = modules.map(({ varName, importPath }) => `import ${varName} from'${importPath}';`).join('');
+			const entries = modules.map(({ locale, varName }) => `'${locale}':${varName}`).join(',');
+			return `${imports}import{init}from'${runtimeImport}';init({${entries}},{fallbackLocale:'${sourceLocale}'});`;
+		}
+
+		const loaderImport = resolveRuntimeImport().replace('/runtime', '/loader');
+		const loaders = locales.map(l => `'${l}':()=>import('${localeModulePrefix}${l}')`).join(',');
+		const supportedLocales = locales.map(l => `'${l}'`).join(',');
+
+		return `import{initDynamic,setLanguage}from'${loaderImport}';import{detectLanguage,getLanguage}from'${runtimeImport}';const locale=detectLanguage('${sourceLocale}',[${supportedLocales}]);await initDynamic({${loaders}},locale,{fallbackLocale:'${sourceLocale}',supportedLocales:[${supportedLocales}]});export{setLanguage,getLanguage};`;
 	};
 
 	const handleLocaleFileChange = async (path: string, server: ViteDevServer): Promise<void> => {
@@ -212,6 +222,7 @@ export default function viteI18nExtract(options: Options): Plugin {
 		name: '@voxelio/intl',
 		configResolved(config) {
 			configFilePath = config.configFile ?? '';
+			isBuild = config.command === 'build';
 		},
 		configureServer(server) {
 			server.watcher.on('change', (path) => handleLocaleFileChange(path, server));
@@ -241,9 +252,22 @@ export default function viteI18nExtract(options: Options): Plugin {
 		},
 		resolveId(id: string) {
 			if (id === virtualModuleId) return resolvedVirtualModuleId;
+			if (id.startsWith(localeModulePrefix)) {
+				return `\0${id}`;
+			}
 		},
 		async load(id: string) {
 			if (id === resolvedVirtualModuleId) return generateVirtualModule();
+
+			if (id.startsWith(`\0${localeModulePrefix}`)) {
+				const locale = id.replace(`\0${localeModulePrefix}`, '');
+				const absoluteLocalesDir = getAbsoluteLocalesDir();
+				const localePath = join(absoluteLocalesDir, `${locale}.json`);
+				const content = await safeTryAsync(() => readFile(localePath, 'utf-8'));
+				const translations = safeTry(() => JSON.parse(content?.toString() ?? '{}')) ?? {};
+				const minified = keyMinifier.minifyTranslations(translations);
+				return `export default ${JSON.stringify(minified)}`;
+			}
 		},
 		async transform(code: string, id: string) {
 			if (!filePattern.test(id)) return null;
@@ -278,6 +302,6 @@ export default function viteI18nExtract(options: Options): Plugin {
 		},
 		async buildEnd() {
 			await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales);
-		},
+		}
 	};
 }

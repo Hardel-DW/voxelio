@@ -1,4 +1,5 @@
 {
-  "iy+T97ophRaM": "Hello Dataworld",
-  "VhD5ulHSF8ji": "Welcome {name}, you have {count} messages"
+  "hello_dataworld": "Hello Dataworld",
+  "salut_tout_le_monde": "Salut tout le monde",
+  "welcome_name_you_have_count_mess": "Welcome {name}, you have {count} messages ok"
 }
