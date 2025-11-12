@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.1.1
+
+### Patch Changes
+
+- 77fe3a0: Deleted files are re-created. And currentLocale is not undefined
+
 ## 1.1.0
 
 ### Minor Changes
