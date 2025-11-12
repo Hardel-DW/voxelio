@@ -49,6 +49,9 @@ export const init = (locales: Record<string, Translations>, options?: { fallback
 			supportedLocales.add(locale);
 		}
 	}
+	if (!currentLocale) {
+		currentLocale = detectLanguage(fallbackLocale, Array.from(supportedLocales));
+	}
 };
 
 export const initDynamic = async (
@@ -60,6 +63,7 @@ export const initDynamic = async (
 	const data = await loaders[initialLocale]();
 	init({ [initialLocale]: data.default }, options);
 	loadedLocales.add(initialLocale);
+	currentLocale = initialLocale;
 };
 
 export const addLocale = (locale: string, trans: Translations): void => {

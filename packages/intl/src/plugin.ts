@@ -226,14 +226,14 @@ export default function viteI18nExtract(options: Options): Plugin {
 		return `import{initDynamic,setLanguage,getLanguage,detectLanguage}from'${runtimeImport}';const locale=detectLanguage('${sourceLocale}',[${supportedLocales}]);await initDynamic({${loaders}},locale,{fallbackLocale:'${sourceLocale}',supportedLocales:[${supportedLocales}]});export{setLanguage,getLanguage};`;
 	};
 
-	const handleLocaleFileChange = async (path: string, server: ViteDevServer): Promise<void> => {
+	const isLocaleFile = (path: string): boolean => {
 		const absoluteLocalesDir = getAbsoluteLocalesDir();
-		if (!path.startsWith(absoluteLocalesDir) || !path.endsWith(".json")) return;
-		if (path.includes(".cache")) return;
-
+		if (!path.startsWith(absoluteLocalesDir) || !path.endsWith(".json") || path.includes(".cache")) return false;
 		const fileName = path.split(/[\\/]/).pop()?.replace(".json", "");
-		if (!fileName || !locales.includes(fileName)) return;
+		return !!fileName && locales.includes(fileName);
+	};
 
+	const invalidateVirtualModule = (server: ViteDevServer): void => {
 		const virtualModule = server.moduleGraph.getModuleById(resolvedVirtualModuleId);
 		if (virtualModule) {
 			server.moduleGraph.invalidateModule(virtualModule);
@@ -250,10 +250,16 @@ export default function viteI18nExtract(options: Options): Plugin {
 		transformIndexHtml() {
 			return [{ tag: "script", attrs: { type: "module", src: "/@id/__x00__virtual:@voxelio/intl" }, injectTo: "head-prepend" }];
 		},
-		configureServer(server) {
-			server.watcher.on("change", (path) => handleLocaleFileChange(path, server));
-			server.watcher.on("unlink", (path) => {
-				handleLocaleFileChange(path, server);
+		async configureServer(server) {
+			await syncLocales(new Map(), getAbsoluteLocalesDir(), sourceLocale, locales);
+			server.watcher.on("change", (path) => {
+				if (isLocaleFile(path)) invalidateVirtualModule(server);
+			});
+			server.watcher.on("unlink", async (path) => {
+				if (isLocaleFile(path)) {
+					await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales);
+					invalidateVirtualModule(server);
+				}
 				if (filePattern.test(path)) {
 					fileMessages.delete(path);
 					parseCache.delete(path);
