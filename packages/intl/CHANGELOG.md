@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.1.4
+
+### Patch Changes
+
+- e58df2d: Debuging the production
+
 ## 1.1.3
 
 ### Patch Changes
