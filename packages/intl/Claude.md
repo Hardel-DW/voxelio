@@ -26,11 +26,10 @@ Already implemented:
 - When key is removed manually, it will be restored with default locale key.
 - When Start vite dev server, the locales will be created if not exist.
 
-Functionalities to implement:
-For SSG/SSR : (Need Brain storming)
-- A "build mode" with no .json or runtime code of intl in the final bundle.
-- A "runtime mode" for SSR/SSG the translations is done on the client by sending the list of keys. Only the keys used will be sent.
-- Vite Framework-agnostic, maybe a package for each framework Astro/TanStack/React/Vue/Svelte/Solid/SvleteKit/Nuxt. To correctly manage route.
+For SSR/SSG/CSR:
+- A "Unified" mode: Each language is bundled into a single .js file in the dist folder, containing all translation keys for that language. Regardless of the number of chunks, there's only one translation file per language.
+- An "Inline" mode: Translation values are directly injected into the t() function at build time, returning plain strings. The runtime only includes a minimal interpolation function (~100 bytes, 2 lines of code). (No Fetching and the lang cannot be changed at runtime)
+- A "Granular" mode: Each Vite chunk is analyzed and generates its own translation chunk containing only the keys used in that specific chunk. This dramatically increases the number of requests and files but guarantees minimal bundle size per chunk.
 
 Warning:
 - t() is automatically escaped by react so no XSS possible, if the user uses dangerouslySetInnerHTML at his own risk (That make no sense to use t() in that case).
