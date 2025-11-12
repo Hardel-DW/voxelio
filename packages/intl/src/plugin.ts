@@ -102,12 +102,17 @@ const syncLocales = async (
 	sourceLocale: string,
 	supportedLocales: string[]
 ): Promise<void> => {
-	if (messages.size === 0) return;
+	console.log(`[@voxelio/intl] syncLocales called with ${messages.size} messages`);
+	if (messages.size === 0) {
+		console.log(`[@voxelio/intl] No messages, creating empty locale files if needed`);
+	}
 	const cacheDir = join(localesDir, ".cache");
 	await Promise.all([mkdir(localesDir, { recursive: true }), mkdir(cacheDir, { recursive: true })]);
 
 	const sourceMessages = Object.fromEntries(messages);
-	await writeFile(join(localesDir, `${sourceLocale}.json`), JSON.stringify(sourceMessages, null, 2), "utf-8");
+	const sourcePath = join(localesDir, `${sourceLocale}.json`);
+	console.log(`[@voxelio/intl] Writing source locale: ${sourcePath}`);
+	await writeFile(sourcePath, JSON.stringify(sourceMessages, null, 2), "utf-8");
 
 	await Promise.all(
 		supportedLocales
@@ -115,6 +120,7 @@ const syncLocales = async (
 			.map(async (locale) => {
 				const localePath = join(localesDir, `${locale}.json`);
 				const cachePath = join(cacheDir, `${locale}.json`);
+				console.log(`[@voxelio/intl] Processing locale: ${locale}`);
 				const [current, cache] = await Promise.all([loadJSON(localePath), loadJSON(cachePath)]);
 				const sourceKeys = new Set(Object.keys(sourceMessages));
 
@@ -131,6 +137,7 @@ const syncLocales = async (
 					...Object.entries(current).filter(([k]) => !sourceKeys.has(k))
 				]);
 
+				console.log(`[@voxelio/intl] Writing ${locale}: ${localePath}`);
 				await Promise.all(
 					[
 						writeFile(localePath, JSON.stringify(active, null, 2), "utf-8"),
@@ -251,13 +258,23 @@ export default function viteI18nExtract(options: Options): Plugin {
 			return [{ tag: "script", attrs: { type: "module", src: "/@id/__x00__virtual:@voxelio/intl" }, injectTo: "head-prepend" }];
 		},
 		async configureServer(server) {
-			await syncLocales(new Map(), getAbsoluteLocalesDir(), sourceLocale, locales);
+			const absoluteLocalesDir = getAbsoluteLocalesDir();
+			console.log(`[@voxelio/intl] Locales directory: ${absoluteLocalesDir}`);
+			console.log(`[@voxelio/intl] Creating initial locale files...`);
+			await syncLocales(new Map(), absoluteLocalesDir, sourceLocale, locales);
+			console.log(`[@voxelio/intl] Initial locale files created`);
+
 			server.watcher.on("change", (path) => {
-				if (isLocaleFile(path)) invalidateVirtualModule(server);
+				if (isLocaleFile(path)) {
+					console.log(`[@voxelio/intl] Locale file changed: ${path}`);
+					invalidateVirtualModule(server);
+				}
 			});
 			server.watcher.on("unlink", async (path) => {
+				console.log(`[@voxelio/intl] File unlinked: ${path}, isLocale: ${isLocaleFile(path)}`);
 				if (isLocaleFile(path)) {
-					await syncLocales(getAllMessages(), getAbsoluteLocalesDir(), sourceLocale, locales);
+					console.log(`[@voxelio/intl] Recreating locale file: ${path}`);
+					await syncLocales(getAllMessages(), absoluteLocalesDir, sourceLocale, locales);
 					invalidateVirtualModule(server);
 				}
 				if (filePattern.test(path)) {
