@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.1.3
+
+### Patch Changes
+
+- 7c24ed9: Debuging the production
+
 ## 1.1.2
 
 ### Patch Changes
