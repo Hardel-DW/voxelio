@@ -147,7 +147,7 @@ export default function viteI18nExtract(options: Options): Plugin {
 		throw new Error(`sourceLocale "${sourceLocale}" must be included in locales array: [${locales.join(", ")}]`);
 	}
 
-	const filePattern = new RegExp(`\\.(${include.join("|")})$`);
+	const filePattern = new RegExp(`\\.(${include.join("|")})($|\\?)`);
 	const fileMessages = new Map<string, Map<string, string>>();
 	const parseCache = new Map<string, CacheEntry>();
 	const virtualModuleId = "virtual:@voxelio/intl";
