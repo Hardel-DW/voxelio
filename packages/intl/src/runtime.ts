@@ -60,6 +60,7 @@ export const initDynamic = async (
 	const data = await loaders[initialLocale]();
 	init({ [initialLocale]: data.default }, options);
 	loadedLocales.add(initialLocale);
+	currentLocale = initialLocale;
 };
 
 export const addLocale = (locale: string, trans: Translations): void => {
@@ -77,7 +78,6 @@ export const setLanguage = async (locale: string): Promise<void> => {
 		loadedLocales.add(locale);
 	}
 
-	currentLocale = locale;
 	if (typeof window !== "undefined") {
 		localStorage.setItem("locale", locale);
 	}
