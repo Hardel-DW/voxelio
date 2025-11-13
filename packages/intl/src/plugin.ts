@@ -79,9 +79,11 @@ const transformTCalls = (
 				if (paramArg.type === "ObjectExpression") {
 					for (const prop of paramArg.properties) {
 						if (prop.type !== "Property" || prop.key.type !== "Identifier") continue;
-						if (prop.shorthand) continue;
 						const minified = onParamKey(prop.key.name);
-						if (minified) replacements.push({ start: prop.key.start, end: prop.key.end, key: minified });
+						if (minified) {
+							const replacement = prop.shorthand ? `${minified}:${prop.key.name}` : minified;
+							replacements.push({ start: prop.key.start, end: prop.key.end, key: replacement });
+						}
 					}
 				}
 			}
