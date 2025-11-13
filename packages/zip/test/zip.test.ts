@@ -217,4 +217,48 @@ describe("ZIP", () => {
 		expect(flagNameUTF8({ encodedName: invalidUTF8, nameIsBuffer: true }, false)).toBe(0);
 		expect(flagNameUTF8({ encodedName: invalidUTF8, nameIsBuffer: true }, true)).toBe(0b1000);
 	});
+
+	test("fileHeader with useDataDescriptor=false disables bit 3 and includes sizes/CRC", () => {
+		const file = { ...baseFile, uncompressedSize: BigInt(zipSpec.byteLength), crc: 0x12345678 };
+		const actual = fileHeader(file, 0, false);
+		expect(actual[0]).toBe(0x50);
+		expect(actual[1]).toBe(0x4b);
+		expect(actual[2]).toBe(0x03);
+		expect(actual[3]).toBe(0x04);
+		expect(actual[6] & 0x08).toBe(0);
+
+		const crcView = new DataView(actual.buffer, actual.byteOffset, actual.byteLength);
+		expect(crcView.getUint32(14, true)).toBe(0x12345678);
+		expect(crcView.getUint32(18, true)).toBe(zipSpec.byteLength);
+		expect(crcView.getUint32(22, true)).toBe(zipSpec.byteLength);
+	});
+
+	test("fileHeader with useDataDescriptor=true enables bit 3 and zeros sizes/CRC", () => {
+		const file = { ...baseFile, uncompressedSize: BigInt(zipSpec.byteLength), crc: 0x12345678 };
+		const actual = fileHeader(file, 0, true);
+		expect(actual[6] & 0x08).toBe(0x08);
+
+		const crcView = new DataView(actual.buffer, actual.byteOffset, actual.byteLength);
+		expect(crcView.getUint32(14, true)).toBe(0);
+		expect(crcView.getUint32(18, true)).toBe(0);
+		expect(crcView.getUint32(22, true)).toBe(0);
+	});
+
+	test("contentLength with useDataDescriptor=false calculates correct size without descriptors", () => {
+		const withDescriptor = contentLength([{ uncompressedSize: BigInt(zipSpec.byteLength), encodedName: specName }], true);
+		const withoutDescriptor = contentLength([{ uncompressedSize: BigInt(zipSpec.byteLength), encodedName: specName }], false);
+		expect(withDescriptor - withoutDescriptor).toBe(16n);
+	});
+
+	test("centralHeader with useDataDescriptor=false disables bit 3", () => {
+		const file = { ...baseFile, uncompressedSize: BigInt(zipSpec.byteLength), crc: 0x12345678 };
+		const actual = centralHeader(file, 0n, 0, 0, false);
+		expect(actual[8] & 0x08).toBe(0);
+	});
+
+	test("centralHeader with useDataDescriptor=true enables bit 3", () => {
+		const file = { ...baseFile, uncompressedSize: BigInt(zipSpec.byteLength), crc: 0x12345678 };
+		const actual = centralHeader(file, 0n, 0, 0, true);
+		expect(actual[8] & 0x08).toBe(0x08);
+	});
 });

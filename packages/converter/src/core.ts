@@ -22,7 +22,9 @@ export async function convertDatapack(datapackZip: File, platforms: ModPlatformT
 		...Object.fromEntries(Object.entries(modFiles).map(([path, content]) => [path, new TextEncoder().encode(content)]))
 	};
 
-	return new Datapack(allFiles).generate();
+	// Enable JAR compatibility mode (disable data descriptors for STORED entries)
+	// This ensures the generated JAR works with Forge/Java strict ZIP validation
+	return new Datapack(allFiles).generate(undefined, true);
 }
 
 /**

@@ -22,10 +22,12 @@ export type ForAwaitable<T> = AsyncIterable<T> | Iterable<T>;
 
 type Zip64FieldLength = 0 | 12 | 28;
 
-export function contentLength(files: Iterable<Omit<Metadata, "nameIsBuffer">>): bigint {
+export function contentLength(files: Iterable<Omit<Metadata, "nameIsBuffer">>, useDataDescriptor = true): bigint {
 	let centralLength = BigInt(endLength);
 	let offset = 0n;
 	let archiveNeedsZip64 = false;
+	const descriptorSize = useDataDescriptor ? descriptorLength : 0;
+
 	for (const file of files) {
 		if (!file.encodedName) {
 			throw new Error("Every file must have a non-empty name.");
@@ -35,7 +37,8 @@ export function contentLength(files: Iterable<Omit<Metadata, "nameIsBuffer">>): 
 		}
 		const bigFile = file.uncompressedSize >= 0xffffffffn;
 		const bigOffset = offset >= 0xffffffffn;
-		offset += BigInt(fileHeaderLength + descriptorLength + file.encodedName.length + (bigFile ? 8 : 0)) + file.uncompressedSize;
+		const bigFileExtra = (bigFile && useDataDescriptor) ? 8 : 0;
+		offset += BigInt(fileHeaderLength + descriptorSize + file.encodedName.length + bigFileExtra) + file.uncompressedSize;
 		centralLength += BigInt(file.encodedName.length + centralHeaderLength + ((bigOffset ? 12 : 0) | (bigFile ? 28 : 0)));
 		archiveNeedsZip64 ||= bigFile;
 	}
@@ -64,14 +67,25 @@ export async function* loadFiles(files: ForAwaitable<ZipEntryDescription & Metad
 	let offset = 0n;
 	let fileCount = 0n;
 	let archiveNeedsZip64 = false;
+	const useDataDescriptor = !options.noDataDescriptorForStored;
 
-	// write files
 	for await (const file of files) {
+		let bufferedChunks: Uint8Array[] | undefined;
+
+		if (!useDataDescriptor && file.isFile) {
+			bufferedChunks = await bufferAndComputeMetadata(file);
+		}
+
 		const flags = flagNameUTF8(file, options.buffersAreUTF8);
-		yield fileHeader(file, flags);
+		yield fileHeader(file, flags, useDataDescriptor);
 		yield new Uint8Array(file.encodedName);
+
 		if (file.isFile) {
-			yield* fileData(file);
+			if (bufferedChunks) {
+				for (const chunk of bufferedChunks) yield chunk;
+			} else {
+				yield* fileData(file);
+			}
 		}
 
 		if (file.uncompressedSize === undefined) {
@@ -81,19 +95,20 @@ export async function* loadFiles(files: ForAwaitable<ZipEntryDescription & Metad
 		const bigFile = file.uncompressedSize >= 0xffffffffn;
 		const bigOffset = offset >= 0xffffffffn;
 		const zip64HeaderLength = ((Number(bigOffset) * 12) | (Number(bigFile) * 28)) as Zip64FieldLength;
-		yield dataDescriptor(file, bigFile);
 
-		centralRecord.push(centralHeader(file, offset, flags, zip64HeaderLength));
+		if (useDataDescriptor) yield dataDescriptor(file, bigFile);
+		centralRecord.push(centralHeader(file, offset, flags, zip64HeaderLength, useDataDescriptor));
 		centralRecord.push(file.encodedName);
 		if (zip64HeaderLength) {
 			centralRecord.push(zip64ExtraField(file, offset, zip64HeaderLength));
 		}
-		if (bigFile) offset += 8n; // because the data descriptor will have 64-bit sizes
+		if (bigFile && useDataDescriptor) offset += 8n; // because the data descriptor will have 64-bit sizes
 		fileCount++;
 		if (file.encodedName.length === 0) {
 			throw new Error("Every file must have a non-empty name.");
 		}
-		offset += BigInt(fileHeaderLength + descriptorLength + file.encodedName.length) + file.uncompressedSize;
+		const descriptorSize = useDataDescriptor ? descriptorLength : 0;
+		offset += BigInt(fileHeaderLength + descriptorSize + file.encodedName.length) + file.uncompressedSize;
 		archiveNeedsZip64 ||= bigFile;
 	}
 
@@ -135,38 +150,81 @@ export async function* loadFiles(files: ForAwaitable<ZipEntryDescription & Metad
 	yield makeUint8Array(end);
 }
 
-export function fileHeader(file: ZipEntryDescription & Metadata, flags = 0): Uint8Array {
+export function fileHeader(file: ZipEntryDescription & Metadata, flags = 0, useDataDescriptor = true): Uint8Array {
 	const header = makeBuffer(fileHeaderLength);
 	header.setUint32(0, fileHeaderSignature);
-	header.setUint32(4, 0x2d_00_0800 | flags); // ZIP version 4.5 | flags, bit 3 on = size and CRCs will be zero
-	// leave compression = zero (2 bytes) until we implement compression
+
+	// Bit 3 controls data descriptor: enabled by default, but can be disabled for Forge/Java compatibility
+	const descriptorFlag = useDataDescriptor ? 0x0800 : 0x0000;
+	header.setUint32(4, 0x2d_00_0000 | descriptorFlag | flags); // ZIP version 4.5 | flags
 	formatDOSDateTime(file.modDate, header, 10);
-	// leave CRC = zero (4 bytes) because we'll write it later, in the central repo
-	// leave lengths = zero (2x4 bytes) because we'll write them later, in the central repo
+
+	if (!useDataDescriptor) {
+		header.setUint32(14, file.isFile ? (file.crc ?? 0) : 0, true);
+		header.setUint32(18, clampInt32(file.uncompressedSize ?? 0n), true);
+		header.setUint32(22, clampInt32(file.uncompressedSize ?? 0n), true);
+	}
+
 	header.setUint16(26, file.encodedName.length, true);
 	// leave extra field length = zero (2 bytes)
 	return makeUint8Array(header);
 }
 
+function computeMetadataFromBuffer(file: ZipFileDescription & Metadata, buffer: Uint8Array): void {
+	file.crc = crc32(buffer, 0);
+	file.uncompressedSize = BigInt(buffer.length);
+}
+
+function computeMetadataFromChunk(file: ZipFileDescription & Metadata, chunk: Uint8Array): void {
+	file.crc = crc32(chunk, file.crc);
+	file.uncompressedSize = (file.uncompressedSize ?? 0n) + BigInt(chunk.length);
+}
+
+async function bufferAndComputeMetadata(file: ZipFileDescription & Metadata): Promise<Uint8Array[]> {
+	let { bytes } = file;
+	if ("then" in bytes) bytes = await bytes;
+
+	if (bytes instanceof Uint8Array) {
+		computeMetadataFromBuffer(file, bytes);
+		return [bytes];
+	}
+
+	file.uncompressedSize = 0n;
+	const chunks: Uint8Array[] = [];
+	const reader = bytes.getReader();
+
+	for (; ;) {
+		const { value, done } = await reader.read();
+		if (done) break;
+		if (!value) continue;
+
+		computeMetadataFromChunk(file, value);
+		chunks.push(value);
+	}
+
+	return chunks;
+}
+
 export async function* fileData(file: ZipFileDescription & Metadata): AsyncIterable<Uint8Array> {
 	let { bytes } = file;
 	if ("then" in bytes) bytes = await bytes;
+
 	if (bytes instanceof Uint8Array) {
 		yield bytes;
-		file.crc = crc32(bytes, 0);
-		file.uncompressedSize = BigInt(bytes.length);
-	} else {
-		file.uncompressedSize = 0n;
-		const reader = bytes.getReader();
-		while (true) {
-			const { value, done } = await reader.read();
-			if (done) break;
-			if (value) {
-				file.crc = crc32(value, file.crc);
-				file.uncompressedSize += BigInt(value.length);
-				yield value;
-			}
-		}
+		computeMetadataFromBuffer(file, bytes);
+		return;
+	}
+
+	file.uncompressedSize = 0n;
+	const reader = bytes.getReader();
+
+	for (; ;) {
+		const { value, done } = await reader.read();
+		if (done) break;
+		if (!value) continue;
+
+		computeMetadataFromChunk(file, value);
+		yield value;
 	}
 }
 
@@ -191,12 +249,15 @@ export function centralHeader(
 	file: ZipEntryDescription & Metadata,
 	offset: bigint,
 	flags = 0,
-	zip64HeaderLength: Zip64FieldLength = 0
+	zip64HeaderLength: Zip64FieldLength = 0,
+	useDataDescriptor = true
 ): Uint8Array {
 	const header = makeBuffer(centralHeaderLength);
 	header.setUint32(0, centralHeaderSignature);
 	header.setUint32(4, 0x2d03_2d_00); // UNIX app version 4.5 | ZIP version 4.5
-	header.setUint16(8, 0x0800 | flags); // flags, bit 3 on
+
+	const descriptorFlag = useDataDescriptor ? 0x0800 : 0x0000;
+	header.setUint16(8, descriptorFlag | flags); // flags
 	// leave compression = zero (2 bytes) until we implement compression
 	formatDOSDateTime(file.modDate, header, 12);
 	header.setUint32(16, file.isFile ? (file.crc ?? 0) : 0, true);

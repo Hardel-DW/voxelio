@@ -19,14 +19,15 @@ export class DatapackDownloader {
 		return `V0-${nameWithoutExtension}${extension}`;
 	}
 
-	async download(logger?: Logger): Promise<Response> {
+	async download(logger?: Logger, isJar = false): Promise<Response> {
 		const files: InputWithoutMeta[] = Object.entries(this.files).map(([path, data]) => this.prepareFile(path, data));
 		if (logger) {
 			for (const { path, content } of logger.toFileEntries()) {
 				files.push(this.prepareFile(path, content));
 			}
 		}
-		return downloadZip(files);
+		// Enable Forge/JAR compatibility mode by disabling data descriptors for STORED entries
+		return downloadZip(files, { noDataDescriptorForStored: isJar });
 	}
 
 	/**

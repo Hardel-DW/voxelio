@@ -238,8 +238,8 @@ export class Datapack {
 		return JSON.parse(new TextDecoder().decode(this.files[file]));
 	}
 
-	generate(logger?: Logger): Promise<Response> {
-		return new DatapackDownloader(this.files).download(logger);
+	generate(logger?: Logger, isJar = false): Promise<Response> {
+		return new DatapackDownloader(this.files).download(logger, isJar);
 	}
 
 	/**
