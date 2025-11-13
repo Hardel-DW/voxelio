@@ -220,6 +220,12 @@ export default function viteI18nExtract(options: Options): Plugin {
 			configFilePath = config.configFile ?? "";
 			isBuild = config.command === "build";
 		},
+		transformIndexHtml: {
+			order: "pre",
+			handler() {
+				return [{ tag: "script", attrs: { type: "module" }, children: `import "${virtualModuleId}";`, injectTo: "head" }];
+			}
+		},
 		async configureServer(server) {
 			await syncLocales(new Map(), getAbsoluteLocalesDir(), sourceLocale, locales);
 			server.watcher.on("change", (path) => {
