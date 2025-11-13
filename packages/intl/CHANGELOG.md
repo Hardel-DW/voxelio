@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.1.11
+
+### Patch Changes
+
+- d6a23a7: Fixing shorthand interpolation
+
 ## 1.1.10
 
 ### Patch Changes
