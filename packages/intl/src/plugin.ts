@@ -35,14 +35,8 @@ interface CacheEntry {
 }
 
 const generateKey = (text: string): string => {
-	const cleaned = text
-		.replace(/[./:]/g, " ")
-		.replace(/[^a-zA-Z0-9 _-]/g, "")
-		.toLowerCase();
-	const alphaNum = cleaned
-		.replace(/[ _-]+/g, "_")
-		.trim()
-		.slice(0, 32);
+	const cleaned = text.replace(/[./:]/g, " ").replace(/[^a-zA-Z0-9 _-]/g, "").toLowerCase();
+	const alphaNum = cleaned.replace(/[ _-]+/g, "_").trim().slice(0, 32);
 	return alphaNum || createHash("sha256").update(text, "utf8").digest("base64").slice(0, 12);
 };
 
@@ -57,9 +51,7 @@ const transformTCalls = (
 	const result = parseSync(filePath, code);
 
 	if (result.errors.length > 0) {
-		if (!silent) {
-			console.warn(`[@voxelio/intl] Parse errors in ${filePath}:`, result.errors.map((e) => e.message).join(", "));
-		}
+		if (!silent) console.warn(`[@voxelio/intl] Parse errors in ${filePath}:`, result.errors.map((e) => e.message).join(", "));
 		return code;
 	}
 
@@ -98,12 +90,7 @@ const loadJSON = async (path: string) => {
 	return safeTry(() => JSON.parse(content?.toString() ?? "{}")) ?? {};
 };
 
-const syncLocales = async (
-	messages: Map<string, string>,
-	localesDir: string,
-	sourceLocale: string,
-	supportedLocales: string[]
-): Promise<void> => {
+const syncLocales = async (messages: Map<string, string>, localesDir: string, sourceLocale: string, supportedLocales: string[]): Promise<void> => {
 	if (messages.size === 0) return;
 	const cacheDir = join(localesDir, ".cache");
 	await Promise.all([mkdir(localesDir, { recursive: true }), mkdir(cacheDir, { recursive: true })]);
@@ -144,7 +131,7 @@ const syncLocales = async (
 };
 
 export default function viteI18nExtract(options: Options): Plugin {
-	const { sourceLocale, locales, localesDir = "./src/locales", include = ["tsx", "ts", "jsx"], silent = false } = options;
+	const { sourceLocale, locales, localesDir = "./src/locales", include = ["tsx", "ts"], silent = false } = options;
 	if (!locales.includes(sourceLocale)) {
 		throw new Error(`sourceLocale "${sourceLocale}" must be included in locales array: [${locales.join(", ")}]`);
 	}
@@ -206,9 +193,10 @@ export default function viteI18nExtract(options: Options): Plugin {
 		const runtimeImport = resolveRuntimeImport();
 		if (locales.length === 0) return `import{init}from'${runtimeImport}';init({});`;
 
-		const loaders = locales.map((l) => `'${l}':()=>import('${localeModulePrefix}${l}')`).join(",");
-		const supportedLocales = locales.map((l) => `'${l}'`).join(",");
-		return `import{initDynamic,detectLanguage}from'${runtimeImport}';const l=detectLanguage('${sourceLocale}',[${supportedLocales}]);await initDynamic({${loaders}},l,{fallbackLocale:'${sourceLocale}',supportedLocales:[${supportedLocales}]});`;
+		const supportedLocalesStr = locales.map((l) => `'${l}'`).join(",");
+		const allLoaders = locales.map((l) => `'${l}':()=>import('${localeModulePrefix}${l}')`).join(",");
+
+		return `import{init,detectLanguage,setLanguage}from'${runtimeImport}';import d from'${localeModulePrefix}${sourceLocale}';const loaders={${allLoaders}};const l=detectLanguage('${sourceLocale}',[${supportedLocalesStr}]);init({['${sourceLocale}']:d},{fallbackLocale:'${sourceLocale}',supportedLocales:[${supportedLocalesStr}],loaders});if(l!=='${sourceLocale}')await setLanguage(l);`;
 	};
 
 	const isLocaleFile = (path: string): boolean => {

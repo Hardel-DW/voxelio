@@ -1,4 +1,3 @@
-import "virtual:@voxelio/intl";
 import { t, setLanguage, getLanguage } from '@voxelio/intl/runtime';
 
 const render = () => {

@@ -39,10 +39,11 @@ export const detectLanguage = (fallback: string, supported: string[]): string =>
 	return fallback;
 };
 
-export const init = (locales: Record<string, Translations>, options?: { fallbackLocale?: string; supportedLocales?: string[] }): void => {
+export const init = (locales: Record<string, Translations>, options?: { fallbackLocale?: string; supportedLocales?: string[]; loaders?: Record<string, LocaleLoader> }): void => {
 	for (const [locale, trans] of Object.entries(locales)) {
 		translations.set(locale, trans);
 		supportedLocales.add(locale);
+		loadedLocales.add(locale);
 	}
 	if (options?.fallbackLocale) fallbackLocale = options.fallbackLocale;
 	if (options?.supportedLocales) {
@@ -50,6 +51,8 @@ export const init = (locales: Record<string, Translations>, options?: { fallback
 			supportedLocales.add(locale);
 		}
 	}
+	if (options?.loaders) loaders = options.loaders;
+	currentLocale = Object.keys(locales)[0] ?? fallbackLocale;
 };
 
 export const initDynamic = async (
