@@ -17,8 +17,15 @@ const render = () => {
 			</div>
 		`;
 
-		document.getElementById('btn-en')?.addEventListener('click', async () => await setLanguage('en'));
-		document.getElementById('btn-fr')?.addEventListener('click', async () => await setLanguage('fr'));
+		document.getElementById('btn-en')?.addEventListener('click', async () => {
+			await setLanguage('en');
+			render();
+		});
+
+		document.getElementById('btn-fr')?.addEventListener('click', async () => {
+			await setLanguage('fr');
+			render();
+		});
 	}
 };
 

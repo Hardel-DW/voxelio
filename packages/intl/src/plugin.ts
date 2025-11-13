@@ -143,7 +143,7 @@ const syncLocales = async (
 };
 
 export default function viteI18nExtract(options: Options): Plugin {
-	const { sourceLocale, locales, localesDir = "./src/locales", include = ["jsx", "tsx"], silent = false } = options;
+	const { sourceLocale, locales, localesDir = "./src/locales", include = ["tsx", "ts", "jsx"], silent = false } = options;
 	if (!locales.includes(sourceLocale)) {
 		throw new Error(`sourceLocale "${sourceLocale}" must be included in locales array: [${locales.join(", ")}]`);
 	}
@@ -203,28 +203,11 @@ export default function viteI18nExtract(options: Options): Plugin {
 
 	const generateVirtualModule = (): string => {
 		const runtimeImport = resolveRuntimeImport();
-
-		if (locales.length === 0) {
-			return `import{init}from'${runtimeImport}';init({});`;
-		}
-
-		if (!isBuild) {
-			const absoluteLocalesDir = getAbsoluteLocalesDir();
-			const modules = locales.map((locale) => {
-				const varName = locale.replace(/[^a-zA-Z0-9]/g, "_");
-				const importPath = join(absoluteLocalesDir, `${locale}.json`).replace(/\\/g, "/");
-				return { locale, varName, importPath };
-			});
-
-			const imports = modules.map(({ varName, importPath }) => `import ${varName} from'${importPath}';`).join("");
-			const entries = modules.map(({ locale, varName }) => `'${locale}':${varName}`).join(",");
-			return `${imports}import{init}from'${runtimeImport}';init({${entries}},{fallbackLocale:'${sourceLocale}'});`;
-		}
+		if (locales.length === 0) return `import{init}from'${runtimeImport}';init({});`;
 
 		const loaders = locales.map((l) => `'${l}':()=>import('${localeModulePrefix}${l}')`).join(",");
 		const supportedLocales = locales.map((l) => `'${l}'`).join(",");
-
-		return `import{initDynamic,setLanguage,getLanguage,detectLanguage}from'${runtimeImport}';const locale=detectLanguage('${sourceLocale}',[${supportedLocales}]);await initDynamic({${loaders}},locale,{fallbackLocale:'${sourceLocale}',supportedLocales:[${supportedLocales}]});export{setLanguage,getLanguage};`;
+		return `import{initDynamic,detectLanguage}from'${runtimeImport}';const l=detectLanguage('${sourceLocale}',[${supportedLocales}]);await initDynamic({${loaders}},l,{fallbackLocale:'${sourceLocale}',supportedLocales:[${supportedLocales}]});`;
 	};
 
 	const isLocaleFile = (path: string): boolean => {
@@ -247,9 +230,6 @@ export default function viteI18nExtract(options: Options): Plugin {
 		configResolved(config) {
 			configFilePath = config.configFile ?? "";
 			isBuild = config.command === "build";
-		},
-		transformIndexHtml() {
-			return [{ tag: "script", attrs: { type: "module", src: "/@id/__x00__virtual:@voxelio/intl" }, injectTo: "head-prepend" }];
 		},
 		async configureServer(server) {
 			await syncLocales(new Map(), getAbsoluteLocalesDir(), sourceLocale, locales);
@@ -297,8 +277,8 @@ export default function viteI18nExtract(options: Options): Plugin {
 				const localePath = join(absoluteLocalesDir, `${locale}.json`);
 				const content = await safeTryAsync(() => readFile(localePath, "utf-8"));
 				const translations = safeTry(() => JSON.parse(content?.toString() ?? "{}")) ?? {};
-				const minified = keyMinifier.minifyTranslations(translations);
-				return `export default ${JSON.stringify(minified)}`;
+				const payload = isBuild ? keyMinifier.minifyTranslations(translations) : translations;
+				return `export default ${JSON.stringify(payload)}`;
 			}
 		},
 		async transform(code: string, id: string) {
