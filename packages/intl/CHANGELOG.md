@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.1.7
+
+### Patch Changes
+
+- 7ad0fa5: Added React Integration to automatically re-render the component when the current locale changes
+
 ## 1.1.6
 
 ### Patch Changes
