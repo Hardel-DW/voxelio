@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.1.9
+
+### Patch Changes
+
+- 6c03033: Fixing Vite Build with import virtual module in html file entry point
+
 ## 1.1.8
 
 ### Patch Changes
