@@ -72,7 +72,7 @@ const transformTCalls = (
 			if (arg.type !== "Literal" || typeof arg.value !== "string") return;
 
 			const transformed = onLiteral(arg.value);
-			if (transformed) replacements.push({ start: arg.start, end: arg.end, key: transformed });
+			if (transformed) replacements.push({ start: arg.start, end: arg.end, key: `'${transformed}'` });
 
 			if (onParamKey && node.arguments.length > 1) {
 				const paramArg = node.arguments[1];
@@ -80,10 +80,9 @@ const transformTCalls = (
 					for (const prop of paramArg.properties) {
 						if (prop.type !== "Property" || prop.key.type !== "Identifier") continue;
 						const minified = onParamKey(prop.key.name);
-						if (minified) {
-							const replacement = prop.shorthand ? `${minified}:${prop.key.name}` : minified;
-							replacements.push({ start: prop.key.start, end: prop.key.end, key: replacement });
-						}
+						if (!minified) continue;
+						const key = prop.shorthand ? `${minified}: ${prop.key.name}` : minified;
+						replacements.push({ start: prop.key.start, end: prop.key.end, key });
 					}
 				}
 			}
@@ -91,7 +90,7 @@ const transformTCalls = (
 	} satisfies VisitorObject);
 
 	visitor.visit(result.program);
-	return replacements.reverse().reduce((acc, { start, end, key }) => `${acc.slice(0, start)}'${key}'${acc.slice(end)}`, code);
+	return replacements.reverse().reduce((acc, { start, end, key }) => `${acc.slice(0, start)}${key}${acc.slice(end)}`, code);
 };
 
 const loadJSON = async (path: string) => {
