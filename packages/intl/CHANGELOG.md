@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.1.8
+
+### Patch Changes
+
+- d6526ea: Fixed the issue with the shorthand properties in the object expression during vite build
+
 ## 1.1.7
 
 ### Patch Changes
