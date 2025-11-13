@@ -10,6 +10,7 @@ const loadedLocales = new Set<string>();
 let currentLocale: string | null = null;
 let loaders: Record<string, LocaleLoader> = {};
 let fallbackLocale = "";
+const localeChangeListeners = new Set<() => void>();
 
 const interpolate = (text: string, params: TranslationParams): string =>
 	text.replace(/\{(\w+)\}/g, (_, key) => (params[key] !== undefined ? String(params[key]) : `{${key}}`));
@@ -78,8 +79,14 @@ export const setLanguage = async (locale: string): Promise<void> => {
 		loadedLocales.add(locale);
 	}
 
+	currentLocale = locale;
+
 	if (typeof window !== "undefined") {
 		localStorage.setItem("locale", locale);
+	}
+
+	for (const listener of localeChangeListeners) {
+		listener();
 	}
 };
 
@@ -98,4 +105,9 @@ export const t = <T extends string>(key: T, ...args: ParamsObject<T> extends nev
 		throw new Error(`Invalid locale detected: "${locale}". Supported locales: [${Array.from(supportedLocales).join(", ")}]`);
 	const text = translations.get(locale)?.[key] ?? key;
 	return args[0] ? interpolate(text, args[0]) : text;
+};
+
+export const onLocaleChange = (callback: () => void): (() => void) => {
+	localeChangeListeners.add(callback);
+	return () => localeChangeListeners.delete(callback);
 };

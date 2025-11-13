@@ -21,6 +21,10 @@
 		"./runtime": {
 			"import": "./dist/runtime.js",
 			"types": "./dist/runtime.d.ts"
+		},
+		"./react": {
+			"import": "./dist/framework/react.js",
+			"types": "./dist/framework/react.d.ts"
 		}
 	},
 	"files": [
@@ -36,11 +40,15 @@
 	"publishConfig": {
 		"access": "public"
 	},
+	"peerDependencies": {
+		"react": ">=18.0.0"
+	},
 	"dependencies": {
 		"oxc-parser": "^0.96.0"
 	},
 	"devDependencies": {
 		"@oxc-project/types": "^0.96.0",
+		"@types/react": "^19.2.4",
 		"vite": "^7.2.2"
 	}
 }

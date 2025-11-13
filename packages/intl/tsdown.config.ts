@@ -1,7 +1,7 @@
 import { defineConfig, type UserConfig } from "tsdown";
 
 export default defineConfig({
-	entry: ["./src/plugin.ts", "./src/runtime.ts"],
+	entry: ["./src/plugin.ts", "./src/runtime.ts", "./src/framework/react.ts"],
 	format: ["esm"],
 	dts: true,
 	clean: true,
@@ -9,5 +9,5 @@ export default defineConfig({
 	sourcemap: false,
 	treeshake: true,
 	target: "es2022",
-	external: ["oxc-parser", "@oxc-project/types"]
+	external: ["oxc-parser", "@oxc-project/types", "react"]
 }) as UserConfig;
