@@ -8,5 +8,3 @@ export const useTranslation = (): { t: typeof t; setLanguage: typeof setLanguage
     const locale = useLocale();
     return { t, setLanguage: setLanguage, locale: locale, supportedLocales: getSupportedLocales() };
 };
-
-export { setLanguage, getLanguage, getSupportedLocales };
