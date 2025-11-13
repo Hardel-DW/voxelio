@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.1.10
+
+### Patch Changes
+
+- 23c0bce: Fixed a bug with shorthand minification
+
 ## 1.1.9
 
 ### Patch Changes
