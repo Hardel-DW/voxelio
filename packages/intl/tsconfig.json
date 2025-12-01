@@ -6,16 +6,9 @@
 		"jsx": "react-jsx",
 		"baseUrl": ".",
 		"paths": {
-			"@/*": [
-				"./src/*"
-			],
-			"@examples/*": [
-				"./examples/*"
-			]
+			"@/*": ["./src/*"],
+			"@examples/*": ["./examples/*"]
 		}
 	},
-	"include": [
-		"src/**/*",
-		"examples/**/*"
-	]
+	"include": ["src/**/*", "examples/**/*"]
 }

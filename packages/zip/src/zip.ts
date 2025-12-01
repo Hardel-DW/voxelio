@@ -37,7 +37,7 @@ export function contentLength(files: Iterable<Omit<Metadata, "nameIsBuffer">>, u
 		}
 		const bigFile = file.uncompressedSize >= 0xffffffffn;
 		const bigOffset = offset >= 0xffffffffn;
-		const bigFileExtra = (bigFile && useDataDescriptor) ? 8 : 0;
+		const bigFileExtra = bigFile && useDataDescriptor ? 8 : 0;
 		offset += BigInt(fileHeaderLength + descriptorSize + file.encodedName.length + bigFileExtra) + file.uncompressedSize;
 		centralLength += BigInt(file.encodedName.length + centralHeaderLength + ((bigOffset ? 12 : 0) | (bigFile ? 28 : 0)));
 		archiveNeedsZip64 ||= bigFile;
@@ -193,7 +193,7 @@ async function bufferAndComputeMetadata(file: ZipFileDescription & Metadata): Pr
 	const chunks: Uint8Array[] = [];
 	const reader = bytes.getReader();
 
-	for (; ;) {
+	for (;;) {
 		const { value, done } = await reader.read();
 		if (done) break;
 		if (!value) continue;
@@ -218,7 +218,7 @@ export async function* fileData(file: ZipFileDescription & Metadata): AsyncItera
 	file.uncompressedSize = 0n;
 	const reader = bytes.getReader();
 
-	for (; ;) {
+	for (;;) {
 		const { value, done } = await reader.read();
 		if (done) break;
 		if (!value) continue;

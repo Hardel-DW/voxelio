@@ -35,8 +35,14 @@ interface CacheEntry {
 }
 
 const generateKey = (text: string): string => {
-	const cleaned = text.replace(/[./:]/g, " ").replace(/[^a-zA-Z0-9 _-]/g, "").toLowerCase();
-	const alphaNum = cleaned.replace(/[ _-]+/g, "_").trim().slice(0, 32);
+	const cleaned = text
+		.replace(/[./:]/g, " ")
+		.replace(/[^a-zA-Z0-9 _-]/g, "")
+		.toLowerCase();
+	const alphaNum = cleaned
+		.replace(/[ _-]+/g, "_")
+		.trim()
+		.slice(0, 32);
 	return alphaNum || createHash("sha256").update(text, "utf8").digest("base64").slice(0, 12);
 };
 
@@ -90,7 +96,12 @@ const loadJSON = async (path: string) => {
 	return safeTry(() => JSON.parse(content?.toString() ?? "{}")) ?? {};
 };
 
-const syncLocales = async (messages: Map<string, string>, localesDir: string, sourceLocale: string, supportedLocales: string[]): Promise<void> => {
+const syncLocales = async (
+	messages: Map<string, string>,
+	localesDir: string,
+	sourceLocale: string,
+	supportedLocales: string[]
+): Promise<void> => {
 	if (messages.size === 0) return;
 	const cacheDir = join(localesDir, ".cache");
 	await Promise.all([mkdir(localesDir, { recursive: true }), mkdir(cacheDir, { recursive: true })]);

@@ -1,5 +1,5 @@
 {
-  "hello_dataworld": "Hello Dataworld",
-  "salut_tout_le_monde": "Yop tout le monde",
-  "welcome_name_you_have_count_mess": "Welcome {name}, you have {count} messages ok"
+	"hello_dataworld": "Hello Dataworld",
+	"salut_tout_le_monde": "Yop tout le monde",
+	"welcome_name_you_have_count_mess": "Welcome {name}, you have {count} messages ok"
 }

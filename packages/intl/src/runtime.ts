@@ -39,7 +39,10 @@ export const detectLanguage = (fallback: string, supported: string[]): string =>
 	return fallback;
 };
 
-export const init = (locales: Record<string, Translations>, options?: { fallbackLocale?: string; supportedLocales?: string[]; loaders?: Record<string, LocaleLoader> }): void => {
+export const init = (
+	locales: Record<string, Translations>,
+	options?: { fallbackLocale?: string; supportedLocales?: string[]; loaders?: Record<string, LocaleLoader> }
+): void => {
 	for (const [locale, trans] of Object.entries(locales)) {
 		translations.set(locale, trans);
 		supportedLocales.add(locale);
