@@ -1,5 +1,13 @@
 # @voxelio/breeze
 
+## 1.10.21
+
+### Patch Changes
+
+- 83c2f49: Added new zip property about EXT and Deflated. And use it for minecraft jar
+- Updated dependencies [83c2f49]
+  - @voxelio/zip@3.2.2
+
 ## 1.10.20
 
 ### Patch Changes

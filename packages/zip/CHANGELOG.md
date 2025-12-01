@@ -1,5 +1,11 @@
 # @voxelio/zip
 
+## 3.2.2
+
+### Patch Changes
+
+- 83c2f49: Added new zip property about EXT and Deflated. And use it for minecraft jar
+
 ## 3.2.1
 
 ### Patch Changes
