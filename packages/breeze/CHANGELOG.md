@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.22
+
+### Patch Changes
+
+- 2358e35: Fixes Loot Flattener
+
 ## 1.10.21
 
 ### Patch Changes
