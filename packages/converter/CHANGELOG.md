@@ -1,5 +1,12 @@
 # @voxelio/converter
 
+## 1.0.34
+
+### Patch Changes
+
+- Updated dependencies [2358e35]
+  - @voxelio/breeze@1.10.22
+
 ## 1.0.33
 
 ### Patch Changes
