@@ -107,7 +107,11 @@ export class LootTableFlattener {
 	}
 
 	private flattenReference(item: LootItem, ctx: FlattenContext): FlattenedLootItem[] {
-		const ref = Identifier.of(item.value ?? item.name, "loot_table").toString();
+		const tableRef = typeof item.value === "string" ? item.value : item.name;
+		if (tableRef === "embedded_table" || typeof tableRef !== "string") {
+			return [this.makeUnresolved(ctx, "embedded_table")];
+		}
+		const ref = Identifier.of(tableRef, "loot_table").toString();
 		const next: FlattenContext = { ...ctx, path: [...ctx.path, ref], depth: ctx.depth + 1 };
 		return this.flattenFromKey(ref, next);
 	}
