@@ -14,17 +14,17 @@
 	},
 	"exports": {
 		".": {
-			"import": "./dist/index.js",
-			"types": "./dist/index.d.ts"
+			"import": "./dist/index.mjs",
+			"types": "./dist/index.d.mts"
 		},
 		"./config": {
-			"import": "./dist/config.js",
-			"types": "./dist/config.d.ts"
+			"import": "./dist/config.mjs",
+			"types": "./dist/config.d.mts"
 		}
 	},
 	"files": [
-		"dist/**/*.js",
-		"dist/**/*.d.ts",
+		"dist/**/*.mjs",
+		"dist/**/*.d.mts",
 		"!dist/**/*.map"
 	],
 	"author": {

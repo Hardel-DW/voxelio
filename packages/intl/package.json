@@ -16,21 +16,21 @@
 	},
 	"exports": {
 		"./plugin": {
-			"import": "./dist/plugin.js",
-			"types": "./dist/plugin.d.ts"
+			"import": "./dist/plugin.mjs",
+			"types": "./dist/plugin.d.mts"
 		},
 		"./runtime": {
-			"import": "./dist/runtime.js",
-			"types": "./dist/runtime.d.ts"
+			"import": "./dist/runtime.mjs",
+			"types": "./dist/runtime.d.mts"
 		},
 		"./react": {
-			"import": "./dist/framework/react.js",
-			"types": "./dist/framework/react.d.ts"
+			"import": "./dist/framework/react.mjs",
+			"types": "./dist/framework/react.d.mts"
 		}
 	},
 	"files": [
-		"dist/**/*.js",
-		"dist/**/*.d.ts",
+		"dist/**/*.mjs",
+		"dist/**/*.d.mts",
 		"!dist/**/*.map"
 	],
 	"author": {

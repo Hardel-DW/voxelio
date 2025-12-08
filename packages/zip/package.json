@@ -5,13 +5,13 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"import": "./dist/index.js",
-			"types": "./dist/index.d.ts"
+			"import": "./dist/index.mjs",
+			"types": "./dist/index.d.mts"
 		}
 	},
 	"files": [
-		"dist/**/*.js",
-		"dist/**/*.d.ts",
+		"dist/**/*.mjs",
+		"dist/**/*.d.mts",
 		"!dist/**/*.map"
 	],
 	"scripts": {
