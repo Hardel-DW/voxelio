@@ -1,5 +1,11 @@
 # @voxelio/zip
 
+## 3.2.3
+
+### Patch Changes
+
+- 94bb262: Use tsgo, and change path from js to mjs and d.ts to d.mts
+
 ## 3.2.2
 
 ### Patch Changes

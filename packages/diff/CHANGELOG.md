@@ -1,5 +1,11 @@
 # @voxelio/diff
 
+## 1.0.7
+
+### Patch Changes
+
+- 94bb262: Use tsgo, and change path from js to mjs and d.ts to d.mts
+
 ## 1.0.6
 
 ### Patch Changes

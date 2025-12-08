@@ -1,5 +1,14 @@
 # @voxelio/breeze
 
+## 1.10.23
+
+### Patch Changes
+
+- 94bb262: Use tsgo, and change path from js to mjs and d.ts to d.mts
+- Updated dependencies [94bb262]
+  - @voxelio/diff@1.0.7
+  - @voxelio/zip@3.2.3
+
 ## 1.10.22
 
 ### Patch Changes

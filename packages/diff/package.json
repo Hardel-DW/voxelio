@@ -1,6 +1,6 @@
 {
 	"name": "@voxelio/diff",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"type": "module",
 	"description": "Handles diff between two JSON objects, and make a patch file, also provides a tool to apply the patch to a JSON object.",
 	"scripts": {

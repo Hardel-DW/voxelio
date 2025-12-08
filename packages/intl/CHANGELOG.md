@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.2.1
+
+### Patch Changes
+
+- 94bb262: Use tsgo, and change path from js to mjs and d.ts to d.mts
+
 ## 1.2.0
 
 ### Minor Changes

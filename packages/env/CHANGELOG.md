@@ -1,5 +1,11 @@
 # @voxelio/env
 
+## 1.0.5
+
+### Patch Changes
+
+- 94bb262: Use tsgo, and change path from js to mjs and d.ts to d.mts
+
 ## 1.0.4
 
 ### Patch Changes
