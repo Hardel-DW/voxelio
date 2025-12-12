@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.26
+
+### Patch Changes
+
+- 47f5ab9: Changing npm token again
+
 ## 1.10.25
 
 ### Patch Changes
