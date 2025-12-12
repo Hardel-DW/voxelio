@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.25
+
+### Patch Changes
+
+- d4bdee2: Updated Npm key
+
 ## 1.10.24
 
 ### Patch Changes
