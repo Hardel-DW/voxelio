@@ -1,5 +1,13 @@
 # @voxelio/converter
 
+## 1.0.36
+
+### Patch Changes
+
+- f0c6572: Added Support for 1.21.10 and 1.21.11. The new pack format and fixes img path
+- Updated dependencies [f0c6572]
+  - @voxelio/breeze@1.10.24
+
 ## 1.0.35
 
 ### Patch Changes

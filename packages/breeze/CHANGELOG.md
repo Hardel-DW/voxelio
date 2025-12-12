@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.24
+
+### Patch Changes
+
+- f0c6572: Added Support for 1.21.10 and 1.21.11. The new pack format and fixes img path
+
 ## 1.10.23
 
 ### Patch Changes
