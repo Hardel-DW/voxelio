@@ -35,7 +35,7 @@ export async function convertDatapack(datapackZip: File, platforms: ModPlatformT
  */
 export async function extractMetadata(files: File, modName: string): Promise<ModMetadata> {
 	const extractedFiles = await extractZip(new Uint8Array(await files.arrayBuffer()));
-	const iconEntry = Object.keys(extractedFiles).find((path) => path.match(/^[^/]+\.png$/i));
+	const hasIcon = "pack.png" in extractedFiles;
 	let metadata: Partial<ModMetadata> = {};
 
 	try {
@@ -53,7 +53,7 @@ export async function extractMetadata(files: File, modName: string): Promise<Mod
 		id: modName.toLowerCase().replace(/[^a-z0-9_]/g, "_"),
 		name: modName,
 		authors: metadata.authors || DEFAULT_MOD_METADATA.authors,
-		icon: iconEntry?.split("/").pop()
+		icon: hasIcon ? "pack.png" : undefined
 	};
 }
 

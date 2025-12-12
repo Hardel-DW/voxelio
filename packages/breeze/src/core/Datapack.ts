@@ -16,9 +16,13 @@ export interface RegistryCache {
 	[registry: string]: Map<string, DataDrivenRegistryElement<any>>;
 }
 
+type PackVersion = number | [number] | [number, number];
+
 export interface PackMcmeta {
 	pack: {
-		pack_format: number;
+		pack_format?: number;
+		min_format?: PackVersion;
+		max_format?: PackVersion;
 		description: string;
 	};
 }
@@ -50,8 +54,9 @@ export class Datapack {
 		const packMcmeta = files["pack.mcmeta"];
 		if (!packMcmeta) throw new DatapackError("failed_to_get_pack_mcmeta");
 
-		const pack = JSON.parse(new TextDecoder().decode(packMcmeta));
-		if (!pack.pack.pack_format) throw new DatapackError("failed_to_get_pack_format");
+		const pack = JSON.parse(new TextDecoder().decode(packMcmeta)) as PackMcmeta;
+		const hasFormat = pack.pack.pack_format ?? pack.pack.min_format ?? pack.pack.max_format;
+		if (!hasFormat) throw new DatapackError("failed_to_get_pack_format");
 		this.pack = pack;
 	}
 
@@ -100,12 +105,24 @@ export class Datapack {
 	}
 
 	/**
-	 * Get the pack format of the datapack. Or throw an error if it's not found.
-	 * @returns The pack format of the datapack.
+	 * Extracts the major version from a PackVersion (number, [major], or [major, minor])
+	 */
+	private extractMajorVersion(version: PackVersion): number {
+		return Array.isArray(version) ? version[0] : version;
+	}
+
+	/**
+	 * Get the pack format of the datapack. Prioritizes min_format/max_format over legacy pack_format.
+	 * @returns The pack format (major version) of the datapack.
 	 */
 	getPackFormat(): number {
-		if (!this.pack.pack.pack_format) throw new DatapackError("failed_to_get_pack_format");
-		return this.pack.pack.pack_format;
+		const { min_format, max_format, pack_format } = this.pack.pack;
+
+		if (min_format !== undefined) return this.extractMajorVersion(min_format);
+		if (max_format !== undefined) return this.extractMajorVersion(max_format);
+		if (pack_format !== undefined) return pack_format;
+
+		throw new DatapackError("failed_to_get_pack_format");
 	}
 
 	/**

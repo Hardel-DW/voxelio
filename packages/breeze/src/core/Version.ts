@@ -18,7 +18,8 @@ export const PACK_VERSION = {
 	"71": "1.21.5",
 	"80": "1.21.6",
 	"81": { start: "1.21.7", end: "1.21.8" },
-	"86": "1.21.9"
+	"86": { start: "1.21.9", end: "1.21.10" },
+	"90": "1.21.11"
 };
 
 export const SIMPLE_PACK_VERSION: Record<string, string> = Object.fromEntries(
