@@ -1,0 +1,41 @@
+{
+	"name": "@voxelio/markdown",
+	"version": "0.1.0",
+	"type": "module",
+	"description": "Markdown parser and renderer for React, extremely lightweight and fast.",
+	"scripts": {
+		"build": "tsdown",
+		"build:watch": "tsdown --watch",
+		"test": "vitest",
+		"bench": "vitest bench",
+		"check": "tsgo --noEmit",
+		"biome:format": "biome format --write ./src",
+		"biome:check": "biome check ./src",
+		"biome:unsafefix": "biome check --write --unsafe  ./src"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"types": "./dist/index.d.mts"
+		}
+	},
+	"files": [
+		"dist/**/*.mjs",
+		"dist/**/*.d.mts",
+		"!dist/**/*.map"
+	],
+	"peerDependencies": {
+		"react": ">=19.0.0"
+	},
+	"devDependencies": {
+		"@types/react": ">=19.0.0"
+	},
+	"author": {
+		"name": "Hardel",
+		"email": "teams.voxel@gmail.com",
+		"url": "https://voxel.hardel.io"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}

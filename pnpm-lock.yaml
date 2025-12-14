@@ -66,14 +66,15 @@ importers:
         specifier: ^7.2.2
         version: 7.2.2(jiti@2.6.1)
 
-  packages/router:
+  packages/markdown:
     dependencies:
-      '@tanstack/history':
-        specifier: ^1.139.0
-        version: 1.139.0
-      zustand:
-        specifier: ^5.0.9
-        version: 5.0.9(@types/react@19.2.4)(react@19.2.0)
+      react:
+        specifier: '>=19.0.0'
+        version: 19.2.0
+    devDependencies:
+      '@types/react':
+        specifier: '>=19.0.0'
+        version: 19.2.4
 
   packages/zip: {}
 
@@ -720,10 +721,6 @@ packages:
 
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
-
-  '@tanstack/history@1.139.0':
-    resolution: {integrity: sha512-l6wcxwDBeh/7Dhles23U1O8lp9kNJmAb2yNjekR6olZwCRNAVA8TCXlVCrueELyFlYZqvQkh0ofxnzG62A1Kkg==}
-    engines: {node: '>=12'}
 
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
@@ -1399,24 +1396,6 @@ packages:
     engines: {node: '>=8'}
     hasBin: true
 
-  zustand@5.0.9:
-    resolution: {integrity: sha512-ALBtUj0AfjJt3uNRQoL1tL2tMvj6Gp/6e39dnfT6uzpelGru8v1tPOGBzayOWbPJvujM8JojDk3E1LxeFisBNg==}
-    engines: {node: '>=12.20.0'}
-    peerDependencies:
-      '@types/react': '>=18.0.0'
-      immer: '>=9.0.6'
-      react: '>=18.0.0'
-      use-sync-external-store: '>=1.2.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      immer:
-        optional: true
-      react:
-        optional: true
-      use-sync-external-store:
-        optional: true
-
 snapshots:
 
   '@babel/generator@7.28.5':
@@ -1939,8 +1918,6 @@ snapshots:
     optional: true
 
   '@standard-schema/spec@1.0.0': {}
-
-  '@tanstack/history@1.139.0': {}
 
   '@tybys/wasm-util@0.10.1':
     dependencies:
@@ -2566,8 +2543,3 @@ snapshots:
     dependencies:
       siginfo: 2.0.0
       stackback: 0.0.2
-
-  zustand@5.0.9(@types/react@19.2.4)(react@19.2.0):
-    optionalDependencies:
-      '@types/react': 19.2.4
-      react: 19.2.0
