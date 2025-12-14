@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.27
+
+### Patch Changes
+
+- 8e03901: Added Setcount function to loot table
+
 ## 1.10.26
 
 ### Patch Changes
