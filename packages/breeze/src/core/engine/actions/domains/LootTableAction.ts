@@ -310,4 +310,32 @@ export class LootTableAction<P = any> extends Action<P> {
 			return lootTable;
 		});
 	}
+
+	static setItemCount(
+		itemId: string,
+		count: { min: number; max: number } | number
+	): LootTableAction<{ itemId: string; count: { min: number; max: number } | number }> {
+		return new LootTableAction({ itemId, count }, (el, p: { itemId: string; count: { min: number; max: number } | number }) => {
+			const lootTable = structuredClone(el) as LootTableProps;
+			const item = lootTable.items.find((candidate) => candidate.id === p.itemId);
+			if (!item) return lootTable;
+
+			const countValue = typeof p.count === "number" ? { min: p.count, max: p.count } : p.count;
+			const countProvider =
+				countValue.min === countValue.max
+					? { type: "minecraft:constant", value: countValue.min }
+					: { type: "minecraft:uniform", min: countValue.min, max: countValue.max };
+
+			item.functions ??= [];
+			const existingIndex = item.functions.findIndex((func: { function: string }) => func.function === "minecraft:set_count");
+
+			if (existingIndex >= 0) {
+				item.functions[existingIndex] = { function: "minecraft:set_count", count: countProvider };
+			} else {
+				item.functions.push({ function: "minecraft:set_count", count: countProvider });
+			}
+
+			return lootTable;
+		});
+	}
 }
