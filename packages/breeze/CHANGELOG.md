@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.28
+
+### Patch Changes
+
+- 7cd56f3: PoolData is now exported
+
 ## 1.10.27
 
 ### Patch Changes
