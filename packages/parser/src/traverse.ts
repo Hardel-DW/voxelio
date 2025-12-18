@@ -17,8 +17,6 @@ interface StackItem {
 	mapKey?: string;
 }
 
-const DISCRIMINATOR_FIELDS = ["type", "function", "condition", "id"] as const;
-
 export function getReferences(json: unknown, schema: McdocType, symbols: VanillaMcdocSymbols, version: string): Reference[] {
 	const ctx: TraverseContext = { symbols, version, refs: [] };
 	const stack: StackItem[] = [{ value: json, schema }];
@@ -152,30 +150,6 @@ function processUnion(value: unknown, members: McdocType[], ctx: TraverseContext
 	for (const member of validMembers) {
 		stack.push({ value, schema: member, mapKey });
 	}
-}
-
-function findMatchingUnionMember(value: unknown, members: McdocType[]): McdocType | undefined {
-	if (typeof value === "object" && value !== null) {
-		const obj = value as Record<string, unknown>;
-
-		for (const discriminator of DISCRIMINATOR_FIELDS) {
-			if (typeof obj[discriminator] !== "string") continue;
-
-			for (const member of members) {
-				if (member.kind === "struct" && member.fields.some((f) => f.kind === "pair" && f.key === discriminator)) return member;
-				if (member.kind === "dispatcher" || member.kind === "reference") return member;
-			}
-		}
-	}
-
-	if (typeof value === "string") return members.find((m) => m.kind === "string" || m.kind === "literal");
-	if (typeof value === "number")
-		return members.find((m) => m.kind === "int" || m.kind === "float" || m.kind === "double" || m.kind === "literal");
-	if (typeof value === "boolean") return members.find((m) => m.kind === "boolean" || m.kind === "literal");
-	if (Array.isArray(value)) return members.find((m) => m.kind === "list" || m.kind === "tuple");
-	if (typeof value === "object") return members.find((m) => m.kind === "struct" || m.kind === "reference");
-
-	return members[0];
 }
 
 function processReference(value: unknown, path: string, ctx: TraverseContext, stack: StackItem[]): void {

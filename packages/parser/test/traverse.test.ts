@@ -25,7 +25,6 @@ describe("traverse", () => {
 			];
 
 			const graph = buildDependencyGraph(files, symbols, "1.21.4");
-
 			const lootNode = graph.get("draft:test");
 			expect(lootNode).toBeDefined();
 			expect(lootNode?.refs.has("draft:shaped")).toBe(true);
