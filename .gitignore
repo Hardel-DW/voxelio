@@ -10,3 +10,6 @@ dist
 .env.production.local
 tsconfig.tsbuildinfo
 reference_not_edit_this
+packages/parser/analyze-brigadier.mjs
+packages/parser/brigadier.bin
+packages/parser/data.json
