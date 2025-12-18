@@ -1,20 +1,17 @@
 {
-	"name": "@voxelio/converter",
-	"version": "1.0.40",
+	"name": "@voxelio/parser",
+	"version": "0.0.1",
 	"type": "module",
-	"description": "Handles transformation of datapacks into mod files for various platforms.",
+	"description": "This package is a parser for Minecraft datapacks and resources packs, to analyze relation between elements",
 	"scripts": {
 		"build": "tsdown",
 		"build:watch": "tsdown --watch",
-		"check": "tsgo --noEmit",
 		"test": "vitest",
+		"bench": "vitest bench",
+		"check": "tsgo --noEmit",
 		"biome:format": "biome format --write ./src",
 		"biome:check": "biome check ./src",
 		"biome:unsafefix": "biome check --write --unsafe  ./src"
-	},
-	"dependencies": {
-		"@voxelio/breeze": "workspace:*",
-		"@voxelio/zip": "workspace:*"
 	},
 	"exports": {
 		".": {

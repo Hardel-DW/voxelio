@@ -1,0 +1,16 @@
+export const shaped: Record<string, unknown> = {
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "group": "boat",
+    "key": {
+        "#": "minecraft:acacia_planks"
+    },
+    "pattern": [
+        "# #",
+        "###"
+    ],
+    "result": {
+        "count": 1,
+        "id": "minecraft:acacia_boat"
+    }
+}

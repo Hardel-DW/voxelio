@@ -1,0 +1,33 @@
+{
+    "name": "example",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "lint": "tsgo --noEmit",
+        "biome:format": "biome format --write ./src",
+        "biome:check": "biome check ./src",
+        "biome:unsafefix": "biome check --write --unsafe  ./src"
+    },
+    "dependencies": {
+        "@tanstack/react-query": "^5.90.12",
+        "@voxelio/parser": "workspace:*",
+        "@voxelio/zip": "workspace:*",
+        "@xyflow/react": "^12.6.1",
+        "react": "19.2.3",
+        "react-dom": "19.2.3",
+        "zustand": "^5.0.5"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^2.3.8",
+        "@types/react": "^19.2.5",
+        "@types/react-dom": "^19.2.3",
+        "@vitejs/plugin-react": "^5.1.1",
+        "babel-plugin-react-compiler": "^1.0.0",
+        "@typescript/native-preview": "7.0.0-dev.20251203.1",
+        "vite": "8.0.0-beta.2"
+    }
+}

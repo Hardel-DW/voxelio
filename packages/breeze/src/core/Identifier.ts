@@ -116,15 +116,20 @@ export class Identifier {
 
 	/**
 	 * Renders full resource path for display
+	 * @param options - Configuration options
+	 * @param options.separator - String to use between path segments (default: " - ")
+	 * @param options.includeFileName - Whether to include the last path segment (default: true)
 	 * @returns Formatted resource path
 	 * @example
 	 * id.toResourcePath(); // "Items - Wooden Sword" (from "items/wooden_sword")
+	 * id.toResourcePath({ separator: " / " }); // "Items / Wooden Sword"
+	 * id.toResourcePath({ includeFileName: false }); // "Items" (from "items/wooden_sword")
 	 */
-	toResourcePath(): string {
-		return this.resource
-			.replace(/\//g, " - ")
-			.replace(/_/g, " ")
-			.replace(/\b\w/g, (l) => l.toUpperCase());
+	toResourcePath(options?: { separator?: string; includeFileName?: boolean }): string {
+		const { separator = " - ", includeFileName = true } = options ?? {};
+		const parts = this.resource.split("/");
+		const pathParts = includeFileName ? parts : parts.slice(0, -1);
+		return pathParts.join(separator).replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 	}
 
 	/**

@@ -1,0 +1,13 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"target": "es2024",
+		"outDir": "dist",
+		"jsx": "react-jsx",
+		"jsxImportSource": "react",
+		"composite": false,
+		"declaration": false,
+		"isolatedDeclarations": false
+	},
+	"include": ["src"]
+}

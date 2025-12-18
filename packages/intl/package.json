@@ -9,7 +9,7 @@
 		"build:example": "vite build examples",
 		"preview:example": "vite preview examples",
 		"build:watch": "tsdown --watch",
-		"check": "tsc --noEmit",
+		"check": "tsgo --noEmit",
 		"biome:format": "biome format --write ./src",
 		"biome:check": "biome check ./src",
 		"biome:unsafefix": "biome check --write --unsafe  ./src"
