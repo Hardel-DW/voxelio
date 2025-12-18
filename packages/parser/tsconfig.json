@@ -4,16 +4,9 @@
 		"target": "es2024",
 		"outDir": "dist",
 		"paths": {
-			"@/*": [
-				"./src/*"
-			],
-			"@test/*": [
-				"./test/*"
-			]
+			"@/*": ["./src/*"],
+			"@test/*": ["./test/*"]
 		}
 	},
-	"include": [
-		"src/**/*",
-		"test/**/*"
-	]
+	"include": ["src/**/*", "test/**/*"]
 }

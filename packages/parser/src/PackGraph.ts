@@ -130,7 +130,7 @@ export class PackGraph {
 				const data = JSON.parse(new TextDecoder().decode(content));
 				this.parsedFiles.set(parsed.id, { id: parsed.id, registry: parsed.registry, data });
 				this.knownIds.add(parsed.id);
-			} catch { }
+			} catch {}
 		}
 	}
 
@@ -145,7 +145,10 @@ export class PackGraph {
 
 		if (parts.length < 3 + depth) return undefined;
 		const registry = parts.slice(2, 2 + depth).join("/");
-		const resource = parts.slice(2 + depth).join("/").replace(".json", "");
+		const resource = parts
+			.slice(2 + depth)
+			.join("/")
+			.replace(".json", "");
 
 		if (!namespace || !registry || !resource) return undefined;
 		return { id: `${namespace}:${resource}`, registry };
@@ -233,11 +236,11 @@ export class PackGraph {
 						kind: "list",
 						item: {
 							kind: "string",
-							attributes: [{ name: "id", value: { kind: "literal", value: { kind: "string", value: tagType } } }],
-						},
-					},
-				},
-			],
+							attributes: [{ name: "id", value: { kind: "literal", value: { kind: "string", value: tagType } } }]
+						}
+					}
+				}
+			]
 		};
 	}
 }

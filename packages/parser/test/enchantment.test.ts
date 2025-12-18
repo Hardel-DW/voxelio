@@ -17,7 +17,7 @@ describe("enchantment/tag/loot dependencies", () => {
 		it("should extract enchantment reference from loot table", () => {
 			const files = prepareFiles({
 				"data/minecraft/loot_table/blocks/acacia_log.json": lootWithEnchant,
-				"data/enchantplus/enchantment/tools/auto_smelt.json": autoSmelt,
+				"data/enchantplus/enchantment/tools/auto_smelt.json": autoSmelt
 			});
 
 			const graph = new PackGraph(files, symbols, "1.21.4");
@@ -31,7 +31,7 @@ describe("enchantment/tag/loot dependencies", () => {
 		it("should extract tag references from enchantment", () => {
 			const files = prepareFiles({
 				"data/enchantplus/enchantment/tools/auto_smelt.json": autoSmelt,
-				"data/enchantplus/tags/enchantment/exclusive_set/mining_alteration.json": miningAlteration,
+				"data/enchantplus/tags/enchantment/exclusive_set/mining_alteration.json": miningAlteration
 			});
 
 			const graph = new PackGraph(files, symbols, "1.21.4");
@@ -45,7 +45,7 @@ describe("enchantment/tag/loot dependencies", () => {
 		it("should extract enchantment references from tag", () => {
 			const files = prepareFiles({
 				"data/enchantplus/tags/enchantment/exclusive_set/mining_alteration.json": miningAlteration,
-				"data/enchantplus/enchantment/tools/auto_smelt.json": autoSmelt,
+				"data/enchantplus/enchantment/tools/auto_smelt.json": autoSmelt
 			});
 
 			const graph = new PackGraph(files, symbols, "1.21.4");
@@ -61,7 +61,7 @@ describe("enchantment/tag/loot dependencies", () => {
 		it("should build circular dependency graph", () => {
 			const files = prepareFiles({
 				"data/enchantplus/enchantment/tools/auto_smelt.json": autoSmelt,
-				"data/enchantplus/tags/enchantment/exclusive_set/mining_alteration.json": miningAlteration,
+				"data/enchantplus/tags/enchantment/exclusive_set/mining_alteration.json": miningAlteration
 			});
 
 			const graph = new PackGraph(files, symbols, "1.21.4");
@@ -79,7 +79,7 @@ describe("enchantment/tag/loot dependencies", () => {
 		it("should return false when file is referenced", () => {
 			const files = prepareFiles({
 				"data/enchantplus/enchantment/tools/auto_smelt.json": autoSmelt,
-				"data/enchantplus/tags/enchantment/exclusive_set/mining_alteration.json": miningAlteration,
+				"data/enchantplus/tags/enchantment/exclusive_set/mining_alteration.json": miningAlteration
 			});
 
 			const graph = new PackGraph(files, symbols, "1.21.4");
@@ -88,7 +88,7 @@ describe("enchantment/tag/loot dependencies", () => {
 
 		it("should return true when file is not referenced", () => {
 			const files = prepareFiles({
-				"data/enchantplus/enchantment/tools/auto_smelt.json": autoSmelt,
+				"data/enchantplus/enchantment/tools/auto_smelt.json": autoSmelt
 			});
 
 			const graph = new PackGraph(files, symbols, "1.21.4");

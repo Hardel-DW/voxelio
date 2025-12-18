@@ -129,7 +129,10 @@ export class Identifier {
 		const { separator = " - ", includeFileName = true } = options ?? {};
 		const parts = this.resource.split("/");
 		const pathParts = includeFileName ? parts : parts.slice(0, -1);
-		return pathParts.join(separator).replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+		return pathParts
+			.join(separator)
+			.replace(/_/g, " ")
+			.replace(/\b\w/g, (l) => l.toUpperCase());
 	}
 
 	/**

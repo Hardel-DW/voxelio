@@ -16,12 +16,11 @@ describe("PackGraph", () => {
 		it("should extract recipe reference from loot table", () => {
 			const files = prepareFiles({
 				"data/draft/loot_table/test.json": loot,
-				"data/draft/recipe/shaped.json": shaped,
+				"data/draft/recipe/shaped.json": shaped
 			});
 
 			const graph = new PackGraph(files, symbols, "1.21.4");
 			const subgraph = graph.getSubgraph("draft:test", 0);
-
 			const node = subgraph.get("draft:test");
 			expect(node).toBeDefined();
 			expect(node?.refs.has("draft:shaped")).toBe(true);
@@ -32,7 +31,7 @@ describe("PackGraph", () => {
 		it("should build bidirectional graph", () => {
 			const files = prepareFiles({
 				"data/draft/recipe/shaped.json": shaped,
-				"data/draft/loot_table/test.json": loot,
+				"data/draft/loot_table/test.json": loot
 			});
 
 			const graph = new PackGraph(files, symbols, "1.21.4");
