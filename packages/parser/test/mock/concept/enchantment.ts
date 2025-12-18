@@ -1,0 +1,14 @@
+export const autoSmelt: Record<string, unknown> = {
+	anvil_cost: 6,
+	description: { translate: "enchantment.enchantplus.auto_smelt", fallback: "Auto Smelt" },
+	max_cost: { base: 65, per_level_above_first: 0 },
+	max_level: 1,
+	min_cost: { base: 20, per_level_above_first: 0 },
+	effects: {
+		"minecraft:block_experience": [{ effect: { type: "minecraft:set", value: 0 } }],
+	},
+	slots: ["mainhand"],
+	exclusive_set: "#enchantplus:exclusive_set/mining_alteration",
+	supported_items: "#minecraft:enchantable/mining_loot",
+	weight: 2,
+};

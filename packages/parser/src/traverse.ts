@@ -14,6 +14,7 @@ interface TraverseContext {
 interface StackItem {
 	value: unknown;
 	schema: McdocType;
+	mapKey?: string;
 }
 
 const DISCRIMINATOR_FIELDS = ["type", "function", "condition", "id"] as const;
@@ -25,13 +26,13 @@ export function getReferences(json: unknown, schema: McdocType, symbols: Vanilla
 	while (stack.length > 0) {
 		const item = stack.pop();
 		if (!item || item.value === null || item.value === undefined) continue;
-		processNode(item.value, item.schema, ctx, stack);
+		processNode(item.value, item.schema, ctx, stack, item.mapKey);
 	}
 
 	return ctx.refs;
 }
 
-function processNode(value: unknown, schema: McdocType, ctx: TraverseContext, stack: StackItem[]): void {
+function processNode(value: unknown, schema: McdocType, ctx: TraverseContext, stack: StackItem[], mapKey?: string): void {
 	switch (schema.kind) {
 		case "string":
 			processString(value, schema.attributes, ctx);
@@ -46,13 +47,13 @@ function processNode(value: unknown, schema: McdocType, ctx: TraverseContext, st
 			processTuple(value, schema.items, stack);
 			break;
 		case "union":
-			processUnion(value, schema.members, ctx, stack);
+			processUnion(value, schema.members, ctx, stack, mapKey);
 			break;
 		case "reference":
 			processReference(value, schema.path, ctx, stack);
 			break;
 		case "dispatcher":
-			processDispatcher(value, schema, ctx, stack);
+			processDispatcher(value, schema, ctx, stack, mapKey);
 			break;
 		case "concrete":
 			processReference(value, schema.child.path, ctx, stack);
@@ -107,7 +108,7 @@ function processStruct(value: unknown, schema: StructType, ctx: TraverseContext,
 			if (fieldValue !== undefined) stack.push({ value: fieldValue, schema: field.type });
 		} else {
 			for (const key of Object.keys(obj)) {
-				stack.push({ value: obj[key], schema: field.type });
+				stack.push({ value: obj[key], schema: field.type, mapKey: key });
 				if (field.key.kind === "string") {
 					processString(key, field.key.attributes, ctx);
 				}
@@ -146,10 +147,11 @@ function processTuple(value: unknown, items: McdocType[], stack: StackItem[]): v
 	}
 }
 
-function processUnion(value: unknown, members: McdocType[], ctx: TraverseContext, stack: StackItem[]): void {
+function processUnion(value: unknown, members: McdocType[], ctx: TraverseContext, stack: StackItem[], mapKey?: string): void {
 	const validMembers = members.filter((m) => !("attributes" in m) || isFieldValidForVersion(m.attributes as Attribute[], ctx.version));
-	const matched = findMatchingUnionMember(value, validMembers);
-	if (matched) stack.push({ value, schema: matched });
+	for (const member of validMembers) {
+		stack.push({ value, schema: member, mapKey });
+	}
 }
 
 function findMatchingUnionMember(value: unknown, members: McdocType[]): McdocType | undefined {
@@ -181,13 +183,13 @@ function processReference(value: unknown, path: string, ctx: TraverseContext, st
 	if (resolved) stack.push({ value, schema: resolved });
 }
 
-function processDispatcher(value: unknown, schema: DispatcherType, ctx: TraverseContext, stack: StackItem[]): void {
+function processDispatcher(value: unknown, schema: DispatcherType, ctx: TraverseContext, stack: StackItem[], mapKey?: string): void {
 	if (typeof value !== "object" || value === null) return;
 
 	const dispatcherMap = ctx.symbols["mcdoc/dispatcher"][schema.registry];
 	if (!dispatcherMap) return;
 
-	const rawKey = resolveDispatchKey(value as Record<string, unknown>, schema.parallelIndices);
+	const rawKey = resolveDispatchKey(value as Record<string, unknown>, schema.parallelIndices, mapKey);
 	if (!rawKey) return;
 
 	const key = rawKey.startsWith("minecraft:") ? rawKey.slice(10) : rawKey;
@@ -195,7 +197,7 @@ function processDispatcher(value: unknown, schema: DispatcherType, ctx: Traverse
 	if (dispatchedSchema) stack.push({ value, schema: dispatchedSchema });
 }
 
-function resolveDispatchKey(obj: Record<string, unknown>, indices: DispatcherType["parallelIndices"]): string | undefined {
+function resolveDispatchKey(obj: Record<string, unknown>, indices: DispatcherType["parallelIndices"], mapKey?: string): string | undefined {
 	if (indices.length === 0) return undefined;
 
 	const index = indices[0];
@@ -205,7 +207,9 @@ function resolveDispatchKey(obj: Record<string, unknown>, indices: DispatcherTyp
 	let current: unknown = obj;
 	for (const accessor of index.accessor) {
 		if (current === null || current === undefined) return undefined;
-		if (typeof accessor === "object" && accessor.keyword === "key") return undefined;
+		if (typeof accessor === "object" && accessor.keyword === "key") {
+			return mapKey;
+		}
 		if (typeof accessor === "string") current = (current as Record<string, unknown>)[accessor];
 	}
 

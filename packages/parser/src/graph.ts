@@ -28,8 +28,9 @@ export function buildDependencyGraph(files: DatapackFile[], symbols: VanillaMcdo
 		const node = ensureNode(graph, id);
 
 		for (const ref of refs) {
-			if (knownIds.has(ref.value)) {
-				node.refs.add(ref.value);
+			const refId = ref.value.startsWith("#") ? ref.value.slice(1) : ref.value;
+			if (knownIds.has(refId)) {
+				node.refs.add(refId);
 			}
 		}
 	}
@@ -55,30 +56,38 @@ export function getFileReferences(file: DatapackFile, symbols: VanillaMcdocSymbo
 	return refs.map((r) => r.value);
 }
 
-/**
- * Try dispatcher first: minecraft:resource[registry]
- * Fallback: search in mcdoc for common patterns
- */
 function getSchemaForRegistry(registry: string, symbols: VanillaMcdocSymbols): McdocType | undefined {
-	const dispatcherKey = `minecraft:resource`;
-	const dispatcher = symbols["mcdoc/dispatcher"][dispatcherKey];
+	const dispatcher = symbols["mcdoc/dispatcher"]["minecraft:resource"];
 
 	if (dispatcher) {
 		const key = registry.includes(":") ? registry.split(":")[1] : registry;
-		return dispatcher[key];
+		if (dispatcher[key]) return dispatcher[key];
 	}
 
-	const searchPaths = [`::java::data::${registry}`, `::java::data::${registry}::mod`];
-
-	for (const path of searchPaths) {
-		for (const [key, value] of Object.entries(symbols.mcdoc)) {
-			if (key.startsWith(path)) {
-				return value;
-			}
-		}
+	if (registry.startsWith("tags/")) {
+		return createTagSchema(registry.slice(5));
 	}
 
 	return undefined;
+}
+
+function createTagSchema(tagType: string): McdocType {
+	return {
+		kind: "struct",
+		fields: [
+			{
+				kind: "pair",
+				key: "values",
+				type: {
+					kind: "list",
+					item: {
+						kind: "string",
+						attributes: [{ name: "id", value: { kind: "literal", value: { kind: "string", value: tagType } } }],
+					},
+				},
+			},
+		],
+	};
 }
 
 function ensureNode(graph: DependencyGraph, id: string): DependencyNode {
