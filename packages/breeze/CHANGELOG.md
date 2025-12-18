@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.29
+
+### Patch Changes
+
+- 93b09d2: Fixing TagsProccessor in Breeze related to studio
+
 ## 1.10.28
 
 ### Patch Changes
