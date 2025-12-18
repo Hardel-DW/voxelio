@@ -5,6 +5,35 @@ Complete TypeScript typing for Spyglass MCDoc APIs.
 - `https://api.spyglassmc.com/vanilla-mcdoc/symbols` - All mcdoc schemas (all versions merged)
 - `https://api.spyglassmc.com/mcje/versions` - MC versions with pack_format mapping
 
+// Example of resolved mcdoc type
+{kind: 'string',attributes: [{ name: 'id', value: { kind: 'literal', value: { value: 'loot_table' } } }]}
+
+● API Reference
+
+/mcje/versions - MC version. An Array of objects. Example:
+id	"26.1-snapshot-1"
+name	"26.1 Snapshot 1"
+release_target	null
+type	"snapshot"
+stable	false
+data_version	4764
+protocol_version	1073742111
+data_pack_version	95
+data_pack_version_minor	0
+resource_pack_version	76
+resource_pack_version_minor	0
+build_time	"2025-12-16T12:41:11+00:00"
+release_time	"2025-12-16T12:42:29+00:00"
+sha1	"b9345ee364d36ef1c7ec26df6bf99d3e4a4393f5"
+
+/vanilla-mcdoc/symbols - Resolved mcdoc schemas all version in one file. Example with until/since filter. Example
+Types contains three properties:
+- ref: string
+- mcdoc: Record<string, McdocType> // "::java::data::loot::LootTable" → type
+-'mcdoc/dispatcher': Record<string, Record<string, McdocType>> // "minecraft:loot_function" → { "set_count": type, "set_name": type, ... }
+
+{ kind: "pair", key: "random_sequence", attributes: [{ name: "since", value: "1.20" }], type: { kind: "string", ... }}
+
 ---
 
 ## /vanilla-mcdoc/symbols Response
@@ -277,45 +306,5 @@ interface McjeVersion {
   build_time: string;              // ISO date
   release_time: string;            // ISO date
   sha1: string;
-}
-```
-
----
-
-## Version Filtering Logic
-
-Schemas contain all versions merged. Filter fields by `since`/`until`:
-
-```typescript
-function isFieldValidForVersion(field: McdocField, targetVersion: string): boolean {
-  const since = field.attributes?.find(a => a.name === "since")?.value?.value?.value;
-  const until = field.attributes?.find(a => a.name === "until")?.value?.value?.value;
-
-  if (since && compareVersions(targetVersion, since) < 0) return false;
-  if (until && compareVersions(targetVersion, until) >= 0) return false;
-  return true;
-}
-```
-
----
-
-## Key Insight for Dependency Graph
-
-To find references, look for `#[id=...]` attribute on string types:
-
-```typescript
-function isReferenceField(type: McdocType): { registry: string } | null {
-  if (type.kind !== "string") return null;
-
-  const idAttr = type.attributes?.find(a => a.name === "id");
-  if (!idAttr?.value) return null;
-
-  if (idAttr.value.kind === "literal") {
-    return { registry: `minecraft:${idAttr.value.value.value}` };
-  }
-  if (idAttr.value.kind === "tree") {
-    return { registry: idAttr.value.values.registry?.value?.value };
-  }
-  return null;
 }
 ```
