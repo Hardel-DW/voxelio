@@ -1,35 +1,48 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { getFileReferences, buildDependencyGraph } from "@/index";
-import type { VanillaMcdocSymbols, DatapackFile } from "@/index";
+import { PackGraph } from "@/index";
+import type { VanillaMcdocSymbols } from "@/index";
 import { getTestSymbols } from "@test/mock/setup";
+import { prepareFiles } from "@test/mock/utils";
 import { loot } from "@test/mock/concept/loot";
 import { shaped } from "@test/mock/concept/recipe";
 
-describe("traverse", () => {
+describe("PackGraph", () => {
 	let symbols: VanillaMcdocSymbols;
-	beforeAll(async () => { symbols = await getTestSymbols() });
+	beforeAll(async () => {
+		symbols = await getTestSymbols();
+	});
 
-	describe("getFileReferences", () => {
-		it("should extract recipe reference from loot table predicate", () => {
-			const file: DatapackFile = { namespace: "draft", registry: "loot_table", path: "test", data: loot };
-			const refs = getFileReferences(file, symbols, "1.21.4");
-			expect(refs).toContain("draft:shaped");
+	describe("getSubgraph", () => {
+		it("should extract recipe reference from loot table", () => {
+			const files = prepareFiles({
+				"data/draft/loot_table/test.json": loot,
+				"data/draft/recipe/shaped.json": shaped,
+			});
+
+			const graph = new PackGraph(files, symbols, "1.21.4");
+			const subgraph = graph.getSubgraph("draft:test", 0);
+
+			const node = subgraph.get("draft:test");
+			expect(node).toBeDefined();
+			expect(node?.refs.has("draft:shaped")).toBe(true);
 		});
 	});
 
-	describe("buildDependencyGraph", () => {
-		it("should build bidirectional graph with known files only", () => {
-			const files: DatapackFile[] = [
-				{ namespace: "draft", registry: "recipe", path: "shaped", data: shaped },
-				{ namespace: "draft", registry: "loot_table", path: "test", data: loot },
-			];
+	describe("generateAll", () => {
+		it("should build bidirectional graph", () => {
+			const files = prepareFiles({
+				"data/draft/recipe/shaped.json": shaped,
+				"data/draft/loot_table/test.json": loot,
+			});
 
-			const graph = buildDependencyGraph(files, symbols, "1.21.4");
-			const lootNode = graph.get("draft:test");
+			const graph = new PackGraph(files, symbols, "1.21.4");
+			graph.generateAll();
+
+			const lootNode = graph.getGraph().get("draft:test");
 			expect(lootNode).toBeDefined();
 			expect(lootNode?.refs.has("draft:shaped")).toBe(true);
 
-			const recipeNode = graph.get("draft:shaped");
+			const recipeNode = graph.getGraph().get("draft:shaped");
 			expect(recipeNode).toBeDefined();
 			expect(recipeNode?.referencedBy.has("draft:test")).toBe(true);
 		});

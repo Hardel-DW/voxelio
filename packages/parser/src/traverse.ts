@@ -1,8 +1,3 @@
-/**
- * Core traversal engine for extracting references from JSON using mcdoc schemas.
- * Uses iterative stack-based approach for performance on deep structures.
- */
-
 import type { Attribute, DispatcherType, McdocType, Reference, StructType, VanillaMcdocSymbols } from "@/types";
 
 interface TraverseContext {

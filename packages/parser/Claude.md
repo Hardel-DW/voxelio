@@ -19,6 +19,46 @@ Not needed: AST, custom mcdoc parser, external libs.
 
 // Example of resolved mcdoc type
 {kind: 'string',attributes: [{ name: 'id', value: { kind: 'literal', value: { value: 'loot_table' } } }]}
+
+# Module Signature:
+interface GraphNode {
+    refs: Set<string>;
+    referencedBy: Set<string>;
+}
+
+type Graph = Map<string, GraphNode>;
+
+class PackGraph {
+    constructor(files: Record<string, Uint8Array>, symbols: VanillaMcdocSymbols, version: string);
+
+    /** Parse ALL files in the pack */
+    generateAll(): Graph;
+
+    /** On-demand subgraph, depth 0 = target only */
+    getSubgraph(targetId: string, depth: number): Graph;
+
+    /** True if no file references targetId */
+    canBeDeleted(targetId: string): boolean;
+
+    /** Update a file, regenerate its refs */
+    updateFile(targetId: string, data: Uint8Array): void;
+    
+    /** Remove a file from the graph */
+    deleteFile(targetId: string): void;
+
+    getGraph(): Graph;
+}
+
+# Signature Usage:
+const graph = new PackGraph(zipBytes, symbols, "1.21.4");
+
+// Direct impact of a file (parse only what's needed)
+const impact = graph.getSubgraph("mypack:loot/chest", 1);
+
+// Can we delete this file?
+if (graph.canBeDeleted("mypack:loot/chest")) {
+    graph.deleteFile("mypack:loot/chest");
+}
 ---
 
 # Development Commands
@@ -57,12 +97,6 @@ Types contains three properties:
 -'mcdoc/dispatcher': Record<string, Record<string, McdocType>> // "minecraft:loot_function" → { "set_count": type, "set_name": type, ... }
 
 { kind: "pair", key: "random_sequence", attributes: [{ name: "since", value: "1.20" }], type: { kind: "string", ... }}
-
-
-In:
-- readonly_docs_exemple/mcdoc-ts-generator-main we have example code of an mcdoc library for generating TypeScript types from mcdoc schemas. This can be useful as a reference.
-- vanilla-mcdoc-main/vanilla-mcdoc-main we have the mcdocs.
-- MCDOC_DOCUMENTATION.md is the complete documentation of mcdoc schemas. Written by me so may contain errors or be incomplete.
 
 # Global Rules of projects :
 - No code redundancy, check existing code before implementing new features.
