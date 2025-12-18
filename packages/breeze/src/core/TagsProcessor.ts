@@ -147,30 +147,39 @@ export class TagsProcessor {
 
 	/**
 	 * Inject IDs into specific tags (with duplicate check)
+	 * Creates new tags if they don't exist
 	 * @param elementToTags Map of element ID to tag identifiers
 	 *   Example: "minecraft:sharpness" -> [tagId1, tagId2]
-	 * @returns New tags with injected IDs
+	 * @returns New tags with injected IDs (including newly created tags)
 	 */
 	public injectIds(elementToTags: Map<string, IdentifierObject[]>): DataDrivenRegistryElement<TagType>[] {
-		return this.tags.map((tag) => {
-			const values = [...tag.data.values];
-			const tags = new Tags({ values });
+		const resultMap = new Map<string, DataDrivenRegistryElement<TagType>>();
 
-			for (const [elementId, tagIdentifiers] of elementToTags) {
-				for (const tagId of tagIdentifiers) {
-					if (new Identifier(tagId).equalsObject(tag.identifier)) {
-						if (!tags.hasValue(elementId)) {
-							values.push(elementId);
-						}
-					}
+		for (const tag of this.tags) {
+			resultMap.set(new Identifier(tag.identifier).toUniqueKey(), {
+				identifier: tag.identifier,
+				data: { ...tag.data, values: [...tag.data.values] }
+			});
+		}
+
+		for (const [elementId, tagIdentifiers] of elementToTags) {
+			for (const tagId of tagIdentifiers) {
+				const tagKey = new Identifier(tagId).toUniqueKey();
+				let tagEntry = resultMap.get(tagKey);
+
+				if (!tagEntry) {
+					tagEntry = { identifier: tagId, data: { values: [] } };
+					resultMap.set(tagKey, tagEntry);
+				}
+
+				const tags = new Tags(tagEntry.data);
+				if (!tags.hasValue(elementId)) {
+					tagEntry.data.values.push(elementId);
 				}
 			}
+		}
 
-			return {
-				identifier: tag.identifier,
-				data: { ...tag.data, values }
-			};
-		});
+		return Array.from(resultMap.values());
 	}
 
 	/**

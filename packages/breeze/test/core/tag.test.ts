@@ -103,6 +103,40 @@ describe("Tag Functions", () => {
 			expect(group2?.data.values).toContain("test:first");
 			expect(group2?.data.values).not.toContain("test:second");
 		});
+
+		it("should create new tags when injecting IDs into non-existent tags", () => {
+			const existingTags: DataDrivenRegistryElement<TagType>[] = [
+				{
+					identifier: { namespace: "minecraft", registry: "tags/enchantment", resource: "existing_group" },
+					data: { values: ["minecraft:sharpness"] }
+				}
+			];
+
+			const elementToTags = new Map([
+				[
+					"enchantplus:echo_shot",
+					[
+						{ namespace: "minecraft", registry: "tags/enchantment", resource: "existing_group" },
+						{ namespace: "minecraft", registry: "tags/enchantment", resource: "exclusive_set/crossbow" }
+					]
+				]
+			]);
+
+			const processor = new TagsProcessor(existingTags);
+			const result = processor.injectIds(elementToTags);
+
+			expect(result).toHaveLength(2);
+
+			const existingGroup = result.find((tag) => tag.identifier.resource === "existing_group");
+			expect(existingGroup?.data.values).toContain("minecraft:sharpness");
+			expect(existingGroup?.data.values).toContain("enchantplus:echo_shot");
+
+			const newGroup = result.find((tag) => tag.identifier.resource === "exclusive_set/crossbow");
+			expect(newGroup).toBeDefined();
+			expect(newGroup?.identifier.namespace).toBe("minecraft");
+			expect(newGroup?.identifier.registry).toBe("tags/enchantment");
+			expect(newGroup?.data.values).toContain("enchantplus:echo_shot");
+		});
 	});
 });
 

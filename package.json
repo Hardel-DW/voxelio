@@ -2,7 +2,7 @@
     "license": "MIT",
     "type": "module",
     "scripts": {
-        "build": "pnpm -r run build",
+        "build": "pnpm --filter './packages/*' run build",
         "build:watch": "pnpm -r run build:watch",
         "biome:format": "biome format --write ./packages",
         "biome:check": "biome check ./packages",
