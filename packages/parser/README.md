@@ -1,4 +1,5 @@
 # Module Signature:
+```
 interface GraphNode {
     refs: Set<string>;
     referencedBy: Set<string>;
@@ -26,14 +27,17 @@ class PackGraph {
 
     getGraph(): Graph;
 }
+```
 
 # Signature Usage:
-const graph = new PackGraph(zipBytes, symbols, "1.21.4");
+`const graph = new PackGraph(zipBytes, symbols, "1.21.4");`
 
-// Direct impact of a file (parse only what's needed)
-const impact = graph.getSubgraph("mypack:loot/chest", 1);
+### Direct impact of a file (parse only what's needed)
+`const impact = graph.getSubgraph("mypack:loot/chest", 1);`
 
-// Can we delete this file?
+### Can we delete this file?
+```
 if (graph.canBeDeleted("mypack:loot/chest")) {
     graph.deleteFile("mypack:loot/chest");
 }
+```
