@@ -1,5 +1,5 @@
 {
-	"name": "@voxelio/nbt",
+	"name": "@voxelio/snbt",
 	"version": "1.0.0",
 	"type": "module",
 	"description": "A library for parsing and manipulating NBT data in JavaScript.",
