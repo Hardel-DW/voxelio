@@ -2,9 +2,10 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { bench, describe } from "vitest";
-import { decompress } from "@/compression";
+import { compress, decompress } from "@/compression";
 import { NbtFile } from "@/file";
 import { LazyNbtFile } from "@/lazy";
+import { Compression } from "@/types";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const cubeCompressed = new Uint8Array(readFileSync(path.join(dir, "../mock/cube.nbt")));
@@ -60,5 +61,15 @@ describe("NBT Read - With Compression (pako included)", () => {
 
 	bench("taiga_armorer_2.nbt - full parse with gzip", () => {
 		NbtFile.read(taigaCompressed);
+	});
+});
+
+describe("fflate Only", () => {
+	bench("cube.nbt - full parse with gzip", () => {
+		compress(cubeData, Compression.Gzip);
+	});
+
+	bench("taiga_armorer_2.nbt - full parse with gzip", () => {
+		compress(taigaData, Compression.Gzip);
 	});
 });
