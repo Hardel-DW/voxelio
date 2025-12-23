@@ -1,4 +1,4 @@
-import { compress, decompress, detectCompression } from "@/compression";
+import { compress, type CompressOptions, decompress, detectCompression } from "@/compression";
 import { NbtError, NbtErrorKind } from "@/error";
 import { isCompound, isList, isNumeric, isString } from "@/guards";
 import { NbtReader } from "@/reader";
@@ -20,7 +20,7 @@ export interface ReadOptions {
 export interface WriteOptions {
 	compression?: Compression;
 	/** Compression level 1-9 (1=fastest, 9=best). Default: 6 */
-	compressionLevel?: number;
+	compressionLevel?: CompressOptions["level"];
 	endian?: Endian;
 	bedrockHeader?: number;
 }
@@ -35,7 +35,7 @@ export class NbtFile {
 		public compression: Compression = Compression.None,
 		public endian: Endian = Endian.Big,
 		public bedrockHeader?: number
-	) {}
+	) { }
 
 	static read(data: Uint8Array, options: ReadOptions = {}): NbtFile {
 		const compression = options.compression ?? detectCompression(data);

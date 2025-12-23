@@ -276,10 +276,8 @@ export class NbtReader {
 					if (innerTagType === NbtType.End) {
 						break;
 					}
-					// Skip the name
 					const nameLen = this.readU16();
 					this.cursor += nameLen;
-					// Skip the value
 					this.skipTag(innerTagType);
 				}
 				break;

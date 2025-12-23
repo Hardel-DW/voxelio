@@ -7,6 +7,7 @@ import { NbtFile } from "@/file";
 import { Compression } from "@/types";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
+
 const cubeCompressed = new Uint8Array(readFileSync(path.join(dir, "../mock/cube.nbt")));
 const taigaCompressed = new Uint8Array(readFileSync(path.join(dir, "../mock/taiga_armorer_2.nbt")));
 const cubeData = decompress(cubeCompressed);

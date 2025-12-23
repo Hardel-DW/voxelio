@@ -14,10 +14,7 @@
 		"biome:unsafefix": "biome check --write --unsafe  ./src"
 	},
 	"dependencies": {
-		"pako": "^2.1.0"
-	},
-	"devDependencies": {
-		"@types/pako": "^2.0.3"
+		"fflate": "^0.8.2"
 	},
 	"exports": {
 		".": {

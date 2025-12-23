@@ -1,4 +1,4 @@
-import pako from "pako";
+import { deflateSync, gunzipSync, gzipSync, inflateSync } from "fflate";
 import { NbtError, NbtErrorKind } from "@/error";
 import { Compression } from "@/types";
 
@@ -42,10 +42,10 @@ export function decompress(data: Uint8Array, format?: Compression): Uint8Array {
 
 	try {
 		if (compression === Compression.Gzip) {
-			return pako.ungzip(data);
+			return gunzipSync(data);
 		}
 
-		return pako.inflate(data);
+		return inflateSync(data);
 	} catch (e) {
 		const message = e instanceof Error ? e.message : "Unknown compression error";
 		throw new NbtError(`Decompression failed: ${message}`, NbtErrorKind.CompressionError);
@@ -53,13 +53,13 @@ export function decompress(data: Uint8Array, format?: Compression): Uint8Array {
 }
 
 export interface CompressOptions {
-	/** Compression level 1-9 (1=fastest, 9=best compression). Default: 6 */
-	level?: number;
+	/** Compression level 0-9 (0=none, 1=fastest, 9=best). Default: 6 */
+	level?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 }
 
 /**
  * Compress data with specified format.
- * @param level - Compression level 1-9 (1=fastest, 9=best). Default: 6
+ * @param level - Compression level 0-9 (0=none, 1=fastest, 9=best). Default: 6
  */
 export function compress(data: Uint8Array, format: Compression, options: CompressOptions = {}): Uint8Array {
 	if (format === Compression.None) {
@@ -70,10 +70,10 @@ export function compress(data: Uint8Array, format: Compression, options: Compres
 
 	try {
 		if (format === Compression.Gzip) {
-			return pako.gzip(data, { level });
+			return gzipSync(data, { level });
 		}
 
-		return pako.deflate(data, { level });
+		return deflateSync(data, { level });
 	} catch (e) {
 		const message = e instanceof Error ? e.message : "Unknown compression error";
 		throw new NbtError(`Compression failed: ${message}`, NbtErrorKind.CompressionError);
