@@ -1,0 +1,40 @@
+{
+	"name": "@voxelio/nbt",
+	"version": "1.10.29",
+	"type": "module",
+	"description": "A library for parsing and manipulating NBT data in JavaScript.",
+	"scripts": {
+		"build": "tsdown",
+		"build:watch": "tsdown --watch",
+		"test": "vitest",
+		"check": "tsgo --noEmit",
+		"biome:format": "biome format --write ./src",
+		"biome:check": "biome check ./src",
+		"biome:unsafefix": "biome check --write --unsafe  ./src"
+	},
+	"dependencies": {
+		"pako": "^2.1.0"
+	},
+	"devDependencies": {
+		"@types/pako": "^2.0.3"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"types": "./dist/index.d.mts"
+		}
+	},
+	"files": [
+		"dist/**/*.mjs",
+		"dist/**/*.d.mts",
+		"!dist/**/*.map"
+	],
+	"author": {
+		"name": "Hardel",
+		"email": "teams.voxel@gmail.com",
+		"url": "https://voxel.hardel.io"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}
