@@ -35,7 +35,7 @@ export class NbtFile {
 		public compression: Compression = Compression.None,
 		public endian: Endian = Endian.Big,
 		public bedrockHeader?: number
-	) { }
+	) {}
 
 	static read(data: Uint8Array, options: ReadOptions = {}): NbtFile {
 		const compression = options.compression ?? detectCompression(data);

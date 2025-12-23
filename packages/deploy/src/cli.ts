@@ -2,8 +2,8 @@
 import { init } from "@/commands/init";
 
 try {
-    await init();
+	await init();
 } catch (error) {
-    console.error("Error:", error instanceof Error ? error.message : error);
-    process.exit(1);
+	console.error("Error:", error instanceof Error ? error.message : error);
+	process.exit(1);
 }

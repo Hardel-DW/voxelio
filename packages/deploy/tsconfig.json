@@ -1,19 +1,12 @@
 {
-    "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-        "target": "es2024",
-        "outDir": "dist",
-        "paths": {
-            "@/*": [
-                "./src/*"
-            ],
-            "@test/*": [
-                "./test/*"
-            ]
-        }
-    },
-    "include": [
-        "src/**/*",
-        "test/**/*"
-    ]
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"target": "es2024",
+		"outDir": "dist",
+		"paths": {
+			"@/*": ["./src/*"],
+			"@test/*": ["./test/*"]
+		}
+	},
+	"include": ["src/**/*", "test/**/*"]
 }

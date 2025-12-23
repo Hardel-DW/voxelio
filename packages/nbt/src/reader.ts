@@ -192,7 +192,7 @@ export class NbtReader {
 	readCompound(): NbtCompound {
 		const entries = new Map<string, NbtTag>();
 
-		for (; ;) {
+		for (;;) {
 			const tagType = this.readU8() as NbtType;
 			if (tagType === NbtType.End) {
 				break;
@@ -212,7 +212,7 @@ export class NbtReader {
 	readCompoundSelective(wantedFields: ReadonlySet<string>): NbtCompound {
 		const entries = new Map<string, NbtTag>();
 
-		for (; ;) {
+		for (;;) {
 			const tagType = this.readU8() as NbtType;
 			if (tagType === NbtType.End) {
 				break;
@@ -271,7 +271,7 @@ export class NbtReader {
 				break;
 			}
 			case NbtType.Compound: {
-				for (; ;) {
+				for (;;) {
 					const innerTagType = this.readU8() as NbtType;
 					if (innerTagType === NbtType.End) {
 						break;

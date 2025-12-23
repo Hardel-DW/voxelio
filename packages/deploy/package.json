@@ -1,43 +1,43 @@
 {
-    "name": "@voxelio/deploy",
-    "version": "1.0.8",
-    "type": "module",
-    "description": "CLI tool for deploying datapacks to Modrinth and CurseForge",
-    "scripts": {
-        "dev": "node src/cli.ts",
-        "build": "tsdown",
-        "build:watch": "tsdown --watch",
-        "check": "tsgo --noEmit",
-        "biome:format": "biome format --write .",
-        "biome:check": "biome check .",
-        "biome:unsafefix": "biome check --write --unsafe ."
-    },
-    "dependencies": {
-        "@clack/prompts": "^0.11.0",
-        "arktype": "^2.1.23",
-        "yaml": "^2.8.1"
-    },
-    "bin": {
-        "voxset": "dist/cli.js"
-    },
-    "exports": {
-        ".": {
-            "types": "./dist/index.d.ts",
-            "default": "./dist/index.js"
-        }
-    },
-    "files": [
-        "examples",
-        "dist/**/*.mjs",
-        "dist/**/*.d.mts",
-        "!dist/**/*.map"
-    ],
-    "author": {
-        "name": "Hardel",
-        "email": "teams.voxel@gmail.com",
-        "url": "https://voxel.hardel.io"
-    },
-    "publishConfig": {
-        "access": "public"
-    }
+	"name": "@voxelio/deploy",
+	"version": "1.0.8",
+	"type": "module",
+	"description": "CLI tool for deploying datapacks to Modrinth and CurseForge",
+	"scripts": {
+		"dev": "node src/cli.ts",
+		"build": "tsdown",
+		"build:watch": "tsdown --watch",
+		"check": "tsgo --noEmit",
+		"biome:format": "biome format --write .",
+		"biome:check": "biome check .",
+		"biome:unsafefix": "biome check --write --unsafe ."
+	},
+	"dependencies": {
+		"@clack/prompts": "^0.11.0",
+		"arktype": "^2.1.23",
+		"yaml": "^2.8.1"
+	},
+	"bin": {
+		"voxset": "dist/cli.js"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"files": [
+		"examples",
+		"dist/**/*.mjs",
+		"dist/**/*.d.mts",
+		"!dist/**/*.map"
+	],
+	"author": {
+		"name": "Hardel",
+		"email": "teams.voxel@gmail.com",
+		"url": "https://voxel.hardel.io"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
 }
