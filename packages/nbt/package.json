@@ -1,6 +1,6 @@
 {
 	"name": "@voxelio/snbt",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"type": "module",
 	"description": "A library for parsing and manipulating NBT data in JavaScript.",
 	"scripts": {
