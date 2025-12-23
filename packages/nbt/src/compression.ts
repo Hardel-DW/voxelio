@@ -52,20 +52,28 @@ export function decompress(data: Uint8Array, format?: Compression): Uint8Array {
 	}
 }
 
+export interface CompressOptions {
+	/** Compression level 1-9 (1=fastest, 9=best compression). Default: 6 */
+	level?: number;
+}
+
 /**
  * Compress data with specified format.
+ * @param level - Compression level 1-9 (1=fastest, 9=best). Default: 6
  */
-export function compress(data: Uint8Array, format: Compression): Uint8Array {
+export function compress(data: Uint8Array, format: Compression, options: CompressOptions = {}): Uint8Array {
 	if (format === Compression.None) {
 		return data;
 	}
 
+	const level = options.level ?? 6;
+
 	try {
 		if (format === Compression.Gzip) {
-			return pako.gzip(data);
+			return pako.gzip(data, { level });
 		}
 
-		return pako.deflate(data);
+		return pako.deflate(data, { level });
 	} catch (e) {
 		const message = e instanceof Error ? e.message : "Unknown compression error";
 		throw new NbtError(`Compression failed: ${message}`, NbtErrorKind.CompressionError);

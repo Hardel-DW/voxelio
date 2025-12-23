@@ -64,3 +64,41 @@ Set -> intersection().union().difference().symmetricDifference().isSubsetOf().is
 Nullish Coalescing -> ??
 Logical Assignment -> ||=
 Float16Array
+
+ ✓ test/bench/write.bench.ts > NBT Write - No Compression 2445ms
+     name                                            hz     min     max    mean     p75     p99    p995    p999     rme  samples
+   · cube.nbt - write uncompressed               9.3033  103.41  119.27  107.49  107.62  119.27  119.27  119.27  ±2.92%       10
+   · taiga_armorer_2.nbt - write uncompressed  1,515.58  0.5391  1.3686  0.6598  0.6749  1.1523  1.2140  1.3686  ±1.12%      758
+
+ ✓ test/bench/write.bench.ts > NBT Write - With Compression (pako included) 6706ms
+     name                                  hz     min     max    mean     p75     p99    p995    p999     rme  samples
+   · cube.nbt - write gzip             5.6352  175.20  179.30  177.46  178.22  179.30  179.30  179.30  ±0.47%       10
+   · cube.nbt - write zlib             5.6221  172.15  194.30  177.87  181.01  194.30  194.30  194.30  ±2.72%       10
+   · taiga_armorer_2.nbt - write gzip  860.15  1.0017  3.4579  1.1626  1.1861  1.4764  1.5711  3.4579  ±1.11%      431
+
+ ✓ test/bench/write.bench.ts > NBT Round-trip - No Compression 3964ms
+     name                                    hz     min      max    mean     p75     p99    p995     p999     rme  samples
+   · cube.nbt - read + write             5.1764  177.73   223.54  193.19  192.94  223.54  223.54   223.54  ±4.31%       10
+   · taiga_armorer_2.nbt - read + write  853.27  0.9346  10.0912  1.1720  1.1190  4.5386  7.4592  10.0912  ±5.93%      427
+
+ ✓ test/bench/read.bench.ts > NBT Read - Full Parse (no compression) 2063ms
+     name                                    hz      min      max     mean      p75      p99     p995     p999     rme  samples
+   · cube.nbt - full parse              11.9331  68.2823  99.6692  83.8006  92.6881  99.6692  99.6692  99.6692  ±9.94%       10
+   · taiga_armorer_2.nbt - full parse  2,449.16   0.3611  10.2478   0.4083   0.3806   0.5832   0.7273   9.1201  ±6.25%     1225
+
+ ✓ test/bench/read.bench.ts > NBT Read - Selective Parse (no compression) 2201ms
+     name                                           hz      min      max     mean      p75      p99     p995     p999     rme  samples
+   · cube.nbt - selective [DataVersion]        32.7679  29.1299  34.5401  30.5177  30.7589  34.5401  34.5401  34.5401  ±1.98%       17
+   · cube.nbt - selective [DataVersion, size]  34.6600  28.5928  29.1942  28.8517  28.9349  29.1942  29.1942  29.1942  ±0.25%       18
+   · cube.nbt - selective [palette]            34.5002  28.7656  29.3248  28.9854  29.0380  29.3248  29.3248  29.3248  ±0.24%       18
+
+ ✓ test/bench/read.bench.ts > NBT Read - Lazy Loading (no compression) 2182ms
+     name                                      hz      min      max     mean      p75      p99     p995     p999     rme  samples
+   · cube.nbt - lazy init + keys()        34.3822  28.6915  34.0889  29.0848  28.8275  34.0889  34.0889  34.0889  ±2.14%       18
+   · cube.nbt - lazy get single field     34.4676  28.5991  30.6220  29.0128  29.4277  30.6220  30.6220  30.6220  ±0.95%       18
+   · cube.nbt - lazy get multiple fields  34.4041  28.9144  29.6968  29.0663  29.0953  29.6968  29.6968  29.6968  ±0.30%       18
+
+ ✓ test/bench/read.bench.ts > NBT Read - With Compression (pako included) 2278ms
+     name                                              hz      min     max     mean     p75     p99    p995    p999     rme  samples
+   · cube.nbt - full parse with gzip              10.0398  92.1698  105.46  99.6039  101.07  105.46  105.46  105.46  ±3.18%       10
+   · taiga_armorer_2.nbt - full parse with gzip  2,033.02   0.4367  0.9728   0.4919  0.4984  0.7273  0.7808  0.8494  ±0.68%     1017

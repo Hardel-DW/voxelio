@@ -19,6 +19,8 @@ export interface ReadOptions {
 
 export interface WriteOptions {
 	compression?: Compression;
+	/** Compression level 1-9 (1=fastest, 9=best). Default: 6 */
+	compressionLevel?: number;
 	endian?: Endian;
 	bedrockHeader?: number;
 }
@@ -92,7 +94,7 @@ export class NbtFile {
 			view.setInt32(4, result.length - 8, true);
 		}
 
-		return compress(result, compression);
+		return compress(result, compression, { level: options.compressionLevel });
 	}
 
 	get(key: string): NbtTag | undefined {

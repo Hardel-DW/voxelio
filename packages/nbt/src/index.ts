@@ -32,7 +32,7 @@ export {
 	isShort,
 	isString
 } from "@/guards";
-export { compress, decompress, detectCompression } from "@/compression";
+export { compress, decompress, detectCompression, type CompressOptions } from "@/compression"; 
 export { NbtFile, type ReadOptions, type WriteOptions } from "@/file";
 export { LazyNbtFile, type LazyReadOptions } from "@/lazy";
 export { NbtReader } from "@/reader";

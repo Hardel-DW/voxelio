@@ -142,28 +142,40 @@ export class NbtReader {
 
 	private readByteArray(): NbtByteArray {
 		const length = this.readI32();
-		const array = new Int8Array(length);
-		for (let i = 0; i < length; i++) {
-			array[i] = this.readI8();
+		if (this.remaining < length) {
+			throw new NbtError("Unexpected end of data", NbtErrorKind.UnexpectedEof);
 		}
+		const array = new Int8Array(this.data.buffer, this.data.byteOffset + this.cursor, length);
+		this.cursor += length;
 		return { type: NbtType.ByteArray, value: array };
 	}
 
 	private readIntArray(): NbtIntArray {
 		const length = this.readI32();
+		const byteLen = length * 4;
+		if (this.remaining < byteLen) {
+			throw new NbtError("Unexpected end of data", NbtErrorKind.UnexpectedEof);
+		}
 		const array = new Int32Array(length);
 		for (let i = 0; i < length; i++) {
-			array[i] = this.readI32();
+			array[i] = this.view.getInt32(this.cursor + i * 4, this.littleEndian);
 		}
+		this.cursor += byteLen;
 		return { type: NbtType.IntArray, value: array };
 	}
 
 	private readLongArray(): NbtLongArray {
 		const length = this.readI32();
-		const array = new BigInt64Array(length);
-		for (let i = 0; i < length; i++) {
-			array[i] = this.readI64();
+		const byteLen = length * 8;
+		if (this.remaining < byteLen) {
+			throw new NbtError("Unexpected end of data", NbtErrorKind.UnexpectedEof);
 		}
+		const array = new BigInt64Array(length);
+		// Batch read with DataView - avoids per-element function call overhead
+		for (let i = 0; i < length; i++) {
+			array[i] = this.view.getBigInt64(this.cursor + i * 8, this.littleEndian);
+		}
+		this.cursor += byteLen;
 		return { type: NbtType.LongArray, value: array };
 	}
 
@@ -180,7 +192,7 @@ export class NbtReader {
 	readCompound(): NbtCompound {
 		const entries = new Map<string, NbtTag>();
 
-		for (;;) {
+		for (; ;) {
 			const tagType = this.readU8() as NbtType;
 			if (tagType === NbtType.End) {
 				break;
@@ -200,7 +212,7 @@ export class NbtReader {
 	readCompoundSelective(wantedFields: ReadonlySet<string>): NbtCompound {
 		const entries = new Map<string, NbtTag>();
 
-		for (;;) {
+		for (; ;) {
 			const tagType = this.readU8() as NbtType;
 			if (tagType === NbtType.End) {
 				break;
@@ -259,7 +271,7 @@ export class NbtReader {
 				break;
 			}
 			case NbtType.Compound: {
-				for (;;) {
+				for (; ;) {
 					const innerTagType = this.readU8() as NbtType;
 					if (innerTagType === NbtType.End) {
 						break;

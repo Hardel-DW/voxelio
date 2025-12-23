@@ -127,12 +127,14 @@ export class NbtWriter {
 			case NbtType.Double:
 				this.writeF64(tag.value);
 				break;
-			case NbtType.ByteArray:
-				this.writeI32(tag.value.length);
-				for (const byte of tag.value) {
-					this.writeI8(byte);
-				}
+			case NbtType.ByteArray: {
+				const len = tag.value.length;
+				this.writeI32(len);
+				this.accommodate(len);
+				this.array.set(new Uint8Array(tag.value.buffer, tag.value.byteOffset, len), this.offset);
+				this.offset += len;
 				break;
+			}
 			case NbtType.String:
 				this.writeString(tag.value);
 				break;
@@ -151,18 +153,28 @@ export class NbtWriter {
 				}
 				this.writeU8(NbtType.End);
 				break;
-			case NbtType.IntArray:
-				this.writeI32(tag.value.length);
-				for (const int of tag.value) {
-					this.writeI32(int);
+			case NbtType.IntArray: {
+				const len = tag.value.length;
+				const byteLen = len * 4;
+				this.writeI32(len);
+				this.accommodate(byteLen);
+				for (let i = 0; i < len; i++) {
+					this.view.setInt32(this.offset + i * 4, tag.value[i], this.littleEndian);
 				}
+				this.offset += byteLen;
 				break;
-			case NbtType.LongArray:
-				this.writeI32(tag.value.length);
-				for (const long of tag.value) {
-					this.writeI64(long);
+			}
+			case NbtType.LongArray: {
+				const len = tag.value.length;
+				const byteLen = len * 8;
+				this.writeI32(len);
+				this.accommodate(byteLen);
+				for (let i = 0; i < len; i++) {
+					this.view.setBigInt64(this.offset + i * 8, tag.value[i], this.littleEndian);
 				}
+				this.offset += byteLen;
 				break;
+			}
 		}
 	}
 }
