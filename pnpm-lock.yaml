@@ -22,7 +22,7 @@ importers:
         version: 0.17.0-beta.4(@typescript/native-preview@7.0.0-dev.20251208.1)(typescript@5.9.3)
       vitest:
         specifier: ^4.0.14
-        version: 4.0.14(jiti@2.6.1)(lightningcss@1.30.2)
+        version: 4.0.14(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2)
 
   examples/parser:
     dependencies:
@@ -62,13 +62,13 @@ importers:
         version: 7.0.0-dev.20251203.1
       '@vitejs/plugin-react':
         specifier: ^5.1.1
-        version: 5.1.2(vite@8.0.0-beta.2(esbuild@0.25.11)(jiti@2.6.1))
+        version: 5.1.2(vite@8.0.0-beta.2(esbuild@0.25.11)(jiti@2.6.1)(yaml@2.8.2))
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
       vite:
         specifier: 8.0.0-beta.2
-        version: 8.0.0-beta.2(esbuild@0.25.11)(jiti@2.6.1)
+        version: 8.0.0-beta.2(esbuild@0.25.11)(jiti@2.6.1)(yaml@2.8.2)
 
   packages/breeze:
     dependencies:
@@ -87,6 +87,18 @@ importers:
       '@voxelio/zip':
         specifier: workspace:*
         version: link:../zip
+
+  packages/deploy:
+    dependencies:
+      '@clack/prompts':
+        specifier: ^0.11.0
+        version: 0.11.0
+      arktype:
+        specifier: ^2.1.23
+        version: 2.1.29
+      yaml:
+        specifier: ^2.8.1
+        version: 2.8.2
 
   packages/diff: {}
 
@@ -109,7 +121,7 @@ importers:
         version: 19.2.4
       vite:
         specifier: ^7.2.2
-        version: 7.2.2(jiti@2.6.1)(lightningcss@1.30.2)
+        version: 7.2.2(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2)
 
   packages/markdown:
     dependencies:
@@ -132,6 +144,12 @@ importers:
   packages/zip: {}
 
 packages:
+
+  '@ark/schema@0.56.0':
+    resolution: {integrity: sha512-ECg3hox/6Z/nLajxXqNhgPtNdHWC9zNsDyskwO28WinoFEnWow4IsERNz9AnXRhTZJnYIlAJ4uGn3nlLk65vZA==}
+
+  '@ark/util@0.56.0':
+    resolution: {integrity: sha512-BghfRC8b9pNs3vBoDJhcta0/c1J1rsoS1+HgVUreMFPdhz/CRAKReAu57YEllNaSy98rWAdY1gE+gFup7OXpgA==}
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -327,6 +345,12 @@ packages:
 
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
+
+  '@clack/core@0.5.0':
+    resolution: {integrity: sha512-p3y0FIOwaYRUPRcMO7+dlmLh8PSRcrjuTndsiA0WAFbWES0mLZlrjVoBRZ9DzkPFJZG6KGkJmoEAY0ZcVWTkow==}
+
+  '@clack/prompts@0.11.0':
+    resolution: {integrity: sha512-pMN5FcrEw9hUkZA4f+zLlzivQSeQf5dRGJjSUbvVYDLvpKCdQx5OaknvKzgbtXOizhP+SJJJjqEbOe55uKKfAw==}
 
   '@emnapi/core@1.6.0':
     resolution: {integrity: sha512-zq/ay+9fNIJJtJiZxdTnXS20PllcYMX3OE23ESc4HK/bdYu3cOWYVhsOhVnXALfU/uqJIxn5NBPd9z4v+SfoSg==}
@@ -1140,6 +1164,12 @@ packages:
   argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
 
+  arkregex@0.0.5:
+    resolution: {integrity: sha512-ncYjBdLlh5/QnVsAA8De16Tc9EqmYM7y/WU9j+236KcyYNUXogpz3sC4ATIZYzzLxwI+0sEOaQLEmLmRleaEXw==}
+
+  arktype@2.1.29:
+    resolution: {integrity: sha512-jyfKk4xIOzvYNayqnD8ZJQqOwcrTOUbIU4293yrzAjA3O1dWh61j71ArMQ6tS/u4pD7vabSPe7nG3RCyoXW6RQ==}
+
   array-union@2.1.0:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
     engines: {node: '>=8'}
@@ -1722,6 +1752,9 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
+  sisteransi@1.0.5:
+    resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
+
   slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
@@ -1968,6 +2001,11 @@ packages:
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
 
+  yaml@2.8.2:
+    resolution: {integrity: sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
+
   zustand@4.5.7:
     resolution: {integrity: sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==}
     engines: {node: '>=12.7.0'}
@@ -2002,6 +2040,12 @@ packages:
         optional: true
 
 snapshots:
+
+  '@ark/schema@0.56.0':
+    dependencies:
+      '@ark/util': 0.56.0
+
+  '@ark/util@0.56.0': {}
 
   '@babel/code-frame@7.27.1':
     dependencies:
@@ -2295,6 +2339,17 @@ snapshots:
       fs-extra: 7.0.1
       human-id: 4.1.2
       prettier: 2.8.8
+
+  '@clack/core@0.5.0':
+    dependencies:
+      picocolors: 1.1.1
+      sisteransi: 1.0.5
+
+  '@clack/prompts@0.11.0':
+    dependencies:
+      '@clack/core': 0.5.0
+      picocolors: 1.1.1
+      sisteransi: 1.0.5
 
   '@emnapi/core@1.6.0':
     dependencies:
@@ -2826,7 +2881,7 @@ snapshots:
       '@typescript/native-preview-win32-arm64': 7.0.0-dev.20251208.1
       '@typescript/native-preview-win32-x64': 7.0.0-dev.20251208.1
 
-  '@vitejs/plugin-react@5.1.2(vite@8.0.0-beta.2(esbuild@0.25.11)(jiti@2.6.1))':
+  '@vitejs/plugin-react@5.1.2(vite@8.0.0-beta.2(esbuild@0.25.11)(jiti@2.6.1)(yaml@2.8.2))':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.5)
@@ -2834,7 +2889,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.53
       '@types/babel__core': 7.20.5
       react-refresh: 0.18.0
-      vite: 8.0.0-beta.2(esbuild@0.25.11)(jiti@2.6.1)
+      vite: 8.0.0-beta.2(esbuild@0.25.11)(jiti@2.6.1)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -2847,13 +2902,13 @@ snapshots:
       chai: 6.2.1
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@4.0.14(vite@7.2.2(jiti@2.6.1)(lightningcss@1.30.2))':
+  '@vitest/mocker@4.0.14(vite@7.2.2(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2))':
     dependencies:
       '@vitest/spy': 4.0.14
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.2.2(jiti@2.6.1)(lightningcss@1.30.2)
+      vite: 7.2.2(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2)
 
   '@vitest/pretty-format@4.0.14':
     dependencies:
@@ -2909,6 +2964,16 @@ snapshots:
   argparse@1.0.10:
     dependencies:
       sprintf-js: 1.0.3
+
+  arkregex@0.0.5:
+    dependencies:
+      '@ark/util': 0.56.0
+
+  arktype@2.1.29:
+    dependencies:
+      '@ark/schema': 0.56.0
+      '@ark/util': 0.56.0
+      arkregex: 0.0.5
 
   array-union@2.1.0: {}
 
@@ -3459,6 +3524,8 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
+  sisteransi@1.0.5: {}
+
   slash@3.0.0: {}
 
   source-map-js@1.2.1: {}
@@ -3554,7 +3621,7 @@ snapshots:
     dependencies:
       react: 19.2.3
 
-  vite@7.2.2(jiti@2.6.1)(lightningcss@1.30.2):
+  vite@7.2.2(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2):
     dependencies:
       esbuild: 0.25.11
       fdir: 6.5.0(picomatch@4.0.3)
@@ -3566,8 +3633,9 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.6.1
       lightningcss: 1.30.2
+      yaml: 2.8.2
 
-  vite@8.0.0-beta.2(esbuild@0.25.11)(jiti@2.6.1):
+  vite@8.0.0-beta.2(esbuild@0.25.11)(jiti@2.6.1)(yaml@2.8.2):
     dependencies:
       '@oxc-project/runtime': 0.102.0
       fdir: 6.5.0(picomatch@4.0.3)
@@ -3580,11 +3648,12 @@ snapshots:
       esbuild: 0.25.11
       fsevents: 2.3.3
       jiti: 2.6.1
+      yaml: 2.8.2
 
-  vitest@4.0.14(jiti@2.6.1)(lightningcss@1.30.2):
+  vitest@4.0.14(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.14
-      '@vitest/mocker': 4.0.14(vite@7.2.2(jiti@2.6.1)(lightningcss@1.30.2))
+      '@vitest/mocker': 4.0.14(vite@7.2.2(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2))
       '@vitest/pretty-format': 4.0.14
       '@vitest/runner': 4.0.14
       '@vitest/snapshot': 4.0.14
@@ -3601,7 +3670,7 @@ snapshots:
       tinyexec: 0.3.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vite: 7.2.2(jiti@2.6.1)(lightningcss@1.30.2)
+      vite: 7.2.2(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2)
       why-is-node-running: 2.3.0
     transitivePeerDependencies:
       - jiti
@@ -3626,6 +3695,8 @@ snapshots:
       stackback: 0.0.2
 
   yallist@3.1.1: {}
+
+  yaml@2.8.2: {}
 
   zustand@4.5.7(@types/react@19.2.7)(react@19.2.3):
     dependencies:
