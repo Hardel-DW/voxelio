@@ -7,6 +7,7 @@
 		"build": "tsdown",
 		"build:watch": "tsdown --watch",
 		"test": "vitest",
+		"bench": "vitest bench",
 		"check": "tsgo --noEmit",
 		"biome:format": "biome format --write ./src",
 		"biome:check": "biome check ./src",
