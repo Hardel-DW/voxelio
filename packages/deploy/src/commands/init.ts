@@ -2,42 +2,18 @@ import { spawn } from "node:child_process";
 import { writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import * as clack from "@clack/prompts";
+import { cancel, confirm, intro, isCancel, log, multiselect, note, outro, select, spinner, text } from "@clack/prompts";
 import type { ChangesetFrontmatter, VersionBump, VersionType } from "@/types/schema";
 import { createChangeset } from "@/utils/changeset";
-import { configExists, createDefaultConfig, writeConfig } from "@/utils/config";
+import { configExists, createDefaultConfig, readConfig, writeConfig } from "@/utils/config";
 import { isValidDatapack } from "@/utils/datapack";
 import { createWorkflow, workflowExists } from "@/utils/workflow";
-
-const MINECRAFT_VERSIONS = [
-	"26.1.0",
-	"1.21.11",
-	"1.21.10",
-	"1.21.9",
-	"1.21.8",
-	"1.21.7",
-	"1.21.6",
-	"1.21.5",
-	"1.21.4",
-	"1.21.3",
-	"1.21.2",
-	"1.21.1",
-	"1.21",
-	"1.20.6",
-	"1.20.5",
-	"1.20.4",
-	"1.20.3",
-	"1.20.2",
-	"1.20.1",
-	"1.20"
-];
+import { MINECRAFT_VERSIONS, getRequiredJavaVersions } from "@/utils/version";
 
 export async function init(): Promise<void> {
 	const isDatapack = await isValidDatapack();
 	if (!isDatapack) {
-		clack.log.error(
-			"The current directory is not a valid datapack. Check that there is a pack.mcmeta file with a 'description' field."
-		);
+		log.error("The current directory is not a valid datapack. Check that there is a pack.mcmeta file with a 'description' field.");
 		process.exit(1);
 	}
 
@@ -47,92 +23,92 @@ export async function init(): Promise<void> {
 	if (!hasConfig) {
 		await runFullSetup();
 	} else if (!hasWorkflow) {
-		clack.intro("Voxelio Deploy");
+		intro("Voxelio Deploy");
 
-		const spinner = clack.spinner();
-		spinner.start("Creating workflow file...");
+		const s = spinner();
+		s.start("Creating workflow file...");
 		await createWorkflow();
-		spinner.stop("Workflow file created successfully!");
+		s.stop("Workflow file created successfully!");
 
-		clack.note(
+		note(
 			"Ready to create a new changeset.\n\nThis will create a markdown file in the .changeset folder.\nThe deployment will be triggered on the next commit containing this file.",
 			"Create Changeset"
 		);
 
-		const wantsChangeset = await clack.confirm({
+		const wantsChangeset = await confirm({
 			message: "Do you want to continue?"
 		});
 
-		if (clack.isCancel(wantsChangeset) || !wantsChangeset) {
-			clack.cancel("Operation cancelled");
+		if (isCancel(wantsChangeset) || !wantsChangeset) {
+			cancel("Operation cancelled");
 			process.exit(0);
 		}
 
 		await createNewChangeset();
-		clack.outro("Changeset created successfully!");
+		outro("Changeset created successfully!");
 	} else {
-		clack.intro("Voxelio Deploy");
-		clack.note(
+		intro("Voxelio Deploy");
+		note(
 			"Ready to create a new changeset.\n\nThis will create a markdown file in the .changeset folder.\nThe deployment will be triggered on the next commit containing this file.",
 			"Create Changeset"
 		);
 
-		const wantsChangeset = await clack.confirm({
+		const wantsChangeset = await confirm({
 			message: "Do you want to continue?"
 		});
 
-		if (clack.isCancel(wantsChangeset) || !wantsChangeset) {
-			clack.cancel("Operation cancelled");
+		if (isCancel(wantsChangeset) || !wantsChangeset) {
+			cancel("Operation cancelled");
 			process.exit(0);
 		}
 
 		await createNewChangeset();
-		clack.outro("Changeset created successfully!");
+		outro("Changeset created successfully!");
 	}
 }
 
 async function runFullSetup(): Promise<void> {
-	clack.intro("Voxelio Deploy - Configuration");
+	intro("Voxelio Deploy - Configuration");
 
-	clack.note(
+	note(
 		"Hello, welcome to the Voxelio Deploy configuration. We will prepare the environment together to easily deploy to Modrinth and CurseForge.\n\nA few things to know:\n- If you want to stop, you can press Escape or Ctrl+C\n- You will need a Modrinth and/or CurseForge account",
 		"Welcome"
 	);
 
-	const continueSetup = await clack.confirm({
+	const continueSetup = await confirm({
 		message: "Ready to start configuration?"
 	});
 
-	if (clack.isCancel(continueSetup) || !continueSetup) {
-		clack.cancel("Configuration cancelled");
+	if (isCancel(continueSetup) || !continueSetup) {
+		cancel("Configuration cancelled");
 		process.exit(0);
 	}
 
-	clack.note(
+	note(
 		'Don\'t forget to set environment variables in your GitHub project!\n\nYou need to define in Settings > Secrets and Variables > Actions > Secrets > Repository secrets:\n- CURSEFORGE_TOKEN: https://legacy.curseforge.com/account/api-tokens\n- MODRINTH_TOKEN: https://modrinth.com/settings/pats with "Create Version" permission',
 		"Environment Variables"
 	);
 
-	const envVarConfirm = await clack.confirm({
+	const envVarConfirm = await confirm({
 		message: "All set, shall we continue?"
 	});
 
-	if (clack.isCancel(envVarConfirm) || !envVarConfirm) {
-		clack.cancel("Configuration cancelled");
+	if (isCancel(envVarConfirm) || !envVarConfirm) {
+		cancel("Configuration cancelled");
 		process.exit(0);
 	}
 
-	clack.note(
+	note(
 		"Do you want your datapack to be automatically converted to a mod?\n\n- For Modrinth this will create 2 versions on the same project\n- For CurseForge this will create 2 separate projects",
 		"Package as mod"
 	);
 
-	const packageAsMod = await clack.confirm({
+	const packageAsMod = await confirm({
 		message: "Do you want package your datapack as a mod?"
 	});
 
-	if (clack.isCancel(packageAsMod)) {
-		clack.cancel("Configuration cancelled");
+	if (isCancel(packageAsMod)) {
+		cancel("Configuration cancelled");
 		process.exit(0);
 	}
 
@@ -147,66 +123,66 @@ async function runFullSetup(): Promise<void> {
 		platformOptions.push({ value: "curseforge_datapack", label: "CurseForge" });
 	}
 
-	const platforms = await clack.multiselect({
+	const platforms = await multiselect({
 		message: "Choose platforms",
 		options: platformOptions,
 		required: true
 	});
 
-	if (clack.isCancel(platforms)) {
-		clack.cancel("Configuration cancelled");
+	if (isCancel(platforms)) {
+		cancel("Configuration cancelled");
 		process.exit(0);
 	}
 
-	const projectName = await clack.text({
+	const projectName = await text({
 		message: "Project name (appears in CurseForge)",
 		placeholder: "My Datapack",
 		validate: (value) => (value.length === 0 ? "Required" : undefined)
 	});
 
-	if (clack.isCancel(projectName)) {
-		clack.cancel("Configuration cancelled");
+	if (isCancel(projectName)) {
+		cancel("Configuration cancelled");
 		process.exit(0);
 	}
 
 	const versionPreview = "1.0.0";
 
-	const projectFilename = await clack.text({
+	const projectFilename = await text({
 		message: `Project Filename (For zipped datapack) - Preview: ${projectName}-${versionPreview}.zip`,
 		placeholder: projectName as string,
 		defaultValue: projectName as string
 	});
 
-	if (clack.isCancel(projectFilename)) {
-		clack.cancel("Configuration cancelled");
+	if (isCancel(projectFilename)) {
+		cancel("Configuration cancelled");
 		process.exit(0);
 	}
 
 	let modFilename = projectFilename;
 	if (packageAsMod) {
-		const modFilenameInput = await clack.text({
+		const modFilenameInput = await text({
 			message: `Mod Filename (For JAR file) - Preview: ${projectFilename}-${versionPreview}.jar`,
 			placeholder: projectFilename as string,
 			defaultValue: projectFilename as string
 		});
 
-		if (clack.isCancel(modFilenameInput)) {
-			clack.cancel("Configuration cancelled");
+		if (isCancel(modFilenameInput)) {
+			cancel("Configuration cancelled");
 			process.exit(0);
 		}
 
 		modFilename = modFilenameInput;
 	}
 
-	const version = await clack.text({
+	const version = await text({
 		message: "Initial version",
 		placeholder: "1.0.0",
 		defaultValue: "1.0.0",
 		validate: (value) => (value.length === 0 || /^\d+\.\d+\.\d+$/.test(value) ? undefined : "Format: X.Y.Z")
 	});
 
-	if (clack.isCancel(version)) {
-		clack.cancel("Configuration cancelled");
+	if (isCancel(version)) {
+		cancel("Configuration cancelled");
 		process.exit(0);
 	}
 
@@ -218,7 +194,7 @@ async function runFullSetup(): Promise<void> {
 	const platformList = platforms as string[];
 
 	if (platformList.includes("modrinth")) {
-		const modrinthId = await clack.text({
+		const modrinthId = await text({
 			message: "Modrinth Project ID - https://modrinth.com/dashboard/projects",
 			placeholder: "AABBCCDD",
 			validate: (value) => {
@@ -228,8 +204,8 @@ async function runFullSetup(): Promise<void> {
 			}
 		});
 
-		if (clack.isCancel(modrinthId)) {
-			clack.cancel("Configuration cancelled");
+		if (isCancel(modrinthId)) {
+			cancel("Configuration cancelled");
 			process.exit(0);
 		}
 
@@ -238,7 +214,7 @@ async function runFullSetup(): Promise<void> {
 	}
 
 	if (platformList.includes("curseforge_datapack")) {
-		const curseforgeDatapackId = await clack.text({
+		const curseforgeDatapackId = await text({
 			message:
 				"CurseForge Datapack Project ID - Can be found on the Public Page e.g https://www.curseforge.com/minecraft/mc-mods/neoenchant",
 			placeholder: "12345678",
@@ -249,8 +225,8 @@ async function runFullSetup(): Promise<void> {
 			}
 		});
 
-		if (clack.isCancel(curseforgeDatapackId)) {
-			clack.cancel("Configuration cancelled");
+		if (isCancel(curseforgeDatapackId)) {
+			cancel("Configuration cancelled");
 			process.exit(0);
 		}
 
@@ -259,7 +235,7 @@ async function runFullSetup(): Promise<void> {
 	}
 
 	if (platformList.includes("curseforge_mod")) {
-		const curseforgeModId = await clack.text({
+		const curseforgeModId = await text({
 			message: "CurseForge Mod Project ID",
 			placeholder: "12345678",
 			validate: (value) => {
@@ -269,8 +245,8 @@ async function runFullSetup(): Promise<void> {
 			}
 		});
 
-		if (clack.isCancel(curseforgeModId)) {
-			clack.cancel("Configuration cancelled");
+		if (isCancel(curseforgeModId)) {
+			cancel("Configuration cancelled");
 			process.exit(0);
 		}
 
@@ -282,7 +258,7 @@ async function runFullSetup(): Promise<void> {
 		config.package_as_mod.enabled = true;
 		config.package_as_mod.filename = modFilename as string;
 
-		const loaders = await clack.multiselect({
+		const loaders = await multiselect({
 			message: "Mod loaders",
 			options: [
 				{ value: "fabric", label: "Fabric" },
@@ -293,47 +269,47 @@ async function runFullSetup(): Promise<void> {
 			required: true
 		});
 
-		if (clack.isCancel(loaders)) {
-			clack.cancel("Configuration cancelled");
+		if (isCancel(loaders)) {
+			cancel("Configuration cancelled");
 			process.exit(0);
 		}
 
 		config.package_as_mod.loaders = loaders as string[];
 
-		const modId = await clack.text({
+		const modId = await text({
 			message: "Mod ID",
 			placeholder: toCamelCase(projectName as string),
 			defaultValue: toCamelCase(projectName as string)
 		});
 
-		if (clack.isCancel(modId)) {
-			clack.cancel("Configuration cancelled");
+		if (isCancel(modId)) {
+			cancel("Configuration cancelled");
 			process.exit(0);
 		}
 
 		config.package_as_mod.id = modId as string;
 	}
 
-	const wantsExtra = await clack.confirm({
+	const wantsExtra = await confirm({
 		message: "Do you want to configure additional information (author, homepage, sources, issues)?"
 	});
 
-	if (clack.isCancel(wantsExtra)) {
-		clack.cancel("Configuration cancelled");
+	if (isCancel(wantsExtra)) {
+		cancel("Configuration cancelled");
 		process.exit(0);
 	}
 
 	if (wantsExtra) {
-		const authors = await clack.text({
+		const authors = await text({
 			message: "Authors (comma-separated)",
 			placeholder: "Author1, Author2"
 		});
 
-		if (!clack.isCancel(authors) && authors && (authors as string).trim() !== "") {
+		if (!isCancel(authors) && authors && (authors as string).trim() !== "") {
 			config.package_as_mod.authors = (authors as string).split(",").map((a) => a.trim());
 		}
 
-		const homepage = await clack.text({
+		const homepage = await text({
 			message: "Homepage URL",
 			placeholder: "https://example.com",
 			validate: (value) => {
@@ -349,11 +325,11 @@ async function runFullSetup(): Promise<void> {
 			}
 		});
 
-		if (!clack.isCancel(homepage) && homepage && (homepage as string).trim() !== "") {
+		if (!isCancel(homepage) && homepage && (homepage as string).trim() !== "") {
 			config.package_as_mod.homepage = homepage as string;
 		}
 
-		const sources = await clack.text({
+		const sources = await text({
 			message: "Sources URL",
 			placeholder: "https://github.com/user/repo",
 			validate: (value) => {
@@ -369,11 +345,11 @@ async function runFullSetup(): Promise<void> {
 			}
 		});
 
-		if (!clack.isCancel(sources) && sources && (sources as string).trim() !== "") {
+		if (!isCancel(sources) && sources && (sources as string).trim() !== "") {
 			config.package_as_mod.sources = sources as string;
 		}
 
-		const issues = await clack.text({
+		const issues = await text({
 			message: "Issues URL",
 			placeholder: "https://github.com/user/repo/issues",
 			validate: (value) => {
@@ -389,55 +365,63 @@ async function runFullSetup(): Promise<void> {
 			}
 		});
 
-		if (!clack.isCancel(issues) && issues && (issues as string).trim() !== "") {
+		if (!isCancel(issues) && issues && (issues as string).trim() !== "") {
 			config.package_as_mod.issues = issues as string;
 		}
 	}
 
-	const spinner = clack.spinner();
-	spinner.start("Creating configuration...");
+	const s = spinner();
+	s.start("Creating configuration...");
 
 	await writeConfig(config);
 	await createWorkflow();
 
-	spinner.stop("Configuration created successfully!");
+	s.stop("Configuration created successfully!");
 
-	clack.note(
+	note(
 		"The deploy.yaml file has been created at the root of your project.\n\nYou can edit this file to configure advanced settings such as:\n- Excluding files from the build\n- Java versions for CurseForge\n- Environment settings (client/server)\n- And more...",
 		"Configuration Complete"
 	);
 
-	clack.outro("Thank you for your participation, we're done! 🎉");
+	outro("Thank you for your participation, we're done! 🎉");
 
-	const wantsChangeset = await clack.confirm({
+	const wantsChangeset = await confirm({
 		message: "Do you want to create a changeset now?\n\n  (It will be deployed on the next commit)"
 	});
 
-	if (clack.isCancel(wantsChangeset) || !wantsChangeset) {
+	if (isCancel(wantsChangeset) || !wantsChangeset) {
 		return;
 	}
 
-	clack.intro("Create Changeset");
+	intro("Create Changeset");
 	await createNewChangeset();
-	clack.outro("Changeset created successfully!");
+	outro("Changeset created successfully!");
 }
 
 async function createNewChangeset(): Promise<void> {
-	const gameVersions = await clack.multiselect({
+	const config = await readConfig();
+
+	const gameVersions = await multiselect({
 		message: "Select Minecraft versions",
-		options: MINECRAFT_VERSIONS.map((version) => ({
-			value: version,
-			label: version
+		options: MINECRAFT_VERSIONS.map((v) => ({
+			value: v.version,
+			label: v.version
 		})),
 		required: true
 	});
 
-	if (clack.isCancel(gameVersions)) {
-		clack.cancel("Operation cancelled");
+	if (isCancel(gameVersions)) {
+		cancel("Operation cancelled");
 		process.exit(0);
 	}
 
-	const versionType = await clack.select({
+	const selectedVersions = gameVersions as string[];
+	const requiredJavaVersions = getRequiredJavaVersions(selectedVersions);
+	if (config.curseforge.mod.enabled && requiredJavaVersions.length > 0) {
+		config.curseforge.mod.java_versions = requiredJavaVersions;
+	}
+
+	const versionType = await select({
 		message: "Version type",
 		options: [
 			{ value: "release", label: "Release" },
@@ -446,12 +430,12 @@ async function createNewChangeset(): Promise<void> {
 		]
 	});
 
-	if (clack.isCancel(versionType)) {
-		clack.cancel("Operation cancelled");
+	if (isCancel(versionType)) {
+		cancel("Operation cancelled");
 		process.exit(0);
 	}
 
-	const versionBump = await clack.select({
+	const versionBump = await select({
 		message: "Version bump",
 		options: [
 			{ value: "patch", label: "Patch (0.0.X)" },
@@ -460,33 +444,33 @@ async function createNewChangeset(): Promise<void> {
 		]
 	});
 
-	if (clack.isCancel(versionBump)) {
-		clack.cancel("Operation cancelled");
+	if (isCancel(versionBump)) {
+		cancel("Operation cancelled");
 		process.exit(0);
 	}
 
-	let changelog = await clack.text({
+	let changelog = await text({
 		message: "Changelog (press Enter to open editor)",
 		placeholder: "Added new features..."
 	});
 
-	if (clack.isCancel(changelog)) {
-		clack.cancel("Operation cancelled");
+	if (isCancel(changelog)) {
+		cancel("Operation cancelled");
 		process.exit(0);
 	}
 
 	if (!changelog || (changelog as string).trim() === "") {
-		clack.note("Opening editor...\n\n⚠️  IMPORTANT: Save your changes (Ctrl+S) before closing the editor!", "Editor");
+		note("Opening editor...\n\n⚠️  IMPORTANT: Save your changes (Ctrl+S) before closing the editor!", "Editor");
 
 		const editedChangelog = await openEditor();
 
 		if (editedChangelog === null) {
-			clack.cancel("Operation cancelled");
+			cancel("Operation cancelled");
 			process.exit(0);
 		}
 
 		if (editedChangelog.trim() === "") {
-			clack.log.error("Changelog cannot be empty. Please provide a changelog.");
+			log.error("Changelog cannot be empty. Please provide a changelog.");
 			process.exit(1);
 		}
 
@@ -494,13 +478,18 @@ async function createNewChangeset(): Promise<void> {
 	}
 
 	const frontmatter: ChangesetFrontmatter = {
-		game_versions: gameVersions as string[],
+		game_versions: selectedVersions,
 		version_type: versionType as VersionType,
 		version_bump: versionBump as VersionBump
 	};
 
 	const filepath = await createChangeset(frontmatter, changelog as string);
-	clack.log.success(`Created ${filepath}`);
+
+	if (config.curseforge.mod.enabled && requiredJavaVersions.length > 0) {
+		await writeConfig(config);
+	}
+
+	log.success(`Created ${filepath}`);
 }
 
 async function openEditor(): Promise<string | null> {

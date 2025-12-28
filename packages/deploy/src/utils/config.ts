@@ -52,7 +52,7 @@ export function createDefaultConfig(): DeployConfig {
 			mod: {
 				enabled: false,
 				project_id: null,
-				java_versions: ["Java 21"],
+				java_versions: ["Java 17"],
 				environments: ["server"]
 			}
 		},
