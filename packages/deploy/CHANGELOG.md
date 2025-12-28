@@ -1,5 +1,11 @@
 # @voxelio/deploy
 
+## 1.0.10
+
+### Patch Changes
+
+- 1206a4a: change js to mjs
+
 ## 1.0.9
 
 ### Patch Changes
