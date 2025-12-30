@@ -3,7 +3,7 @@ import { writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { cancel, confirm, intro, isCancel, log, multiselect, note, outro, select, spinner, text } from "@clack/prompts";
-import type { ChangesetFrontmatter, VersionBump, VersionType } from "@/types/schema";
+import type { ChangesetFrontmatter, VersionBump, VersionType } from "@/type";
 import { createChangeset } from "@/utils/changeset";
 import { configExists, createDefaultConfig, readConfig, writeConfig } from "@/utils/config";
 import { isValidDatapack } from "@/utils/datapack";

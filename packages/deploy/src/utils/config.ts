@@ -1,6 +1,6 @@
 import { access, constants, readFile, writeFile } from "node:fs/promises";
 import { parse, stringify } from "yaml";
-import { DeployConfig } from "@/types/schema";
+import { DeployConfig } from "@/type";
 
 export async function configExists(): Promise<boolean> {
 	try {

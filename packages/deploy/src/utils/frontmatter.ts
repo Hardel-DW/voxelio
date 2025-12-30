@@ -1,5 +1,5 @@
 import { parse, stringify } from "yaml";
-import type { ChangesetFrontmatter } from "@/types/schema";
+import type { ChangesetFrontmatter } from "@/type";
 
 export function parseMarkdownFrontmatter(content: string): { data: ChangesetFrontmatter; content: string } {
 	const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);

@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import type { ChangesetFrontmatter } from "@/types/schema";
+import type { ChangesetFrontmatter } from "@/type";
 import { createMarkdownWithFrontmatter } from "@/utils/frontmatter";
 
 const CHANGESET_DIR = ".changeset";
