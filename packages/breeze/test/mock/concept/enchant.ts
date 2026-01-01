@@ -17,6 +17,22 @@ export const sharpness: DataDrivenRegistryElement<Enchantment> = {
 	}
 };
 
+export const with_custom_fields: DataDrivenRegistryElement<Enchantment> = {
+	identifier: { namespace: "modded", registry: "enchantment", resource: "custom_enchant" },
+	data: {
+		description: { translate: "modded.custom_enchant", fallback: "Custom Enchant" },
+		supported_items: "#minecraft:enchantable/sword",
+		weight: 5,
+		max_level: 3,
+		min_cost: { base: 5, per_level_above_first: 10 },
+		max_cost: { base: 25, per_level_above_first: 10 },
+		anvil_cost: 2,
+		slots: ["mainhand"],
+		custom_modded_field: "should_be_preserved",
+		another_custom: { nested: { value: 42 } }
+	}
+};
+
 export const smite: DataDrivenRegistryElement<Enchantment> = {
 	identifier: { namespace: "minecraft", registry: "enchantment", resource: "smite" },
 	data: {

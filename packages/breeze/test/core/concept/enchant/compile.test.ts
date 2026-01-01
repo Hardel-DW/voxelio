@@ -1,7 +1,7 @@
 import { Identifier } from "@/core/Identifier";
 import { VoxelToEnchantmentDataDriven } from "@/core/schema/enchant/Compiler";
 import { EnchantmentDataDrivenToVoxelFormat } from "@/core/schema/enchant/Parser";
-import { originalEnchantments } from "@test/mock/concept/enchant";
+import { originalEnchantments, with_custom_fields } from "@test/mock/concept/enchant";
 import { describe, expect, it } from "vitest";
 
 describe("Voxel Element to Data Driven", () => {
@@ -77,6 +77,44 @@ describe("Voxel Element to Data Driven", () => {
 			expect(compiled.tags).toEqual([]);
 			expect(compiled.element.data.exclusive_set).toBeUndefined();
 			expect(compiled.element.data.effects).toBeUndefined();
+		});
+	});
+
+	describe("Exclusive Set Removal", () => {
+		it("should remove exclusive_set from output when exclusiveSet is set to undefined", () => {
+			const original = originalEnchantments.attack_speed;
+			const parsed = EnchantmentDataDrivenToVoxelFormat({ element: original });
+
+			expect(original.data.exclusive_set).toBe("#enchantplus:exclusive_set/sword_attribute");
+
+			parsed.exclusiveSet = undefined;
+			const compiled = VoxelToEnchantmentDataDriven(parsed, "enchantment", original.data);
+
+			expect(compiled.element.data.exclusive_set).toBeUndefined();
+			expect("exclusive_set" in compiled.element.data).toBe(false);
+		});
+
+		it("should remove exclusive_set when set to empty array", () => {
+			const original = originalEnchantments.multi_exclusive;
+			const parsed = EnchantmentDataDrivenToVoxelFormat({ element: original });
+
+			parsed.exclusiveSet = [];
+			const compiled = VoxelToEnchantmentDataDriven(parsed, "enchantment", original.data);
+
+			expect(compiled.element.data.exclusive_set).toBeUndefined();
+			expect("exclusive_set" in compiled.element.data).toBe(false);
+		});
+	});
+
+	describe("Custom Modded Fields", () => {
+		it("should preserve custom modded fields from original", () => {
+			const original = with_custom_fields;
+			const parsed = EnchantmentDataDrivenToVoxelFormat({ element: original });
+			const compiled = VoxelToEnchantmentDataDriven(parsed, "enchantment", original.data);
+
+			const data = compiled.element.data as Record<string, unknown>;
+			expect(data.custom_modded_field).toBe("should_be_preserved");
+			expect(data.another_custom).toEqual({ nested: { value: 42 } });
 		});
 	});
 });

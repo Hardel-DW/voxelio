@@ -32,7 +32,7 @@ describe("Action System", () => {
 			expect(result).not.toBe(element);
 		});
 
-		it("should set undefined", () => {
+		it("should delete key with setUndefined", () => {
 			const element = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.knockback });
 			element.minCostBase = 5;
 			expect(element.minCostBase).toBe(5);
@@ -42,10 +42,22 @@ describe("Action System", () => {
 			const result = updateData(response, element, 48);
 			expect(result).toBeDefined();
 			expect(result?.minCostBase).toBeUndefined();
-			expect(result).toHaveProperty("minCostBase");
+			expect(result).not.toHaveProperty("minCostBase");
 			expect(element.minCostBase).toBe(5);
 			expect(element).toHaveProperty("minCostBase");
 			expect(result).not.toBe(element);
+		});
+
+		it("should delete nested key with setUndefined", () => {
+			const element = EnchantmentDataDrivenToVoxelFormat({ element: originalEnchantments.accuracy_shot_with_disabled });
+			expect(element.effects).toBeDefined();
+			expect(element.effects).toHaveProperty("foo");
+
+			const response = CoreAction.setUndefined("effects.foo");
+			const result = updateData(response, element, 48);
+			expect(result).toBeDefined();
+			expect(result?.effects).not.toHaveProperty("foo");
+			expect(element.effects).toHaveProperty("foo");
 		});
 
 		it("should invert boolean values", () => {

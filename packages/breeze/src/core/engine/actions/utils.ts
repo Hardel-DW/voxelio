@@ -63,10 +63,10 @@ export function getValueAtPath(obj: Record<string, unknown>, path: string): unkn
 }
 
 /**
- * Delete a value at a given path in an object (set to undefined)
+ * Delete a value at a given path in an object
  * @param obj - The object to modify
  * @param path - Dot-separated path
- * @returns New object with the value removed
+ * @returns New object with the key removed
  */
 export function deleteValueAtPath(obj: Record<string, unknown>, path: string): Record<string, unknown> {
 	const result = { ...obj };
@@ -78,11 +78,12 @@ export function deleteValueAtPath(obj: Record<string, unknown>, path: string): R
 		if (!(part in current)) {
 			return result;
 		}
+		current[part] = { ...(current[part] as Record<string, unknown>) };
 		current = current[part] as Record<string, unknown>;
 	}
 
 	const lastKey = pathParts[pathParts.length - 1];
-	current[lastKey] = undefined;
+	delete current[lastKey];
 
 	return result;
 }

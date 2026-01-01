@@ -51,12 +51,10 @@ export const VoxelToEnchantmentDataDriven: Compiler<EnchantmentProps, Enchantmen
 		tags = tags.filter((tag) => !FUNCTIONALITY_TAGS_CACHE.has(tag.toString()));
 	}
 
-	if (element.exclusiveSet) {
+	if (element.exclusiveSet && !(Array.isArray(element.exclusiveSet) && element.exclusiveSet.length === 0)) {
 		enchantment.exclusive_set = element.exclusiveSet;
-	}
-
-	if (Array.isArray(enchantment.exclusive_set) && enchantment.exclusive_set.length === 0) {
-		enchantment.exclusive_set = undefined;
+	} else {
+		delete enchantment.exclusive_set;
 	}
 
 	if (element.disabledEffects.length > 0 && enchantment.effects) {
@@ -66,8 +64,8 @@ export const VoxelToEnchantmentDataDriven: Compiler<EnchantmentProps, Enchantmen
 	}
 
 	if (element.mode === "soft_delete") {
-		enchantment.exclusive_set = undefined;
-		enchantment.effects = undefined;
+		delete enchantment.exclusive_set;
+		delete enchantment.effects;
 		tags = [];
 	}
 
