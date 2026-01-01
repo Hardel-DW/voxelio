@@ -57,7 +57,7 @@ export class Logger {
 
 		const draft = structuredClone(element);
 		const result = updater(draft);
-		const updated = (result ? Object.assign(draft, result) : draft) as T;
+		const updated = (result ?? draft) as T;
 		const patch = new Differ(original, updated).diff();
 
 		if (patch.length === 0) {
