@@ -57,17 +57,25 @@ export class Logger {
 
 		const draft = structuredClone(element);
 		const result = updater(draft);
-		const updated = (result ?? draft) as T;
+		if (!result) return draft;
+
+		for (const key of Object.keys(draft)) {
+			if (!(key in result)) {
+				delete (draft as Record<string, unknown>)[key];
+			}
+		}
+
+		const updated = Object.assign(draft, result) as T;
 		const patch = new Differ(original, updated).diff();
 
 		if (patch.length === 0) {
 			this.patches.delete(key);
 			this.timestamps.delete(key);
-		} else {
-			this.patches.set(key, patch);
-			this.timestamps.set(key, new Date().toISOString());
+			return updated;
 		}
 
+		this.patches.set(key, patch);
+		this.timestamps.set(key, new Date().toISOString());
 		return updated;
 	}
 

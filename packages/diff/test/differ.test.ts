@@ -44,6 +44,29 @@ describe("Differ", () => {
 			});
 		});
 
+		it("should generate minimal patch when removing a key in the middle", () => {
+			const obj1 = {
+				identifier: { namespace: "test", resource: "foo" },
+				description: "Test",
+				exclusiveSet: "#minecraft:exclusive",
+				supportedItems: "#minecraft:sword",
+				maxLevel: 5,
+				weight: 10
+			};
+			const obj2 = {
+				identifier: { namespace: "test", resource: "foo" },
+				description: "Test",
+				supportedItems: "#minecraft:sword",
+				maxLevel: 5,
+				weight: 10
+			};
+
+			const patch = new Differ(obj1, obj2).diff();
+
+			expect(patch).toHaveLength(1);
+			expect(patch[0]).toEqual({ op: "remove", path: "/exclusiveSet" });
+		});
+
 		it("should handle nested objects", () => {
 			const obj1 = {
 				user: {

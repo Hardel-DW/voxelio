@@ -10,7 +10,14 @@ const isPlainObject = (value: unknown): value is Record<string, unknown> =>
 const areKeysInSameOrder = (left: Record<string, unknown>, right: Record<string, unknown>): boolean => {
 	const keysLeft = Object.keys(left);
 	const keysRight = Object.keys(right);
-	return keysLeft.length === keysRight.length && keysLeft.every((key, index) => key === keysRight[index]);
+	const commonKeys = keysRight.filter((key) => key in left);
+	let lastIndex = -1;
+	for (const key of commonKeys) {
+		const index = keysLeft.indexOf(key);
+		if (index <= lastIndex) return false;
+		lastIndex = index;
+	}
+	return true;
 };
 
 interface MatchPair {
