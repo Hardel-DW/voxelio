@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.30
+
+### Patch Changes
+
+- 05ead42: Fixing ExlusiveSet and Logs-Patch generation
+
 ## 1.10.29
 
 ### Patch Changes
