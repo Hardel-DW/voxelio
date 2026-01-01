@@ -1,5 +1,11 @@
 # @voxelio/diff
 
+## 1.0.8
+
+### Patch Changes
+
+- 7c13f26: Fixed areKeysInSameOrder to check the relative order of common keys instead of comparing lengths. Now deleting a key no longer triggers a “remove all + add all” operation. The migration is now correct and uses delete instead of undefined.
+
 ## 1.0.7
 
 ### Patch Changes
