@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.31
+
+### Patch Changes
+
+- 4375409: Small Fixes about deleteValueAtPath
+
 ## 1.10.30
 
 ### Patch Changes
