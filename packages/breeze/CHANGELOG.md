@@ -1,5 +1,11 @@
 # @voxelio/breeze
 
+## 1.10.33
+
+### Patch Changes
+
+- 7fdd532: Added Version to logger
+
 ## 1.10.32
 
 ### Patch Changes
