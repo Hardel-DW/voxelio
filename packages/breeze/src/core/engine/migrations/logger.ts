@@ -23,11 +23,16 @@ export class Logger {
 	private readonly originals = new Map<string, VoxelElement>();
 	private readonly patches = new Map<string, PatchOperation[]>();
 	private readonly timestamps = new Map<string, string>();
+	private version = 0;
 
 	constructor(files?: Record<string, Uint8Array>) {
 		if (files) {
 			this.loadFromFiles(files);
 		}
+	}
+
+	getVersion(): number {
+		return this.version;
 	}
 
 	hasChanges(identifier: IdentifierObject | string): boolean {
@@ -76,6 +81,7 @@ export class Logger {
 
 		this.patches.set(key, patch);
 		this.timestamps.set(key, new Date().toISOString());
+		this.version++;
 		return updated;
 	}
 
