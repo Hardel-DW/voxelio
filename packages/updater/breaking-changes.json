@@ -1,0 +1,5034 @@
+{
+  "1.16.2": {
+    "entries": [
+      {
+        "snapshot": "1.16.2-rc1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data and resource pack format has been increased to 6.",
+        "fullLine": "pack breaking obsolete | Data and resource pack format has been increased to 6."
+      }
+    ]
+  },
+  "1.17": {
+    "packFormat": 7,
+    "entries": [
+      {
+        "snapshot": "1.17-pre1",
+        "categories": [
+          "command",
+          "debug"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed command `/debug report`, instead use the new `/perf` command.",
+        "fullLine": "command debug breaking | Removed command `/debug report`, instead use the new `/perf` command."
+      },
+      {
+        "snapshot": "1.17-pre1",
+        "categories": [
+          "loot",
+          "advancement",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed item predicates. Now has an `items` field instead of `item`, which is a list of item IDs.",
+        "fullLine": "loot advancement predicate breaking | Changed item predicates. Now has an `items` field instead of `item`, which is a list of item IDs."
+      },
+      {
+        "snapshot": "1.17-pre1",
+        "categories": [
+          "loot",
+          "advancement",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed block predicates. Now has a `blocks` field instead of `block`, which is a list of block IDs.",
+        "fullLine": "loot advancement predicate breaking | Changed block predicates. Now has a `blocks` field instead of `block`, which is a list of block IDs."
+      },
+      {
+        "snapshot": "20w45a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 7.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 7."
+      },
+      {
+        "snapshot": "20w45a",
+        "categories": [
+          "block",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed `grass_path` -> `dirt_path`.",
+        "fullLine": "block data breaking | Renamed `grass_path` -> `dirt_path`."
+      },
+      {
+        "snapshot": "20w45a",
+        "categories": [
+          "block",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Split `cauldron` into `cauldron`, `water_cauldron`, and `lava_cauldron`. Only empty cauldrons (previously `cauldron[level=0]`) are now `cauldron`.",
+        "fullLine": "block data breaking | Split `cauldron` into `cauldron`, `water_cauldron`, and `lava_cauldron`. Only empty cauldrons (previously `cauldron[level=0]`) are now `cauldron`."
+      },
+      {
+        "snapshot": "20w46a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 7.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 7."
+      },
+      {
+        "snapshot": "20w46a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed the `/replaceitem` command.",
+        "fullLine": "command breaking | Removed the `/replaceitem` command."
+      },
+      {
+        "snapshot": "21w10a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The number of items that the `/give` command can give has been limited to 100 stacks.",
+        "fullLine": "command breaking | The number of items that the `/give` command can give has been limited to 100 stacks."
+      }
+    ]
+  },
+  "1.18": {
+    "packFormat": 8,
+    "entries": [
+      {
+        "snapshot": "21w37a",
+        "categories": [
+          "loot",
+          "item-modifier"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `set_contents` and `set_loot_table` functions now require a `type` field with a valid block entity type.",
+        "fullLine": "loot item-modifier breaking | The `set_contents` and `set_loot_table` functions now require a `type` field with a valid block entity type."
+      },
+      {
+        "snapshot": "21w37a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 8.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 8."
+      },
+      {
+        "snapshot": "21w37a",
+        "categories": [
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Added `custom_spawn_rules` NBT field to spawners, in the `SpawnData` object and `SpawnPotentials` list.",
+        "fullLine": "nbt breaking | Added `custom_spawn_rules` NBT field to spawners, in the `SpawnData` object and `SpawnPotentials` list."
+      },
+      {
+        "snapshot": "21w37a",
+        "categories": [
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed spawner NBT field `SpawnPotentials` format to `{ weight: <int>, data: { entity: {...}, custom_spawn_rules: {...} } }`.",
+        "fullLine": "nbt breaking | Changed spawner NBT field `SpawnPotentials` format to `{ weight: <int>, data: { entity: {...}, custom_spawn_rules: {...} } }`."
+      },
+      {
+        "snapshot": "21w37a",
+        "categories": [
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Moved contents of spawner NBT field `SpawnData` to `SpawnData.entity`.",
+        "fullLine": "nbt breaking | Moved contents of spawner NBT field `SpawnData` to `SpawnData.entity`."
+      },
+      {
+        "snapshot": "21w37a",
+        "categories": [
+          "data",
+          "tag"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed block tag `lava_pool_stone_replaceables` to `lava_pool_stone_cannot_replace`.",
+        "fullLine": "data tag breaking | Renamed block tag `lava_pool_stone_replaceables` to `lava_pool_stone_cannot_replace`."
+      },
+      {
+        "snapshot": "21w39a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 8.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 8."
+      },
+      {
+        "snapshot": "21w42a",
+        "categories": [
+          "particle"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Replaced particles `light` and `barrier` with `block_marker`. This particle renders a texture based on the `particle` field of the block model. It takes a block state option similarly to the `block` particle, for example `block_marker wheat[age=2]`.",
+        "fullLine": "particle breaking | Replaced particles `light` and `barrier` with `block_marker`. This particle renders a texture based on the `particle` field of the block model. It takes a block state option similarly to the `block` particle, for example `block_marker wheat[age=2]`."
+      }
+    ]
+  },
+  "1.18.2": {
+    "packFormat": 9,
+    "entries": [
+      {
+        "snapshot": "1.18.2-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 9.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 9."
+      },
+      {
+        "snapshot": "1.18.2-pre1",
+        "categories": [
+          "command",
+          "structure"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `/locate` command now expects configured structure features, rather than structure types. For example `/locate village_desert`.",
+        "fullLine": "command structure breaking | The `/locate` command now expects configured structure features, rather than structure types. For example `/locate village_desert`."
+      }
+    ]
+  },
+  "1.19": {
+    "packFormat": 10,
+    "entries": [
+      {
+        "snapshot": "22w11a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 10.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 10."
+      },
+      {
+        "snapshot": "22w11a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 9.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 9."
+      },
+      {
+        "snapshot": "22w11a",
+        "categories": [
+          "text",
+          "font"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Font providers now manually need to declare the space glyph.",
+        "fullLine": "text font breaking | Font providers now manually need to declare the space glyph."
+      },
+      {
+        "snapshot": "22w11a",
+        "categories": [
+          "loot",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed location predicate field `feature` -> `structure`.",
+        "fullLine": "loot predicate breaking | Renamed location predicate field `feature` -> `structure`."
+      },
+      {
+        "snapshot": "22w11a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Potion and effect field `Id`, previously a byte is now an int. When checking the `b` suffix needs to be removed.",
+        "fullLine": "entity nbt breaking | Potion and effect field `Id`, previously a byte is now an int. When checking the `b` suffix needs to be removed."
+      },
+      {
+        "snapshot": "22w14a",
+        "categories": [
+          "advancement",
+          "loot",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed `location` field from triggers `location`, `slept_in_bed`, `hero_of_the_village` and `voluntary_exile`. Instead the `player.location` field can be used.",
+        "fullLine": "advancement loot predicate breaking | Removed `location` field from triggers `location`, `slept_in_bed`, `hero_of_the_village` and `voluntary_exile`. Instead the `player.location` field can be used."
+      },
+      {
+        "snapshot": "22w14a",
+        "categories": [
+          "advancement",
+          "loot",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Replaced entity predicate fields `player`, `fishing_hook`, `lightning_bolt`, and `catType` with `type_specific`. It has a field `type` (an entity type), and other fields depending on the type.",
+        "fullLine": "advancement loot predicate breaking | Replaced entity predicate fields `player`, `fishing_hook`, `lightning_bolt`, and `catType` with `type_specific`. It has a field `type` (an entity type), and other fields depending on the type."
+      }
+    ]
+  },
+  "1.19.3": {
+    "entries": [
+      {
+        "snapshot": "22w42a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 11 (skipping 10).",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 11 (skipping 10)."
+      },
+      {
+        "snapshot": "22w42a",
+        "categories": [
+          "recipe"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Added field `category` to recipes. Depending on the recipe type there are different options:",
+        "fullLine": "recipe breaking | Added field `category` to recipes. Depending on the recipe type there are different options:"
+      },
+      {
+        "snapshot": "22w45a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 12.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 12."
+      },
+      {
+        "snapshot": "22w45a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed player skin textures `entity/steve` and `entity/alex`.",
+        "fullLine": "assets breaking | Removed player skin textures `entity/steve` and `entity/alex`."
+      },
+      {
+        "snapshot": "22w45a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the `gui/container/creative_inventory/tabs` texture to fit an extra tab on the top and bottom.",
+        "fullLine": "assets breaking | Changed the `gui/container/creative_inventory/tabs` texture to fit an extra tab on the top and bottom."
+      },
+      {
+        "snapshot": "22w45a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Change the `/publish` command syntax:",
+        "fullLine": "command breaking | Change the `/publish` command syntax:"
+      },
+      {
+        "snapshot": "22w45a",
+        "categories": [
+          "tag",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed block tag `overworld_natural_logs`.",
+        "fullLine": "tag data breaking | Removed block tag `overworld_natural_logs`."
+      }
+    ]
+  },
+  "1.19.4": {
+    "packFormat": 12,
+    "entries": [
+      {
+        "snapshot": "1.19.4-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 13.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 13."
+      },
+      {
+        "snapshot": "23w03a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 11.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 11."
+      },
+      {
+        "snapshot": "23w03a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the `/weather` command. The time parameter now accepts a `t`, `s`, or `d` suffix. To retain existing functionality, you need to add an `s` suffix to pre-existing commands.",
+        "fullLine": "command breaking | Changed the `/weather` command. The time parameter now accepts a `t`, `s`, or `d` suffix. To retain existing functionality, you need to add an `s` suffix to pre-existing commands."
+      },
+      {
+        "snapshot": "23w03a",
+        "categories": [
+          "text"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Added `fallback` field to `translate` text components. Out-of-bound arguments in translate formats are no longer silently ignored.",
+        "fullLine": "text breaking | Added `fallback` field to `translate` text components. Out-of-bound arguments in translate formats are no longer silently ignored."
+      },
+      {
+        "snapshot": "23w06a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 12.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 12."
+      },
+      {
+        "snapshot": "23w06a",
+        "categories": [
+          "predicate",
+          "advancement"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed damage predicates. Removed fields `is_projectile, is_explosion`, `bypasses_armor`, `bypasses_invulnerability`, `bypasses_magic`, `is_fire`, `is_magic`, and `is_lightning`. Added new field `tags` which is a list of objects, each containting two fields: `id` (id of damage type tag) and `expected` (boolean).",
+        "fullLine": "predicate advancement breaking | Changed damage predicates. Removed fields `is_projectile, is_explosion`, `bypasses_armor`, `bypasses_invulnerability`, `bypasses_magic`, `is_fire`, `is_magic`, and `is_lightning`. Added new field `tags` which is a list of objects, each containting two fields: `id` (id of damage type tag) and `expected` (boolean)."
+      }
+    ]
+  },
+  "1.20": {
+    "packFormat": 15,
+    "entries": [
+      {
+        "snapshot": "23w12a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 13.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 13."
+      },
+      {
+        "snapshot": "23w12a",
+        "categories": [
+          "text",
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Click commands on Signs can now only be invoked when the Sign is waxed, existing signs will no longer run the command when clicked.",
+        "fullLine": "text command breaking | Click commands on Signs can now only be invoked when the Sign is waxed, existing signs will no longer run the command when clicked."
+      },
+      {
+        "snapshot": "23w12a",
+        "categories": [
+          "block",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed NBT of signs. Removed tags `Text1`, `Text2`, `Text3`, and `Text4`. Added tags `front_text` and `back_text`, each an object with tags: `has_glowing_text` (boolean), `color` (string), and `messages` (list of 4 text components). Additionally added a tag `is_waxed` (boolean).",
+        "fullLine": "block nbt breaking | Changed NBT of signs. Removed tags `Text1`, `Text2`, `Text3`, and `Text4`. Added tags `front_text` and `back_text`, each an object with tags: `has_glowing_text` (boolean), `color` (string), and `messages` (list of 4 text components). Additionally added a tag `is_waxed` (boolean)."
+      },
+      {
+        "snapshot": "23w14a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 14.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 14."
+      },
+      {
+        "snapshot": "23w14a",
+        "categories": [
+          "text",
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Signs with click commands can now be interacted with even if the Sign is not waxed. Signs with non-`\"text\"` text components can no longer be edited.",
+        "fullLine": "text command breaking | Signs with click commands can now be interacted with even if the Sign is not waxed. Signs with non-`\"text\"` text components can no longer be edited."
+      },
+      {
+        "snapshot": "23w16a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 14.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 14."
+      },
+      {
+        "snapshot": "23w17a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 15.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 15."
+      },
+      {
+        "snapshot": "23w17a",
+        "categories": [
+          "worldgen"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the `huge_fungus` configured feature. Added a required field `replaceable_blocks`, which is a block predicate.",
+        "fullLine": "worldgen breaking | Changed the `huge_fungus` configured feature. Added a required field `replaceable_blocks`, which is a block predicate."
+      },
+      {
+        "snapshot": "23w18a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 15.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 15."
+      },
+      {
+        "snapshot": "23w18a",
+        "categories": [
+          "loot",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed the `alternative` condition to `any_of`.",
+        "fullLine": "loot predicate breaking | Renamed the `alternative` condition to `any_of`."
+      },
+      {
+        "snapshot": "23w18a",
+        "categories": [
+          "advancement"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the `placed_block`, `item_used_on_block`, and `allay_drop_item_on_block` advancement triggers. All fields are now collapsed into `location` which is no longer just a location predicate. It now accepts a list of loot conditions, just like the `player` condition.",
+        "fullLine": "advancement breaking | Changed the `placed_block`, `item_used_on_block`, and `allay_drop_item_on_block` advancement triggers. All fields are now collapsed into `location` which is no longer just a location predicate. It now accepts a list of loot conditions, just like the `player` condition."
+      }
+    ]
+  },
+  "1.20.2": {
+    "packFormat": 17,
+    "entries": [
+      {
+        "snapshot": "1.20.2-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 18.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 18."
+      },
+      {
+        "snapshot": "1.20.2-pre1",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Removed the `execute if|unless function` subcommand.",
+        "fullLine": "command breaking obsolete | Removed the `execute if|unless function` subcommand."
+      },
+      {
+        "snapshot": "1.20.2-pre1",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Removed the `return run` command syntax.",
+        "fullLine": "command breaking obsolete | Removed the `return run` command syntax."
+      },
+      {
+        "snapshot": "1.20.2-pre2",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 18.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 18."
+      },
+      {
+        "snapshot": "23w31a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 16.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 16."
+      },
+      {
+        "snapshot": "23w31a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 16.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 16."
+      },
+      {
+        "snapshot": "23w31a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "All textures in the `realms` namespace have been moved into the `minecraft` namespace.",
+        "fullLine": "assets breaking | All textures in the `realms` namespace have been moved into the `minecraft` namespace."
+      },
+      {
+        "snapshot": "23w31a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "All textures containing multiple sprites in a sheet for GUI have been split into individual sprites under `textures/gui/sprites`. For example:",
+        "fullLine": "assets breaking | All textures containing multiple sprites in a sheet for GUI have been split into individual sprites under `textures/gui/sprites`. For example:"
+      },
+      {
+        "snapshot": "23w31a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "`villager2.png` has been renamed to `villager.png`.",
+        "fullLine": "assets breaking | `villager2.png` has been renamed to `villager.png`."
+      },
+      {
+        "snapshot": "23w31a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "`icon/trial_available` and `realm_status/expires_soon` GUI sprites are animated with `.mcmeta` declarations instead of individual sprites.",
+        "fullLine": "assets breaking | `icon/trial_available` and `realm_status/expires_soon` GUI sprites are animated with `.mcmeta` declarations instead of individual sprites."
+      },
+      {
+        "snapshot": "23w31a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The bundle tooltip background is now drawn as a nine-sliced sprite.",
+        "fullLine": "assets breaking | The bundle tooltip background is now drawn as a nine-sliced sprite."
+      },
+      {
+        "snapshot": "23w31a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The icons for the Accessibility, Language, Realms News buttons have been split from their underlying button texture.",
+        "fullLine": "assets breaking | The icons for the Accessibility, Language, Realms News buttons have been split from their underlying button texture."
+      },
+      {
+        "snapshot": "23w31a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The Realms Invite button is now drawn as an overlay on the normal button texture, and the highlighted texture state for this button has been removed.",
+        "fullLine": "assets breaking | The Realms Invite button is now drawn as an overlay on the normal button texture, and the highlighted texture state for this button has been removed."
+      },
+      {
+        "snapshot": "23w31a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The exclamation marks on the `notification\\more.png` have been removed.",
+        "fullLine": "assets breaking | The exclamation marks on the `notification\\more.png` have been removed."
+      },
+      {
+        "snapshot": "23w31a",
+        "categories": [
+          "game-event"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `entity_roar` and `entity_shake` game events are removed and replaced with `entity_action`.",
+        "fullLine": "game-event breaking | The `entity_roar` and `entity_shake` game events are removed and replaced with `entity_action`."
+      },
+      {
+        "snapshot": "23w32a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 17.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 17."
+      },
+      {
+        "snapshot": "23w32a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 17.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 17."
+      },
+      {
+        "snapshot": "23w32a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The text field background is now a nine-sliced sprite at `widget/text_field` and `widget/text_field_highlighted`.",
+        "fullLine": "assets breaking | The text field background is now a nine-sliced sprite at `widget/text_field` and `widget/text_field_highlighted`."
+      },
+      {
+        "snapshot": "23w32a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The scroll bar in lists and text fields is now a nine-sliced sprite at `widget/scroller`.",
+        "fullLine": "assets breaking | The scroll bar in lists and text fields is now a nine-sliced sprite at `widget/scroller`."
+      },
+      {
+        "snapshot": "23w32a",
+        "categories": [
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Mob effects are now namespaced ids rather than numeric values. For example, `1` is now `minecraft:speed`.",
+        "fullLine": "nbt breaking | Mob effects are now namespaced ids rather than numeric values. For example, `1` is now `minecraft:speed`."
+      },
+      {
+        "snapshot": "23w32a",
+        "categories": [
+          "nbt",
+          "entity",
+          "block-entity"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The structure for mob effect storage has been largely changed from pascal to snake case, with a couple of renames. All changes:",
+        "fullLine": "nbt entity block-entity breaking | The structure for mob effect storage has been largely changed from pascal to snake case, with a couple of renames. All changes:"
+      }
+    ]
+  },
+  "1.20.3": {
+    "packFormat": 25,
+    "entries": [
+      {
+        "snapshot": "1.20.3-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 26.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 26."
+      },
+      {
+        "snapshot": "1.20.3-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 22.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 22."
+      },
+      {
+        "snapshot": "1.20.3-pre1",
+        "categories": [
+          "block",
+          "item"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed `minecraft:grass` block and item to `minecraft:short_grass`.",
+        "fullLine": "block item breaking | Renamed `minecraft:grass` block and item to `minecraft:short_grass`."
+      },
+      {
+        "snapshot": "23w40a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 19.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 19."
+      },
+      {
+        "snapshot": "23w40a",
+        "categories": [
+          "text"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Numeric and boolean text components are no longer converted to a string. Additionaly, `null` and `[]` are no longer accepted.",
+        "fullLine": "text breaking | Numeric and boolean text components are no longer converted to a string. Additionaly, `null` and `[]` are no longer accepted."
+      },
+      {
+        "snapshot": "23w41a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 20.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 20."
+      },
+      {
+        "snapshot": "23w41a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Non-living entities with a `CustomName` will now show their name when looked at, or always if `CustomNameVisible` is set.",
+        "fullLine": "entity nbt breaking | Non-living entities with a `CustomName` will now show their name when looked at, or always if `CustomNameVisible` is set."
+      },
+      {
+        "snapshot": "23w41a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `/function` command no longer has a result unless it uses `/return`, it will no longer return the number of commands executed.",
+        "fullLine": "command breaking | The `/function` command no longer has a result unless it uses `/return`, it will no longer return the number of commands executed."
+      },
+      {
+        "snapshot": "23w41a",
+        "categories": [
+          "command",
+          "gamerule"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `maxCommandChainLength` game rule now counts operations more strictly.",
+        "fullLine": "command gamerule breaking | The `maxCommandChainLength` game rule now counts operations more strictly."
+      },
+      {
+        "snapshot": "23w42a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 21.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 21."
+      },
+      {
+        "snapshot": "23w42a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 19.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 19."
+      },
+      {
+        "snapshot": "23w42a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the `tnt` entity NBT. Renamed field `Fuse` -> `fuse` and added field `block_state`.",
+        "fullLine": "entity nbt breaking | Changed the `tnt` entity NBT. Renamed field `Fuse` -> `fuse` and added field `block_state`."
+      },
+      {
+        "snapshot": "23w43a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 22.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 22."
+      },
+      {
+        "snapshot": "23w43a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 20.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 20."
+      },
+      {
+        "snapshot": "23w43a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed field `Trident` -> `item` on the trident entity.",
+        "fullLine": "entity nbt breaking | Renamed field `Trident` -> `item` on the trident entity."
+      },
+      {
+        "snapshot": "23w44a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 23.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 23."
+      },
+      {
+        "snapshot": "23w45a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 24.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 24."
+      },
+      {
+        "snapshot": "23w45a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 21.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 21."
+      },
+      {
+        "snapshot": "23w46a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 25.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 25."
+      }
+    ]
+  },
+  "1.20.5": {
+    "packFormat": 38,
+    "entries": [
+      {
+        "snapshot": "1.20.5-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 39.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 39."
+      },
+      {
+        "snapshot": "1.20.5-pre1",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the `/particle` command syntax for particles with extra options:",
+        "fullLine": "command breaking | Changed the `/particle` command syntax for particles with extra options:"
+      },
+      {
+        "snapshot": "1.20.5-pre1",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the `Particle` field of area effect clouds to match worldgen and command format. For example `{Particle:{type:\"block\",block_state:\"diamond_block\"}}`.",
+        "fullLine": "entity nbt breaking | Changed the `Particle` field of area effect clouds to match worldgen and command format. For example `{Particle:{type:\"block\",block_state:\"diamond_block\"}}`."
+      },
+      {
+        "snapshot": "1.20.5-pre1",
+        "categories": [
+          "item",
+          "component"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the `food` component. Replaced field `saturation_modifier` -> `saturation`, which is now defines as `nutrition * saturation_modifier * 2`.",
+        "fullLine": "item component breaking | Changed the `food` component. Replaced field `saturation_modifier` -> `saturation`, which is now defines as `nutrition * saturation_modifier * 2`."
+      },
+      {
+        "snapshot": "1.20.5-pre1",
+        "categories": [
+          "loot",
+          "item-modifier"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the `set_contents` function. Removed field `type` and added field `component`, which can be one of `container`, `bundle_contents`, or `charged_projectiles`.",
+        "fullLine": "loot item-modifier breaking | Changed the `set_contents` function. Removed field `type` and added field `component`, which can be one of `container`, `bundle_contents`, or `charged_projectiles`."
+      },
+      {
+        "snapshot": "1.20.5-pre1",
+        "categories": [
+          "data",
+          "tag"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed item tag `tools`.",
+        "fullLine": "data tag breaking | Removed item tag `tools`."
+      },
+      {
+        "snapshot": "1.20.5-pre2",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 40.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 40."
+      },
+      {
+        "snapshot": "1.20.5-pre3",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 41.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 41."
+      },
+      {
+        "snapshot": "1.20.5-pre4",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 32.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 32."
+      },
+      {
+        "snapshot": "1.20.5-pre4",
+        "categories": [
+          "assets",
+          "font"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `shift` field in `ttf` glyph providers is now restricted between -512 and 512.",
+        "fullLine": "assets font breaking | The `shift` field in `ttf` glyph providers is now restricted between -512 and 512."
+      },
+      {
+        "snapshot": "23w51a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 27.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 27."
+      },
+      {
+        "snapshot": "24w03a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 28.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 28."
+      },
+      {
+        "snapshot": "24w03a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 24.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 24."
+      },
+      {
+        "snapshot": "24w03a",
+        "categories": [
+          "enchantment",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed enchantment `sweeping` -> `sweeping_edge`.",
+        "fullLine": "enchantment nbt breaking | Renamed enchantment `sweeping` -> `sweeping_edge`."
+      },
+      {
+        "snapshot": "24w03a",
+        "categories": [
+          "assets",
+          "font"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the `ttf` font provider to have more reasonable defaults.",
+        "fullLine": "assets font breaking | Changed the `ttf` font provider to have more reasonable defaults."
+      },
+      {
+        "snapshot": "24w04a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 29.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 29."
+      },
+      {
+        "snapshot": "24w05a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 30.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 30."
+      },
+      {
+        "snapshot": "24w05a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 25.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 25."
+      },
+      {
+        "snapshot": "24w05b",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Effect amplifiers above 127 are no longer possible. Changed the `/effect` command: the amplifier argument is now limited to values between `0` and `127`.",
+        "fullLine": "command breaking obsolete | Effect amplifiers above 127 are no longer possible. Changed the `/effect` command: the amplifier argument is now limited to values between `0` and `127`."
+      },
+      {
+        "snapshot": "24w06a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 31.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 31."
+      },
+      {
+        "snapshot": "24w06a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 26.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 26."
+      },
+      {
+        "snapshot": "24w06a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The former behavior of effects such as Jump Boost, Levitation, and Mining Fatigue over 127 has, also known as \"negative effects\" been removed.",
+        "fullLine": "command breaking | The former behavior of effects such as Jump Boost, Levitation, and Mining Fatigue over 127 has, also known as \"negative effects\" been removed."
+      },
+      {
+        "snapshot": "24w06a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The maximum length of a command in a function is now 2000000 (2 million) characters.",
+        "fullLine": "command breaking | The maximum length of a command in a function is now 2000000 (2 million) characters."
+      },
+      {
+        "snapshot": "24w06a",
+        "categories": [
+          "attribute"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed `horse.jump_strength` attribute and replaced it with `generic.jump_strength`.",
+        "fullLine": "attribute breaking | Removed `horse.jump_strength` attribute and replaced it with `generic.jump_strength`."
+      },
+      {
+        "snapshot": "24w07a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 32.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 32."
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 33.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 33."
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 28 (skipping 27).",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 28 (skipping 27)."
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "item",
+          "command",
+          "nbt",
+          "component"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Unstructured NBT tags on items tags (`tag` field) has been replaced with structured components. This impacts `/give`, `/clear`, and commands using item NBT. For example: `iron_axe{Damage:10,foo:\"bar\"}` -> `iron_axe[minecraft:damage=10]{foo:\"bar\"}`.",
+        "fullLine": "item command nbt component breaking | Unstructured NBT tags on items tags (`tag` field) has been replaced with structured components. This impacts `/give`, `/clear`, and commands using item NBT. For example: `iron_axe{Damage:10,foo:\"bar\"}` -> `iron_axe[minecraft:damage=10]{foo:\"bar\"}`."
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "item",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The format of serialized item stacks has been changed to support components:",
+        "fullLine": "item nbt breaking | The format of serialized item stacks has been changed to support components:"
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed the `ignoreTags` field on villager trades. Instead trades can now list item component predicates.",
+        "fullLine": "nbt breaking | Removed the `ignoreTags` field on villager trades. Instead trades can now list item component predicates."
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Tipped arrows no longer store their effects in `Potion` or `custom_potion_effects`. Instead this information is fetched from the `item` tag.",
+        "fullLine": "entity nbt breaking | Tipped arrows no longer store their effects in `Potion` or `custom_potion_effects`. Instead this information is fetched from the `item` tag."
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed area effect cloud fields to match the `potion_contents` component:",
+        "fullLine": "entity nbt breaking | Renamed area effect cloud fields to match the `potion_contents` component:"
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "block",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed banner block entity fields to match the `banner_patterns` component:",
+        "fullLine": "block nbt breaking | Changed banner block entity fields to match the `banner_patterns` component:"
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "block",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed beehive block entity fields to match the `bees` component:",
+        "fullLine": "block nbt breaking | Changed beehive block entity fields to match the `bees` component:"
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "loot"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed loot table entry `loot_table`. The `name` field has been replaced with `value` and it now also allows inline loot tables.",
+        "fullLine": "loot breaking | Changed loot table entry `loot_table`. The `name` field has been replaced with `value` and it now also allows inline loot tables."
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "loot",
+          "advancement",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed item predicates:",
+        "fullLine": "loot advancement predicate breaking | Changed item predicates:"
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "loot",
+          "advancement",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed block predicates:",
+        "fullLine": "loot advancement predicate breaking | Changed block predicates:"
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "loot",
+          "advancement",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed fluid predicates:",
+        "fullLine": "loot advancement predicate breaking | Changed fluid predicates:"
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "loot",
+          "advancement",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed location predicates:",
+        "fullLine": "loot advancement predicate breaking | Changed location predicates:"
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "loot",
+          "item-modifier"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed function `set_nbt` -> `set_custom_data` and `copy_nbt` -> `copy_custom_data`. Vanilla data cannot be specified with this, instead use `set_components` and `copy_components`.",
+        "fullLine": "loot item-modifier breaking | Renamed function `set_nbt` -> `set_custom_data` and `copy_nbt` -> `copy_custom_data`. Vanilla data cannot be specified with this, instead use `set_components` and `copy_components`."
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "loot",
+          "item-modifier"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the `set_attributes` loot function. The `slot` field now also accepts `any`, `armor`, and `hand`. Renamed the operation options:",
+        "fullLine": "loot item-modifier breaking | Changed the `set_attributes` loot function. The `slot` field now also accepts `any`, `armor`, and `hand`. Renamed the operation options:"
+      },
+      {
+        "snapshot": "24w09a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the `/attribute` command. Renamed the operation literals:",
+        "fullLine": "command breaking | Changed the `/attribute` command. Renamed the operation literals:"
+      },
+      {
+        "snapshot": "24w10a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 34.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 34."
+      },
+      {
+        "snapshot": "24w10a",
+        "categories": [
+          "recipe"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed recipe types `smelting`, `blasting`, `smoking`, and `campfire_cooking`. The `result` field is now an object with fields `id` (item resource location) and `components` (component patch map).",
+        "fullLine": "recipe breaking | Changed recipe types `smelting`, `blasting`, `smoking`, and `campfire_cooking`. The `result` field is now an object with fields `id` (item resource location) and `components` (component patch map)."
+      },
+      {
+        "snapshot": "24w11a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 35.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 35."
+      },
+      {
+        "snapshot": "24w11a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 29.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 29."
+      },
+      {
+        "snapshot": "24w11a",
+        "categories": [
+          "predicate",
+          "advancement",
+          "loot"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed item predicates. Replaced some fields with item sub predicates, which is a map in field `predicates`:",
+        "fullLine": "predicate advancement loot breaking | Changed item predicates. Replaced some fields with item sub predicates, which is a map in field `predicates`:"
+      },
+      {
+        "snapshot": "24w11a",
+        "categories": [
+          "assets",
+          "shader"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed post processing shader `blur` -> `box_blur`. Added new `entity_outline_box_blur` shader.",
+        "fullLine": "assets shader breaking | Renamed post processing shader `blur` -> `box_blur`. Added new `entity_outline_box_blur` shader."
+      },
+      {
+        "snapshot": "24w12a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 36.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 36."
+      },
+      {
+        "snapshot": "24w12a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 30.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 30."
+      },
+      {
+        "snapshot": "24w12a",
+        "categories": [
+          "loot",
+          "item-modifier"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed function `set_lore`. Replaced the field `replace` with `mode`, which is a list operation.",
+        "fullLine": "loot item-modifier breaking | Changed function `set_lore`. Replaced the field `replace` with `mode`, which is a list operation."
+      },
+      {
+        "snapshot": "24w12a",
+        "categories": [
+          "loot",
+          "item-modifier"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Nested lists are no longer supported in loot function lists.",
+        "fullLine": "loot item-modifier breaking | Nested lists are no longer supported in loot function lists."
+      },
+      {
+        "snapshot": "24w12a",
+        "categories": [
+          "assets",
+          "texture"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Map decoration icons have been split from `map_icons.png` to use an atlas loaded from `textures/map/decorations`. Added the `trial_chambers` map decoration.",
+        "fullLine": "assets texture breaking | Map decoration icons have been split from `map_icons.png` to use an atlas loaded from `textures/map/decorations`. Added the `trial_chambers` map decoration."
+      },
+      {
+        "snapshot": "24w13a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 37.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 37."
+      },
+      {
+        "snapshot": "24w13a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 31.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 31."
+      },
+      {
+        "snapshot": "24w13a",
+        "categories": [
+          "loot",
+          "item-modifier"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Replaced field `components` with two fields: `include` and `exclude`, both optional lists of component types.",
+        "fullLine": "loot item-modifier breaking | Replaced field `components` with two fields: `include` and `exclude`, both optional lists of component types."
+      },
+      {
+        "snapshot": "24w13a",
+        "categories": [
+          "worldgen"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Int and float providers no longer wrap fields in an extra `value` object.",
+        "fullLine": "worldgen breaking | Int and float providers no longer wrap fields in an extra `value` object."
+      },
+      {
+        "snapshot": "24w14a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 38.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 38."
+      }
+    ]
+  },
+  "1.21": {
+    "packFormat": 45,
+    "entries": [
+      {
+        "snapshot": "1.21-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 46.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 46."
+      },
+      {
+        "snapshot": "1.21-pre1",
+        "categories": [
+          "loot"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed the `chance` field in the `random_chance_with_enchanted_bonus` condition. It has been replaced by `unenchanted_chance` and `enchanted_chance`, the chance and level-based value chance, respectively.",
+        "fullLine": "loot breaking | Removed the `chance` field in the `random_chance_with_enchanted_bonus` condition. It has been replaced by `unenchanted_chance` and `enchanted_chance`, the chance and level-based value chance, respectively."
+      },
+      {
+        "snapshot": "1.21-pre2",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 47.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 47."
+      },
+      {
+        "snapshot": "1.21-pre3",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 48.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 48."
+      },
+      {
+        "snapshot": "1.21-pre3",
+        "categories": [
+          "enchantment"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed enchantment entity effect type `replace_disc` to `replace_disk`.",
+        "fullLine": "enchantment breaking | Renamed enchantment entity effect type `replace_disc` to `replace_disk`."
+      },
+      {
+        "snapshot": "24w18a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 42.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 42."
+      },
+      {
+        "snapshot": "24w18a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 33.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 33."
+      },
+      {
+        "snapshot": "24w18a",
+        "categories": [
+          "loot",
+          "advancement",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Target entity names in some condition are renamed:",
+        "fullLine": "loot advancement predicate breaking | Target entity names in some condition are renamed:"
+      },
+      {
+        "snapshot": "24w18a",
+        "categories": [
+          "loot",
+          "advancement",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `random_chance_with_looting` condition is now renamed as `random_chance_with_enchanted_bonus` with the following field changes:",
+        "fullLine": "loot advancement predicate breaking | The `random_chance_with_looting` condition is now renamed as `random_chance_with_enchanted_bonus` with the following field changes:"
+      },
+      {
+        "snapshot": "24w18a",
+        "categories": [
+          "loot"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `enchanted_count_increase` function is now renamed as `enchanted_count_increase`. There is a new field `enchantment`, which containers the namespaced enchantment id.",
+        "fullLine": "loot breaking | The `enchanted_count_increase` function is now renamed as `enchanted_count_increase`. There is a new field `enchantment`, which containers the namespaced enchantment id."
+      },
+      {
+        "snapshot": "24w18a",
+        "categories": [
+          "loot"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `enchant_randomly` function has new formatting and fields.",
+        "fullLine": "loot breaking | The `enchant_randomly` function has new formatting and fields."
+      },
+      {
+        "snapshot": "24w18a",
+        "categories": [
+          "loot"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `enchant_with_levels` function has new formatting and removed fields.",
+        "fullLine": "loot breaking | The `enchant_with_levels` function has new formatting and removed fields."
+      },
+      {
+        "snapshot": "24w18a",
+        "categories": [
+          "loot"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `copy_name` function has its possible values for the `source` field changed: `killer` to `attacking_entity`, and `killer_player` to `last_damage_player`.",
+        "fullLine": "loot breaking | The `copy_name` function has its possible values for the `source` field changed: `killer` to `attacking_entity`, and `killer_player` to `last_damage_player`."
+      },
+      {
+        "snapshot": "24w18a",
+        "categories": [
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `enchantment` field has been removed and replaced with `enchantments`, which is either an enchantment, list of enchantments, or enchantment tag.",
+        "fullLine": "predicate breaking | The `enchantment` field has been removed and replaced with `enchantments`, which is either an enchantment, list of enchantments, or enchantment tag."
+      },
+      {
+        "snapshot": "24w18a",
+        "categories": [
+          "nbt",
+          "entity"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `ShotFromCrossbow` field has been removed from arrow-like projectile data, and is replaced with a `weapon` field containing an item stack representing the weapon the projectile was shot from.",
+        "fullLine": "nbt entity breaking | The `ShotFromCrossbow` field has been removed from arrow-like projectile data, and is replaced with a `weapon` field containing an item stack representing the weapon the projectile was shot from."
+      },
+      {
+        "snapshot": "24w19a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 43.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 43."
+      },
+      {
+        "snapshot": "24w19a",
+        "categories": [
+          "nbt",
+          "entity"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed the `power` NBT tag and replaced it with the `acceleration_power` tag to control a projectile's acceleration and maximum speed. This affects `dragon_fireball`, `large_fireball`, `small_fireball`, `fireball`, `breeze_wind_charge`, `wind_charge`, and `wither_skull` entities.",
+        "fullLine": "nbt entity breaking | Removed the `power` NBT tag and replaced it with the `acceleration_power` tag to control a projectile's acceleration and maximum speed. This affects `dragon_fireball`, `large_fireball`, `small_fireball`, `fireball`, `breeze_wind_charge`, `wind_charge`, and `wither_skull` entities."
+      },
+      {
+        "snapshot": "24w19a",
+        "categories": [
+          "tag"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Tag subdirectories using legacy plural names have been renamed to match their registry:",
+        "fullLine": "tag breaking | Tag subdirectories using legacy plural names have been renamed to match their registry:"
+      },
+      {
+        "snapshot": "24w20a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 44.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 44."
+      },
+      {
+        "snapshot": "24w21a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 45.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 45."
+      },
+      {
+        "snapshot": "24w21a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 34.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 34."
+      },
+      {
+        "snapshot": "24w21a",
+        "categories": [
+          "attribute"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Attribute modifiers no longer have a UUID and name combination, instead using a unique namespaced id.",
+        "fullLine": "attribute breaking | Attribute modifiers no longer have a UUID and name combination, instead using a unique namespaced id."
+      },
+      {
+        "snapshot": "24w21a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `uuid` and `name` arguments in the `/attribute` command have been replaced with a single `id` argument.",
+        "fullLine": "command breaking | The `uuid` and `name` arguments in the `/attribute` command have been replaced with a single `id` argument."
+      },
+      {
+        "snapshot": "24w21a",
+        "categories": [
+          "entity"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Entity attributes are now stored as `attributes`, with the following fields:",
+        "fullLine": "entity breaking | Entity attributes are now stored as `attributes`, with the following fields:"
+      },
+      {
+        "snapshot": "24w21a",
+        "categories": [
+          "enchantment"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Enchantment attribute effects have their `name` and `uuid` fields removed and replaced with a single `id` field, which is a namespaced attribute id.",
+        "fullLine": "enchantment breaking | Enchantment attribute effects have their `name` and `uuid` fields removed and replaced with a single `id` field, which is a namespaced attribute id."
+      },
+      {
+        "snapshot": "24w21a",
+        "categories": [
+          "enchantment"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `hit_block` entity effect type has had its context changed to take a Hit Block Parameter, where `this` is the entity hitting the block.",
+        "fullLine": "enchantment breaking | The `hit_block` entity effect type has had its context changed to take a Hit Block Parameter, where `this` is the entity hitting the block."
+      },
+      {
+        "snapshot": "24w21a",
+        "categories": [
+          "tag"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Folders using plural names have been renamed to match their registry:",
+        "fullLine": "tag breaking | Folders using plural names have been renamed to match their registry:"
+      },
+      {
+        "snapshot": "24w21a",
+        "categories": [
+          "shader"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed core shader definitions. Removed fields `blend`, `position_color_tex`, `glint_direct`, and `armor_glint`.",
+        "fullLine": "shader breaking | Changed core shader definitions. Removed fields `blend`, `position_color_tex`, `glint_direct`, and `armor_glint`."
+      }
+    ]
+  },
+  "1.21.2": {
+    "packFormat": 56,
+    "entries": [
+      {
+        "snapshot": "1.21.2-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 57.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 57."
+      },
+      {
+        "snapshot": "1.21.2-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 41.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 41."
+      },
+      {
+        "snapshot": "1.21.2-pre3",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 42.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 42."
+      },
+      {
+        "snapshot": "24w33a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 49.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 49."
+      },
+      {
+        "snapshot": "24w33a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 35.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 35."
+      },
+      {
+        "snapshot": "24w33a",
+        "categories": [
+          "attribute"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Attribute IDs no longer have `generic.`, `player.`, and `zombie.` prefixes.",
+        "fullLine": "attribute breaking | Attribute IDs no longer have `generic.`, `player.`, and `zombie.` prefixes."
+      },
+      {
+        "snapshot": "24w33a",
+        "categories": [
+          "recipe"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed format of ingredients in recipes:",
+        "fullLine": "recipe breaking | Changed format of ingredients in recipes:"
+      },
+      {
+        "snapshot": "24w33a",
+        "categories": [
+          "item",
+          "component"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed inline format of `instrument` component. Added field `description`, which is a text component (not stringified).",
+        "fullLine": "item component breaking | Changed inline format of `instrument` component. Added field `description`, which is a text component (not stringified)."
+      },
+      {
+        "snapshot": "24w33a",
+        "categories": [
+          "worldgen",
+          "biome"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed liquid carvers. Changed biome format. The `carvers` field is now directly a list of carvers.",
+        "fullLine": "worldgen biome breaking | Removed liquid carvers. Changed biome format. The `carvers` field is now directly a list of carvers."
+      },
+      {
+        "snapshot": "24w34a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 50.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 50."
+      },
+      {
+        "snapshot": "24w34a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 36.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 36."
+      },
+      {
+        "snapshot": "24w34a",
+        "categories": [
+          "item",
+          "component"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the `food` data component to only hold the food stats, it no longer makes the item consumable. Removed fields `eat_seconds`, `using_converts_to`, and `effects`.",
+        "fullLine": "item component breaking | Changed the `food` data component to only hold the food stats, it no longer makes the item consumable. Removed fields `eat_seconds`, `using_converts_to`, and `effects`."
+      },
+      {
+        "snapshot": "24w34a",
+        "categories": [
+          "shader"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed shader `rendertype_entity_glint_direct` and replaced it with `rendertype_entity_glint`.",
+        "fullLine": "shader breaking | Removed shader `rendertype_entity_glint_direct` and replaced it with `rendertype_entity_glint`."
+      },
+      {
+        "snapshot": "24w34a",
+        "categories": [
+          "shader"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed shader `rendertype_entity_translucent_cull` and replaced it with `rendertype_item_entity_translucent_cull`.",
+        "fullLine": "shader breaking | Removed shader `rendertype_entity_translucent_cull` and replaced it with `rendertype_item_entity_translucent_cull`."
+      },
+      {
+        "snapshot": "24w34a",
+        "categories": [
+          "shader"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed shader program definitions for post-processing effects, defined in `shaders/program`, to be consistent with core shaders:",
+        "fullLine": "shader breaking | Changed shader program definitions for post-processing effects, defined in `shaders/program`, to be consistent with core shaders:"
+      },
+      {
+        "snapshot": "24w34a",
+        "categories": [
+          "shader"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Moved post-processing effect configurations from `shaders/post` to `post_effect`.",
+        "fullLine": "shader breaking | Moved post-processing effect configurations from `shaders/post` to `post_effect`."
+      },
+      {
+        "snapshot": "24w35a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 51.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 51."
+      },
+      {
+        "snapshot": "24w35a",
+        "categories": [
+          "loot"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed the special loot table `empty`.",
+        "fullLine": "loot breaking | Removed the special loot table `empty`."
+      },
+      {
+        "snapshot": "24w36a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 52.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 52."
+      },
+      {
+        "snapshot": "24w36a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 37.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 37."
+      },
+      {
+        "snapshot": "24w36a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "All equipment-related textures have been moved to subfolders of the `textures/entity/equipment` directory. All armor trim textures have been moved and renamed to subfolders of `textures/trims/entity`.",
+        "fullLine": "assets breaking | All equipment-related textures have been moved to subfolders of the `textures/entity/equipment` directory. All armor trim textures have been moved and renamed to subfolders of `textures/trims/entity`."
+      },
+      {
+        "snapshot": "24w37a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 53.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 53."
+      },
+      {
+        "snapshot": "24w37a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 38.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 38."
+      },
+      {
+        "snapshot": "24w37a",
+        "categories": [
+          "item",
+          "component"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed data component `fire_resistant` and replaced it with `damage_resistant`. It now has field `types`, which is a hash-prefixed damage type tag. It controls whether the item in entity form is blocks all damage from these types and prevents the item taking damage when being equipped.",
+        "fullLine": "item component breaking | Removed data component `fire_resistant` and replaced it with `damage_resistant`. It now has field `types`, which is a hash-prefixed damage type tag. It controls whether the item in entity form is blocks all damage from these types and prevents the item taking damage when being equipped."
+      },
+      {
+        "snapshot": "24w38a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 54.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 54."
+      },
+      {
+        "snapshot": "24w38a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 39.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 39."
+      },
+      {
+        "snapshot": "24w39a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 55.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 55."
+      },
+      {
+        "snapshot": "24w39a",
+        "categories": [
+          "entity"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed the `boat` and `chest_boat` entity types. They are replaced with separate entities for each wood type, in the format of `[wood]_boat` and `[wood]_chest_boat`.",
+        "fullLine": "entity breaking | Removed the `boat` and `chest_boat` entity types. They are replaced with separate entities for each wood type, in the format of `[wood]_boat` and `[wood]_chest_boat`."
+      },
+      {
+        "snapshot": "24w39a",
+        "categories": [
+          "block",
+          "block-entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `Lock` field on containers has been renamed to `lock`, and now accepts an item predicate instead of a string.",
+        "fullLine": "block block-entity nbt breaking | The `Lock` field on containers has been renamed to `lock`, and now accepts an item predicate instead of a string."
+      },
+      {
+        "snapshot": "24w39a",
+        "categories": [
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed the `minecraft:boat` entity sub-predicate.",
+        "fullLine": "predicate breaking | Removed the `minecraft:boat` entity sub-predicate."
+      },
+      {
+        "snapshot": "24w40a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 56.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 56."
+      },
+      {
+        "snapshot": "24w40a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 40.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 40."
+      },
+      {
+        "snapshot": "24w40a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "`leash_knot`s, `fishing_bobber`s, and `lightning_bolt`s are no longer rideable with `/ride`.",
+        "fullLine": "command breaking | `leash_knot`s, `fishing_bobber`s, and `lightning_bolt`s are no longer rideable with `/ride`."
+      },
+      {
+        "snapshot": "24w40a",
+        "categories": [
+          "enchantment"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed enchantment effect type `damage_item` to `change_item_damage`, which now accepts negative numbers.",
+        "fullLine": "enchantment breaking | Renamed enchantment effect type `damage_item` to `change_item_damage`, which now accepts negative numbers."
+      }
+    ]
+  },
+  "1.21.4": {
+    "packFormat": 60,
+    "entries": [
+      {
+        "snapshot": "1.21.4-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 46.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 46."
+      },
+      {
+        "snapshot": "1.21.4-pre2",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 61.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 61."
+      },
+      {
+        "snapshot": "1.21.4-pre2",
+        "categories": [
+          "block",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed some block entity fields in `furnace`, `smoker` and `blast_furnace` blocks:",
+        "fullLine": "block nbt breaking | Renamed some block entity fields in `furnace`, `smoker` and `blast_furnace` blocks:"
+      },
+      {
+        "snapshot": "24w44a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 58.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 58."
+      },
+      {
+        "snapshot": "24w44a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 43.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 43."
+      },
+      {
+        "snapshot": "24w44a",
+        "categories": [
+          "particle"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed particle type `trail`. Added required field `duration`, which is a positive float.",
+        "fullLine": "particle breaking | Changed particle type `trail`. Added required field `duration`, which is a positive float."
+      },
+      {
+        "snapshot": "24w44a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed NBT of `tnt_minecart`:",
+        "fullLine": "entity nbt breaking | Changed NBT of `tnt_minecart`:"
+      },
+      {
+        "snapshot": "24w44a",
+        "categories": [
+          "worldgen"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed biome effects field `music`. It now is a weighted list of music objects. The list is also allowed to be empty.",
+        "fullLine": "worldgen breaking | Changed biome effects field `music`. It now is a weighted list of music objects. The list is also allowed to be empty."
+      },
+      {
+        "snapshot": "24w44a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `toast/system` texture has been changed to use a nine-sliced texture. The `toast/tutorial` texture was unchanged, but nine-slicing is enabled.",
+        "fullLine": "assets breaking | The `toast/system` texture has been changed to use a nine-sliced texture. The `toast/tutorial` texture was unchanged, but nine-slicing is enabled."
+      },
+      {
+        "snapshot": "24w44a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `advancements/box_obtained` and `advancements/box_unobtained` textures now have nine-slicing enabled.",
+        "fullLine": "assets breaking | The `advancements/box_obtained` and `advancements/box_unobtained` textures now have nine-slicing enabled."
+      },
+      {
+        "snapshot": "24w45a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 59.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 59."
+      },
+      {
+        "snapshot": "24w45a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 44.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 44."
+      },
+      {
+        "snapshot": "24w45a",
+        "categories": [
+          "jar"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The data generator `net.minecraft.data.Main` in the server jar no longer generates the `assets` folder with the `--client` option. Instead use the `net.minecraft.client.data.Main` data generator in the client jar.",
+        "fullLine": "jar breaking | The data generator `net.minecraft.data.Main` in the server jar no longer generates the `assets` folder with the `--client` option. Instead use the `net.minecraft.client.data.Main` data generator in the client jar."
+      },
+      {
+        "snapshot": "24w45a",
+        "categories": [
+          "item",
+          "component"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed `equippable` component. Renamed field `model` -> `asset_id`.",
+        "fullLine": "item component breaking | Changed `equippable` component. Renamed field `model` -> `asset_id`."
+      },
+      {
+        "snapshot": "24w45a",
+        "categories": [
+          "item",
+          "component"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed `custom_model_data` component. Instead of a single integer it now takes an object with optional fields: `floats` (list of floats), `flags` (list of booleans), `strings` (list of string), and `colors` (list of RGB colors).",
+        "fullLine": "item component breaking | Changed `custom_model_data` component. Instead of a single integer it now takes an object with optional fields: `floats` (list of floats), `flags` (list of booleans), `strings` (list of string), and `colors` (list of RGB colors)."
+      },
+      {
+        "snapshot": "24w45a",
+        "categories": [
+          "loot",
+          "item-modifier"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed `set_custom_model_data` item modifier. Instead of a single `value` field, it now has optional list operation fields: `floats`, `flags`, `strings`, and `colors`.",
+        "fullLine": "loot item-modifier breaking | Changed `set_custom_model_data` item modifier. Instead of a single `value` field, it now has optional list operation fields: `floats`, `flags`, `strings`, and `colors`."
+      },
+      {
+        "snapshot": "24w45a",
+        "categories": [
+          "trim"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed field `item_model_index` in trim materials.",
+        "fullLine": "trim breaking | Removed field `item_model_index` in trim materials."
+      },
+      {
+        "snapshot": "24w45a",
+        "categories": [
+          "tag",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed block tag `#tall_flowers`. Removed item tags `#flowers` and `#tall_flowers`.",
+        "fullLine": "tag data breaking | Removed block tag `#tall_flowers`. Removed item tags `#flowers` and `#tall_flowers`."
+      },
+      {
+        "snapshot": "24w45a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Moved the folder `models/equipment` -> `equipment`.",
+        "fullLine": "assets breaking | Moved the folder `models/equipment` -> `equipment`."
+      },
+      {
+        "snapshot": "24w45a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed texture and model `broken_elytra` -> `elytra_broken`.",
+        "fullLine": "assets breaking | Renamed texture and model `broken_elytra` -> `elytra_broken`."
+      },
+      {
+        "snapshot": "24w45a",
+        "categories": [
+          "assets",
+          "item"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed the `overrides` field in item models. Instead the different models can be configured in the new `items` folder.",
+        "fullLine": "assets item breaking | Removed the `overrides` field in item models. Instead the different models can be configured in the new `items` folder."
+      },
+      {
+        "snapshot": "24w46a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 60.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 60."
+      },
+      {
+        "snapshot": "24w46a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 45.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 45."
+      },
+      {
+        "snapshot": "24w46a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed entity type `creaking_transient`. Instead added field `home_pos` to `creaking` entity NBT, which is a list of 3 ints specifying the block position of the creaking heart.",
+        "fullLine": "entity nbt breaking | Removed entity type `creaking_transient`. Instead added field `home_pos` to `creaking` entity NBT, which is a list of 3 ints specifying the block position of the creaking heart."
+      },
+      {
+        "snapshot": "24w46a",
+        "categories": [
+          "tag",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed item tag `#trim_templates`.",
+        "fullLine": "tag data breaking | Removed item tag `#trim_templates`."
+      }
+    ]
+  },
+  "1.21.5": {
+    "packFormat": 70,
+    "entries": [
+      {
+        "snapshot": "1.21.5-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 71.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 71."
+      },
+      {
+        "snapshot": "1.21.5-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 55.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 55."
+      },
+      {
+        "snapshot": "25w02a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 62.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 62."
+      },
+      {
+        "snapshot": "25w02a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 47.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 47."
+      },
+      {
+        "snapshot": "25w02a",
+        "categories": [
+          "text"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Text components are specified with SNBT instead of JSON wrapped in a string.",
+        "fullLine": "text breaking | Text components are specified with SNBT instead of JSON wrapped in a string."
+      },
+      {
+        "snapshot": "25w02a",
+        "categories": [
+          "text"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Text style is specified with SNBT instead of JSON in the `/scoreboard` command when the `styled` number format is specified.",
+        "fullLine": "text breaking | Text style is specified with SNBT instead of JSON in the `/scoreboard` command when the `styled` number format is specified."
+      },
+      {
+        "snapshot": "25w02a",
+        "categories": [
+          "text"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The text component `hoverEvent` has been renamed to `hover_event`.",
+        "fullLine": "text breaking | The text component `hoverEvent` has been renamed to `hover_event`."
+      },
+      {
+        "snapshot": "25w02a",
+        "categories": [
+          "text"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The text component `clickEvent` has been renamed to `click_event`.",
+        "fullLine": "text breaking | The text component `clickEvent` has been renamed to `click_event`."
+      },
+      {
+        "snapshot": "25w02a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `/setblock` and `/fill` commands handle block entity data according to the following new rules:",
+        "fullLine": "command breaking | The `/setblock` and `/fill` commands handle block entity data according to the following new rules:"
+      },
+      {
+        "snapshot": "25w02a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `ArmorDropChances`, `HandDropChances`, and `body_armor_drop_chance` fields have been merged into a single field `drop_chances`.",
+        "fullLine": "entity nbt breaking | The `ArmorDropChances`, `HandDropChances`, and `body_armor_drop_chance` fields have been merged into a single field `drop_chances`."
+      },
+      {
+        "snapshot": "25w02a",
+        "categories": [
+          "assets",
+          "texture"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed the size of the `pig` texture.",
+        "fullLine": "assets texture breaking | Changed the size of the `pig` texture."
+      },
+      {
+        "snapshot": "25w03a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 63.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 63."
+      },
+      {
+        "snapshot": "25w03a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 48.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 48."
+      },
+      {
+        "snapshot": "25w03a",
+        "categories": [
+          "command",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The item slot `horse.saddle` has been renamed to `saddle`, and supports any entity that can equip a saddle.",
+        "fullLine": "command predicate breaking | The item slot `horse.saddle` has been renamed to `saddle`, and supports any entity that can equip a saddle."
+      },
+      {
+        "snapshot": "25w03a",
+        "categories": [
+          "text"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "In the `show_text` hover event action, `text` has been renamed to `value`.",
+        "fullLine": "text breaking | In the `show_text` hover event action, `text` has been renamed to `value`."
+      },
+      {
+        "snapshot": "25w03a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `ArmorItems`, `HandItems`, and `body_armor_item` fields have been merged into a single field `equipment`, which is a map of equipment slots to item stacks.",
+        "fullLine": "entity nbt breaking | The `ArmorItems`, `HandItems`, and `body_armor_item` fields have been merged into a single field `equipment`, which is a map of equipment slots to item stacks."
+      },
+      {
+        "snapshot": "25w03a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `FallDistance` field has been renamed to `fall_distance` and now takes a double instead of a float.",
+        "fullLine": "entity nbt breaking | The `FallDistance` field has been renamed to `fall_distance` and now takes a double instead of a float."
+      },
+      {
+        "snapshot": "25w03a",
+        "categories": [
+          "item",
+          "component"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "In the `weapon` item components, the `damage_per_attack` field has been renamed to `item_damage_per_attack`.",
+        "fullLine": "item component breaking | In the `weapon` item components, the `damage_per_attack` field has been renamed to `item_damage_per_attack`."
+      },
+      {
+        "snapshot": "25w03a",
+        "categories": [
+          "entity",
+          "predicate"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "New optional field `components` has been added to entity predicates to match the components of the entity. The following entity sub-predicates are removed and replaced with the `components` predicate and variant entity components: `axolotl`, `fox`, `mooshroom`, `rabbit`, `horse`, `llama`, `villager`, `parrot`, `salmon`, `tropical_fish`, `painting`, `cat`, `frog`, `wolf`, `pig`, and the `color` field from `sheep`.",
+        "fullLine": "entity predicate breaking | New optional field `components` has been added to entity predicates to match the components of the entity. The following entity sub-predicates are removed and replaced with the `components` predicate and variant entity components: `axolotl`, `fox`, `mooshroom`, `rabbit`, `horse`, `llama`, `villager`, `parrot`, `salmon`, `tropical_fish`, `painting`, `cat`, `frog`, `wolf`, `pig`, and the `color` field from `sheep`."
+      },
+      {
+        "snapshot": "25w03a",
+        "categories": [
+          "assets",
+          "texture"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Two textures have been moved to support equipment assets for saddles:",
+        "fullLine": "assets texture breaking | Two textures have been moved to support equipment assets for saddles:"
+      },
+      {
+        "snapshot": "25w03a",
+        "categories": [
+          "assets",
+          "texture"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The following textures have been split from the base entity texture to qupport quipment assets for saddles:",
+        "fullLine": "assets texture breaking | The following textures have been split from the base entity texture to qupport quipment assets for saddles:"
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 64.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 64."
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 49.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 49."
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "entity",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `potion` entity type has been split into `splash_potion` and `lingering_potion`.",
+        "fullLine": "entity data breaking | The `potion` entity type has been split into `splash_potion` and `lingering_potion`."
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "advancement"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `background` field in advancements no longer contains the `textures/` prefix and `.png` suffix.",
+        "fullLine": "advancement breaking | The `background` field in advancements no longer contains the `textures/` prefix and `.png` suffix."
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "tag",
+          "data"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Renamed damage type tag `#bypasses_shield` to `#bypasses_blocking`.",
+        "fullLine": "tag data breaking obsolete | Renamed damage type tag `#bypasses_shield` to `#bypasses_blocking`."
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "variant"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Replaced `biome` and similarly named fields with `spawn_conditions`, containing a list of entries with the fields `priority` (integer) and `condition` (optional object). The `condition` object has a `type` field, with additional fields dependent on `type`:",
+        "fullLine": "variant breaking | Replaced `biome` and similarly named fields with `spawn_conditions`, containing a list of entries with the fields `priority` (integer) and `condition` (optional object). The `condition` object has a `type` field, with additional fields dependent on `type`:"
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "variant"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Wolf variants have the `angry_texture`, `tame_texture`, and `wild_texture` fields grouped into a single `assets` field, renamed to `angry`, `tame`, and `wild` respectively.",
+        "fullLine": "variant breaking | Wolf variants have the `angry_texture`, `tame_texture`, and `wild_texture` fields grouped into a single `assets` field, renamed to `angry`, `tame`, and `wild` respectively."
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "variant"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Pig variants have the `texture` field renamed to `asset_id`.",
+        "fullLine": "variant breaking | Pig variants have the `texture` field renamed to `asset_id`."
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "item",
+          "component"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `can_disable_blocking` field is replaced with `disable_blocking_for_seconds` in the `weapon` component, taking a non-negative float to disable a shield for the specified amount of seconds.",
+        "fullLine": "item component breaking | The `can_disable_blocking` field is replaced with `disable_blocking_for_seconds` in the `weapon` component, taking a non-negative float to disable a shield for the specified amount of seconds."
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "item",
+          "component"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed item components `hide_additional_tooltip` and `hide_tooltip`.",
+        "fullLine": "item component breaking | Removed item components `hide_additional_tooltip` and `hide_tooltip`."
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "item",
+          "component"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed the `show_in_tooltip` field for the `attribute_modifiers`, `dyed_color`, `can_place_on`, `can_break`, `enchantments`, `stored_enchantments`, `jukebox_playable`, `trim`, and `unbreakable` components. It is replaced by the new `tooltip_display` component.",
+        "fullLine": "item component breaking | Removed the `show_in_tooltip` field for the `attribute_modifiers`, `dyed_color`, `can_place_on`, `can_break`, `enchantments`, `stored_enchantments`, `jukebox_playable`, `trim`, and `unbreakable` components. It is replaced by the new `tooltip_display` component."
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "particle"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `tinted_leaves` particle type now takes a `color` field, either as a packed integer or list of 4 integers.",
+        "fullLine": "particle breaking | The `tinted_leaves` particle type now takes a `color` field, either as a packed integer or list of 4 integers."
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "recipe"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `base` field in the `crafting_transmute` recipe type is no longer optional.",
+        "fullLine": "recipe breaking | The `base` field in the `crafting_transmute` recipe type is no longer optional."
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "recipe"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `base`, `template`, and `addition` fields in the `smithing_trim` recipe type are no longer optional.",
+        "fullLine": "recipe breaking | The `base`, `template`, and `addition` fields in the `smithing_trim` recipe type are no longer optional."
+      },
+      {
+        "snapshot": "25w04a",
+        "categories": [
+          "trim"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Definitions for trim patterns and materials no longer include an `item` field, instead being defined by the recipe.",
+        "fullLine": "trim breaking | Definitions for trim patterns and materials no longer include an `item` field, instead being defined by the recipe."
+      },
+      {
+        "snapshot": "25w05a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 65.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 65."
+      },
+      {
+        "snapshot": "25w05a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 50.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 50."
+      },
+      {
+        "snapshot": "25w05a",
+        "categories": [
+          "tag",
+          "data"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Renamed damage type tag `#bypasses_blocking` to `#bypasses_shield`.",
+        "fullLine": "tag data breaking obsolete | Renamed damage type tag `#bypasses_blocking` to `#bypasses_shield`."
+      },
+      {
+        "snapshot": "25w05a",
+        "categories": [
+          "worldgen"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The order of the `patch_pumpkin` and `patch_sugar_cane` features has been swapped in all biomes.",
+        "fullLine": "worldgen breaking | The order of the `patch_pumpkin` and `patch_sugar_cane` features has been swapped in all biomes."
+      },
+      {
+        "snapshot": "25w05a",
+        "categories": [
+          "assets",
+          "texture"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed texture `pig` to `temperate_pig`.",
+        "fullLine": "assets texture breaking | Renamed texture `pig` to `temperate_pig`."
+      },
+      {
+        "snapshot": "25w05a",
+        "categories": [
+          "assets",
+          "texture"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed texture `cow` to `temperate_cow`.",
+        "fullLine": "assets texture breaking | Renamed texture `cow` to `temperate_cow`."
+      },
+      {
+        "snapshot": "25w05a",
+        "categories": [
+          "assets",
+          "texture"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changes the size of the `temperate_cow`, `red_mooshroom`, and `brown_mooshroom` textures.",
+        "fullLine": "assets texture breaking | Changes the size of the `temperate_cow`, `red_mooshroom`, and `brown_mooshroom` textures."
+      },
+      {
+        "snapshot": "25w05a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Cow models now have a snout",
+        "fullLine": "assets breaking | Cow models now have a snout"
+      },
+      {
+        "snapshot": "25w06a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 66.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 66."
+      },
+      {
+        "snapshot": "25w06a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 51.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 51."
+      },
+      {
+        "snapshot": "25w06a",
+        "categories": [
+          "tag",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed block tag `#dead_bush_may_place_on` to `#dry_vegetation_may_place_on`.",
+        "fullLine": "tag data breaking | Renamed block tag `#dead_bush_may_place_on` to `#dry_vegetation_may_place_on`."
+      },
+      {
+        "snapshot": "25w06a",
+        "categories": [
+          "assets",
+          "texture"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Moved texture `entity/chicken.png` to `entity/chicken/temperate_chicken.png`.",
+        "fullLine": "assets texture breaking | Moved texture `entity/chicken.png` to `entity/chicken/temperate_chicken.png`."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 67.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 67."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 52.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 52."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "entity",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `Pos`, `Motion` and `Rotation` entity data fields must take the correct number of components (3, 3, and 2, respectively), otherwise the data will now be discared.",
+        "fullLine": "entity data breaking | The `Pos`, `Motion` and `Rotation` entity data fields must take the correct number of components (3, 3, and 2, respectively), otherwise the data will now be discared."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "entity",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `SleepingX`, `SleepingY`, and `SleepingZ` entity data fields have been removed and combined into a single `sleeping_pos` field, which takes an array of three ints.",
+        "fullLine": "entity data breaking | The `SleepingX`, `SleepingY`, and `SleepingZ` entity data fields have been removed and combined into a single `sleeping_pos` field, which takes an array of three ints."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "entity",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed the `TreasurePosX`, `TreasurePosY`, and `TreasurePosZ` fields in dolphin entity data.",
+        "fullLine": "entity data breaking | Removed the `TreasurePosX`, `TreasurePosY`, and `TreasurePosZ` fields in dolphin entity data."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "entity",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "For phantom entity data, the `Size` field is renamed to `size`, and `AX`, `AY`, and `AZ` fields are removed and combined into a single `anchor_pos` field.",
+        "fullLine": "entity data breaking | For phantom entity data, the `Size` field is renamed to `size`, and `AX`, `AY`, and `AZ` fields are removed and combined into a single `anchor_pos` field."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "entity",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "For player entity data, the `SpawnX`, `SpawnY`, `SpawnZ`, `SpawnAngle`, `SpawnDimension`, and `SpawnForced` fields are removed and combined into a single `respawn` object field. The object has fields `pos`, `angle`, `dimension`, and `forced`.",
+        "fullLine": "entity data breaking | For player entity data, the `SpawnX`, `SpawnY`, `SpawnZ`, `SpawnAngle`, `SpawnDimension`, and `SpawnForced` fields are removed and combined into a single `respawn` object field. The object has fields `pos`, `angle`, `dimension`, and `forced`."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "entity",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "For player entity data, the `enteredNetherPosition` field is renamed to `entered_nether_pos`, and now takes a list of doubles.",
+        "fullLine": "entity data breaking | For player entity data, the `enteredNetherPosition` field is renamed to `entered_nether_pos`, and now takes a list of doubles."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "entity",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "For turtle entity data, the `HasEgg` field is renamed to `has_egg`; the `HomePosX`, `HomePosY`, and `HomePosZ` fields are removed and combined into a single `home_pos` field; and the `TravelPosX`, `TravelPosY`, and `TravelPosZ` field are removed.",
+        "fullLine": "entity data breaking | For turtle entity data, the `HasEgg` field is renamed to `has_egg`; the `HomePosX`, `HomePosY`, and `HomePosZ` fields are removed and combined into a single `home_pos` field; and the `TravelPosX`, `TravelPosY`, and `TravelPosZ` field are removed."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "entity",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "For vex entity data, the `LifeTicks` is renamed to `life_ticks`, and the `BoundX`, `BoundY`, and `BoundZ` fields are removed and combined into a single `bound_pos` field.",
+        "fullLine": "entity data breaking | For vex entity data, the `LifeTicks` is renamed to `life_ticks`, and the `BoundX`, `BoundY`, and `BoundZ` fields are removed and combined into a single `bound_pos` field."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "entity",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "For item frame, glow item frame, and leash knot entity data, the `TileX`, `TileY`, and `TileZ` fields are removed and combined into a single `block_pos` field.",
+        "fullLine": "entity data breaking | For item frame, glow item frame, and leash knot entity data, the `TileX`, `TileY`, and `TileZ` fields are removed and combined into a single `block_pos` field."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "entity",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "For minecart and minecart adjacent entity data, the `CustomDisplayTile` field is removed, the `DisplayState` field will always override the default displayed block state when specified, and `DisplayOffset` can now override the default offset even if a custom display block state set is not specified.",
+        "fullLine": "entity data breaking | For minecart and minecart adjacent entity data, the `CustomDisplayTile` field is removed, the `DisplayState` field will always override the default displayed block state when specified, and `DisplayOffset` can now override the default offset even if a custom display block state set is not specified."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Mooshroom models now have a snout.",
+        "fullLine": "assets breaking | Mooshroom models now have a snout."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "shader"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Shader program definitions in JSON files for core shaders and post-processing effects have been removed.",
+        "fullLine": "shader breaking | Shader program definitions in JSON files for core shaders and post-processing effects have been removed."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "shader"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed field `program` in shader definitions and replaced it with fields `vertex_shader` and `fragment_shader`, where `<namespace>:<path>` will resolve to `assets/<namespace>/shaders/<path>.<vsh|fsh>`.",
+        "fullLine": "shader breaking | Removed field `program` in shader definitions and replaced it with fields `vertex_shader` and `fragment_shader`, where `<namespace>:<path>` will resolve to `assets/<namespace>/shaders/<path>.<vsh|fsh>`."
+      },
+      {
+        "snapshot": "25w07a",
+        "categories": [
+          "shader"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "In each `uniform`, the `type` field is now required, accepting value types of any `int`, `ivec3`, `float`, `vec2`, `vec3`, `vec4`, and `matrix4`.",
+        "fullLine": "shader breaking | In each `uniform`, the `type` field is now required, accepting value types of any `int`, `ivec3`, `float`, `vec2`, `vec3`, `vec4`, and `matrix4`."
+      },
+      {
+        "snapshot": "25w08a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 68.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 68."
+      },
+      {
+        "snapshot": "25w08a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 53.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 53."
+      },
+      {
+        "snapshot": "25w08a",
+        "categories": [
+          "assets",
+          "sound"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The sound files for the classic wolf sound variant are moved under the `classic` subdirectory.",
+        "fullLine": "assets sound breaking | The sound files for the classic wolf sound variant are moved under the `classic` subdirectory."
+      },
+      {
+        "snapshot": "25w08a",
+        "categories": [
+          "assets",
+          "sound"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed the `entity.wolf.howl` sound event.",
+        "fullLine": "assets sound breaking | Removed the `entity.wolf.howl` sound event."
+      },
+      {
+        "snapshot": "25w09a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 69. Nice!",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 69. Nice!"
+      },
+      {
+        "snapshot": "25w09a",
+        "categories": [
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Integers can not start with 0 now.",
+        "fullLine": "nbt breaking | Integers can not start with 0 now."
+      },
+      {
+        "snapshot": "25w10a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 70.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 70."
+      },
+      {
+        "snapshot": "25w10a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 54.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 54."
+      },
+      {
+        "snapshot": "25w10a",
+        "categories": [
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Implicit inline float values in SNBT (such as `1e1000`) are now rejected.",
+        "fullLine": "nbt breaking | Implicit inline float values in SNBT (such as `1e1000`) are now rejected."
+      }
+    ]
+  },
+  "1.21.6": {
+    "packFormat": 78,
+    "entries": [
+      {
+        "snapshot": "1.21.6-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 79.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 79."
+      },
+      {
+        "snapshot": "1.21.6-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 63.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 63."
+      },
+      {
+        "snapshot": "1.21.6-pre1",
+        "categories": [
+          "assets",
+          "model"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Item models now require `\"oversized_in_gui\": true` in order to render beyond the slot boundaries.",
+        "fullLine": "assets model breaking | Item models now require `\"oversized_in_gui\": true` in order to render beyond the slot boundaries."
+      },
+      {
+        "snapshot": "1.21.6-pre1",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `head` item model type no longer loads textures from the `profile` data component. Added `player_head` item model type to handle player profile texture loading.",
+        "fullLine": "assets breaking | The `head` item model type no longer loads textures from the `profile` data component. Added `player_head` item model type to handle player profile texture loading."
+      },
+      {
+        "snapshot": "1.21.6-pre3",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 80.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 80."
+      },
+      {
+        "snapshot": "25w15a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 72.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 72."
+      },
+      {
+        "snapshot": "25w15a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 56.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 56."
+      },
+      {
+        "snapshot": "25w15a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed `area_effect_cloud` NBT field `Particle` to `custom_particle`. When using an `entity_effect` or `tinted_leaves` custom particle, the color will no longer be inherited from the potion contents.",
+        "fullLine": "entity nbt breaking | Renamed `area_effect_cloud` NBT field `Particle` to `custom_particle`. When using an `entity_effect` or `tinted_leaves` custom particle, the color will no longer be inherited from the potion contents."
+      },
+      {
+        "snapshot": "25w15a",
+        "categories": [
+          "tag",
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed block tag `plays_ambient_desert_block_sounds` to `triggers_ambient_desert_sand_block_sounds`.",
+        "fullLine": "tag data breaking | Renamed block tag `plays_ambient_desert_block_sounds` to `triggers_ambient_desert_sand_block_sounds`."
+      },
+      {
+        "snapshot": "25w15a",
+        "categories": [
+          "sound"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed sound event `block.sand.wind` to `block.dry_grass.ambient`.",
+        "fullLine": "sound breaking | Renamed sound event `block.sand.wind` to `block.dry_grass.ambient`."
+      },
+      {
+        "snapshot": "25w16a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 73.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 73."
+      },
+      {
+        "snapshot": "25w16a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 57.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 57."
+      },
+      {
+        "snapshot": "25w16a",
+        "categories": [
+          "component",
+          "item"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `painting/variant` data component no longer allows inline variants.",
+        "fullLine": "component item breaking | The `painting/variant` data component no longer allows inline variants."
+      },
+      {
+        "snapshot": "25w16a",
+        "categories": [
+          "shader"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "All built-in uniforms are now uniform blocks instead of opaque loose uniforms. Custom uniforms provided to post-process shaders are now uniform blocks. Uniform definitions inside json files are now per-block.",
+        "fullLine": "shader breaking | All built-in uniforms are now uniform blocks instead of opaque loose uniforms. Custom uniforms provided to post-process shaders are now uniform blocks. Uniform definitions inside json files are now per-block."
+      },
+      {
+        "snapshot": "25w17a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 74.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 74."
+      },
+      {
+        "snapshot": "25w17a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 58.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 58."
+      },
+      {
+        "snapshot": "25w18a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 75.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 75."
+      },
+      {
+        "snapshot": "25w18a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 59.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 59."
+      },
+      {
+        "snapshot": "25w19a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 76.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 76."
+      },
+      {
+        "snapshot": "25w19a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 60.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 60."
+      },
+      {
+        "snapshot": "25w19a",
+        "categories": [
+          "assets",
+          "atlas"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `mob_effects` atlas has been removed, and sprites in the `textures/mob_effect` folder are now included within the `gui` atlas.",
+        "fullLine": "assets atlas breaking | The `mob_effects` atlas has been removed, and sprites in the `textures/mob_effect` folder are now included within the `gui` atlas."
+      },
+      {
+        "snapshot": "25w20a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 77.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 77."
+      },
+      {
+        "snapshot": "25w20a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 61.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 61."
+      },
+      {
+        "snapshot": "25w21a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 78.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 78."
+      },
+      {
+        "snapshot": "25w21a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 62.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 62."
+      }
+    ]
+  },
+  "1.21.7": {
+    "packFormat": 81,
+    "entries": [
+      {
+        "snapshot": "1.21.7-rc2",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to 81.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to 81."
+      },
+      {
+        "snapshot": "1.21.7-rc2",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to 64.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to 64."
+      }
+    ]
+  },
+  "1.21.9": {
+    "packFormat": 87,
+    "entries": [
+      {
+        "snapshot": "1.21.9-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `87.1`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `87.1`."
+      },
+      {
+        "snapshot": "1.21.9-pre1",
+        "categories": [
+          "entity"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed player entity `respawn` object structure. The `angle` field has been renamed to `yaw` and is now required.",
+        "fullLine": "entity breaking | Changed player entity `respawn` object structure. The `angle` field has been renamed to `yaw` and is now required."
+      },
+      {
+        "snapshot": "1.21.9-pre1",
+        "categories": [
+          "entity"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Added required `pitch` field to player entity `respawn` object.",
+        "fullLine": "entity breaking | Added required `pitch` field to player entity `respawn` object."
+      },
+      {
+        "snapshot": "1.21.9-pre1",
+        "categories": [
+          "entity"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `dimension` field in player entity `respawn` object is now required.",
+        "fullLine": "entity breaking | The `dimension` field in player entity `respawn` object is now required."
+      },
+      {
+        "snapshot": "1.21.9-pre2",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `88.0`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `88.0`."
+      },
+      {
+        "snapshot": "25w31a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `82.0`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `82.0`."
+      },
+      {
+        "snapshot": "25w31a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to `65.0`.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to `65.0`."
+      },
+      {
+        "snapshot": "25w31a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "The `supported_formats` field in `pack.mcmeta` has been removed.",
+        "fullLine": "pack breaking obsolete | The `supported_formats` field in `pack.mcmeta` has been removed."
+      },
+      {
+        "snapshot": "25w31a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Added required fields `min_format` and `max_format` in `pack.mcmeta` that specifies the minimum and maximum version supported.",
+        "fullLine": "pack breaking obsolete | Added required fields `min_format` and `max_format` in `pack.mcmeta` that specifies the minimum and maximum version supported."
+      },
+      {
+        "snapshot": "25w31a",
+        "categories": [
+          "worldgen"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `initial_density_without_jaggedness` field in `noise_settings` definitions has been replaced with a `preliminary_surface_level` field. Instead of a 3D density function it is now a 2D density function that should produce the y-level of the approximate surface.",
+        "fullLine": "worldgen breaking | The `initial_density_without_jaggedness` field in `noise_settings` definitions has been replaced with a `preliminary_surface_level` field. Instead of a 3D density function it is now a 2D density function that should produce the y-level of the approximate surface."
+      },
+      {
+        "snapshot": "25w32a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `83.0`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `83.0`."
+      },
+      {
+        "snapshot": "25w32a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to `65.1`",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to `65.1`"
+      },
+      {
+        "snapshot": "25w34a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `84.0`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `84.0`."
+      },
+      {
+        "snapshot": "25w34a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to `66.0`.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to `66.0`."
+      },
+      {
+        "snapshot": "25w34a",
+        "categories": [
+          "component",
+          "block-entity"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `profile` data component no longer resolve profiles. It now has two behaviors:",
+        "fullLine": "component block-entity breaking | The `profile` data component no longer resolve profiles. It now has two behaviors:"
+      },
+      {
+        "snapshot": "25w34a",
+        "categories": [
+          "block-entity"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed `skull` block entity. The `profile` field has been changed to match the `profile` data component. It is also now immutable and is resolved only when necessary.",
+        "fullLine": "block-entity breaking | Changed `skull` block entity. The `profile` field has been changed to match the `profile` data component. It is also now immutable and is resolved only when necessary."
+      },
+      {
+        "snapshot": "25w35a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `85.0`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `85.0`."
+      },
+      {
+        "snapshot": "25w35a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to `67.0`.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to `67.0`."
+      },
+      {
+        "snapshot": "25w35a",
+        "categories": [
+          "options"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed `allow-nether` server property in favor of new game rule `allowEnteringNetherUsingPortals`.",
+        "fullLine": "options breaking | Removed `allow-nether` server property in favor of new game rule `allowEnteringNetherUsingPortals`."
+      },
+      {
+        "snapshot": "25w35a",
+        "categories": [
+          "options"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed `spawn-monsters` server property in favor of new game rule `spawnMonsters`.",
+        "fullLine": "options breaking | Removed `spawn-monsters` server property in favor of new game rule `spawnMonsters`."
+      },
+      {
+        "snapshot": "25w35a",
+        "categories": [
+          "options"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed `enable-command-block` server property in favor of new game rule `enableCommandBlocks`.",
+        "fullLine": "options breaking | Removed `enable-command-block` server property in favor of new game rule `enableCommandBlocks`."
+      },
+      {
+        "snapshot": "25w35a",
+        "categories": [
+          "options"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed `pvp` server property in favor of new game rule `pvp`.",
+        "fullLine": "options breaking | Removed `pvp` server property in favor of new game rule `pvp`."
+      },
+      {
+        "snapshot": "25w35a",
+        "categories": [
+          "text"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Updated object text component to support displaying non-character objects as part of text.",
+        "fullLine": "text breaking | Updated object text component to support displaying non-character objects as part of text."
+      },
+      {
+        "snapshot": "25w36a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `86.0`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `86.0`."
+      },
+      {
+        "snapshot": "25w36a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to `68.0`.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to `68.0`."
+      },
+      {
+        "snapshot": "25w36a",
+        "categories": [
+          "dimension"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The world border is now dimension-specific. Each dimension now has its own separate world border configuration.",
+        "fullLine": "dimension breaking | The world border is now dimension-specific. Each dimension now has its own separate world border configuration."
+      },
+      {
+        "snapshot": "25w36a",
+        "categories": [
+          "particle"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `flash` particle now requires a `color` parameter (argb).",
+        "fullLine": "particle breaking | The `flash` particle now requires a `color` parameter (argb)."
+      },
+      {
+        "snapshot": "25w37a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `87.0`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `87.0`."
+      },
+      {
+        "snapshot": "25w37a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to `69.0`.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to `69.0`."
+      },
+      {
+        "snapshot": "25w37a",
+        "categories": [
+          "gamerule"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed name of gamerule `enableCommandBlocks` to `commandBlocksEnabled`.",
+        "fullLine": "gamerule breaking | Changed name of gamerule `enableCommandBlocks` to `commandBlocksEnabled`."
+      },
+      {
+        "snapshot": "25w37a",
+        "categories": [
+          "shader"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed shader version from 150 to 330 for all shaders, as OpenGL 3.3 is now required.",
+        "fullLine": "shader breaking | Changed shader version from 150 to 330 for all shaders, as OpenGL 3.3 is now required."
+      }
+    ]
+  },
+  "1.21.11": {
+    "packFormat": 93.1,
+    "entries": [
+      {
+        "snapshot": "1.21.11-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `94.0`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `94.0`."
+      },
+      {
+        "snapshot": "1.21.11-pre1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to `75.0`.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to `75.0`."
+      },
+      {
+        "snapshot": "1.21.11-pre1",
+        "categories": [
+          "component"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `min_reach`, `max_reach`, and `hitbox_margin` fields have been moved from `piercing_weapon` and `kinetic_weapon` components into a new `attack_range` component.",
+        "fullLine": "component breaking | The `min_reach`, `max_reach`, and `hitbox_margin` fields have been moved from `piercing_weapon` and `kinetic_weapon` components into a new `attack_range` component."
+      },
+      {
+        "snapshot": "1.21.11-pre1",
+        "categories": [
+          "sound"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed `item.underwater_saddle.equip` sound event.",
+        "fullLine": "sound breaking | Removed `item.underwater_saddle.equip` sound event."
+      },
+      {
+        "snapshot": "1.21.11-pre4",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `94.1`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `94.1`."
+      },
+      {
+        "snapshot": "25w41a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `89.0`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `89.0`."
+      },
+      {
+        "snapshot": "25w41a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to `70.0`.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to `70.0`."
+      },
+      {
+        "snapshot": "25w41a",
+        "categories": [
+          "component"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed `consumable` component. The `animation` field value `spear` has been renamed to `trident`, and a new `spear` animation has been added.",
+        "fullLine": "component breaking | Changed `consumable` component. The `animation` field value `spear` has been renamed to `trident`, and a new `spear` animation has been added."
+      },
+      {
+        "snapshot": "25w41a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `AngryAt` field has been renamed to `angry_at`.",
+        "fullLine": "entity nbt breaking | The `AngryAt` field has been renamed to `angry_at`."
+      },
+      {
+        "snapshot": "25w41a",
+        "categories": [
+          "entity",
+          "nbt"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `AngerTime` field has been removed and replaced with `anger_end_time`, containing the time anger ends in game ticks.",
+        "fullLine": "entity nbt breaking | The `AngerTime` field has been removed and replaced with `anger_end_time`, containing the time anger ends in game ticks."
+      },
+      {
+        "snapshot": "25w41a",
+        "categories": [
+          "tag"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed `#enchantable/sword` item tag to `#enchantable/sweeping`.",
+        "fullLine": "tag breaking | Renamed `#enchantable/sword` item tag to `#enchantable/sweeping`."
+      },
+      {
+        "snapshot": "25w41a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed UI sprites: `container/inventory/effect_background_large` and `container/inventory/effect_background_small`.",
+        "fullLine": "assets breaking | Removed UI sprites: `container/inventory/effect_background_large` and `container/inventory/effect_background_small`."
+      },
+      {
+        "snapshot": "25w41a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Moved or split sky textures. `textures/environment/sun.png` moved to `sun`, `textures/environment/end_flash.png` moved to `end_flash`, and `textures/environment/moon_phases` split into individual moon phase sprites in `moon/` folder.",
+        "fullLine": "assets breaking | Moved or split sky textures. `textures/environment/sun.png` moved to `sun`, `textures/environment/end_flash.png` moved to `end_flash`, and `textures/environment/moon_phases` split into individual moon phase sprites in `moon/` folder."
+      },
+      {
+        "snapshot": "25w42a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `90.0`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `90.0`."
+      },
+      {
+        "snapshot": "25w42a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to `70.1`.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to `70.1`."
+      },
+      {
+        "snapshot": "25w42a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed `stopwatch` command syntax. The `id` argument has been moved after the subcommand. Example: `/stopwatch foo:bar create` is now `/stopwatch create foo:bar`.",
+        "fullLine": "command breaking | Changed `stopwatch` command syntax. The `id` argument has been moved after the subcommand. Example: `/stopwatch foo:bar create` is now `/stopwatch create foo:bar`."
+      },
+      {
+        "snapshot": "25w42a",
+        "categories": [
+          "dimension"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Many dimension type fields have been migrated to Environment Attributes: `ultrawarm`, `bed_works`, `respawn_anchor_works`, `cloud_height`, `piglin_safe`, and `has_raids`.",
+        "fullLine": "dimension breaking | Many dimension type fields have been migrated to Environment Attributes: `ultrawarm`, `bed_works`, `respawn_anchor_works`, `cloud_height`, `piglin_safe`, and `has_raids`."
+      },
+      {
+        "snapshot": "25w42a",
+        "categories": [
+          "data"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Many biome `effects` subfields have been migrated to Environment Attributes: `fog_color`, `water_fog_color`, `sky_color`, `particle`, `ambient_sound`, `mood_sound`, `additions_sound`, `music`, and `music_volume`.",
+        "fullLine": "data breaking | Many biome `effects` subfields have been migrated to Environment Attributes: `fog_color`, `water_fog_color`, `sky_color`, `particle`, `ambient_sound`, `mood_sound`, `additions_sound`, `music`, and `music_volume`."
+      },
+      {
+        "snapshot": "25w42a",
+        "categories": [
+          "tag"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed `#snow_golem_melts` and `#increased_fire_burnout` biome tags. Replaced by `gameplay/snow_golem_melts` and `gameplay/increased_fire_burnout` Environment Attributes.",
+        "fullLine": "tag breaking | Removed `#snow_golem_melts` and `#increased_fire_burnout` biome tags. Replaced by `gameplay/snow_golem_melts` and `gameplay/increased_fire_burnout` Environment Attributes."
+      },
+      {
+        "snapshot": "25w42a",
+        "categories": [
+          "tag"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed `#plays_underwater_music` biome tag. Replaced by `only_underwater` field in `audio/background_music` Environment Attribute.",
+        "fullLine": "tag breaking | Removed `#plays_underwater_music` biome tag. Replaced by `only_underwater` field in `audio/background_music` Environment Attribute."
+      },
+      {
+        "snapshot": "25w42a",
+        "categories": [
+          "tag"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed `#has_closer_water_fog` biome tag. Replaced by `visual/water_fog_radius` Environment Attribute.",
+        "fullLine": "tag breaking | Removed `#has_closer_water_fog` biome tag. Replaced by `visual/water_fog_radius` Environment Attribute."
+      },
+      {
+        "snapshot": "25w43a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `91.0`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `91.0`."
+      },
+      {
+        "snapshot": "25w43a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to `71.0`.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to `71.0`."
+      },
+      {
+        "snapshot": "25w43a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "World border interpolation is now dependent on game ticks instead of real time. The world border will no longer move when the game is paused and will respect changes made by the `/tick` command.",
+        "fullLine": "command breaking | World border interpolation is now dependent on game ticks instead of real time. The world border will no longer move when the game is paused and will respect changes made by the `/tick` command."
+      },
+      {
+        "snapshot": "25w43a",
+        "categories": [
+          "command"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `worldborder` command `time` argument is now given in ticks instead of seconds.",
+        "fullLine": "command breaking | The `worldborder` command `time` argument is now given in ticks instead of seconds."
+      },
+      {
+        "snapshot": "25w43a",
+        "categories": [
+          "loot"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Changed `filtered` loot function. The `modifier` field has been replaced with `on_pass` and `on_fail` fields for functions to run when the `item_filter` predicate passes or fails respectively.",
+        "fullLine": "loot breaking | Changed `filtered` loot function. The `modifier` field has been replaced with `on_pass` and `on_fail` fields for functions to run when the `item_filter` predicate passes or fails respectively."
+      },
+      {
+        "snapshot": "25w43a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `darkened_cutout_mipmap` field in texture section of `*.mcmeta` files has been replaced with `mipmap_strategy` field. Supported values: `mean`, `dark_cutout`, `cutout`, `strict_cutout` and `auto`.",
+        "fullLine": "assets breaking | The `darkened_cutout_mipmap` field in texture section of `*.mcmeta` files has been replaced with `mipmap_strategy` field. Supported values: `mean`, `dark_cutout`, `cutout`, `strict_cutout` and `auto`."
+      },
+      {
+        "snapshot": "25w44a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `92.0`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `92.0`."
+      },
+      {
+        "snapshot": "25w44a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to `72.0`.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to `72.0`."
+      },
+      {
+        "snapshot": "25w44a",
+        "categories": [
+          "network"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Minecraft Server Management Protocol version has been increased to `2.0.0`.",
+        "fullLine": "network breaking | Minecraft Server Management Protocol version has been increased to `2.0.0`."
+      },
+      {
+        "snapshot": "25w44a",
+        "categories": [
+          "network"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "In Server Management Protocol `typed_game_rule` and `untyped_game_rule` schemas, the `value` field type has been changed from string to boolean or integer, and now uses the game rule resource location as the key.",
+        "fullLine": "network breaking | In Server Management Protocol `typed_game_rule` and `untyped_game_rule` schemas, the `value` field type has been changed from string to boolean or integer, and now uses the game rule resource location as the key."
+      },
+      {
+        "snapshot": "25w44a",
+        "categories": [
+          "gamerule"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Game rules have been moved into a registry and renamed from camel case names to resource locations in snake case.",
+        "fullLine": "gamerule breaking | Game rules have been moved into a registry and renamed from camel case names to resource locations in snake case."
+      },
+      {
+        "snapshot": "25w44a",
+        "categories": [
+          "gamerule"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The following game rules have been renamed: `announceAdvancements` to `show_advancement_messages`, `commandBlocksEnabled` to `command_blocks_work`, `command_modification_block_limit` to `max_block_modifications`, `disableElytraMovementCheck` to `elytra_movement_check` (value inverted), `disablePlayerMovementCheck` to `player_movement_check` (value inverted), `disableRaids` to `raids` (value inverted), `doDaylightCycle` to `advance_time`, `doEntityDrops` to `entity_drops`, `doImmediateRespawn` to `immediate_respawn`, `doInsomnia` to `spawn_phantoms`, `doLimitedCrafting` to `limited_crafting`, `doMobLoot` to `mob_drops`, `doMobSpawning` to `spawn_mobs`, `doPatrolSpawning` to `spawn_patrols`, `doTileDrops` to `block_drops`, `doTraderSpawning` to `spawn_wandering_traders`, `doVinesSpread` to `spread_vines`, `doWardenSpawning` to `spawn_wardens`, `doWeatherCycle` to `advance_weather`, `maxCommandChainLength` to `max_command_sequence_length`, `maxCommandForkCount` to `max_command_forks`, `naturalRegeneration` to `natural_health_regeneration`, `snowAccumulationHeight` to `max_snow_accumulation_height`, `spawnRadius` to `respawn_radius`, and `spawnerBlocksEnabled` to `spawner_blocks_work`.",
+        "fullLine": "gamerule breaking | The following game rules have been renamed: `announceAdvancements` to `show_advancement_messages`, `commandBlocksEnabled` to `command_blocks_work`, `command_modification_block_limit` to `max_block_modifications`, `disableElytraMovementCheck` to `elytra_movement_check` (value inverted), `disablePlayerMovementCheck` to `player_movement_check` (value inverted), `disableRaids` to `raids` (value inverted), `doDaylightCycle` to `advance_time`, `doEntityDrops` to `entity_drops`, `doImmediateRespawn` to `immediate_respawn`, `doInsomnia` to `spawn_phantoms`, `doLimitedCrafting` to `limited_crafting`, `doMobLoot` to `mob_drops`, `doMobSpawning` to `spawn_mobs`, `doPatrolSpawning` to `spawn_patrols`, `doTileDrops` to `block_drops`, `doTraderSpawning` to `spawn_wandering_traders`, `doVinesSpread` to `spread_vines`, `doWardenSpawning` to `spawn_wardens`, `doWeatherCycle` to `advance_weather`, `maxCommandChainLength` to `max_command_sequence_length`, `maxCommandForkCount` to `max_command_forks`, `naturalRegeneration` to `natural_health_regeneration`, `snowAccumulationHeight` to `max_snow_accumulation_height`, `spawnRadius` to `respawn_radius`, and `spawnerBlocksEnabled` to `spawner_blocks_work`."
+      },
+      {
+        "snapshot": "25w44a",
+        "categories": [
+          "game-test"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "In the `game_rules` test environment, the keys `bool_rule` and `int_rule` have been replaced with a single `rules` key. It is a map from game rule resource locations to values (integer or boolean depending on the game rule).",
+        "fullLine": "game-test breaking | In the `game_rules` test environment, the keys `bool_rule` and `int_rule` have been replaced with a single `rules` key. It is a map from game rule resource locations to values (integer or boolean depending on the game rule)."
+      },
+      {
+        "snapshot": "25w44a",
+        "categories": [
+          "environment-attribute"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Renamed `visual/water_fog_radius` Environment Attribute to `visual/water_fog_end_distance`.",
+        "fullLine": "environment-attribute breaking | Renamed `visual/water_fog_radius` Environment Attribute to `visual/water_fog_end_distance`."
+      },
+      {
+        "snapshot": "25w44a",
+        "categories": [
+          "environment-attribute"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed `visual/extra_fog` Environment Attribute.",
+        "fullLine": "environment-attribute breaking | Removed `visual/extra_fog` Environment Attribute."
+      },
+      {
+        "snapshot": "25w44a",
+        "categories": [
+          "environment-attribute"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Replaced `visual/cloud_opacity` Environment Attribute with `visual/cloud_color`.",
+        "fullLine": "environment-attribute breaking | Replaced `visual/cloud_opacity` Environment Attribute with `visual/cloud_color`."
+      },
+      {
+        "snapshot": "25w44a",
+        "categories": [
+          "loot"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Removed `contents` as a supported value for dynamic loot entry type. Its behavior is now replicated by the `slots` loot entry type with `slot_range` slot source.",
+        "fullLine": "loot breaking obsolete | Removed `contents` as a supported value for dynamic loot entry type. Its behavior is now replicated by the `slots` loot entry type with `slot_range` slot source."
+      },
+      {
+        "snapshot": "25w44a",
+        "categories": [
+          "sound"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed `item.underwater_saddle.equip` sound event.",
+        "fullLine": "sound breaking | Removed `item.underwater_saddle.equip` sound event."
+      },
+      {
+        "snapshot": "25w45a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `93.0`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `93.0`."
+      },
+      {
+        "snapshot": "25w45a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to `73.0`.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to `73.0`."
+      },
+      {
+        "snapshot": "25w45a",
+        "categories": [
+          "atlas"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Item textures were split out of the `blocks` atlas into a separate new `items` atlas. Commands that referenced the `blocks` atlas for item textures now need to reference the `items` atlas instead.",
+        "fullLine": "atlas breaking | Item textures were split out of the `blocks` atlas into a separate new `items` atlas. Commands that referenced the `blocks` atlas for item textures now need to reference the `items` atlas instead."
+      },
+      {
+        "snapshot": "25w45a",
+        "categories": [
+          "dimension"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `natural` field has been fully replaced by the `gameplay/eyeblossom_open` and `gameplay/creaking_active` Environment Attributes.",
+        "fullLine": "dimension breaking | The `natural` field has been fully replaced by the `gameplay/eyeblossom_open` and `gameplay/creaking_active` Environment Attributes."
+      },
+      {
+        "snapshot": "25w45a",
+        "categories": [
+          "dimension"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `effects` field has been removed and replaced with `skybox` (rendering type: `none`, `overworld`, or `end`, defaults to `overworld`) and `cardinal_light` (direction of cardinal lighting: `default` or `nether`, defaults to `default`).",
+        "fullLine": "dimension breaking | The `effects` field has been removed and replaced with `skybox` (rendering type: `none`, `overworld`, or `end`, defaults to `overworld`) and `cardinal_light` (direction of cardinal lighting: `default` or `nether`, defaults to `default`)."
+      },
+      {
+        "snapshot": "25w45a",
+        "categories": [
+          "dimension"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `fixed_time` field has been replaced by a `has_fixed_time` boolean that defaults to `false`. Time-based effects are now specified by Environment Attributes.",
+        "fullLine": "dimension breaking | The `fixed_time` field has been replaced by a `has_fixed_time` boolean that defaults to `false`. Time-based effects are now specified by Environment Attributes."
+      },
+      {
+        "snapshot": "25w45a",
+        "categories": [
+          "tag"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed `#without_patrol_spawns` biome tag. Replaced by `gameplay/can_pillager_patrol_spawn` Environment Attribute.",
+        "fullLine": "tag breaking | Removed `#without_patrol_spawns` biome tag. Replaced by `gameplay/can_pillager_patrol_spawn` Environment Attribute."
+      },
+      {
+        "snapshot": "25w45a",
+        "categories": [
+          "atlas"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Item textures were split out of the `blocks` atlas into a separate new `items` atlas that does not have mipmaps. All textures used in an item model must come from the same atlas, and all textures used in a block model must come from the `blocks` atlas.",
+        "fullLine": "atlas breaking | Item textures were split out of the `blocks` atlas into a separate new `items` atlas that does not have mipmaps. All textures used in an item model must come from the same atlas, and all textures used in a block model must come from the `blocks` atlas."
+      },
+      {
+        "snapshot": "25w46a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Data pack format has been increased to `93.1`.",
+        "fullLine": "pack breaking obsolete | Data pack format has been increased to `93.1`."
+      },
+      {
+        "snapshot": "25w46a",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking",
+          "obsolete"
+        ],
+        "message": "Resource pack format has been increased to `74.0`.",
+        "fullLine": "pack breaking obsolete | Resource pack format has been increased to `74.0`."
+      },
+      {
+        "snapshot": "25w46a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Textures used for still water and lava are now hardcoded to `block/water_still` and `block/lava_still`.",
+        "fullLine": "assets breaking | Textures used for still water and lava are now hardcoded to `block/water_still` and `block/lava_still`."
+      },
+      {
+        "snapshot": "25w46a",
+        "categories": [
+          "assets"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Beacons no longer support translucent textures.",
+        "fullLine": "assets breaking | Beacons no longer support translucent textures."
+      }
+    ]
+  },
+  "26.1": {
+    "packFormat": 95,
+    "entries": [
+      {
+        "snapshot": "26.1-snapshot-1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Data pack format has been increased to `95.0`.",
+        "fullLine": "pack breaking | Data pack format has been increased to `95.0`."
+      },
+      {
+        "snapshot": "26.1-snapshot-1",
+        "categories": [
+          "pack"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Resource pack format has been increased to `76.0`.",
+        "fullLine": "pack breaking | Resource pack format has been increased to `76.0`."
+      },
+      {
+        "snapshot": "26.1-snapshot-1",
+        "categories": [
+          "tag",
+          "enchantment"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "Removed the following enchantment tags: `trades/desert_special`, `trades/jungle_special`, `trades/plains_special`, `trades/savanna_special`, `trades/snow_special`, `trades/swamp_special`, and `trades/taiga_special`.",
+        "fullLine": "tag enchantment breaking | Removed the following enchantment tags: `trades/desert_special`, `trades/jungle_special`, `trades/plains_special`, `trades/savanna_special`, `trades/snow_special`, `trades/swamp_special`, and `trades/taiga_special`."
+      },
+      {
+        "snapshot": "26.1-snapshot-1",
+        "categories": [
+          "shader"
+        ],
+        "flags": [
+          "breaking"
+        ],
+        "message": "The `lightmap.fsh` shader was significantly modified. The `LightmapInfo` uniform now has two new fields: `BlockLightTint` and `NightVisionColor`. The `AmbientLightFactor` field was removed. The `DarkenWorldFactor` was renamed to `BossOverlayWorldDarkeningFactor`.",
+        "fullLine": "shader breaking | The `lightmap.fsh` shader was significantly modified. The `LightmapInfo` uniform now has two new fields: `BlockLightTint` and `NightVisionColor`. The `AmbientLightFactor` field was removed. The `DarkenWorldFactor` was renamed to `BossOverlayWorldDarkeningFactor`."
+      }
+    ]
+  }
+}

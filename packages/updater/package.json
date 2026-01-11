@@ -1,0 +1,39 @@
+{
+	"name": "@voxelio/updater",
+	"version": "1.0.0",
+	"type": "module",
+	"description": "A package to update a datapack/resourcepack to another version",
+	"scripts": {
+		"build": "tsdown",
+		"build:watch": "tsdown --watch",
+		"test": "vitest",
+		"bench": "vitest bench",
+		"check": "tsgo --noEmit",
+		"biome:format": "biome format --write ./src",
+		"biome:check": "biome check ./src",
+		"biome:unsafefix": "biome check --write --unsafe  ./src"
+	},
+	"dependencies": {
+		"@voxelio/breeze": "workspace:*",
+		"@voxelio/zip": "workspace:*"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"types": "./dist/index.d.mts"
+		}
+	},
+	"files": [
+		"dist/**/*.mjs",
+		"dist/**/*.d.mts",
+		"!dist/**/*.map"
+	],
+	"author": {
+		"name": "Hardel",
+		"email": "teams.voxel@gmail.com",
+		"url": "https://voxel.hardel.io"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}

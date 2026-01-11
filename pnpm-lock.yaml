@@ -141,6 +141,15 @@ importers:
 
   packages/parser: {}
 
+  packages/updater:
+    dependencies:
+      '@voxelio/breeze':
+        specifier: workspace:*
+        version: link:../breeze
+      '@voxelio/zip':
+        specifier: workspace:*
+        version: link:../zip
+
   packages/zip: {}
 
 packages:
