@@ -43,7 +43,7 @@ Validates datapacks and resource packs to identify errors and inconsistencies,
 ensuring content quality and compatibility. It's a one-time validation, not a
 continuous validation (Not adapted for integration with IDEs).
 
-### [@voxelio/updater](./packages/updater) (Planned)
+### [@voxelio/updater](./packages/updater) (In Development)
 
 Updates datapacks and resource packs between different Minecraft versions, both
 forward and backward compatibility.
@@ -99,19 +99,16 @@ Some packages are using references to other packages, so you need to build the
 project to see the changes in the other packages. Dont forget to `pnpm install`
 in the root directory, else typescript will not find the packages since they are
 a dist folder.
-
-1. Install dependencies: `pnpm install`
-2. Build the project: `pnpm run build:watch`
+Install dependencies: `pnpm install`
 
 ## Deployment
 
 This monorepo uses Changesets for version management and publishing. To release
 packages:
 
-1. Make your changes to the relevant packages
-2. Create a changeset: `pnpm changeset`
+1. Develop your changes :3
+2. Create a changeset: `pnpm changeset` (if you want to publish to NPM)
 3. Commit and push your changes
-4. Merge the generated release PR to publish to NPM
 
 ## Contributing
 
@@ -131,8 +128,7 @@ packages:
 - Follow the existing code style and conventions
 - Add tests for new functionality
 - Ensure all packages build successfully
-- Run type checking with `pnpm run check`
+- Run type checking with `pnpm run check` and linting with `pnpm run biome:unsafefix`
 
 ## License
-
-MIT License - see individual package licenses for specific terms.
+See individual package licenses for specific terms.
