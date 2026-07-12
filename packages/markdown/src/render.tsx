@@ -174,7 +174,7 @@ function renderBlock(token: BlockToken, ctx: RenderContext, key: string): ReactN
 						{token.rows.map((row, ri) => (
 							<components.tr key={`${key}-tr${ri.toString()}`}>
 								{row.map((cell, ci) => (
-									<components.td key={`${key}-tr${ri}-td${ci.toString()}`}>
+									<components.td key={`${key}-tr${ri.toString()}-td${ci.toString()}`}>
 										{renderInline(cell, ctx, `${key}-tr${ri}-td${ci.toString()}`)}
 									</components.td>
 								))}

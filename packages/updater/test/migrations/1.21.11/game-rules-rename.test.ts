@@ -4,7 +4,7 @@ import { gameRulesRename } from "@/migrations/1.21.11/game-rules-rename";
 
 function applyMcfunction(content: string): string {
 	const files: Record<string, Uint8Array> = {
-		"data/test/function/test.mcfunction": new TextEncoder().encode(content),
+		"data/test/function/test.mcfunction": new TextEncoder().encode(content)
 	};
 	const ctx = createContext(files, []);
 	gameRulesRename.migrate(ctx);
@@ -13,7 +13,7 @@ function applyMcfunction(content: string): string {
 
 function applyJson(content: string): unknown {
 	const files: Record<string, Uint8Array> = {
-		"data/test/test_environment/test.json": new TextEncoder().encode(content),
+		"data/test/test_environment/test.json": new TextEncoder().encode(content)
 	};
 	const ctx = createContext(files, []);
 	gameRulesRename.migrate(ctx);
@@ -45,7 +45,7 @@ describe("gameRulesRename - test environment JSON", () => {
 		const input = JSON.stringify({
 			type: "minecraft:game_rules",
 			bool_rules: [{ rule: "doDaylightCycle", value: false }],
-			int_rules: [{ rule: "randomTickSpeed", value: 10 }],
+			int_rules: [{ rule: "randomTickSpeed", value: 10 }]
 		});
 		const result = applyJson(input) as { type: string; rules: Record<string, unknown> };
 
@@ -60,9 +60,9 @@ describe("gameRulesRename - test environment JSON", () => {
 			definitions: [
 				{
 					type: "minecraft:game_rules",
-					bool_rules: [{ rule: "doMobSpawning", value: true }],
-				},
-			],
+					bool_rules: [{ rule: "doMobSpawning", value: true }]
+				}
+			]
 		});
 		const result = applyJson(input) as { definitions: Array<{ rules: Record<string, unknown> }> };
 
@@ -72,7 +72,7 @@ describe("gameRulesRename - test environment JSON", () => {
 	it("should invert inverted rules in JSON", () => {
 		const input = JSON.stringify({
 			type: "minecraft:game_rules",
-			bool_rules: [{ rule: "disableRaids", value: true }],
+			bool_rules: [{ rule: "disableRaids", value: true }]
 		});
 		const result = applyJson(input) as { rules: Record<string, unknown> };
 

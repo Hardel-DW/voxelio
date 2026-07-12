@@ -7,15 +7,15 @@
 		"dev": "node src/cli.ts",
 		"build": "tsdown",
 		"build:watch": "tsdown --watch",
-		"check": "tsgo --noEmit",
+		"check": "tsc --noEmit",
 		"biome:format": "biome format --write .",
 		"biome:check": "biome check .",
 		"biome:unsafefix": "biome check --write --unsafe ."
 	},
 	"dependencies": {
-		"@clack/prompts": "^0.11.0",
-		"arktype": "^2.1.23",
-		"yaml": "^2.8.1"
+		"@clack/prompts": "^1.7.0",
+		"arktype": "^2.2.3",
+		"yaml": "^2.9.0"
 	},
 	"bin": {
 		"voxset": "dist/cli.mjs"

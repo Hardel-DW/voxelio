@@ -6,5 +6,5 @@ export const updatePackFormat: Migration = {
 	description: "Update pack format to 48",
 	migrate(ctx) {
 		updateLegacyPackFormat(ctx, 48);
-	},
+	}
 };

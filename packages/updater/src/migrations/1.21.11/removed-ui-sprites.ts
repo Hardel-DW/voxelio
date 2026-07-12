@@ -1,13 +1,10 @@
 import type { Migration } from "@/types";
 
-const REMOVED_SPRITES = [
-	"container/inventory/effect_background_large",
-	"container/inventory/effect_background_small",
-];
+const REMOVED_SPRITES = ["container/inventory/effect_background_large", "container/inventory/effect_background_small"];
 
 const REMOVED_SPRITE_FILES = [
 	"assets/minecraft/textures/gui/sprites/container/inventory/effect_background_large.png",
-	"assets/minecraft/textures/gui/sprites/container/inventory/effect_background_small.png",
+	"assets/minecraft/textures/gui/sprites/container/inventory/effect_background_small.png"
 ];
 
 export const removedUiSprites: Migration = {
@@ -25,5 +22,5 @@ export const removedUiSprites: Migration = {
 			}
 			return undefined;
 		});
-	},
+	}
 };

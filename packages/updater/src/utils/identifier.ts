@@ -1,11 +1,6 @@
 import type { MigrationContext } from "@/types";
 
-export function renameIdentifier(
-	ctx: MigrationContext,
-	oldId: string,
-	newId: string,
-	filePattern: RegExp = /\.(json|mcfunction)$/,
-): void {
+export function renameIdentifier(ctx: MigrationContext, oldId: string, newId: string, filePattern: RegExp = /\.(json|mcfunction)$/): void {
 	const isTag = oldId.startsWith("#");
 	const oldFull = normalize(oldId, isTag);
 	const oldShort = toShort(oldId, isTag);

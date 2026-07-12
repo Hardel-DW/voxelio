@@ -18,5 +18,5 @@ export const environmentAttributes: Migration = {
 			ctx.warn(`${path}: minecraft:visual/cloud_opacity replaced by minecraft:visual/cloud_color - format changed`);
 			return undefined;
 		});
-	},
+	}
 };

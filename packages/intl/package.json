@@ -9,7 +9,7 @@
 		"build:example": "vite build examples",
 		"preview:example": "vite preview examples",
 		"build:watch": "tsdown --watch",
-		"check": "tsgo --noEmit",
+		"check": "tsc --noEmit",
 		"biome:format": "biome format --write ./src",
 		"biome:check": "biome check ./src",
 		"biome:unsafefix": "biome check --write --unsafe  ./src"
@@ -42,14 +42,15 @@
 		"access": "public"
 	},
 	"peerDependencies": {
-		"react": ">=18.0.0"
+		"react": ">=18.0.0",
+		"vite": "^8.0.0"
 	},
 	"dependencies": {
-		"oxc-parser": "^0.96.0"
+		"oxc-parser": "^0.139.0"
 	},
 	"devDependencies": {
-		"@oxc-project/types": "^0.96.0",
-		"@types/react": "^19.2.4",
-		"vite": "^7.2.2"
+		"@oxc-project/types": "^0.139.0",
+		"@types/react": "^19.2.17",
+		"vite": "^8.1.4"
 	}
 }

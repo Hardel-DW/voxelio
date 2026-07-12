@@ -6,5 +6,5 @@ export const enchantableTagRename: Migration = {
 	description: "Rename #enchantable/sword to #enchantable/sweeping",
 	migrate(ctx) {
 		renameIdentifier(ctx, "#minecraft:enchantable/sword", "#minecraft:enchantable/sweeping");
-	},
+	}
 };

@@ -4,7 +4,7 @@ import { worldborderTime } from "@/migrations/1.21.11/worldborder-time";
 
 function applyMigration(content: string): string {
 	const files: Record<string, Uint8Array> = {
-		"data/test/function/test.mcfunction": new TextEncoder().encode(content),
+		"data/test/function/test.mcfunction": new TextEncoder().encode(content)
 	};
 	const ctx = createContext(files, []);
 	worldborderTime.migrate(ctx);

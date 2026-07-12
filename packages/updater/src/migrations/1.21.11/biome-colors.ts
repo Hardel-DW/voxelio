@@ -1,13 +1,7 @@
 import type { Migration } from "@/types";
 import { intToHex } from "@/utils/color";
 
-const COLOR_FIELDS = new Set([
-	"water_color",
-	"foliage_color",
-	"dry_foliage_color",
-	"grass_color",
-	"grass_color_modifier",
-]);
+const COLOR_FIELDS = new Set(["water_color", "foliage_color", "dry_foliage_color", "grass_color", "grass_color_modifier"]);
 
 export const biomeColors: Migration = {
 	id: "1.21.11/biome-colors",
@@ -26,5 +20,5 @@ export const biomeColors: Migration = {
 
 			return changed ? JSON.stringify(data, null, 2) : undefined;
 		});
-	},
+	}
 };

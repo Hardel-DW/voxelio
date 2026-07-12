@@ -137,7 +137,7 @@ async function runFullSetup(): Promise<void> {
 	const projectName = await text({
 		message: "Project name (appears in CurseForge)",
 		placeholder: "My Datapack",
-		validate: (value) => (value.length === 0 ? "Required" : undefined)
+		validate: (value) => (!value ? "Required" : undefined)
 	});
 
 	if (isCancel(projectName)) {
@@ -178,7 +178,7 @@ async function runFullSetup(): Promise<void> {
 		message: "Initial version",
 		placeholder: "1.0.0",
 		defaultValue: "1.0.0",
-		validate: (value) => (value.length === 0 || /^\d+\.\d+\.\d+$/.test(value) ? undefined : "Format: X.Y.Z")
+		validate: (value) => (!value || !/^\d+\.\d+\.\d+$/.test(value) ? "Format: X.Y.Z" : undefined)
 	});
 
 	if (isCancel(version)) {
@@ -198,7 +198,7 @@ async function runFullSetup(): Promise<void> {
 			message: "Modrinth Project ID - https://modrinth.com/dashboard/projects",
 			placeholder: "AABBCCDD",
 			validate: (value) => {
-				if (value.length === 0) return "Required";
+				if (!value) return "Required";
 				if (value.length !== 8) return "Must be exactly 8 characters";
 				return undefined;
 			}
@@ -219,7 +219,7 @@ async function runFullSetup(): Promise<void> {
 				"CurseForge Datapack Project ID - Can be found on the Public Page e.g https://www.curseforge.com/minecraft/mc-mods/neoenchant",
 			placeholder: "12345678",
 			validate: (value) => {
-				if (value.length === 0) return "Required";
+				if (!value) return "Required";
 				if (!/^\d+$/.test(value)) return "Must be a number";
 				return undefined;
 			}
@@ -239,7 +239,7 @@ async function runFullSetup(): Promise<void> {
 			message: "CurseForge Mod Project ID",
 			placeholder: "12345678",
 			validate: (value) => {
-				if (value.length === 0) return "Required";
+				if (!value) return "Required";
 				if (!/^\d+$/.test(value)) return "Must be a number";
 				return undefined;
 			}

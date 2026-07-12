@@ -13,7 +13,7 @@ export class VersionRegistry {
 	register(packFormat: number, migrations: Migration[]): this {
 		this.versions.set(packFormat, {
 			packFormat,
-			migrations,
+			migrations
 		});
 
 		this.sortedFormats = [...this.versions.keys()].sort((a, b) => a - b);

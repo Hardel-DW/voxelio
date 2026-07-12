@@ -23,7 +23,7 @@ export function update(files: DatapackFiles, fromFormat: number, toFormat: numbe
 		return {
 			files,
 			warnings: [],
-			appliedMigrations: [],
+			appliedMigrations: []
 		};
 	}
 
@@ -41,7 +41,7 @@ export function update(files: DatapackFiles, fromFormat: number, toFormat: numbe
 	return {
 		files: updatedFiles,
 		warnings,
-		appliedMigrations,
+		appliedMigrations
 	};
 }
 

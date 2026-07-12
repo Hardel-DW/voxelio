@@ -4,7 +4,7 @@ import { packFormatVersioning } from "@/migrations/1.21.9/pack-format-versioning
 
 function applyMigration(content: string): string {
 	const files: Record<string, Uint8Array> = {
-		"pack.mcmeta": new TextEncoder().encode(content),
+		"pack.mcmeta": new TextEncoder().encode(content)
 	};
 	const ctx = createContext(files, []);
 	packFormatVersioning.migrate(ctx);
@@ -35,8 +35,8 @@ describe("packFormatVersioning", () => {
 		const input = JSON.stringify({
 			pack: { pack_format: 48 },
 			overlays: {
-				entries: [{ directory: "overlay_1", formats: [50, 55] }],
-			},
+				entries: [{ directory: "overlay_1", formats: [50, 55] }]
+			}
 		});
 		const result = JSON.parse(applyMigration(input));
 

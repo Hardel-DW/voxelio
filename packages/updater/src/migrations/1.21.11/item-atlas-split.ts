@@ -9,5 +9,5 @@ export const itemAtlasSplit: Migration = {
 		if (itemModels.length > 0) {
 			ctx.warn("Item textures now use a separate 'items' atlas. Item models referencing 'blocks' atlas textures may need updating.");
 		}
-	},
+	}
 };

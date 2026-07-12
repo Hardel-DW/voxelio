@@ -31,7 +31,7 @@ export const packFormatVersioning: Migration = {
 
 			return JSON.stringify(data, null, 2);
 		});
-	},
+	}
 };
 
 function extractRange(

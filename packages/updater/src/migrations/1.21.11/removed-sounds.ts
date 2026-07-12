@@ -1,7 +1,7 @@
 import type { Migration } from "@/types";
 
 const SOUND_REPLACEMENTS: Record<string, string> = {
-	"item.underwater_saddle.equip": "item.armor.equip_leather",
+	"item.underwater_saddle.equip": "item.armor.equip_leather"
 };
 
 export const removedSounds: Migration = {
@@ -26,5 +26,5 @@ export const removedSounds: Migration = {
 
 			return changed ? result : undefined;
 		});
-	},
+	}
 };

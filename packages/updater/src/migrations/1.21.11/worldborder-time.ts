@@ -17,14 +17,11 @@ export const worldborderTime: Migration = {
 
 			return changed ? newLines.join("\n") : undefined;
 		});
-	},
+	}
 };
 
 function processLine(line: string): string {
 	if (!isCommand(line, "worldborder")) return line;
 
-	return line.replace(
-		/^(\s*\$*worldborder\s+(?:set|add)\s+\S+\s+|\s*\$*worldborder\s+warning\s+time\s+)(\d+)(\s*)$/,
-		"$1$2s$3"
-	);
+	return line.replace(/^(\s*\$*worldborder\s+(?:set|add)\s+\S+\s+|\s*\$*worldborder\s+warning\s+time\s+)(\d+)(\s*)$/, "$1$2s$3");
 }

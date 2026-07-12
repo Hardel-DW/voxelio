@@ -9,5 +9,7 @@ export default defineConfig({
 	sourcemap: false,
 	treeshake: true,
 	target: "es2022",
-	external: ["oxc-parser", "@oxc-project/types", "react"]
+	deps: {
+		neverBundle: ["oxc-parser", "@oxc-project/types", "postcss", "react", "vite"]
+	}
 }) as UserConfig;

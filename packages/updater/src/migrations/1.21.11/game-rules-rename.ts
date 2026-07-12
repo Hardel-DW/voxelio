@@ -59,14 +59,10 @@ const GAMERULE_RENAMES: Record<string, string> = {
 	tntExplodes: "minecraft:tnt_explodes",
 	tntExplosionDropDecay: "minecraft:tnt_explosion_drop_decay",
 	universalAnger: "minecraft:universal_anger",
-	waterSourceConversion: "minecraft:water_source_conversion",
+	waterSourceConversion: "minecraft:water_source_conversion"
 };
 
-const INVERTED_RULES = new Set([
-	"disableElytraMovementCheck",
-	"disablePlayerMovementCheck",
-	"disableRaids",
-]);
+const INVERTED_RULES = new Set(["disableElytraMovementCheck", "disablePlayerMovementCheck", "disableRaids"]);
 
 export const gameRulesRename: Migration = {
 	id: "1.21.11/game-rules-rename",
@@ -90,15 +86,17 @@ export const gameRulesRename: Migration = {
 			const result = processTestEnvironment(data);
 			return result.changed ? JSON.stringify(result.data, null, 2) : undefined;
 		});
-	},
+	}
 };
 
 function processCommand(line: string): string {
 	if (!isCommand(line, "gamerule")) return line;
 	if (line.includes("doFireTick false")) return line.replace(/doFireTick\s+false/, "minecraft:fire_spread_radius_around_player 0");
 	if (line.includes("doFireTick true")) return line.replace(/doFireTick\s+true/, "minecraft:fire_spread_radius_around_player 128");
-	if (line.includes("allowFireTicksAwayFromPlayer true")) return line.replace(/allowFireTicksAwayFromPlayer\s+true/, "minecraft:fire_spread_radius_around_player -1");
-	if (line.includes("allowFireTicksAwayFromPlayer false")) return line.replace(/allowFireTicksAwayFromPlayer\s+false/, "minecraft:fire_spread_radius_around_player 128");
+	if (line.includes("allowFireTicksAwayFromPlayer true"))
+		return line.replace(/allowFireTicksAwayFromPlayer\s+true/, "minecraft:fire_spread_radius_around_player -1");
+	if (line.includes("allowFireTicksAwayFromPlayer false"))
+		return line.replace(/allowFireTicksAwayFromPlayer\s+false/, "minecraft:fire_spread_radius_around_player 128");
 
 	for (const rule of INVERTED_RULES) {
 		if (!line.includes(rule)) continue;
@@ -174,6 +172,6 @@ function processTestEnvironment(data: unknown): { data: unknown; changed: boolea
 
 	return {
 		data: { type: obj.type, rules },
-		changed: true,
+		changed: true
 	};
 }

@@ -2,7 +2,7 @@ import type { Migration } from "@/types";
 
 const TEXTURE_RENAMES: Record<string, string> = {
 	"assets/minecraft/textures/environment/sun.png": "assets/minecraft/textures/environment/sun/sun.png",
-	"assets/minecraft/textures/environment/end_flash.png": "assets/minecraft/textures/environment/end_flash/end_flash.png",
+	"assets/minecraft/textures/environment/end_flash.png": "assets/minecraft/textures/environment/end_flash/end_flash.png"
 };
 
 export const skyTexturesMove: Migration = {
@@ -16,5 +16,5 @@ export const skyTexturesMove: Migration = {
 		if (ctx.hasFile("assets/minecraft/textures/environment/moon_phases.png")) {
 			ctx.warn("moon_phases.png must be manually split into individual sprites in moon/ folder");
 		}
-	},
+	}
 };

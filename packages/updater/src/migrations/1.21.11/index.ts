@@ -20,7 +20,7 @@ const migrations: Migration[] = [
 	environmentAttributes,
 	biomeColors,
 	itemAtlasSplit,
-	updatePackFormat,
+	updatePackFormat
 ];
 
 export default migrations;

@@ -3,7 +3,7 @@ import type { DatapackFiles, MigrationContext } from "@/types";
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-export function createContext(files: DatapackFiles, warnings: string[], force: boolean): MigrationContext {
+export function createContext(files: DatapackFiles, warnings: string[], force = false): MigrationContext {
 	return {
 		force,
 		transform(pattern, transformer) {
@@ -35,6 +35,6 @@ export function createContext(files: DatapackFiles, warnings: string[], force: b
 		},
 		warn(message) {
 			warnings.push(message);
-		},
+		}
 	};
 }
