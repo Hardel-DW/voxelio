@@ -15,7 +15,7 @@ npx voxset
 
 ## First Time Setup
 The CLI now guides you through creating a default configuration file for your project. It automatically generates:
-- A `deploy.yml` configuration file at your project root
+- A `deploy.json` configuration file at your project root
 - GitHub Actions workflow files integrated into your repository
 
 You need to define in Settings > Secrets and Variables > Actions > Secrets > Repository secrets: `CURSEFORGE_TOKEN` and `MODRINTH_TOKEN`.

@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { cancel, confirm, intro, isCancel, log, multiselect, note, outro, select, spinner, text } from "@clack/prompts";
@@ -18,53 +18,37 @@ export async function init(): Promise<void> {
 	}
 
 	const hasConfig = await configExists();
-	const hasWorkflow = await workflowExists();
-
 	if (!hasConfig) {
 		await runFullSetup();
-	} else if (!hasWorkflow) {
-		intro("Voxelio Deploy");
+		return;
+	}
 
+	intro("Voxelio Deploy");
+
+	const hasWorkflow = await workflowExists();
+	if (!hasWorkflow) {
 		const s = spinner();
 		s.start("Creating workflow file...");
 		await createWorkflow();
 		s.stop("Workflow file created successfully!");
-
-		note(
-			"Ready to create a new changeset.\n\nThis will create a markdown file in the .changeset folder.\nThe deployment will be triggered on the next commit containing this file.",
-			"Create Changeset"
-		);
-
-		const wantsChangeset = await confirm({
-			message: "Do you want to continue?"
-		});
-
-		if (isCancel(wantsChangeset) || !wantsChangeset) {
-			cancel("Operation cancelled");
-			process.exit(0);
-		}
-
-		await createNewChangeset();
-		outro("Changeset created successfully!");
-	} else {
-		intro("Voxelio Deploy");
-		note(
-			"Ready to create a new changeset.\n\nThis will create a markdown file in the .changeset folder.\nThe deployment will be triggered on the next commit containing this file.",
-			"Create Changeset"
-		);
-
-		const wantsChangeset = await confirm({
-			message: "Do you want to continue?"
-		});
-
-		if (isCancel(wantsChangeset) || !wantsChangeset) {
-			cancel("Operation cancelled");
-			process.exit(0);
-		}
-
-		await createNewChangeset();
-		outro("Changeset created successfully!");
 	}
+
+	note(
+		"Ready to create a new changeset.\n\nThis will create a markdown file in the .changeset folder.\nThe deployment will be triggered on the next commit containing this file.",
+		"Create Changeset"
+	);
+
+	const wantsChangeset = await confirm({
+		message: "Do you want to continue?"
+	});
+
+	if (isCancel(wantsChangeset) || !wantsChangeset) {
+		cancel("Operation cancelled");
+		process.exit(0);
+	}
+
+	await createNewChangeset();
+	outro("Changeset created successfully!");
 }
 
 async function runFullSetup(): Promise<void> {
@@ -278,8 +262,10 @@ async function runFullSetup(): Promise<void> {
 
 		const modId = await text({
 			message: "Mod ID",
-			placeholder: toCamelCase(projectName as string),
-			defaultValue: toCamelCase(projectName as string)
+			placeholder: toModId(projectName as string),
+			defaultValue: toModId(projectName as string),
+			validate: (value) =>
+				!value || /^[a-z][a-z0-9_-]{1,63}$/.test(value) ? undefined : "Must match ^[a-z][a-z0-9_-]{1,63}$ (lowercase)"
 		});
 
 		if (isCancel(modId)) {
@@ -312,17 +298,7 @@ async function runFullSetup(): Promise<void> {
 		const homepage = await text({
 			message: "Homepage URL",
 			placeholder: "https://example.com",
-			validate: (value) => {
-				if (!value || value.trim() === "") return undefined;
-				if (!value.startsWith("https://")) return "Must start with https://";
-				try {
-					const url = new URL(value);
-					if (!url.hostname.includes(".")) return "Must be a valid domain (e.g., example.com)";
-					return undefined;
-				} catch {
-					return "Invalid URL format";
-				}
-			}
+			validate: validateOptionalUrl
 		});
 
 		if (!isCancel(homepage) && homepage && (homepage as string).trim() !== "") {
@@ -332,17 +308,7 @@ async function runFullSetup(): Promise<void> {
 		const sources = await text({
 			message: "Sources URL",
 			placeholder: "https://github.com/user/repo",
-			validate: (value) => {
-				if (!value || value.trim() === "") return undefined;
-				if (!value.startsWith("https://")) return "Must start with https://";
-				try {
-					const url = new URL(value);
-					if (!url.hostname.includes(".")) return "Must be a valid domain (e.g., github.com)";
-					return undefined;
-				} catch {
-					return "Invalid URL format";
-				}
-			}
+			validate: validateOptionalUrl
 		});
 
 		if (!isCancel(sources) && sources && (sources as string).trim() !== "") {
@@ -352,17 +318,7 @@ async function runFullSetup(): Promise<void> {
 		const issues = await text({
 			message: "Issues URL",
 			placeholder: "https://github.com/user/repo/issues",
-			validate: (value) => {
-				if (!value || value.trim() === "") return undefined;
-				if (!value.startsWith("https://")) return "Must start with https://";
-				try {
-					const url = new URL(value);
-					if (!url.hostname.includes(".")) return "Must be a valid domain (e.g., github.com)";
-					return undefined;
-				} catch {
-					return "Invalid URL format";
-				}
-			}
+			validate: validateOptionalUrl
 		});
 
 		if (!isCancel(issues) && issues && (issues as string).trim() !== "") {
@@ -379,7 +335,7 @@ async function runFullSetup(): Promise<void> {
 	s.stop("Configuration created successfully!");
 
 	note(
-		"The deploy.yaml file has been created at the root of your project.\n\nYou can edit this file to configure advanced settings such as:\n- Excluding files from the build\n- Java versions for CurseForge\n- Environment settings (client/server)\n- And more...",
+		"The deploy.json file has been created at the root of your project.\n\nYou can edit this file to configure advanced settings such as:\n- Excluding files from the build\n- Java versions for CurseForge\n- Environment settings (client/server)\n- And more...",
 		"Configuration Complete"
 	);
 
@@ -503,7 +459,6 @@ async function openEditor(): Promise<string | null> {
 
 		child.on("exit", async (code) => {
 			if (code === 0) {
-				const { readFile } = await import("node:fs/promises");
 				const content = await readFile(tmpFile, "utf-8");
 				const cleaned = content.replace(/^# Write your changelog here\n/, "").trim();
 				resolve(cleaned);
@@ -514,9 +469,21 @@ async function openEditor(): Promise<string | null> {
 	});
 }
 
-function toCamelCase(str: string): string {
+function toModId(str: string): string {
 	return str
 		.toLowerCase()
-		.replace(/[^a-z0-9]+(.)/g, (_, char) => char.toUpperCase())
-		.replace(/^(.)/, (char) => char.toLowerCase());
+		.replace(/[^a-z0-9]+/g, "_")
+		.replace(/^_+|_+$/g, "");
+}
+
+function validateOptionalUrl(value: string | undefined): string | undefined {
+	if (!value || value.trim() === "") return undefined;
+	if (!value.startsWith("https://")) return "Must start with https://";
+	try {
+		const url = new URL(value);
+		if (!url.hostname.includes(".")) return "Must be a valid domain (e.g., example.com)";
+		return undefined;
+	} catch {
+		return "Invalid URL format";
+	}
 }

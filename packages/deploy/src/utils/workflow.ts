@@ -6,8 +6,8 @@ const WORKFLOW_PATH = ".github/workflows/voxset.yaml";
 function getExampleWorkflowPath(): string {
 	const currentFile = fileURLToPath(import.meta.url);
 	const currentDir = dirname(currentFile);
-	const isSrcDir = currentDir.includes("src");
-	const packageRoot = isSrcDir ? resolve(currentDir, "../..") : resolve(currentDir, "..");
+	const isSource = currentFile.endsWith(".ts");
+	const packageRoot = isSource ? resolve(currentDir, "../..") : resolve(currentDir, "..");
 	return join(packageRoot, "examples/deploy.yml");
 }
 

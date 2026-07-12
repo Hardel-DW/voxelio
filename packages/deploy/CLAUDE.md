@@ -5,7 +5,7 @@ Goal: Create a package of professional internationalisation for Vite, usable in 
 
 ## Architecture Overview
 This is a Node.js CLI tool that automates deployment of Minecraft datapacks to Modrinth and CurseForge. The CLI guides users through:
-1. Initial setup (deploy.yml config + GitHub workflow)
+1. Initial setup (deploy.json config + GitHub workflow)
 2. Creating changesets (markdown files with version bump info)
 3. GitHub Actions workflow handles the actual deployment
 4. Update Markdown description on Modrinth and CurseForge (Maybe different CLI for this)
@@ -47,7 +47,7 @@ src/
 │   └── init.ts         # Main command: setup + changeset creation
 ├── utils/
 │   ├── changeset.ts    # Create changeset markdown files
-│   ├── config.ts       # Read/write deploy.yml config
+│   ├── config.ts       # Read/write deploy.json config
 │   ├── datapack.ts     # Validate pack.mcmeta structure
 │   ├── frontmatter.ts  # Parse YAML frontmatter from markdown
 │   ├── version.ts      # Containing Minecraft versions and Java versions
@@ -56,7 +56,7 @@ src/
 
 examples/
 ├── deploy.yml          # GitHub workflow template
-├── example.yaml        # Example deploy.yml config
+├── example.json        # Example deploy.json config
 └── happy-pandas-dance.md  # Example changeset
 
 dist/                   # Built output (tsdown)

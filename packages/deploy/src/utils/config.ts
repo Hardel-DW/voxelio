@@ -1,10 +1,12 @@
 import { access, constants, readFile, writeFile } from "node:fs/promises";
-import { parse, stringify } from "yaml";
+import { type } from "arktype";
 import { DeployConfig } from "@/type";
+
+const CONFIG_PATH = "deploy.json";
 
 export async function configExists(): Promise<boolean> {
 	try {
-		await access("deploy.yaml", constants.F_OK);
+		await access(CONFIG_PATH, constants.F_OK);
 		return true;
 	} catch {
 		return false;
@@ -12,24 +14,24 @@ export async function configExists(): Promise<boolean> {
 }
 
 export async function readConfig(): Promise<DeployConfig> {
-	const content = await readFile("deploy.yaml", "utf-8");
-	const config = parse(content);
+	const content = await readFile(CONFIG_PATH, "utf-8");
+	const config = JSON.parse(content);
 	const validation = DeployConfig(config);
-	if (validation instanceof Error) {
-		throw new Error(`Invalid deploy.yaml: ${validation.message}`);
+	if (validation instanceof type.errors) {
+		throw new Error(`Invalid ${CONFIG_PATH}: ${validation.summary}`);
 	}
 
-	return validation as DeployConfig;
+	return validation;
 }
 
 export async function writeConfig(config: DeployConfig): Promise<void> {
 	const validation = DeployConfig(config);
-	if (validation instanceof Error) {
-		throw new Error(`Invalid config: ${validation.message}`);
+	if (validation instanceof type.errors) {
+		throw new Error(`Invalid config: ${validation.summary}`);
 	}
 
-	const content = stringify(config);
-	await writeFile("deploy.yaml", content, "utf-8");
+	const content = `${JSON.stringify(config, null, 2)}\n`;
+	await writeFile(CONFIG_PATH, content, "utf-8");
 }
 
 export function createDefaultConfig(): DeployConfig {
@@ -52,7 +54,7 @@ export function createDefaultConfig(): DeployConfig {
 			mod: {
 				enabled: false,
 				project_id: null,
-				java_versions: ["Java 17"],
+				java_versions: ["Java 25"],
 				environments: ["server"]
 			}
 		},
@@ -63,7 +65,7 @@ export function createDefaultConfig(): DeployConfig {
 			authors: []
 		},
 		build: {
-			exclude: [".git", ".github", ".changeset", ".vscode", ".cursor", "node_modules", "README.md", ".gitignore", "deploy.yaml"]
+			exclude: [".git", ".github", ".changeset", ".vscode", ".cursor", "node_modules", "README.md", ".gitignore", "deploy.json"]
 		}
 	};
 }

@@ -1,0 +1,48 @@
+{
+	"project": {
+		"version": "1.0.0",
+		"name": "My Datapack",
+		"filename": "my-datapack"
+	},
+	"modrinth": {
+		"enabled": true,
+		"project_id": "AABBCCDD",
+		"featured": false,
+		"dependencies": [
+			{
+				"id": "AABBCCDD",
+				"relation": "required",
+				"scope": "project"
+			}
+		]
+	},
+	"curseforge": {
+		"datapack": {
+			"enabled": true,
+			"project_id": 123456,
+			"dependencies": [
+				{
+					"id": 123456,
+					"relation": "required",
+					"slug": "my-library"
+				}
+			]
+		},
+		"mod": {
+			"enabled": true,
+			"project_id": 654321,
+			"java_versions": ["Java 25"],
+			"environments": ["server"]
+		}
+	},
+	"package_as_mod": {
+		"enabled": true,
+		"loaders": ["fabric", "forge", "neoforge", "quilt"],
+		"id": "my_datapack",
+		"filename": "my-datapack",
+		"authors": ["Author1"]
+	},
+	"build": {
+		"exclude": [".git", ".github", ".changeset", ".vscode", ".cursor", "node_modules", "README.md", ".gitignore", "deploy.json"]
+	}
+}
