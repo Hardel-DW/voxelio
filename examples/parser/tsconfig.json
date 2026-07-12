@@ -2,7 +2,10 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"target": "es2024",
-		"types": ["vite/client"],
+		"types": [
+			"vite/client"
+		],
+		"rootDir": ".",
 		"outDir": "dist",
 		"jsx": "react-jsx",
 		"jsxImportSource": "react",
@@ -10,5 +13,7 @@
 		"declaration": false,
 		"isolatedDeclarations": false
 	},
-	"include": ["src"]
+	"include": [
+		"src"
+	]
 }
