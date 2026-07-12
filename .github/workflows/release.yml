@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -52,7 +53,9 @@ jobs:
           git push
 
       - name: Publish to NPM
-        if: steps.check.outputs.has_changesets == 'true'
         run: pnpm changeset publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Push tags
+        run: git push --tags
