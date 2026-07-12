@@ -1,5 +1,11 @@
 # @voxelio/intl
 
+## 1.2.2
+
+### Patch Changes
+
+- 43dfda4: Update dependencies
+
 ## 1.2.1
 
 ### Patch Changes

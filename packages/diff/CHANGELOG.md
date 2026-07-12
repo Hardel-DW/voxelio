@@ -1,5 +1,11 @@
 # @voxelio/diff
 
+## 1.0.9
+
+### Patch Changes
+
+- 43dfda4: Update dependencies
+
 ## 1.0.8
 
 ### Patch Changes

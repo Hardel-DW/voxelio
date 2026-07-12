@@ -1,5 +1,13 @@
 # @voxelio/breeze
 
+## 1.10.34
+
+### Patch Changes
+
+- 43dfda4: Update dependencies
+- Updated dependencies [43dfda4]
+  - @voxelio/diff@1.0.9
+
 ## 1.10.33
 
 ### Patch Changes

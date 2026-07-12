@@ -1,5 +1,11 @@
 # @voxelio/nbt
 
+## 1.0.3
+
+### Patch Changes
+
+- 43dfda4: Update dependencies
+
 ## 1.0.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @voxelio/deploy
 
+## 1.0.11
+
+### Patch Changes
+
+- 43dfda4: Update dependencies
+
 ## 1.0.10
 
 ### Patch Changes

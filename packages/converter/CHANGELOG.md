@@ -1,5 +1,13 @@
 # @voxelio/converter
 
+## 1.0.46
+
+### Patch Changes
+
+- 43dfda4: Update dependencies
+- Updated dependencies [43dfda4]
+  - @voxelio/breeze@1.10.34
+
 ## 1.0.45
 
 ### Patch Changes
