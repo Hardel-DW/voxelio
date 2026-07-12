@@ -52,5 +52,10 @@
 		"@oxc-project/types": "^0.139.0",
 		"@types/react": "^19.2.17",
 		"vite": "^8.1.4"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Hardel-DW/voxelio.git",
+		"directory": "packages/intl"
 	}
 }

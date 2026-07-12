@@ -35,5 +35,10 @@
 	"author": "David Junger <tffy@free.fr>",
 	"maintainers": [
 		"Hardel-DW"
-	]
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Hardel-DW/voxelio.git",
+		"directory": "packages/zip"
+	}
 }
