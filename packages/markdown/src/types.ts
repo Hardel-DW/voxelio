@@ -11,22 +11,26 @@ export type InlineToken =
 	| { type: "directive"; name: string; props: DirectiveProps }
 	| { type: "br" };
 
-export type BlockToken =
-	| { type: "heading"; level: 1 | 2 | 3 | 4 | 5 | 6; children: InlineToken[] }
-	| { type: "paragraph"; children: InlineToken[] }
-	| { type: "small_text"; children: InlineToken[] }
-	| { type: "blockquote"; children: BlockToken[] }
-	| { type: "hr" }
-	| { type: "code_block"; lang?: string; content: string }
-	| { type: "list"; ordered: boolean; items: ListItem[] }
-	| { type: "table"; headers: InlineToken[][]; rows: InlineToken[][][] }
-	| { type: "directive_leaf"; name: string; props: DirectiveProps }
-	| { type: "directive_container"; name: string; props: DirectiveProps; children: BlockToken[] };
+export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
 export type ListItem = {
 	checked?: boolean;
 	children: InlineToken[];
-	sublist?: { ordered: boolean; items: ListItem[] };
+	sublist?: ListToken;
 };
 
-export type Document = BlockToken[];
+export type ListToken = { type: "list"; ordered: boolean; items: ListItem[] };
+
+export type BlockToken =
+	| { type: "heading"; level: HeadingLevel; children: InlineToken[] }
+	| { type: "paragraph"; children: InlineToken[] }
+	| { type: "small_text"; children: InlineToken[] }
+	| { type: "blockquote"; children: BlockToken[] }
+	| { type: "hr" }
+	| { type: "code_block"; lang?: string; meta: DirectiveProps; content: string }
+	| ListToken
+	| { type: "table"; headers: InlineToken[][]; rows: InlineToken[][][] }
+	| { type: "directive_leaf"; name: string; props: DirectiveProps }
+	| { type: "directive_container"; name: string; props: DirectiveProps; children: BlockToken[] };
+
+export type Frontmatter = { data: Record<string, string>; body: string };

@@ -1,40 +1,48 @@
 import type { ReactNode } from "react";
+import { plainText } from "./inline";
 import { tokenize } from "./lexer";
-import type { BlockToken, Document, InlineToken, ListItem } from "./types.ts";
+import type { BlockToken, DirectiveProps, InlineToken, ListItem, ListToken } from "./types";
 
-export type DirectiveComponent = (props: Record<string, unknown>) => ReactNode;
+type Parent = { children: ReactNode };
+type Component<Props> = (props: Props) => ReactNode;
+
+export type HeadingProps = Parent & { text: string };
+export type CodeBlockProps = { lang?: string; meta: DirectiveProps; code: string };
+export type DirectiveComponent = Component<{ props: DirectiveProps; children?: ReactNode }>;
 export type Directives = Record<string, DirectiveComponent>;
 
 export type Components = {
-	h1?: (props: { children: ReactNode }) => ReactNode;
-	h2?: (props: { children: ReactNode }) => ReactNode;
-	h3?: (props: { children: ReactNode }) => ReactNode;
-	h4?: (props: { children: ReactNode }) => ReactNode;
-	h5?: (props: { children: ReactNode }) => ReactNode;
-	h6?: (props: { children: ReactNode }) => ReactNode;
-	p?: (props: { children: ReactNode }) => ReactNode;
-	small?: (props: { children: ReactNode }) => ReactNode;
-	strong?: (props: { children: ReactNode }) => ReactNode;
-	em?: (props: { children: ReactNode }) => ReactNode;
-	del?: (props: { children: ReactNode }) => ReactNode;
-	a?: (props: { href: string; children: ReactNode }) => ReactNode;
-	img?: (props: { src: string; alt: string }) => ReactNode;
-	code?: (props: { children: ReactNode }) => ReactNode;
-	pre?: (props: { lang?: string; children: ReactNode }) => ReactNode;
-	blockquote?: (props: { children: ReactNode }) => ReactNode;
-	ul?: (props: { children: ReactNode }) => ReactNode;
-	ol?: (props: { children: ReactNode }) => ReactNode;
-	li?: (props: { children: ReactNode; checked?: boolean }) => ReactNode;
-	input?: (props: { type: "checkbox"; checked: boolean; disabled: boolean }) => ReactNode;
-	hr?: () => ReactNode;
-	table?: (props: { children: ReactNode }) => ReactNode;
-	thead?: (props: { children: ReactNode }) => ReactNode;
-	tbody?: (props: { children: ReactNode }) => ReactNode;
-	tr?: (props: { children: ReactNode }) => ReactNode;
-	th?: (props: { children: ReactNode }) => ReactNode;
-	td?: (props: { children: ReactNode }) => ReactNode;
-	br?: () => ReactNode;
+	h1?: Component<HeadingProps>;
+	h2?: Component<HeadingProps>;
+	h3?: Component<HeadingProps>;
+	h4?: Component<HeadingProps>;
+	h5?: Component<HeadingProps>;
+	h6?: Component<HeadingProps>;
+	p?: Component<Parent>;
+	small?: Component<Parent>;
+	strong?: Component<Parent>;
+	em?: Component<Parent>;
+	del?: Component<Parent>;
+	a?: Component<Parent & { href: string }>;
+	img?: Component<{ src: string; alt: string }>;
+	code?: Component<Parent>;
+	pre?: Component<CodeBlockProps>;
+	blockquote?: Component<Parent>;
+	ul?: Component<Parent>;
+	ol?: Component<Parent>;
+	li?: Component<Parent & { checked?: boolean }>;
+	input?: Component<{ type: "checkbox"; checked: boolean; readOnly: boolean }>;
+	hr?: Component<Record<never, never>>;
+	table?: Component<Parent>;
+	thead?: Component<Parent>;
+	tbody?: Component<Parent>;
+	tr?: Component<Parent>;
+	th?: Component<Parent>;
+	td?: Component<Parent>;
+	br?: Component<Record<never, never>>;
 };
+
+export type RenderOptions = { components?: Components; directives?: Directives };
 
 const defaults: Required<Components> = {
 	h1: ({ children }) => <h1>{children}</h1>,
@@ -51,7 +59,11 @@ const defaults: Required<Components> = {
 	a: ({ href, children }) => <a href={href}>{children}</a>,
 	img: ({ src, alt }) => <img src={src} alt={alt} />,
 	code: ({ children }) => <code>{children}</code>,
-	pre: ({ children }) => <pre>{children}</pre>,
+	pre: ({ code }) => (
+		<pre>
+			<code>{code}</code>
+		</pre>
+	),
 	blockquote: ({ children }) => <blockquote>{children}</blockquote>,
 	ul: ({ children }) => <ul>{children}</ul>,
 	ol: ({ children }) => <ol>{children}</ol>,
@@ -67,10 +79,13 @@ const defaults: Required<Components> = {
 	br: () => <br />
 };
 
-type RenderContext = { components: Required<Components>; directives: Directives };
+type Context = { components: Required<Components>; directives: Directives };
 
-function renderInlineToken(token: InlineToken, ctx: RenderContext, key: string): ReactNode {
-	const { components, directives } = ctx;
+const directiveOf = (ctx: Context, name: string): DirectiveComponent | null =>
+	Object.hasOwn(ctx.directives, name) ? ctx.directives[name] : null;
+
+function renderInlineToken(token: InlineToken, ctx: Context, key: string): ReactNode {
+	const { components } = ctx;
 	switch (token.type) {
 		case "text":
 			return token.content;
@@ -91,110 +106,103 @@ function renderInlineToken(token: InlineToken, ctx: RenderContext, key: string):
 		case "image":
 			return <components.img key={key} src={token.src} alt={token.alt} />;
 		case "directive": {
-			const Component = directives[token.name];
-			return Component ? <Component key={key} {...token.props} /> : null;
+			const Directive = directiveOf(ctx, token.name);
+			return Directive && <Directive key={key} props={token.props} />;
 		}
 		case "br":
 			return <components.br key={key} />;
 	}
 }
 
-function renderInline(tokens: InlineToken[], ctx: RenderContext, prefix: string): ReactNode {
-	return tokens.map((token, i) => renderInlineToken(token, ctx, `${prefix}-i${i}`));
+function renderInline(tokens: InlineToken[], ctx: Context, prefix: string): ReactNode {
+	return tokens.map((token, index) => renderInlineToken(token, ctx, `${prefix}-i${index}`));
 }
 
-function renderList(ordered: boolean, items: ListItem[], ctx: RenderContext, key: string): ReactNode {
+function renderListItem(item: ListItem, ctx: Context, key: string): ReactNode {
 	const { components } = ctx;
-	const Tag = ordered ? components.ol : components.ul;
 	return (
-		<Tag key={key}>
-			{items.map((item, i) => {
-				const liKey = `${key}-li${i}`;
-				return (
-					<components.li key={liKey} checked={item.checked}>
-						{item.checked !== undefined && <components.input type="checkbox" checked={item.checked} disabled />}
-						{renderInline(item.children, ctx, liKey)}
-						{item.sublist && renderList(item.sublist.ordered, item.sublist.items, ctx, `${liKey}-sub`)}
-					</components.li>
-				);
-			})}
-		</Tag>
+		<components.li key={key} checked={item.checked}>
+			{item.checked !== undefined && <components.input type="checkbox" checked={item.checked} readOnly />}
+			{renderInline(item.children, ctx, key)}
+			{item.sublist && renderList(item.sublist, ctx, `${key}-sub`)}
+		</components.li>
 	);
 }
 
-function renderBlock(token: BlockToken, ctx: RenderContext, key: string): ReactNode {
-	const { components, directives } = ctx;
+function renderList(list: ListToken, ctx: Context, key: string): ReactNode {
+	const List = list.ordered ? ctx.components.ol : ctx.components.ul;
+	return <List key={key}>{list.items.map((item, index) => renderListItem(item, ctx, `${key}-li${index}`))}</List>;
+}
 
+function renderCell(cell: InlineToken[], ctx: Context, key: string, Cell: Component<Parent>): ReactNode {
+	return <Cell key={key}>{renderInline(cell, ctx, key)}</Cell>;
+}
+
+function renderRow(cells: InlineToken[][], ctx: Context, key: string, Cell: Component<Parent>): ReactNode {
+	return <ctx.components.tr key={key}>{cells.map((cell, index) => renderCell(cell, ctx, `${key}-c${index}`, Cell))}</ctx.components.tr>;
+}
+
+function renderTable(headers: InlineToken[][], rows: InlineToken[][][], ctx: Context, key: string): ReactNode {
+	const { components } = ctx;
+	return (
+		<components.table key={key}>
+			<components.thead>{renderRow(headers, ctx, `${key}-head`, components.th)}</components.thead>
+			<components.tbody>{rows.map((row, index) => renderRow(row, ctx, `${key}-r${index}`, components.td))}</components.tbody>
+		</components.table>
+	);
+}
+
+function renderBlock(token: BlockToken, ctx: Context, key: string): ReactNode {
+	const { components } = ctx;
 	switch (token.type) {
 		case "directive_container": {
-			const Component = directives[token.name];
-			return Component ? (
-				<Component key={key} {...token.props}>
-					{renderBlocks(token.children, ctx)}
-				</Component>
-			) : null;
+			const Directive = directiveOf(ctx, token.name);
+			return (
+				Directive && (
+					<Directive key={key} props={token.props}>
+						{renderBlocks(token.children, ctx, key)}
+					</Directive>
+				)
+			);
 		}
 		case "directive_leaf": {
-			const Component = directives[token.name];
-			return Component ? <Component key={key} {...token.props} /> : null;
+			const Directive = directiveOf(ctx, token.name);
+			return Directive && <Directive key={key} props={token.props} />;
 		}
 		case "heading": {
-			const Tag = components[`h${token.level}`];
-			return <Tag key={key}>{renderInline(token.children, ctx, key)}</Tag>;
+			const Heading = components[`h${token.level}`];
+			return (
+				<Heading key={key} text={plainText(token.children)}>
+					{renderInline(token.children, ctx, key)}
+				</Heading>
+			);
 		}
 		case "paragraph":
 			return <components.p key={key}>{renderInline(token.children, ctx, key)}</components.p>;
 		case "small_text":
 			return <components.small key={key}>{renderInline(token.children, ctx, key)}</components.small>;
 		case "blockquote":
-			return <components.blockquote key={key}>{renderBlocks(token.children, ctx)}</components.blockquote>;
+			return <components.blockquote key={key}>{renderBlocks(token.children, ctx, key)}</components.blockquote>;
 		case "hr":
 			return <components.hr key={key} />;
 		case "code_block":
-			return (
-				<components.pre key={key} lang={token.lang}>
-					<components.code>{token.content}</components.code>
-				</components.pre>
-			);
+			return <components.pre key={key} lang={token.lang} meta={token.meta} code={token.content} />;
 		case "list":
-			return renderList(token.ordered, token.items, ctx, key);
+			return renderList(token, ctx, key);
 		case "table":
-			return (
-				<components.table key={key}>
-					<components.thead>
-						<components.tr>
-							{token.headers.map((cell, i) => (
-								<components.th key={`${key}-th${i.toString()}`}>
-									{renderInline(cell, ctx, `${key}-th${i.toString()}`)}
-								</components.th>
-							))}
-						</components.tr>
-					</components.thead>
-					<components.tbody>
-						{token.rows.map((row, ri) => (
-							<components.tr key={`${key}-tr${ri.toString()}`}>
-								{row.map((cell, ci) => (
-									<components.td key={`${key}-tr${ri.toString()}-td${ci.toString()}`}>
-										{renderInline(cell, ctx, `${key}-tr${ri}-td${ci.toString()}`)}
-									</components.td>
-								))}
-							</components.tr>
-						))}
-					</components.tbody>
-				</components.table>
-			);
+			return renderTable(token.headers, token.rows, ctx, key);
 	}
 }
 
-function renderBlocks(tokens: Document, ctx: RenderContext): ReactNode {
-	return tokens.map((token, i) => renderBlock(token, ctx, `b${i}`));
+function renderBlocks(tokens: BlockToken[], ctx: Context, prefix: string): ReactNode {
+	return tokens.map((token, index) => renderBlock(token, ctx, `${prefix}b${index}`));
 }
 
-export function render(tokens: Document, components: Components = {}, directives: Directives = {}): ReactNode {
-	return renderBlocks(tokens, { components: { ...defaults, ...components }, directives });
+export function render(blocks: BlockToken[], options: RenderOptions = {}): ReactNode {
+	return renderBlocks(blocks, { components: { ...defaults, ...options.components }, directives: options.directives ?? {} }, "");
 }
 
-export function RawMarkdown({ content, directives }: { content?: string; directives?: Directives }): ReactNode {
+export function RawMarkdown({ content, ...options }: RenderOptions & { content?: string }): ReactNode {
 	if (!content) return null;
-	return render(tokenize(content), {}, directives);
+	return render(tokenize(content), options);
 }

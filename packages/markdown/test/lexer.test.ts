@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { parseFrontmatter } from "../src/frontmatter";
+import { parseInline, plainText } from "../src/inline";
 import { tokenize } from "../src/lexer";
 import type { BlockToken, InlineToken } from "../src/types";
 
@@ -111,8 +113,94 @@ describe("tokenize", () => {
 		expect(children(doc[0])).toContainEqual(expect.objectContaining({ type: "br" }));
 	});
 
-	it("throws on infinite loop attempt", () => {
-		const malicious = "x".repeat(200_000);
-		expect(() => tokenize(malicious)).toThrow("limit exceeded");
+	it("a huge paragraph is just a paragraph", () => {
+		const doc = tokenize("x".repeat(200_000));
+		expect(doc).toHaveLength(1);
+		expect(children(doc[0])).toEqual([{ type: "text", content: "x".repeat(200_000) }]);
+	});
+
+	it("a line that looks like a block but is not becomes a paragraph", () => {
+		expect(tokenize("#hashtag\n|not a table")).toEqual([
+			{ type: "paragraph", children: [{ type: "text", content: "#hashtag" }] },
+			{ type: "paragraph", children: [{ type: "text", content: "|not a table" }] }
+		]);
+	});
+
+	it("nested containers close in order", () => {
+		const doc = tokenize(":::outer\n:::inner\ntext\n:::\nafter\n:::\ntail");
+		expect(doc).toHaveLength(2);
+		expect(doc[0]).toMatchObject({ type: "directive_container", name: "outer" });
+		if (doc[0].type !== "directive_container") return;
+		expect(doc[0].children).toHaveLength(2);
+		expect(doc[0].children[0]).toMatchObject({ type: "directive_container", name: "inner" });
+		expect(doc[1]).toMatchObject({ type: "paragraph" });
+	});
+
+	it("a container keeps a fenced code block containing its closer", () => {
+		const doc = tokenize(":::box\n```\n:::\n```\n:::");
+		expect(doc).toHaveLength(1);
+		if (doc[0].type !== "directive_container") return;
+		expect(doc[0].children).toEqual([{ type: "code_block", lang: undefined, meta: {}, content: ":::" }]);
+	});
+
+	it("inline directives start at a word boundary", () => {
+		expect(children(tokenize("at 10:30 sharp")[0])).toEqual([{ type: "text", content: "at 10:30 sharp" }]);
+		expect(children(tokenize("see :icon{name=leaf} here")[0])).toContainEqual({
+			type: "directive",
+			name: "icon",
+			props: { name: "leaf" }
+		});
+	});
+
+	it("links keep balanced parentheses in the url", () => {
+		const doc = tokenize("[wiki](https://en.wikipedia.org/wiki/Fork_(software)) end");
+		expect(children(doc[0])).toEqual([
+			{ type: "link", href: "https://en.wikipedia.org/wiki/Fork_(software)", children: [{ type: "text", content: "wiki" }] },
+			{ type: "text", content: " end" }
+		]);
+	});
+
+	it("a list may start indented", () => {
+		const doc = tokenize("  - a\n  - b");
+		expect(doc[0]).toMatchObject({ type: "list", ordered: false });
+		if (doc[0].type === "list") expect(doc[0].items).toHaveLength(2);
+	});
+
+	it("a nested list of another kind belongs to the item above", () => {
+		const doc = tokenize("- a\n  1. one\n  2. two\n- b");
+		expect(doc).toHaveLength(1);
+		if (doc[0].type !== "list") return;
+		expect(doc[0].items).toHaveLength(2);
+		expect(doc[0].items[0].sublist).toMatchObject({ ordered: true });
+		expect(doc[0].items[0].sublist?.items).toHaveLength(2);
+	});
+
+	it("code fences carry a language and meta props", () => {
+		const doc = tokenize('```json title="config/leafs.json"\n{}\n```');
+		expect(doc[0]).toEqual({ type: "code_block", lang: "json", meta: { title: "config/leafs.json" }, content: "{}" });
+	});
+
+	it("soft line breaks stay in the text", () => {
+		expect(children(tokenize("one\ntwo")[0])).toEqual([{ type: "text", content: "one\ntwo" }]);
+	});
+});
+
+describe("plainText", () => {
+	it("flattens formatting, links and images", () => {
+		expect(plainText(parseInline("a **b** [c](x) ![d](y) `e` :dir"))).toBe("a b c d e ");
+	});
+});
+
+describe("parseFrontmatter", () => {
+	it("splits fields from the body and strips quotes", () => {
+		const { data, body } = parseFrontmatter('---\ntitle: "Les régions"\nlead: Le monde : découpé\n---\n\n# Titre');
+		expect(data).toEqual({ title: "Les régions", lead: "Le monde : découpé" });
+		expect(body).toBe("\n# Titre");
+	});
+
+	it("leaves a document without frontmatter untouched", () => {
+		const markdown = "# Titre\n\ntexte";
+		expect(parseFrontmatter(markdown)).toEqual({ data: {}, body: markdown });
+		expect(parseFrontmatter("---\nunclosed")).toEqual({ data: {}, body: "---\nunclosed" });
 	});
 });

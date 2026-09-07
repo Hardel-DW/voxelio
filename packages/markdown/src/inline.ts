@@ -1,23 +1,27 @@
-import { MAX_ITERATIONS, parseProps } from "./lexer";
+import { parseProps } from "./props";
 import type { DirectiveProps, InlineToken } from "./types";
 
 const DIRECTIVE_NAME_REGEX = /^[\w.-]+/;
 const AUTOLINK_REGEX = /^<(https?:\/\/[^>]+|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>/;
-const ESCAPABLE = /^[\\`*_{}[\]()#+\-.!~<>]/;
+const ESCAPABLE = /^[`*_{}[\]()#+\-.!~<>]/;
+const WORD = /\w/;
+
+type ParseResult = { length: number; token: InlineToken } | null;
+type Parser = (text: string, pos: number) => ParseResult;
 
 function findClosing(text: string, start: number, open: string, close: string): number {
 	let depth = 1;
 	let pos = start;
-	while (pos < text.length && depth > 0) {
-		if (text[pos] === "\\" && pos + 1 < text.length) {
+	while (pos < text.length) {
+		if (text[pos] === "\\") {
 			pos += 2;
 			continue;
 		}
-		if (text.startsWith(open, pos)) depth++;
-		else if (text.startsWith(close, pos)) depth--;
-		if (depth > 0) pos++;
+		if (text[pos] === open) depth++;
+		else if (text[pos] === close && --depth === 0) return pos;
+		pos++;
 	}
-	return depth === 0 ? pos : -1;
+	return -1;
 }
 
 function isSafeUrl(url: string): boolean {
@@ -25,157 +29,132 @@ function isSafeUrl(url: string): boolean {
 	return !lower.startsWith("javascript:") && !lower.startsWith("vbscript:");
 }
 
-type ParseResult = { length: number; token: InlineToken } | null;
-
-function tryParseEscape(text: string, pos: number): ParseResult {
-	if (text[pos] !== "\\") return null;
-	const next = text[pos + 1];
-	if (next && ESCAPABLE.test(next)) {
-		return { length: 2, token: { type: "text", content: next } };
-	}
-	return null;
+function bracketed(text: string, pos: number): { label: string; target: string; end: number } | null {
+	const labelEnd = findClosing(text, pos + 1, "[", "]");
+	if (labelEnd === -1 || text[labelEnd + 1] !== "(") return null;
+	const targetEnd = findClosing(text, labelEnd + 2, "(", ")");
+	if (targetEnd === -1) return null;
+	const target = text.slice(labelEnd + 2, targetEnd);
+	if (!isSafeUrl(target)) return null;
+	return { label: text.slice(pos + 1, labelEnd), target, end: targetEnd + 1 };
 }
 
-function tryParseAutolink(text: string, pos: number): ParseResult {
-	if (text[pos] !== "<") return null;
-	const match = text.slice(pos).match(AUTOLINK_REGEX);
+function delimited(text: string, pos: number, marker: string): { inner: string; end: number } | null {
+	const end = text.indexOf(marker, pos + marker.length);
+	if (end === -1) return null;
+	return { inner: text.slice(pos + marker.length, end), end: end + marker.length };
+}
+
+const parseEscape: Parser = (text, pos) => {
+	const next = text[pos + 1];
+	if (!next || !ESCAPABLE.test(next)) return null;
+	return { length: 2, token: { type: "text", content: next } };
+};
+
+const parseAutolink: Parser = (text, pos) => {
+	const match = AUTOLINK_REGEX.exec(text.slice(pos));
 	if (!match) return null;
 	const url = match[1];
 	const href = url.includes("@") && !url.startsWith("http") ? `mailto:${url}` : url;
 	return { length: match[0].length, token: { type: "link", href, children: [{ type: "text", content: url }] } };
-}
+};
 
-function tryParseHardBreak(text: string, pos: number): ParseResult {
-	if (text[pos] !== " ") return null;
+const parseHardBreak: Parser = (text, pos) => {
 	let spaces = 0;
 	while (text[pos + spaces] === " ") spaces++;
-	if (spaces >= 2 && text[pos + spaces] === "\n") {
-		return { length: spaces + 1, token: { type: "br" } };
-	}
-	return null;
-}
+	if (spaces < 2 || text[pos + spaces] !== "\n") return null;
+	return { length: spaces + 1, token: { type: "br" } };
+};
 
-function tryParseSoftBreak(text: string, pos: number): ParseResult {
-	return text[pos] === "\n" ? { length: 1, token: { type: "text", content: " " } } : null;
-}
-
-function tryParseDirective(text: string, pos: number): ParseResult {
-	if (text[pos] !== ":" || text[pos + 1] === ":") return null;
-
-	const rest = text.slice(pos + 1);
-	const nameMatch = rest.match(DIRECTIVE_NAME_REGEX);
+const parseDirective: Parser = (text, pos) => {
+	if (text[pos + 1] === ":" || (pos > 0 && WORD.test(text[pos - 1]))) return null;
+	const nameMatch = DIRECTIVE_NAME_REGEX.exec(text.slice(pos + 1));
 	if (!nameMatch) return null;
-
 	const name = nameMatch[0];
 	let length = 1 + name.length;
 	let props: DirectiveProps = {};
-
-	if (text[pos + length] === "{") {
-		const braceEnd = text.indexOf("}", pos + length);
-		if (braceEnd !== -1) {
-			props = parseProps(text.slice(pos + length + 1, braceEnd));
-			length = braceEnd - pos + 1;
-		}
+	const braceEnd = text[pos + length] === "{" ? text.indexOf("}", pos + length) : -1;
+	if (braceEnd !== -1) {
+		props = parseProps(text.slice(pos + length + 1, braceEnd));
+		length = braceEnd - pos + 1;
 	}
-
 	return { length, token: { type: "directive", name, props } };
-}
+};
 
-function tryParseImage(text: string, pos: number): ParseResult {
-	if (text[pos] !== "!" || text[pos + 1] !== "[") return null;
+const parseImage: Parser = (text, pos) => {
+	if (text[pos + 1] !== "[") return null;
+	const image = bracketed(text, pos + 1);
+	if (!image) return null;
+	return { length: image.end - pos, token: { type: "image", alt: image.label, src: image.target } };
+};
 
-	const altEnd = findClosing(text, pos + 2, "[", "]");
-	if (altEnd === -1 || text[altEnd + 1] !== "(") return null;
+const parseLink: Parser = (text, pos) => {
+	const link = bracketed(text, pos);
+	if (!link) return null;
+	return { length: link.end - pos, token: { type: "link", href: link.target, children: parseInline(link.label) } };
+};
 
-	const srcEnd = text.indexOf(")", altEnd + 2);
-	if (srcEnd === -1) return null;
+const parseBold: Parser = (text, pos) => {
+	const bold = delimited(text, pos, "**");
+	if (!bold) return null;
+	return { length: bold.end - pos, token: { type: "bold", children: parseInline(bold.inner) } };
+};
 
-	const src = text.slice(altEnd + 2, srcEnd);
-	if (!isSafeUrl(src)) return null;
+const parseItalic: Parser = (text, pos) => {
+	const italic = delimited(text, pos, "*");
+	if (!italic) return null;
+	return { length: italic.end - pos, token: { type: "italic", children: parseInline(italic.inner) } };
+};
 
-	return { length: srcEnd - pos + 1, token: { type: "image", alt: text.slice(pos + 2, altEnd), src } };
-}
+const parseStrike: Parser = (text, pos) => {
+	const strike = delimited(text, pos, "~~");
+	if (!strike) return null;
+	return { length: strike.end - pos, token: { type: "strike", children: parseInline(strike.inner) } };
+};
 
-function tryParseLink(text: string, pos: number): ParseResult {
-	if (text[pos] !== "[") return null;
+const parseCode: Parser = (text, pos) => {
+	const code = delimited(text, pos, "`");
+	if (!code) return null;
+	return { length: code.end - pos, token: { type: "code", content: code.inner } };
+};
 
-	const textEnd = findClosing(text, pos + 1, "[", "]");
-	if (textEnd === -1 || text[textEnd + 1] !== "(") return null;
-
-	const hrefEnd = text.indexOf(")", textEnd + 2);
-	if (hrefEnd === -1) return null;
-
-	const href = text.slice(textEnd + 2, hrefEnd);
-	if (!isSafeUrl(href)) return null;
-
-	return { length: hrefEnd - pos + 1, token: { type: "link", href, children: parseInline(text.slice(pos + 1, textEnd)) } };
-}
-
-function tryParseBold(text: string, pos: number): ParseResult {
-	if (text[pos] !== "*" || text[pos + 1] !== "*") return null;
-	const end = text.indexOf("**", pos + 2);
-	if (end === -1) return null;
-	return { length: end - pos + 2, token: { type: "bold", children: parseInline(text.slice(pos + 2, end)) } };
-}
-
-function tryParseItalic(text: string, pos: number): ParseResult {
-	if (text[pos] !== "*" || text[pos + 1] === "*") return null;
-	const end = text.indexOf("*", pos + 1);
-	if (end === -1) return null;
-	return { length: end - pos + 1, token: { type: "italic", children: parseInline(text.slice(pos + 1, end)) } };
-}
-
-function tryParseStrike(text: string, pos: number): ParseResult {
-	if (text[pos] !== "~" || text[pos + 1] !== "~") return null;
-	const end = text.indexOf("~~", pos + 2);
-	if (end === -1) return null;
-	return { length: end - pos + 2, token: { type: "strike", children: parseInline(text.slice(pos + 2, end)) } };
-}
-
-function tryParseCode(text: string, pos: number): ParseResult {
-	if (text[pos] !== "`") return null;
-	const end = text.indexOf("`", pos + 1);
-	if (end === -1) return null;
-	return { length: end - pos + 1, token: { type: "code", content: text.slice(pos + 1, end) } };
-}
+const PARSERS = new Map<string, Parser>([
+	["\\", parseEscape],
+	["<", parseAutolink],
+	[" ", parseHardBreak],
+	[":", parseDirective],
+	["!", parseImage],
+	["[", parseLink],
+	["*", (text, pos) => (text[pos + 1] === "*" ? parseBold(text, pos) : parseItalic(text, pos))],
+	["~", (text, pos) => (text[pos + 1] === "~" ? parseStrike(text, pos) : null)],
+	["`", parseCode]
+]);
 
 export function parseInline(text: string): InlineToken[] {
 	const tokens: InlineToken[] = [];
-	const buffer: string[] = [];
+	let start = 0;
 	let pos = 0;
-	let iterations = 0;
-	const flushBuffer = () => {
-		if (buffer.length) {
-			tokens.push({ type: "text", content: buffer.join("") });
-			buffer.length = 0;
-		}
-	};
-
-	const parsers: Record<string, (t: string, p: number) => ParseResult> = {
-		"\\": tryParseEscape,
-		"<": tryParseAutolink,
-		" ": tryParseHardBreak,
-		"\n": tryParseSoftBreak,
-		":": tryParseDirective,
-		"!": tryParseImage,
-		"[": tryParseLink,
-		"*": (t, p) => tryParseBold(t, p) ?? tryParseItalic(t, p),
-		"~": tryParseStrike,
-		"`": tryParseCode
-	};
-
 	while (pos < text.length) {
-		if (++iterations > MAX_ITERATIONS) throw new Error("Inline parser limit exceeded");
-		const result = parsers[text[pos]]?.(text, pos);
-		if (result) {
-			flushBuffer();
-			tokens.push(result.token);
-			pos += result.length;
-		} else {
-			buffer.push(text[pos++]);
+		const result = PARSERS.get(text[pos])?.(text, pos);
+		if (!result) {
+			pos++;
+			continue;
 		}
+		if (pos > start) tokens.push({ type: "text", content: text.slice(start, pos) });
+		tokens.push(result.token);
+		pos += result.length;
+		start = pos;
 	}
-
-	flushBuffer();
+	if (pos > start) tokens.push({ type: "text", content: text.slice(start, pos) });
 	return tokens;
+}
+
+export function plainText(tokens: InlineToken[]): string {
+	let text = "";
+	for (const token of tokens) {
+		if ("content" in token) text += token.content;
+		else if ("children" in token) text += plainText(token.children);
+		else if (token.type === "image") text += token.alt;
+	}
+	return text;
 }
