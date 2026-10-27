@@ -1,4 +1,5 @@
-import { deflateSync, gunzipSync, gzipSync, inflateSync } from "fflate";
+import type * as NodeZlib from "node:zlib";
+import { gunzipSync, gzipSync, unzlibSync, zlibSync } from "fflate";
 import { NbtError, NbtErrorKind } from "@/error";
 import { Compression } from "@/types";
 
@@ -29,32 +30,56 @@ export function detectCompression(data: Uint8Array): Compression {
 	return Compression.None;
 }
 
+/** Compression level 0-9 (0=none, 1=fastest, 9=best). Default: 6 */
+export interface CompressOptions {
+	level?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+}
+
+type Level = NonNullable<CompressOptions["level"]>;
+
+interface Codec {
+	gunzip(data: Uint8Array): Uint8Array;
+	unzlib(data: Uint8Array): Uint8Array;
+	gzip(data: Uint8Array, level: Level): Uint8Array;
+	zlib(data: Uint8Array, level: Level): Uint8Array;
+}
+
+const FFLATE: Codec = {
+	gunzip: (data) => gunzipSync(data),
+	unzlib: (data) => unzlibSync(data),
+	gzip: (data, level) => gzipSync(data, { level }),
+	zlib: (data, level) => zlibSync(data, { level })
+};
+
+// Plain views: a Buffer would make slice() share memory instead of copying.
+const view = (buffer: Uint8Array): Uint8Array => new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+
+const nodeCodec = (zlib: typeof NodeZlib): Codec => ({
+	gunzip: (data) => view(zlib.gunzipSync(data)),
+	unzlib: (data) => view(zlib.inflateSync(data)),
+	gzip: (data, level) => view(zlib.gzipSync(data, { level })),
+	zlib: (data, level) => view(zlib.deflateSync(data, { level }))
+});
+
+// Native zlib on Node is several times faster than fflate; browsers keep fflate.
+const codec: Codec = typeof process !== "undefined" && process.getBuiltinModule ? nodeCodec(process.getBuiltinModule("node:zlib")) : FFLATE;
+
 /**
  * Decompress data based on format.
  * Auto-detects if format not specified.
  */
 export function decompress(data: Uint8Array, format?: Compression): Uint8Array {
 	const compression = format ?? detectCompression(data);
-
 	if (compression === Compression.None) {
 		return data;
 	}
 
 	try {
-		if (compression === Compression.Gzip) {
-			return gunzipSync(data);
-		}
-
-		return inflateSync(data);
+		return compression === Compression.Gzip ? codec.gunzip(data) : codec.unzlib(data);
 	} catch (e) {
 		const message = e instanceof Error ? e.message : "Unknown compression error";
 		throw new NbtError(`Decompression failed: ${message}`, NbtErrorKind.CompressionError);
 	}
-}
-
-/** Compression level 0-9 (0=none, 1=fastest, 9=best). Default: 6 */
-export interface CompressOptions {
-	level?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 }
 
 /**
@@ -67,13 +92,8 @@ export function compress(data: Uint8Array, format: Compression, options: Compres
 	}
 
 	const level = options.level ?? 6;
-
 	try {
-		if (format === Compression.Gzip) {
-			return gzipSync(data, { level });
-		}
-
-		return deflateSync(data, { level });
+		return format === Compression.Gzip ? codec.gzip(data, level) : codec.zlib(data, level);
 	} catch (e) {
 		const message = e instanceof Error ? e.message : "Unknown compression error";
 		throw new NbtError(`Compression failed: ${message}`, NbtErrorKind.CompressionError);
