@@ -9,6 +9,7 @@ function readValue(raw: string, start: number): { value: string; end: number } {
 		const end = close === -1 ? raw.length : close;
 		return { value: raw.slice(start + 1, end), end: end + 1 };
 	}
+
 	let end = start;
 	while (end < raw.length && !isSeparator(raw[end])) end++;
 	return { value: raw.slice(start, end), end };
@@ -22,6 +23,7 @@ export function parseProps(raw: string): DirectiveProps {
 			pos++;
 			continue;
 		}
+
 		const equals = raw.indexOf("=", pos);
 		if (equals === -1) break;
 		const key = raw.slice(pos, equals).trim();
@@ -29,5 +31,6 @@ export function parseProps(raw: string): DirectiveProps {
 		if (key) props[key] = value;
 		pos = end;
 	}
+
 	return props;
 }

@@ -16,6 +16,7 @@ function readFields(lines: string[]): Record<string, string> {
 		if (colon === -1) continue;
 		data[line.slice(0, colon).trim()] = unquote(line.slice(colon + 1).trim());
 	}
+
 	return data;
 }
 

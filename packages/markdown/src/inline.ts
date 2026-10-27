@@ -21,6 +21,7 @@ function findClosing(text: string, start: number, open: string, close: string): 
 		else if (text[pos] === close && --depth === 0) return pos;
 		pos++;
 	}
+
 	return -1;
 }
 
@@ -78,6 +79,7 @@ const parseDirective: Parser = (text, pos) => {
 		props = parseProps(text.slice(pos + length + 1, braceEnd));
 		length = braceEnd - pos + 1;
 	}
+
 	return { length, token: { type: "directive", name, props } };
 };
 
@@ -140,11 +142,13 @@ export function parseInline(text: string): InlineToken[] {
 			pos++;
 			continue;
 		}
+
 		if (pos > start) tokens.push({ type: "text", content: text.slice(start, pos) });
 		tokens.push(result.token);
 		pos += result.length;
 		start = pos;
 	}
+
 	if (pos > start) tokens.push({ type: "text", content: text.slice(start, pos) });
 	return tokens;
 }
@@ -156,5 +160,6 @@ export function plainText(tokens: InlineToken[]): string {
 		else if ("children" in token) text += plainText(token.children);
 		else if (token.type === "image") text += token.alt;
 	}
+
 	return text;
 }

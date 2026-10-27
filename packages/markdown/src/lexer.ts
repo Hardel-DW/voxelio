@@ -161,6 +161,7 @@ function parseBlocks(cursor: Cursor, isEnd: (line: string) => boolean): BlockTok
 		if (isBlank(line)) cursor.index++;
 		else blocks.push(parseBlock(cursor));
 	}
+
 	return blocks;
 }
 
