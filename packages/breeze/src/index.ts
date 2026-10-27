@@ -22,7 +22,7 @@ export { StructureAction } from "@/core/engine/actions/domains/StructureAction";
 export { StructureSetAction } from "@/core/engine/actions/domains/StructureSetAction";
 export { EnchantmentAction } from "@/core/engine/actions/domains/EnchantmentAction";
 
-export { PACK_VERSION, getMinecraftVersion } from "@/core/Version";
+export { PACK_VERSION, LATEST_PACK_FORMAT, getMinecraftVersion } from "@/core/Version";
 export { analyserCollection, isVoxel } from "@/core/engine/Analyser";
 export { isVoxelElement, sortElementsByRegistry } from "@/core/Element";
 export { getItemFromMultipleOrOne, getAllItems, separateItemsAndTags } from "@/core/ItemList";

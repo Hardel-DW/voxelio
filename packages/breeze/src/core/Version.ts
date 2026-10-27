@@ -18,8 +18,11 @@ export const PACK_VERSION = {
 	"71": "1.21.5",
 	"80": "1.21.6",
 	"81": { start: "1.21.7", end: "1.21.8" },
-	"86": { start: "1.21.9", end: "1.21.10" },
-	"90": "1.21.11"
+	"88": { start: "1.21.9", end: "1.21.10" },
+	"94": "1.21.11",
+	"101": { start: "26.1", end: "26.1.2" },
+	"107": "26.2",
+	"121": "26.3"
 };
 
 export const SIMPLE_PACK_VERSION: Record<string, string> = Object.fromEntries(
@@ -31,16 +34,26 @@ export const SIMPLE_PACK_VERSION: Record<string, string> = Object.fromEntries(
  */
 export const ENGINE_VERSION = 1;
 
+const KNOWN_FORMATS = Object.keys(PACK_VERSION)
+	.map(Number)
+	.sort((a, b) => a - b);
+
 /**
- * Get the Minecraft version from the pack format
+ * The newest pack format this table knows.
+ */
+export const LATEST_PACK_FORMAT: number = KNOWN_FORMATS[KNOWN_FORMATS.length - 1];
+
+/**
+ * Get the Minecraft version from the pack format. A format between two releases belongs to the snapshots of the next one.
  * @example 1.21.1
  * @param packFormat - The pack format
  * @returns The Minecraft version
  */
 export function getMinecraftVersion(packFormat: number): string {
-	const version = PACK_VERSION[packFormat.toString() as keyof typeof PACK_VERSION];
-	if (!version) {
+	const format = KNOWN_FORMATS.find((known) => known >= packFormat);
+	if (format === undefined || packFormat < 1) {
 		throw new Error(`Unsupported pack_format: ${packFormat}`);
 	}
+	const version = PACK_VERSION[format.toString() as keyof typeof PACK_VERSION];
 	return typeof version === "string" ? version : version.start;
 }

@@ -1,5 +1,6 @@
 import { generateFabricMod } from "@/fabric";
 import { generateForgeMods } from "@/forge-neoforge";
+import { toModId } from "@/modid";
 import { generateQuiltMod } from "@/quilt";
 import { DEFAULT_MOD_METADATA, type ModMetadata, type ModPlatformType, ModPlatforms } from "@/types";
 import { extractZip } from "@voxelio/zip";
@@ -14,7 +15,7 @@ import { Datapack } from "@voxelio/breeze";
  */
 export async function convertDatapack(datapackZip: File, platforms: ModPlatformType[], metadata?: ModMetadata): Promise<Response> {
 	const files = await extractZip(new Uint8Array(await datapackZip.arrayBuffer()));
-	const finalMetadata = metadata || (await extractMetadata(datapackZip, datapackZip.name.replace(/\.zip$/i, "")));
+	const finalMetadata = metadata || readMetadata(files, datapackZip.name.replace(/\.zip$/i, ""));
 	const modFiles = generateModFiles(finalMetadata, platforms);
 
 	const allFiles = {
@@ -29,38 +30,41 @@ export async function convertDatapack(datapackZip: File, platforms: ModPlatformT
 
 /**
  * Extracts metadata from datapack's pack.mcmeta and icon
- * @param files - Datapack files (keys = paths, values = content)
+ * @param file - Datapack ZIP file
  * @param modName - Name to use for the mod (from zip filename)
  * @returns Extracted metadata combined with default values
  */
-export async function extractMetadata(files: File, modName: string): Promise<ModMetadata> {
-	const extractedFiles = await extractZip(new Uint8Array(await files.arrayBuffer()));
-	const hasIcon = "pack.png" in extractedFiles;
-	let metadata: Partial<ModMetadata> = {};
+export async function extractMetadata(file: File, modName: string): Promise<ModMetadata> {
+	return readMetadata(await extractZip(new Uint8Array(await file.arrayBuffer())), modName);
+}
 
-	try {
-		const datapack = await Datapack.from(files);
-		const description = datapack.getDescription({ fallback: DEFAULT_MOD_METADATA.description });
-		const version = datapack.getVersion();
-		metadata = { description, version };
-	} catch (error) {
-		console.error("Error parsing pack.mcmeta", error);
-	}
+function readMetadata(files: Record<string, Uint8Array>, modName: string): ModMetadata {
+	const datapack = attempt(() => new Datapack(files));
 
 	return {
 		...DEFAULT_MOD_METADATA,
-		...metadata,
-		id: modName.toLowerCase().replace(/[^a-z0-9_]/g, "_"),
+		id: toModId(modName),
 		name: modName,
-		authors: metadata.authors || DEFAULT_MOD_METADATA.authors,
-		icon: hasIcon ? "pack.png" : undefined
+		description:
+			attempt(() => datapack?.getDescription({ fallback: DEFAULT_MOD_METADATA.description })) ?? DEFAULT_MOD_METADATA.description,
+		version: attempt(() => datapack?.getVersion()) ?? DEFAULT_MOD_METADATA.version,
+		icon: "pack.png" in files ? "pack.png" : undefined
 	};
+}
+
+// Each pack.mcmeta field is optional for a mod: an unreadable one falls back alone instead of discarding the others.
+function attempt<T>(read: () => T): T | undefined {
+	try {
+		return read();
+	} catch (error) {
+		console.warn("Cannot read the datapack metadata", error);
+		return undefined;
+	}
 }
 
 function generateModFiles(metadata: ModMetadata, platforms: ModPlatformType[]) {
 	const files: Record<string, string> = {};
-	const modId = metadata.id.toLowerCase().replace(/\s+/g, "_");
-	const commonData = { ...metadata, id: modId };
+	const commonData = { ...metadata, id: toModId(metadata.id) };
 
 	if (platforms.includes(ModPlatforms.FABRIC)) {
 		files["fabric.mod.json"] = generateFabricMod(commonData);
@@ -71,14 +75,11 @@ function generateModFiles(metadata: ModMetadata, platforms: ModPlatformType[]) {
 	}
 
 	if (platforms.includes(ModPlatforms.FORGE)) {
-		files["META-INF/mods.toml"] = generateForgeMods(commonData, [ModPlatforms.FORGE]);
+		files["META-INF/mods.toml"] = generateForgeMods(commonData, ModPlatforms.FORGE);
 	}
 
 	if (platforms.includes(ModPlatforms.NEOFORGE)) {
-		files["META-INF/neoforge.mods.toml"] = generateForgeMods(commonData, [ModPlatforms.NEOFORGE]).replace(
-			/updateJSONURL = '(.*?)'/,
-			"updateJSONURL = '$1?neoforge=only'"
-		);
+		files["META-INF/neoforge.mods.toml"] = generateForgeMods(commonData, ModPlatforms.NEOFORGE);
 	}
 
 	return files;
