@@ -1,0 +1,40 @@
+{
+	"name": "@voxelio/changeset",
+	"version": "1.0.0",
+	"type": "module",
+	"description": "Minimal changesets for pnpm and npm repositories: write changesets, version packages, write changelogs and publish.",
+	"scripts": {
+		"build": "tsdown",
+		"build:watch": "tsdown --watch",
+		"test": "vitest",
+		"check": "tsc --noEmit",
+		"biome:format": "biome format --write ./src ./test",
+		"biome:check": "biome check ./src ./test",
+		"biome:unsafefix": "biome check --write --unsafe ./src ./test"
+	},
+	"dependencies": {
+		"@clack/prompts": "^1.7.0"
+	},
+	"bin": {
+		"changeset": "dist/cli.mjs"
+	},
+	"files": [
+		"dist/**/*.mjs"
+	],
+	"engines": {
+		"node": ">=24"
+	},
+	"author": {
+		"name": "Hardel",
+		"email": "teams.voxel@gmail.com",
+		"url": "https://voxel.hardel.io"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Hardel-DW/voxelio.git",
+		"directory": "packages/changeset"
+	}
+}
