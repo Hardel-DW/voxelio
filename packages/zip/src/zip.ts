@@ -20,7 +20,6 @@ const zip64endLocatorLength = 20;
 
 // Flags are written big-endian: 0x0800 is bit 3 (data descriptor), 0x0008 is bit 11 (UTF-8 name).
 const dataDescriptorFlag = 0x0800;
-
 const nameDecoder = new TextDecoder();
 const utf8Decoder = new TextDecoder("utf8", { fatal: true });
 
@@ -85,7 +84,6 @@ export async function* loadFiles(files: ForAwaitable<ZipEntryDescription & Metad
 		const flags = flagNameUTF8(file, options.buffersAreUTF8);
 
 		if (file.isFile && !useDataDescriptor) {
-			// sizes and CRC go in the local header, so the whole file must be read first
 			const chunks = await bufferFileData(file);
 			yield fileHeader(file, flags, false);
 			yield* chunks;
@@ -182,7 +180,7 @@ export async function* fileData(file: ZipFileDescription & Metadata): AsyncGener
 	let crc = 0;
 	let size = 0;
 	const reader = bytes.getReader();
-	for (;;) {
+	for (; ;) {
 		const { value, done } = await reader.read();
 		if (done) break;
 		crc = crc32(value, crc);
@@ -205,6 +203,7 @@ export function dataDescriptor(file: ZipEntryDescription & Metadata, needsZip64:
 		header.setUint32(8, clampInt32(size), true);
 		header.setUint32(12, clampInt32(size), true);
 	}
+
 	return makeUint8Array(header);
 }
 
@@ -220,7 +219,6 @@ export function centralHeader(
 	header.setUint32(0, centralHeaderSignature);
 	header.setUint32(4, 0x2d03_2d_00); // UNIX app version 4.5 | ZIP version 4.5
 	header.setUint16(8, (useDataDescriptor ? dataDescriptorFlag : 0) | flags);
-	// compression method stays 0 (stored)
 	formatDOSDateTime(file.modDate, header, 12);
 	header.setUint32(16, file.isFile ? (file.crc ?? 0) : 0, true);
 	header.setUint32(20, size, true);
@@ -232,11 +230,7 @@ export function centralHeader(
 	return makeUint8Array(header);
 }
 
-export function zip64ExtraField(
-	file: ZipEntryDescription & Metadata,
-	offset: bigint,
-	zip64HeaderLength: Exclude<Zip64FieldLength, 0>
-): Uint8Array {
+export function zip64ExtraField(file: ZipEntryDescription & Metadata, offset: bigint, zip64HeaderLength: Exclude<Zip64FieldLength, 0>): Uint8Array {
 	const header = makeBuffer(zip64HeaderLength);
 	header.setUint16(0, 1, true);
 	header.setUint16(2, zip64HeaderLength - 4, true);
@@ -245,6 +239,7 @@ export function zip64ExtraField(
 		header.setBigUint64(4, size, true);
 		header.setBigUint64(12, size, true);
 	}
+
 	header.setBigUint64(zip64HeaderLength - 8, offset, true);
 	return makeUint8Array(header);
 }

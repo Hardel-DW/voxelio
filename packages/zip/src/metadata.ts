@@ -20,6 +20,7 @@ export function normalizeMetadata(input?: File | Response | BufferLike | StreamL
 	if (input instanceof File) {
 		return { encodedName: fixFilename(encodedName ?? encodeString(input.name)), uncompressedSize: BigInt(input.size), nameIsBuffer };
 	}
+
 	if (input instanceof Response) {
 		const contentDisposition = input.headers.get("content-disposition");
 		const filename = contentDisposition?.match(/;\s*filename\*?\s*=\s*(?:UTF-\d+''|)["']?([^;"'\r\n]*)["']?(?:;|$)/i);
@@ -51,7 +52,6 @@ function normalizeName(name: unknown): [encodedName: Uint8Array | undefined, nam
 /** Strips trailing slashes from files, adds one to folders. */
 function fixFilename(name: Uint8Array | undefined, isFile = true): Uint8Array {
 	if (!name || name.every((c) => c === SLASH)) throw new Error("The file must have a name.");
-
 	if (isFile) {
 		let end = name.length;
 		while (name[end - 1] === SLASH) end--;

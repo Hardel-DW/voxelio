@@ -9,22 +9,20 @@ export type ZipFileDescription = {
 	mode: number; // UNIX permissions, 0o664 by default
 	isFile: true;
 };
+
 export type ZipFolderDescription = {
 	modDate: Date;
 	mode: number; // UNIX permissions, 0o775 by default
 	isFile: false;
 };
+
 export type ZipEntryDescription = ZipFileDescription | ZipFolderDescription;
 
 /** The modification date is read from File and Response inputs unless `modDate` overrides it; it defaults to *now*.
  * A missing input describes a folder.
  * @param modDate should be a Date or timestamp or anything else that works in `new Date()`
  */
-export function normalizeInput(
-	input: File | Response | BufferLike | StreamLike | undefined,
-	modDate?: unknown,
-	mode?: number
-): ZipEntryDescription {
+export function normalizeInput(input: File | Response | BufferLike | StreamLike | undefined, modDate?: unknown, mode?: number): ZipEntryDescription {
 	const date = normalizeDate(input, modDate);
 	if (input === undefined) return { isFile: false, modDate: date, mode: mode || 0o775 };
 	return { isFile: true, modDate: date, bytes: normalizeBytes(input), mode: mode || 0o664 };
@@ -54,10 +52,7 @@ function normalizeBytes(input: File | Response | BufferLike | StreamLike): Reada
 }
 
 /** Pulls one chunk per read; cancelling the stream calls `iter.throw` unless `onCancel` is given. */
-export function ReadableFromIterator(
-	iter: AsyncIterator<BufferLike>,
-	onCancel: (reason: unknown) => void = (reason) => iter.throw?.(reason)
-): ReadableStream<Uint8Array> {
+export function ReadableFromIterator(iter: AsyncIterator<BufferLike>, onCancel: (reason: unknown) => void = (reason) => iter.throw?.(reason)): ReadableStream<Uint8Array> {
 	return new ReadableStream<Uint8Array>({
 		async pull(controller) {
 			const next = await iter.next();

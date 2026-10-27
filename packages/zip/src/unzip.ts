@@ -11,7 +11,6 @@ const COMPRESSION_STORED = 0;
 const COMPRESSION_DEFLATE = 8;
 
 const utf8Decoder = new TextDecoder("utf-8");
-// WHATWG maps "ascii" to windows-1252
 const legacyDecoder = new TextDecoder("ascii");
 
 type Entry = { name: string; method: number; content: Uint8Array };
@@ -27,7 +26,7 @@ export async function extractZip(data: Uint8Array): Promise<Record<string, Uint8
 	const files = await Promise.all(
 		entries.map(async ({ name, method, content }) => [name, await decompress(name, method, content)] as const)
 	);
-	// fromEntries keeps a "__proto__" entry as an own property
+
 	return Object.fromEntries(files);
 }
 
@@ -50,7 +49,6 @@ function readEntries(data: Uint8Array): Entry[] {
 	const entries: Entry[] = [];
 	for (let i = 0; i < entryCount; i++) {
 		if (view.getUint32(offset) !== centralHeaderSignature) throw new Error(`Invalid central directory header at offset ${offset}`);
-
 		const nameLength = view.getUint16(offset + 28, true);
 		const extraLength = view.getUint16(offset + 30, true);
 		const commentLength = view.getUint16(offset + 32, true);
@@ -95,19 +93,21 @@ function readSizes(view: DataView, header: number, extraStart: number, extraLeng
 	for (let extra = extraStart; extra + 4 <= extraEnd; extra += 4 + view.getUint16(extra + 2, true)) {
 		if (view.getUint16(extra, true) !== 1) continue;
 
-		// ZIP64 fields only exist for values set to 0xFFFFFFFF, in this order
 		let field = extra + 4;
 		if (uncompressedSize === 0xffffffff && field + 8 <= extraEnd) {
 			uncompressedSize = Number(view.getBigUint64(field, true));
 			field += 8;
 		}
+
 		if (compressedSize === 0xffffffff && field + 8 <= extraEnd) {
 			compressedSize = Number(view.getBigUint64(field, true));
 			field += 8;
 		}
+
 		if (localHeaderOffset === 0xffffffff && field + 8 <= extraEnd) {
 			localHeaderOffset = Number(view.getBigUint64(field, true));
 		}
+
 		break;
 	}
 	return { compressedSize, uncompressedSize, localHeaderOffset };
@@ -115,6 +115,7 @@ function readSizes(view: DataView, header: number, extraStart: number, extraLeng
 
 async function decompress(name: string, method: number, content: Uint8Array): Promise<Uint8Array> {
 	if (method === COMPRESSION_STORED) return content;
+
 	try {
 		return await inflate(content);
 	} catch (error) {
@@ -126,22 +127,22 @@ async function decompress(name: string, method: number, content: Uint8Array): Pr
 async function inflate(compressed: Uint8Array): Promise<Uint8Array> {
 	const stream = new DecompressionStream("deflate-raw");
 	const writer = stream.writable.getWriter();
-	// slice: BufferSource must be ArrayBuffer-backed. Awaited together so corrupt data rejects here, not as an unhandled rejection.
 	const [, chunks] = await Promise.all([writer.write(compressed.slice()).then(() => writer.close()), readAll(stream.readable)]);
-	// always copy: output chunks may be views over larger pooled buffers
 	const result = new Uint8Array(chunks.reduce((total, chunk) => total + chunk.length, 0));
+
 	let offset = 0;
 	for (const chunk of chunks) {
 		result.set(chunk, offset);
 		offset += chunk.length;
 	}
+
 	return result;
 }
 
 async function readAll(stream: ReadableStream<Uint8Array>): Promise<Uint8Array[]> {
 	const chunks: Uint8Array[] = [];
 	const reader = stream.getReader();
-	for (;;) {
+	for (; ;) {
 		const { value, done } = await reader.read();
 		if (done) return chunks;
 		chunks.push(value);
