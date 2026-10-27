@@ -1,5 +1,11 @@
 # @voxelio/deploy
 
+## 1.1.1
+
+### Patch Changes
+
+- bacd1eb: Know Minecraft 26.3 (Java 25).
+
 ## 1.1.0
 
 ### Minor Changes
