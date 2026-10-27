@@ -13,7 +13,7 @@
 		"biome:unsafefix": "biome check --write --unsafe ./src ./test"
 	},
 	"dependencies": {
-		"@clack/prompts": "^1.7.0"
+		"@clack/prompts": "^1.8.1"
 	},
 	"bin": {
 		"changeset": "dist/cli.mjs"

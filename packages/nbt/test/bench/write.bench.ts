@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { bench, describe } from "vitest";
+import { test } from "vitest";
 import { decompress } from "@/compression";
 import { NbtFile } from "@/file";
 import { Compression } from "@/types";
@@ -15,38 +15,38 @@ const taigaData = decompress(taigaCompressed);
 const cubeFile = NbtFile.read(cubeData);
 const taigaFile = NbtFile.read(taigaData);
 
-describe("NBT Write - No Compression", () => {
-	bench("cube.nbt - write uncompressed", () => {
+test("NBT Write - No Compression", async ({ bench }) => {
+	await bench("cube.nbt - write uncompressed", () => {
 		cubeFile.write({ compression: Compression.None });
-	});
+	}).run();
 
-	bench("taiga_armorer_2.nbt - write uncompressed", () => {
+	await bench("taiga_armorer_2.nbt - write uncompressed", () => {
 		taigaFile.write({ compression: Compression.None });
-	});
+	}).run();
 });
 
-describe("NBT Write - With Compression (fflate)", () => {
-	bench("cube.nbt - write gzip", () => {
+test("NBT Write - With Compression (fflate)", async ({ bench }) => {
+	await bench("cube.nbt - write gzip", () => {
 		cubeFile.write({ compression: Compression.Gzip });
-	});
+	}).run();
 
-	bench("cube.nbt - write zlib", () => {
+	await bench("cube.nbt - write zlib", () => {
 		cubeFile.write({ compression: Compression.Zlib });
-	});
+	}).run();
 
-	bench("taiga_armorer_2.nbt - write gzip", () => {
+	await bench("taiga_armorer_2.nbt - write gzip", () => {
 		taigaFile.write({ compression: Compression.Gzip });
-	});
+	}).run();
 });
 
-describe("NBT Round-trip - No Compression", () => {
-	bench("cube.nbt - read + write", () => {
+test("NBT Round-trip - No Compression", async ({ bench }) => {
+	await bench("cube.nbt - read + write", () => {
 		const file = NbtFile.read(cubeData);
 		file.write({ compression: Compression.None });
-	});
+	}).run();
 
-	bench("taiga_armorer_2.nbt - read + write", () => {
+	await bench("taiga_armorer_2.nbt - read + write", () => {
 		const file = NbtFile.read(taigaData);
 		file.write({ compression: Compression.None });
-	});
+	}).run();
 });

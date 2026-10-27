@@ -13,9 +13,9 @@
 		"biome:unsafefix": "biome check --write --unsafe ."
 	},
 	"dependencies": {
-		"@clack/prompts": "^1.7.0",
-		"arktype": "^2.2.3",
-		"yaml": "^2.9.0"
+		"@clack/prompts": "^1.8.1",
+		"arktype": "^2.2.9",
+		"yaml": "^2.9.1"
 	},
 	"bin": {
 		"voxset": "dist/cli.mjs"

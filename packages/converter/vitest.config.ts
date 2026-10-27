@@ -4,8 +4,8 @@ import { defineConfig, type ViteUserConfig } from "vitest/config";
 export default defineConfig({
 	resolve: {
 		alias: {
-			"@": resolve(__dirname, "./src"),
-			"@test": resolve(__dirname, "./test")
+			"@": resolve(import.meta.dirname, "./src"),
+			"@test": resolve(import.meta.dirname, "./test")
 		}
 	}
 }) as ViteUserConfig;
