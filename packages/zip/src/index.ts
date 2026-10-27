@@ -1,4 +1,3 @@
-import "@/polyfills";
 import { type BufferLike, normalizeInput, ReadableFromIterator, type StreamLike } from "@/input";
 import { normalizeMetadata } from "@/metadata";
 import { extractZip } from "@/unzip";
@@ -10,12 +9,12 @@ export type InputWithMeta =
 	| File
 	| Response
 	| {
-			input: File | Response;
-			name?: unknown;
-			lastModified?: unknown;
-			size?: number | bigint;
-			mode?: number;
-	  };
+		input: File | Response;
+		name?: unknown;
+		lastModified?: unknown;
+		size?: number | bigint;
+		mode?: number;
+	};
 
 /** Intrinsic size, but the file name must be provided and modification date can't be guessed. */
 type InputWithSizeMeta = {
@@ -73,55 +72,31 @@ export type Options = {
 	noDataDescriptorForStored?: boolean;
 };
 
-function normalizeArgs(file: InputWithMeta | InputWithSizeMeta | InputWithoutMeta | InputFolder | JustMeta) {
-	return file instanceof File || file instanceof Response
-		? ([[file], [file]] as const)
-		: ([
-				[file.input, file.name, file.size],
-				[file.input, file.lastModified, file.mode]
-			] as const);
-}
+type AnyInput = InputWithMeta | InputWithSizeMeta | InputWithoutMeta | InputFolder | JustMeta;
+type EntryArgs = {
+	input?: File | Response | BufferLike | StreamLike;
+	name?: unknown;
+	lastModified?: unknown;
+	size?: number | bigint;
+	mode?: number;
+};
 
-function* mapMeta(files: Iterable<InputWithMeta | InputWithSizeMeta | JustMeta | InputFolder>) {
+const toEntryArgs = (file: AnyInput): EntryArgs => (file instanceof File || file instanceof Response ? { input: file } : file);
+
+function* mapMeta(files: Iterable<AnyInput>) {
 	for (const file of files) {
-		// @ts-expect-error type inference isn't good enough for this… yet…
-		// but rewriting the code to be more explicit would make it longer
-		yield normalizeMetadata(...normalizeArgs(file)[0]);
+		const { input, name, size } = toEntryArgs(file);
+		yield normalizeMetadata(input, name, size);
 	}
 }
 
-function mapFiles(files: ForAwaitable<InputWithMeta | InputWithSizeMeta | InputWithoutMeta | InputFolder>) {
-	const iterator = files[Symbol.iterator in files ? Symbol.iterator : Symbol.asyncIterator]();
-	return {
-		async next() {
-			const res = await iterator.next();
-			if (res.done) return res;
-			const [metaArgs, dataArgs] = normalizeArgs(res.value);
-
-			const inputArg = dataArgs[0];
-			const modDateArg = dataArgs[1];
-			const modeArg = dataArgs[2];
-
-			const normalizedData =
-				inputArg === undefined ? normalizeInput(undefined, modDateArg, modeArg) : normalizeInput(inputArg, modDateArg, modeArg);
-
-			return {
-				done: false,
-				value: Object.assign(
-					normalizedData,
-					normalizeMetadata(
-						metaArgs[0] as File | Response | BufferLike | StreamLike | undefined,
-						metaArgs[1],
-						metaArgs[2] as number | bigint | undefined
-					)
-				)
-			};
-		},
-		throw: iterator.throw?.bind(iterator),
-		[Symbol.asyncIterator]() {
-			return this;
-		}
-	};
+async function* mapFiles(iterator: Iterator<AnyInput> | AsyncIterator<AnyInput>) {
+	for (; ;) {
+		const res = await iterator.next();
+		if (res.done) return;
+		const { input, name, size, lastModified, mode } = toEntryArgs(res.value);
+		yield { ...normalizeInput(input, lastModified, mode), ...normalizeMetadata(input, name, size) };
+	}
 }
 
 /** Given an iterable of file metadata (or equivalent),
@@ -137,13 +112,10 @@ export function downloadZip(
 		"Content-Type": "application/zip",
 		"Content-Disposition": "attachment"
 	};
-	if (typeof options.length === "bigint" && options.length > 0n) {
-		headers["Content-Length"] = String(options.length);
-	} else if (typeof options.length === "number" && Number.isInteger(options.length) && options.length > 0) {
-		headers["Content-Length"] = String(options.length);
-	}
-	if (options.metadata) {
-		headers["Content-Length"] = String(predictLength(options.metadata, options));
+
+	const length = options.metadata ? predictLength(options.metadata, options) : options.length;
+	if (length !== undefined && length > 0 && (typeof length === "bigint" || Number.isInteger(length))) {
+		headers["Content-Length"] = String(length);
 	}
 	return new Response(makeZip(files, options), { headers });
 }
@@ -152,8 +124,8 @@ export function makeZip(
 	files: ForAwaitable<InputWithMeta | InputWithSizeMeta | InputWithoutMeta | InputFolder>,
 	options: Options = {}
 ): ReadableStream<Uint8Array> {
-	const mapped = mapFiles(files);
-	return ReadableFromIterator(loadFiles(mapped, options)[Symbol.asyncIterator](), mapped);
+	const iterator = Symbol.iterator in files ? files[Symbol.iterator]() : files[Symbol.asyncIterator]();
+	return ReadableFromIterator(loadFiles(mapFiles(iterator), options), (reason) => iterator.throw?.(reason));
 }
 
 /**

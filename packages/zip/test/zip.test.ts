@@ -5,6 +5,7 @@ import type { ZipFileDescription, ZipFolderDescription } from "@/input";
 import type { Metadata } from "@/metadata";
 import { resolve } from "node:path";
 
+const toHex = (bytes: Uint8Array) => Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 const BufferFromHex = (hex: string) => new Uint8Array(Array.from(hex.matchAll(/.{2}/g), ([s]) => Number.parseInt(s, 16)));
 const zipSpec = readFileSync(resolve(__dirname, "APPNOTE.TXT"));
 const specName = new TextEncoder().encode("APPNOTE.TXT");
@@ -59,21 +60,21 @@ describe("ZIP", () => {
 	test("the ZIP fileHeader function makes file headers", () => {
 		const file = { ...baseFile };
 		const actual = fileHeader(file);
-		const expected = BufferFromHex("504b03042d000800000000109a4e0000000000000000000000000b000000");
+		const expected = BufferFromHex(`504b03042d000800000000109a4e0000000000000000000000000b000000${toHex(specName)}`);
 		expect(actual).toEqual(expected);
 	});
 
 	test("the ZIP fileHeader function makes folder headers", () => {
 		const folder = { ...baseFolder };
 		const actual = fileHeader(folder);
-		const expected = BufferFromHex("504b03042d000800000000109a4e00000000000000000000000006000000");
+		const expected = BufferFromHex(`504b03042d000800000000109a4e00000000000000000000000006000000${toHex(folder.encodedName)}`);
 		expect(actual).toEqual(expected);
 	});
 
 	test("the ZIP fileHeader function merges extra flags", () => {
 		const file = { ...baseFile };
 		const actual = fileHeader(file, 0x808);
-		const expected = BufferFromHex("504b03042d000808000000109a4e0000000000000000000000000b000000");
+		const expected = BufferFromHex(`504b03042d000808000000109a4e0000000000000000000000000b000000${toHex(specName)}`);
 		expect(actual).toEqual(expected);
 	});
 

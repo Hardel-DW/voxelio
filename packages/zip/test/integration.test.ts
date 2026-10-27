@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { downloadZip } from "@/index";
+import { downloadZip, predictLength } from "@/index";
 import { extractZip } from "@/unzip";
 import { resolve } from "node:path";
 
@@ -18,7 +18,7 @@ describe("downloadZip", () => {
 			[Symbol.iterator](): any;
 		} = {
 			next() {
-				if (pulled++) return { done: true, value: undefined };
+				if (pulled++ >= 10) return { done: true, value: undefined };
 				return {
 					done: false,
 					value: {
@@ -46,10 +46,10 @@ describe("downloadZip", () => {
 		// it does not pull from its input until someone reads the output
 		expect(pulled).toBe(0);
 
-		// it pulls lazily from the input iterable
+		// it pulls lazily from the input iterable: header, data, then descriptor and next header
 		for (let i = 0; i < 2; i++) await reader.read();
 		expect(pulled).toBe(1);
-		for (let i = 0; i < 4; i++) await reader.read();
+		for (let i = 0; i < 2; i++) await reader.read();
 		expect(pulled).toBe(2);
 		expect(thrown.length).toBe(0);
 
@@ -94,5 +94,63 @@ describe("downloadZip", () => {
 		const sizeOffset = localHeaderOffset + 18;
 		const size = new DataView(zipData.buffer, zipData.byteOffset, zipData.byteLength).getUint32(sizeOffset, true);
 		expect(size).toBe(testContent.length);
+	});
+});
+
+describe("regressions", () => {
+	const zipOf = async (files: Parameters<typeof downloadZip>[0]) => new Uint8Array(await downloadZip(files).arrayBuffer());
+	const date = new Date("2024-01-01T00:00:00");
+
+	test("ArrayBufferView inputs only zip their own window", async () => {
+		const buffer = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]).buffer;
+		const extracted = await extractZip(await zipOf([{ name: "view", input: new Uint16Array(buffer, 2, 1), lastModified: date }]));
+		expect([...extracted.view]).toEqual([3, 4]);
+	});
+
+	test("empty chunks do not end async iterable inputs", async () => {
+		async function* chunks() {
+			yield "ab";
+			yield "";
+			yield "cd";
+		}
+		const extracted = await extractZip(await zipOf([{ name: "stream", input: chunks(), lastModified: date }]));
+		expect(new TextDecoder().decode(extracted.stream)).toBe("abcd");
+	});
+
+	test("a Response without body zips as an empty file", async () => {
+		const extracted = await extractZip(await zipOf([{ name: "empty", input: new Response(null), lastModified: date }]));
+		expect(extracted.empty.length).toBe(0);
+	});
+
+	test("invalid modification dates throw", async () => {
+		await expect(zipOf([{ name: "a", input: "x", lastModified: "not a date" }])).rejects.toThrow("Invalid modification date.");
+	});
+
+	test("dates before 1980 are clamped to the DOS epoch", async () => {
+		const zip = await zipOf([{ name: "a", input: "x", lastModified: new Date(1975, 5, 1) }]);
+		const dosDate = new DataView(zip.buffer).getUint16(12, true);
+		expect(dosDate).toBe((1 << 5) | 1);
+	});
+
+	test("an entry named __proto__ stays an own property", async () => {
+		const extracted = await extractZip(await zipOf([{ name: "__proto__", input: "x", lastModified: date }]));
+		expect(Object.keys(extracted)).toEqual(["__proto__"]);
+		expect(Object.getPrototypeOf(extracted)).toBe(Object.prototype);
+	});
+
+	test("corrupt deflate data rejects instead of crashing", async () => {
+		const zip = await zipOf([{ name: "a.txt", input: "\xff\xff\xff\xff corrupt", lastModified: date }]);
+		const view = new DataView(zip.buffer);
+		let central = zip.length - 22;
+		while (view.getUint32(central) !== 0x504b0102) central--;
+		view.setUint16(central + 10, 8, true);
+		await expect(extractZip(zip)).rejects.toThrow("Failed to decompress a.txt");
+	});
+
+	test("more than 65535 entries round-trip through ZIP64", async () => {
+		const files = Array.from({ length: 70000 }, (_, i) => ({ name: `f${i}`, input: "", lastModified: date }));
+		const zip = await zipOf(files);
+		expect(BigInt(zip.length)).toBe(predictLength(files.map(({ name, input }) => ({ name, input }))));
+		expect(Object.keys(await extractZip(zip)).length).toBe(70000);
 	});
 });
