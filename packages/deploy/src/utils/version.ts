@@ -1,4 +1,5 @@
 export const MINECRAFT_VERSIONS: { version: string; javaVersion: string }[] = [
+	{ version: "26.3", javaVersion: "Java 25" },
 	{ version: "26.2", javaVersion: "Java 25" },
 	{ version: "26.1.2", javaVersion: "Java 25" },
 	{ version: "26.1.1", javaVersion: "Java 25" },

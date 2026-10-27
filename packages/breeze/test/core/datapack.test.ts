@@ -49,6 +49,19 @@ describe("Datapack", () => {
 			expect(datapack.getPackFormat()).toBe(61);
 		});
 
+		it("should read a 26.x pack.mcmeta that only has min_format and max_format", () => {
+			const files = {
+				...enchantmentFiles,
+				"pack.mcmeta": new TextEncoder().encode(
+					JSON.stringify({ pack: { description: "test", min_format: [101, 1], max_format: [121, 0] } })
+				)
+			};
+			const datapack = new Datapack(files);
+			expect(datapack.getPackFormat()).toBe(101);
+			expect(datapack.getVersion()).toBe("26.1");
+			expect(datapack.parse().version).toBe(101);
+		});
+
 		it("should throw error if pack format is missing", () => {
 			const invalidMcmeta = {
 				...enchantmentFiles,
