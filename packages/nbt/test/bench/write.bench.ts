@@ -25,7 +25,7 @@ describe("NBT Write - No Compression", () => {
 	});
 });
 
-describe("NBT Write - With Compression (pako included)", () => {
+describe("NBT Write - With Compression (fflate)", () => {
 	bench("cube.nbt - write gzip", () => {
 		cubeFile.write({ compression: Compression.Gzip });
 	});

@@ -54,7 +54,7 @@ describe("NBT Read - Lazy Loading (no compression)", () => {
 	});
 });
 
-describe("NBT Read - With Compression (pako included)", () => {
+describe("NBT Read - With Compression (fflate)", () => {
 	bench("cube.nbt - full parse with gzip", () => {
 		NbtFile.read(cubeCompressed);
 	});

@@ -52,8 +52,8 @@ export function decompress(data: Uint8Array, format?: Compression): Uint8Array {
 	}
 }
 
+/** Compression level 0-9 (0=none, 1=fastest, 9=best). Default: 6 */
 export interface CompressOptions {
-	/** Compression level 0-9 (0=none, 1=fastest, 9=best). Default: 6 */
 	level?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 }
 

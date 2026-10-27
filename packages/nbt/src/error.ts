@@ -4,7 +4,6 @@ export const NbtErrorKind = {
 	InvalidTagType: "InvalidTagType",
 	CompressionError: "CompressionError"
 } as const;
-
 export type NbtErrorKind = (typeof NbtErrorKind)[keyof typeof NbtErrorKind];
 
 export class NbtError extends Error {

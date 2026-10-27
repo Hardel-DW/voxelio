@@ -17,7 +17,6 @@ export const NbtType = {
 	IntArray: 11,
 	LongArray: 12
 } as const;
-
 export type NbtType = (typeof NbtType)[keyof typeof NbtType];
 export type NbtTag =
 	| NbtEnd

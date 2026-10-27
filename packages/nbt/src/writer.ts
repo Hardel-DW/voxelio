@@ -1,24 +1,26 @@
+import { encodeString, toHostOrder } from "@/encoding";
+import { NbtError, NbtErrorKind } from "@/error";
 import type { NbtTag } from "@/types";
 import { Endian, NbtType } from "@/types";
 
-const textEncoder = new TextEncoder();
+const MAX_STRING_BYTES = 0xffff;
 
 /**
  * High-performance NBT writer with dynamic buffer growth.
+ * Big endian (Java) writes strings as modified UTF-8, little endian (Bedrock) as standard UTF-8.
  */
 export class NbtWriter {
 	private buffer: ArrayBuffer;
 	private view: DataView;
 	private array: Uint8Array;
 	private readonly littleEndian: boolean;
-	public offset: number;
+	public offset = 0;
 
 	constructor(endian: Endian = Endian.Big, initialSize = 1024) {
 		this.buffer = new ArrayBuffer(initialSize);
 		this.view = new DataView(this.buffer);
 		this.array = new Uint8Array(this.buffer);
 		this.littleEndian = endian === Endian.Little;
-		this.offset = 0;
 	}
 
 	/** Get final byte array trimmed to actual size */
@@ -33,14 +35,9 @@ export class NbtWriter {
 			return;
 		}
 
-		let newSize = this.buffer.byteLength;
-		while (newSize < required) {
-			newSize *= 2;
-		}
-
-		const newBuffer = new ArrayBuffer(newSize);
+		const newBuffer = new ArrayBuffer(Math.max(this.buffer.byteLength * 2, required));
 		const newArray = new Uint8Array(newBuffer);
-		newArray.set(this.array);
+		newArray.set(this.array.subarray(0, this.offset));
 		this.buffer = newBuffer;
 		this.view = new DataView(newBuffer);
 		this.array = newArray;
@@ -52,8 +49,7 @@ export class NbtWriter {
 	}
 
 	writeI8(value: number): void {
-		this.accommodate(1);
-		this.view.setInt8(this.offset++, value);
+		this.writeU8(value);
 	}
 
 	writeI16(value: number): void {
@@ -100,81 +96,93 @@ export class NbtWriter {
 	}
 
 	writeString(value: string): void {
-		const encoded = textEncoder.encode(value);
-		this.writeU16(encoded.length);
-		this.writeBytes(encoded);
+		this.accommodate(2 + value.length * 3);
+		const start = this.offset + 2;
+		const end = encodeString(this.array, start, value, !this.littleEndian);
+		const byteLength = end - start;
+		if (byteLength > MAX_STRING_BYTES) {
+			throw new NbtError(`String too long: ${byteLength} bytes (max ${MAX_STRING_BYTES})`, NbtErrorKind.InvalidData);
+		}
+		this.view.setUint16(this.offset, byteLength, this.littleEndian);
+		this.offset = end;
+	}
+
+	/** Write a length-prefixed typed array, converting elements to the file byte order. */
+	private writeArray(value: Int8Array | Int32Array | BigInt64Array, width: 1 | 4 | 8): void {
+		const byteLength = value.length * width;
+		this.writeI32(value.length);
+		this.accommodate(byteLength);
+		this.array.set(new Uint8Array(value.buffer, value.byteOffset, byteLength), this.offset);
+		if (width !== 1) {
+			toHostOrder(this.array, this.offset, this.offset + byteLength, width, this.littleEndian);
+		}
+		this.offset += byteLength;
 	}
 
 	writeTag(tag: NbtTag): void {
 		switch (tag.type) {
 			case NbtType.End:
-				break;
+				return;
 			case NbtType.Byte:
-				this.writeI8(tag.value);
-				break;
+				this.writeU8(tag.value);
+				return;
 			case NbtType.Short:
 				this.writeI16(tag.value);
-				break;
+				return;
 			case NbtType.Int:
 				this.writeI32(tag.value);
-				break;
+				return;
 			case NbtType.Long:
 				this.writeI64(tag.value);
-				break;
+				return;
 			case NbtType.Float:
 				this.writeF32(tag.value);
-				break;
+				return;
 			case NbtType.Double:
 				this.writeF64(tag.value);
-				break;
-			case NbtType.ByteArray: {
-				const len = tag.value.length;
-				this.writeI32(len);
-				this.accommodate(len);
-				this.array.set(new Uint8Array(tag.value.buffer, tag.value.byteOffset, len), this.offset);
-				this.offset += len;
-				break;
-			}
+				return;
+			case NbtType.ByteArray:
+				this.writeArray(tag.value, 1);
+				return;
 			case NbtType.String:
 				this.writeString(tag.value);
-				break;
-			case NbtType.List:
-				this.writeU8(tag.listType);
-				this.writeI32(tag.items.length);
-				for (const item of tag.items) {
+				return;
+			case NbtType.List: {
+				const items = tag.items;
+				const listType = tag.listType === NbtType.End && items.length > 0 ? items[0].type : tag.listType;
+				if (listType === NbtType.End && items.length > 0) {
+					throw new NbtError("List cannot contain End tags", NbtErrorKind.InvalidData);
+				}
+
+				this.writeU8(listType);
+				this.writeI32(items.length);
+				for (const item of items) {
+					if (item.type !== listType) {
+						throw new NbtError(`List of type ${listType} contains a tag of type ${item.type}`, NbtErrorKind.InvalidData);
+					}
 					this.writeTag(item);
 				}
-				break;
+
+				return;
+			}
 			case NbtType.Compound:
 				for (const [name, value] of tag.entries) {
+					if (value.type === NbtType.End) {
+						throw new NbtError(`Compound entry "${name}" cannot be an End tag`, NbtErrorKind.InvalidData);
+					}
+
 					this.writeU8(value.type);
 					this.writeString(name);
 					this.writeTag(value);
 				}
 				this.writeU8(NbtType.End);
-				break;
-			case NbtType.IntArray: {
-				const len = tag.value.length;
-				const byteLen = len * 4;
-				this.writeI32(len);
-				this.accommodate(byteLen);
-				for (let i = 0; i < len; i++) {
-					this.view.setInt32(this.offset + i * 4, tag.value[i], this.littleEndian);
-				}
-				this.offset += byteLen;
-				break;
-			}
-			case NbtType.LongArray: {
-				const len = tag.value.length;
-				const byteLen = len * 8;
-				this.writeI32(len);
-				this.accommodate(byteLen);
-				for (let i = 0; i < len; i++) {
-					this.view.setBigInt64(this.offset + i * 8, tag.value[i], this.littleEndian);
-				}
-				this.offset += byteLen;
-				break;
-			}
+				return;
+			case NbtType.IntArray:
+				this.writeArray(tag.value, 4);
+				return;
+			case NbtType.LongArray:
+				this.writeArray(tag.value, 8);
+				return;
 		}
 	}
 }
