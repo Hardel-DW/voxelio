@@ -1,6 +1,6 @@
 {
 	"name": "@voxelio/router",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"type": "module",
 	"description": "File-based, fully inferred router for React and Vite, built on the Navigation API. Extremely lightweight.",
 	"keywords": [
