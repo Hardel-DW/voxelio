@@ -1,0 +1,33 @@
+:root {
+	color-scheme: dark;
+	font-family: system-ui, sans-serif;
+}
+
+body {
+	margin: 0 auto;
+	max-width: 48rem;
+	padding: 2rem;
+}
+
+nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	margin-bottom: 2rem;
+}
+
+a {
+	color: gray;
+}
+
+a[data-active] {
+	color: white;
+}
+
+a[aria-current="page"] {
+	color: lime;
+}
+
+.tall {
+	height: 150vh;
+}
