@@ -1,5 +1,4 @@
-import { useParams } from "@voxelio/router";
+import { defineRoute } from "@voxelio/router";
+import { File } from "../../views";
 
-export default function File() {
-	return <p id="file">File: {useParams()["*"]}</p>;
-}
+export default defineRoute("/files/$", { component: File });

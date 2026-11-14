@@ -32,26 +32,22 @@ export function manifestCode(entries: Entry[]): string {
 	return ["export const routes = {", lines.join(",\n"), "};", ""].join("\n");
 }
 
-/**
- * The manifest while serving. It lets React Refresh take a page whose `route` changed,
- * and accepts its own updates for the pages that cannot be refreshed in place.
- */
-export function hotManifestCode(entries: Entry[], pages: string): string {
+/** The manifest while serving: it accepts its own updates, for the pages that cannot be refreshed in place. */
+export function hotManifestCode(entries: Entry[]): string {
 	return [
 		'import { reloadRoutes } from "@voxelio/router";',
-		`window.__getReactRefreshIgnoredExports = ({ id }) => (id.startsWith(${quote(`${pages}/`)}) ? ["route"] : []);`,
 		manifestCode(entries),
 		"if (import.meta.hot) import.meta.hot.accept((next) => next && reloadRoutes(next.routes));",
 		""
 	].join("\n");
 }
 
-/** Appended to a page while serving: its new `route` reaches the router as soon as the file is saved. */
+/** Appended to a page while serving: its new config reaches the router as soon as the file is saved. */
 export function hotPageCode(id: string): string {
 	return [
 		"",
 		'import { reloadRoute as __reloadRoute } from "@voxelio/router";',
-		`if (import.meta.hot) import.meta.hot.accept((next) => next && __reloadRoute(${quote(id)}, next.route));`,
+		`if (import.meta.hot) import.meta.hot.accept((next) => next && __reloadRoute(${quote(id)}, next.default.route));`,
 		""
 	].join("\n");
 }

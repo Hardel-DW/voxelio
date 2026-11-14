@@ -1,7 +1,9 @@
 import { defineRoute, Link, Outlet } from "@voxelio/router";
 import { DOCS } from "../docs";
 
-export default function Docs() {
+export default defineRoute("/docs", { component: Docs, head: () => ({ title: "Docs" }), notFound: Missing });
+
+function Docs() {
 	return (
 		<section>
 			<h1>Docs</h1>
@@ -17,7 +19,6 @@ export default function Docs() {
 	);
 }
 
-export const route = defineRoute("/docs", {
-	head: () => ({ title: "Docs" }),
-	notFound: () => <p id="missing">No such doc</p>
-});
+function Missing() {
+	return <p id="missing">No such doc</p>;
+}

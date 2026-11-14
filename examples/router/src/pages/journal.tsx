@@ -1,6 +1,12 @@
 import { defineRoute, patchSearch, useSearch } from "@voxelio/router";
 
-export default function Journal() {
+export default defineRoute("/journal", {
+	component: Journal,
+	search: (raw) => ({ q: raw.q ?? "", page: Number(raw.page ?? 1) }),
+	head: () => ({ title: "Journal" })
+});
+
+function Journal() {
 	const { q, page } = useSearch("/journal");
 
 	return (
@@ -16,8 +22,3 @@ export default function Journal() {
 		</section>
 	);
 }
-
-export const route = defineRoute("/journal", {
-	search: (raw) => ({ q: raw.q ?? "", page: Number(raw.page ?? 1) }),
-	head: () => ({ title: "Journal" })
-});

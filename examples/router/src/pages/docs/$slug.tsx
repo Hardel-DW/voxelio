@@ -1,19 +1,8 @@
 import { defineRoute, notFound, useParams } from "@voxelio/router";
 import { DOCS } from "../../docs";
 
-export default function Doc() {
-	const { slug } = useParams();
-
-	return (
-		<article>
-			<h2 id="doc">{DOCS[slug]}</h2>
-			<div className="tall">A tall page, to check the scroll.</div>
-			<h3 id="bottom">Bottom</h3>
-		</article>
-	);
-}
-
-export const route = defineRoute("/docs/$slug", {
+export default defineRoute("/docs/$slug", {
+	component: Doc,
 	beforeLoad: ({ params }) => {
 		if (!(params.slug in DOCS)) throw notFound();
 	},
@@ -24,3 +13,15 @@ export const route = defineRoute("/docs/$slug", {
 		link: { canonical: `https://example.com${pathname}` }
 	})
 });
+
+function Doc() {
+	const { slug } = useParams();
+
+	return (
+		<article>
+			<h2 id="doc">{DOCS[slug]}</h2>
+			<div className="tall">A tall page, to check the scroll.</div>
+			<h3 id="bottom">Bottom</h3>
+		</article>
+	);
+}

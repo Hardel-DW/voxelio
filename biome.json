@@ -87,6 +87,16 @@
 					}
 				}
 			}
+		},
+		{
+			"includes": ["packages/router/src/route.ts"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noComponentHookFactories": "off"
+					}
+				}
+			}
 		}
 	]
 }

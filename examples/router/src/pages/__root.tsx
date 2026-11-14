@@ -1,6 +1,13 @@
-import { defineRoute, Link, Outlet } from "@voxelio/router";
+import { defineRoute, type ErrorProps, Link, Outlet } from "@voxelio/router";
 
-export default function Root() {
+export default defineRoute("__root", {
+	component: Root,
+	head: () => ({ meta: { "og:site_name": "Router example" } }),
+	notFound: Missing,
+	error: Crashed
+});
+
+function Root() {
 	return (
 		<>
 			<nav>
@@ -23,12 +30,10 @@ export default function Root() {
 	);
 }
 
-function Crashed({ error }: { error: Error }) {
-	return <p id="error">Crashed: {error.message}</p>;
+function Missing() {
+	return <p id="missing">Root not found</p>;
 }
 
-export const route = defineRoute("__root", {
-	head: () => ({ meta: { "og:site_name": "Router example" } }),
-	notFound: () => <p id="missing">Root not found</p>,
-	error: Crashed
-});
+function Crashed({ error }: ErrorProps) {
+	return <p id="error">Crashed: {error.message}</p>;
+}

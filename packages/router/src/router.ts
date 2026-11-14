@@ -27,11 +27,11 @@ export type RouterOptions = {
 	preload?: boolean;
 };
 
-type Config = NonNullable<RouteModule["route"]>;
+type Config = RouteModule["default"]["route"];
 type Settings = { base: string; parse: (query: string) => RawSearch; stringify: (search: Search) => string };
 type Loose = { to: string; params?: Params; search?: object; hash?: string };
 
-export type Match = { id: string; view: ComponentType; route: Config };
+export type Match = { id: string; view: ComponentType; route?: Config };
 export type State = Location & {
 	query: string;
 	params: ParamsOf<RouteId>;
@@ -52,7 +52,7 @@ export class NotFound extends Error {}
 const INTENTS = ["pointerover", "focusin"];
 const EMPTY = {};
 const Missing = (): string => "Not found";
-const leaf = (view: ComponentType): Match => ({ id: "", view, route: EMPTY });
+const leaf = (view: ComponentType): Match => ({ id: "", view });
 
 const parseSearch = (query: string): RawSearch => Object.fromEntries(new URLSearchParams(query));
 const stringifySearch = (search: Search): string => {
@@ -61,7 +61,7 @@ const stringifySearch = (search: Search): string => {
 };
 
 const listeners = new Set<() => void>();
-const pristine = new Map<string, Routes[string]>();
+const overrides = new Map<string, Config>();
 let config: Settings = { base: "", parse: parseSearch, stringify: stringifySearch };
 let routes: Routes = {};
 let table: Table = compile([]);
@@ -94,15 +94,15 @@ function compose(pathname: string, search: object, hash = ""): string {
 export const build = ({ to, params, search = EMPTY, hash }: Loose): string => compose(fill(to, params), search, hash && `#${hash}`);
 
 /** A missing page shows in the outlet of the closest route with a `notFound`, an error replaces the closest route with an `error`. */
-function recover(kept: Match[], own: Config, error: Error): Match[] {
+function recover(kept: Match[], own: Config | undefined, error: Error): Match[] {
 	const chain = [...kept.map((match) => match.route), own];
 
 	if (error instanceof NotFound) {
-		const host = chain.findLastIndex((route) => route.notFound);
+		const host = chain.findLastIndex((route) => route?.notFound);
 		return [...kept.slice(0, Math.max(host, 0) + 1), leaf(chain[host]?.notFound ?? Missing)];
 	}
 
-	const host = chain.findLastIndex((route) => route.error);
+	const host = chain.findLastIndex((route) => route?.error);
 	const Fallback = chain[host]?.error;
 	if (!Fallback) throw error;
 
@@ -125,18 +125,18 @@ async function resolve(url: URL, pathname: string, cached: boolean): Promise<Sta
 
 	for (const [position, id] of ids.entries()) {
 		const settled = loaded[position];
-		const route: Config = (settled.status === "fulfilled" && settled.value.route) || EMPTY;
+		const route = settled.status === "fulfilled" ? (overrides.get(id) ?? settled.value.default.route) : undefined;
 
 		try {
 			if (settled.status === "rejected") throw settled.reason;
 
 			const known = cached ? state.searches[id] : undefined;
-			const search = known?.query === url.search ? known.value : (route.search?.(next.search) ?? EMPTY);
-			await route.beforeLoad?.({ params, search, pathname });
+			const search = known?.query === url.search ? known.value : (route?.search?.(next.search) ?? EMPTY);
+			await route?.beforeLoad?.({ params, search, pathname });
 
 			next.searches[id] = { query: url.search, value: search };
 			next.matches.push({ id, view: settled.value.default, route });
-			heads.push(route.head?.({ params, pathname }) ?? EMPTY);
+			heads.push(route?.head?.({ params, pathname }) ?? EMPTY);
 		} catch (thrown) {
 			if (thrown instanceof Redirect) throw thrown;
 
@@ -145,7 +145,7 @@ async function resolve(url: URL, pathname: string, cached: boolean): Promise<Sta
 		}
 	}
 
-	return { ...next, matches: found ? next.matches : recover(next.matches, EMPTY, new NotFound()), head: mergeHead(heads) };
+	return { ...next, matches: found ? next.matches : recover(next.matches, undefined, new NotFound()), head: mergeHead(heads) };
 }
 
 function commit(next: State): void {
@@ -202,16 +202,13 @@ function mount(manifest: Routes): Promise<void> {
 
 /** Swaps the whole manifest. The Vite plugin calls it when a route file cannot be refreshed in place. */
 export function reloadRoutes(manifest: Routes): Promise<void> {
-	pristine.clear();
+	overrides.clear();
 	return mount(manifest);
 }
 
 /** Gives a route the config of its edited file. Its view stays, React Refresh updates it in place. Called by the Vite plugin. */
-export function reloadRoute(id: string, route: RouteModule["route"]): void {
-	const load = pristine.get(id) ?? routes[id];
-
-	pristine.set(id, load);
-	routes = { ...routes, [id]: async () => ({ ...(await load()), route }) };
+export function reloadRoute(id: string, route: Config): void {
+	overrides.set(id, route);
 	if (state.matches.some((match) => match.id === id)) refresh();
 }
 

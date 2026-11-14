@@ -64,18 +64,14 @@ directory is a route.
 
 ## A route
 
-The default export is the component. `route` is optional and holds the rest.
+The default export is the route. Its component lives in the file or anywhere
+else.
 
 ```tsx
 import { defineRoute, notFound, useParams, useSearch } from "@voxelio/router";
 
-export default function Post() {
-	const { id } = useParams();
-	const { tab } = useSearch("/posts/$id");
-	return <h1>{id} {tab}</h1>;
-}
-
-export const route = defineRoute("/posts/$id", {
+export default defineRoute("/posts/$id", {
+	component: Post,
 	search: (raw) => ({ tab: raw.tab === "comments" ? "comments" : "content" }),
 	beforeLoad: async ({ params, search, pathname }) => {
 		if (!(await exists(params.id))) throw notFound();
@@ -85,8 +81,15 @@ export const route = defineRoute("/posts/$id", {
 	notFound: Missing,
 	error: Crashed
 });
+
+function Post() {
+	const { id } = useParams();
+	const { tab } = useSearch("/posts/$id");
+	return <h1>{id} {tab}</h1>;
+}
 ```
 
+- `component` is what the route renders, the only required key.
 - `search` turns the raw query into the typed search of the route.
 - `beforeLoad` runs before the route is shown, parents first. Throw
   `redirect({ to })` or `notFound()` to leave.
@@ -151,9 +154,10 @@ URL, after a login for instance.
 
 ## Hot reload
 
-A page is refreshed in place by React Fast Refresh, with or without a `route`
-export: its state stays, and an edited `search`, `beforeLoad` or `head` applies
-as soon as the file is saved. Adding or removing a page reloads once.
+A page is refreshed in place by React Fast Refresh: its state stays, and an
+edited `search`, `beforeLoad` or `head` applies as soon as the file is saved.
+Give it another `component` and that one is shown. Adding or removing a page
+reloads once. A page file exports nothing but its route.
 
 ## Browsers
 

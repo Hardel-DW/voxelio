@@ -1,11 +1,12 @@
 import { defineRoute, redirect } from "@voxelio/router";
 
-export default function Private() {
-	return <h1>Private</h1>;
-}
-
-export const route = defineRoute("/private", {
+export default defineRoute("/private", {
+	component: Private,
 	beforeLoad: () => {
 		throw redirect({ to: "/journal", search: { q: "redirected" } });
 	}
 });
+
+function Private() {
+	return <h1>Private</h1>;
+}

@@ -1,3 +1,7 @@
-export default function LangHome() {
-	return null;
+import { defineRoute, useParams } from "@voxelio/router";
+
+export default defineRoute("/$lang/", { component: LangHome });
+
+function LangHome() {
+	return useParams().lang;
 }

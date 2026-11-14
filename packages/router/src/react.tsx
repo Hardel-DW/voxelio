@@ -42,7 +42,7 @@ class Boundary extends Component<BoundaryProps, BoundaryState> {
 export function Outlet(): ReactNode {
 	const depth = use(Depth) + 1;
 	const View = useRouter((state) => state.matches[depth]?.view);
-	const fallback = useRouter((state) => state.matches[depth]?.route.error);
+	const fallback = useRouter((state) => state.matches[depth]?.route?.error);
 	if (!View) return null;
 
 	const view = (

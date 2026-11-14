@@ -24,7 +24,8 @@ const PAGE_ID = /\.tsx(?:\?|$)/;
 const encode = (value: string): string => value.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
 const trim = (id: string): string => id.replace(/(?<=.)\/$/, "");
 const paramNames = (path: string): string[] => [...path.matchAll(/\$([^/]*)/g)].map(([, name]) => name || "*");
-const isRoute = (module: object): module is RouteModule => "default" in module;
+const isRoute = (module: object): module is RouteModule =>
+	"default" in module && typeof module.default === "function" && "route" in module.default;
 
 /** The title keeps the one of the template aside, for the routes that set none. */
 export function renderHead(template: string, head: Head): string {
@@ -45,7 +46,7 @@ export function pagesOf(modules: Map<string, RouteModule>): Page[] {
 	const paths = new Set([...modules.keys()].filter((id) => id.startsWith("/")).map(trim));
 
 	return [...paths].flatMap((path) => {
-		const routes = match(table, path).ids.flatMap((id) => modules.get(id)?.route ?? []);
+		const routes = match(table, path).ids.flatMap((id) => modules.get(id)?.default.route ?? []);
 		const combined = routes.reduce<Partial<Params>[]>(
 			(sets, route) => {
 				const entries = route.entries?.();
@@ -85,7 +86,7 @@ async function prerender(config: ResolvedConfig, entries: Entry[]): Promise<void
 		const modules = new Map<string, RouteModule>();
 		for (const { id, file } of entries) {
 			const module = await ssr.runner.import(`/${file}`);
-			if (!isRoute(module)) throw new Error(`${file} has no default export`);
+			if (!isRoute(module)) throw new Error(`${file} must have \`export default defineRoute(...)\``);
 
 			modules.set(id, module);
 		}
@@ -135,7 +136,7 @@ export function router(options: RouterPluginOptions = {}): Plugin[] {
 				filter: { id: RESOLVED_ID },
 				handler(id) {
 					if (id !== RESOLVED) return;
-					return config.command === "serve" ? hotManifestCode(sync(), pages) : manifestCode(sync());
+					return config.command === "serve" ? hotManifestCode(sync()) : manifestCode(sync());
 				}
 			},
 			async closeBundle() {

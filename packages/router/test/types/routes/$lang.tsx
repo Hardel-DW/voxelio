@@ -1,10 +1,7 @@
 import { defineRoute, notFound, Outlet } from "@voxelio/router";
 
-export default function Lang() {
-	return <Outlet />;
-}
-
-export const route = defineRoute("/$lang", {
+export default defineRoute("/$lang", {
+	component: Outlet,
 	beforeLoad: ({ params }) => {
 		if (params.lang !== "en") throw notFound();
 	},

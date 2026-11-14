@@ -1,10 +1,7 @@
 import { defineRoute, redirect } from "@voxelio/router";
 
-export default function Home() {
-	return null;
-}
-
-export const route = defineRoute("/", {
+export default defineRoute("/", {
+	component: () => null,
 	beforeLoad: () => {
 		throw redirect({ to: "/$lang", params: { lang: "en" } });
 	}

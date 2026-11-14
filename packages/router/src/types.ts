@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 /**
  * Filled by the Vite plugin, or by hand: `interface Register { routes: typeof routes }`.
@@ -26,6 +26,8 @@ type ParamName<Path extends string> = Path extends `${string}/$${infer Rest}`
 /** The params of a path, or of every path of a union at once. */
 export type ParamsOf<Path extends string> = string extends Path ? Params : { [Name in ParamName<Path>]: string };
 export type RouteConfig<Id extends string, Query extends Search> = {
+	/** What the route renders. A layout renders `<Outlet />` in it. */
+	component: ComponentType;
 	/** Turns the raw query into the typed search of this route. */
 	search?(raw: RawSearch): Query;
 	/** Runs before the route is shown, parents first. Throw `redirect()` or `notFound()` to leave. */
@@ -41,15 +43,18 @@ export type RouteConfig<Id extends string, Query extends Search> = {
 };
 
 /** A config tied to the id it was defined with, so a manifest can hold it to its key. */
-export type Route<Id extends string, Query extends Search> = RouteConfig<Id, Query> & { readonly "~id"?: Id };
-export type RouteModule<Id extends string = string> = { default: ComponentType; route?: Route<Id, Search> };
+type Held<Id extends string, Query extends Search> = RouteConfig<Id, Query> & { readonly "~id"?: Id };
+
+/** What a route file exports by default: a component that carries its config. */
+export type Route<Id extends string, Query extends Search> = (() => ReactNode) & { readonly route: Held<Id, Query> };
+export type RouteModule<Id extends string = string> = { default: Route<Id, Search> };
 export type Routes = Record<string, () => Promise<RouteModule>>;
 export type Manifest<Loaders> = { [Id in keyof Loaders & string]: () => Promise<RouteModule<Id>> };
 export type RegisteredRoutes = Registered<"routes", Routes>;
 export type RouteId = keyof RegisteredRoutes & string;
 
 type Trim<Id extends string> = Id extends "/" ? Id : Id extends `${infer Path}/` ? Path : Id;
-type SearchIn<Module> = Module extends { route: Route<string, infer Query extends Search> } ? Query : {};
+type SearchIn<Module> = Module extends { default: Route<string, infer Query extends Search> } ? Query : {};
 type Covers<Id extends string, Path extends string> = Id extends "__root"
 	? Id
 	: Id extends `${string}/`

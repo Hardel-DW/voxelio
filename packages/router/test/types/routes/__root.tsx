@@ -1,7 +1,15 @@
-import { defineRoute, Outlet } from "@voxelio/router";
+import { defineRoute, type ErrorProps, Outlet } from "@voxelio/router";
 
-export default function Root() {
+export default defineRoute("__root", { component: Root, notFound: Missing, error: Crashed });
+
+function Root() {
 	return <Outlet />;
 }
 
-export const route = defineRoute("__root", { notFound: () => "nothing here", error: ({ error }) => error.message });
+function Missing() {
+	return "nothing here";
+}
+
+function Crashed({ error }: ErrorProps) {
+	return error.message;
+}

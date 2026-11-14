@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { headTags, mergeHead } from "../src/head";
 import { hotManifestCode, hotPageCode, manifestCode, routeId, typesCode } from "../src/manifest";
+import { defineRoute } from "../src/route";
 import type { RouteModule } from "../src/types";
 import { pagesOf, renderHead } from "../src/vite";
 
@@ -36,15 +37,16 @@ describe("manifestCode", () => {
 		);
 	});
 
-	it("accepts its own updates while serving and leaves the `route` of a page to the router", () => {
-		const code = hotManifestCode(entries, "/project/src/pages");
+	it("accepts its own updates while serving", () => {
+		const code = hotManifestCode(entries);
 		expect(code).toContain(manifestCode(entries));
-		expect(code).toContain('id.startsWith("/project/src/pages/") ? ["route"] : []');
 		expect(code).toContain("if (import.meta.hot) import.meta.hot.accept((next) => next && reloadRoutes(next.routes));");
 	});
 
 	it("hands the new config of an edited page to the router", () => {
-		expect(hotPageCode("/docs/$slug")).toContain('import.meta.hot.accept((next) => next && __reloadRoute("/docs/$slug", next.route));');
+		expect(hotPageCode("/docs/$slug")).toContain(
+			'import.meta.hot.accept((next) => next && __reloadRoute("/docs/$slug", next.default.route));'
+		);
 	});
 });
 
@@ -94,24 +96,33 @@ describe("renderHead", () => {
 
 describe("pagesOf", () => {
 	const modules = new Map<string, RouteModule>([
-		["__root", { default: Page, route: { head: () => ({ title: "Site", meta: { "og:type": "website" } }) } }],
-		["/", { default: Page }],
+		[
+			"__root",
+			{ default: defineRoute("__root", { component: Page, head: () => ({ title: "Site", meta: { "og:type": "website" } }) }) }
+		],
+		["/", { default: defineRoute("/", { component: Page }) }],
 		[
 			"/$lang",
-			{ default: Page, route: { entries: () => [{ lang: "en" }, { lang: "fr" }], head: ({ params }) => ({ title: params.lang }) } }
+			{
+				default: defineRoute("/$lang", {
+					component: Page,
+					entries: () => [{ lang: "en" }, { lang: "fr" }],
+					head: ({ params }) => ({ title: params.lang })
+				})
+			}
 		],
-		["/$lang/", { default: Page }],
+		["/$lang/", { default: defineRoute("/$lang/", { component: Page }) }],
 		[
 			"/$lang/docs/$slug",
 			{
-				default: Page,
-				route: {
+				default: defineRoute("/$lang/docs/$slug", {
+					component: Page,
 					entries: () => [{ slug: "intro" }],
 					head: ({ params, pathname }) => ({ title: `${params.slug} ${params.lang}`, link: { canonical: pathname } })
-				}
+				})
 			}
 		],
-		["/$lang/user/$id", { default: Page }]
+		["/$lang/user/$id", { default: defineRoute("/$lang/user/$id", { component: Page }) }]
 	]);
 
 	it("combines the entries of the routes and skips the paths left with a hole", () => {
@@ -120,5 +131,16 @@ describe("pagesOf", () => {
 		expect(pages[0].head.title).toBe("Site");
 		expect(pages[2].head).toEqual({ title: "fr", meta: { "og:type": "website" }, link: {} });
 		expect(pages[4].head).toEqual({ title: "intro fr", meta: { "og:type": "website" }, link: { canonical: "/fr/docs/intro" } });
+	});
+});
+
+describe("defineRoute", () => {
+	it("returns a component that carries its config and keeps a component name once minified", () => {
+		const config = { component: Page, head: () => ({ title: "Site" }) };
+		const route = defineRoute("/", config);
+
+		expect(route.route).toBe(config);
+		expect(route.name).toBe("Route");
+		expect(route()).toMatchObject({ type: Page });
 	});
 });
