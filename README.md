@@ -19,6 +19,12 @@ A lightweight ZIP library fork designed for creating and reading ZIP files. Not
 specifically optimized for Minecraft, you can use it for any other purposes. It
 is used for reading Minecraft mod `.jar` files and `.zip` archives.
 
+### [@voxelio/router](./packages/router)
+
+File-based, fully inferred router for React and Vite, built on the Navigation
+API. Typed links, params and search, nested layouts, guards, and a Vite plugin
+that serves the pages directory and keeps React Fast Refresh on routes.
+
 ### [@voxelio/nbt](./packages/nbt)
 
 (In Another Repository. In Rust)

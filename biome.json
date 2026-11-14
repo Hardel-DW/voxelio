@@ -76,5 +76,17 @@
 				"organizeImports": "off"
 			}
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["packages/router/src/types.ts"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noEmptyInterface": "off"
+					}
+				}
+			}
+		}
+	]
 }
